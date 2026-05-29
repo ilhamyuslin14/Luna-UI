@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Primary Colors */
+  --color-primary-100: #eef7fd;
+  --color-primary-200: #cfeafc;
+  --color-primary-400: #43a5e4;
+  --color-primary-500: #0977be;
+  --color-primary-600: #0466a6;
+
+  /* Neutral Colors */
+  --color-neutral-white: #ffffff;
+  --color-neutral-100: #f9fafc;
+  --color-neutral-200: #f0f2f6;
+  --color-neutral-300: #e2e5ec;
+  --color-neutral-400: #cbd0db;
+  --color-neutral-500: #abb2c1;
+  --color-neutral-600: #7e8799;
+  --color-neutral-700: #555f71;
+  --color-neutral-800: #323b4d;
+  --color-neutral-900: #171e2c;
+
+  /* Fonts */
+  --font-family: 'Inter', sans-serif;
+
+  /* Spacing */
+  --sidebar-width: 240px;
+  --header-height: 58px;
+
+  /* Shadow */
+  --shadow-sm: 0px 4px 4px 0px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-900);
+  line-height: 1.5;
+  overflow: hidden; /* Header and Sidebar will handle layout */
+}
+
+/* Layout Grid */
+.app-container {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--header-height) 1fr;
+  height: 100vh;
+  width: 100vw;
+}
+
+header {
+  grid-area: header;
+  background-color: var(--color-neutral-white);
+  border-bottom: 1px solid var(--color-neutral-300);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 16px 9px 16px;
+  z-index: 100;
+}
+
+aside {
+  grid-area: sidebar;
+  background-color: var(--color-neutral-white);
+  border-right: 1px solid var(--color-neutral-300);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  overflow-y: auto;
+}
+
+main {
+  grid-area: main;
+  overflow-y: auto;
+  padding: 30px 40px;
+  background-color: #f9fafc;
+}
+
+/* Utilities */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+
+/* Text Utilities */
+.text-xs { font-size: 10px; }
+.text-sm { font-size: 12px; }
+.text-base { font-size: 14px; }
+.text-lg { font-size: 16px; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-neutral-500 { color: var(--color-neutral-500); }
+.text-neutral-600 { color: var(--color-neutral-600); }
+.text-primary-600 { color: var(--color-primary-600); }
+
+/* Transitions */
+a, button {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#content.no-padding {
+  padding: 0;
+  background-color: #f9fafc;
+}

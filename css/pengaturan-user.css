@@ -1,0 +1,252 @@
+/* Pengaturan User View Styles */
+.pu-view {
+    background-color: #f9fafc;
+    min-height: calc(100vh - 58px);
+    display: flex;
+    justify-content: center;
+    padding: 50px 40px 60px 40px;
+    box-sizing: border-box;
+}
+
+.pu-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 760px;
+    align-items: flex-start;
+    gap: 20px;
+    margin: 0 auto;
+}
+
+.pu-header-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.pu-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555f71;
+    transition: color 0.2s;
+}
+
+.pu-back-btn:hover {
+    color: #171e2c;
+}
+
+.pu-page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #171e2c;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.pu-action-bar {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: -4px;
+}
+
+.pu-search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #abb2c1;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.pu-search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #171e2c;
+    background: transparent;
+}
+
+.pu-search-box input::placeholder {
+    color: #abb2c1;
+}
+
+.pu-invite-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #0977be;
+    color: #fff;
+    border: none;
+    border-radius: 7.5px;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.pu-invite-btn:hover {
+    background: #075f98;
+}
+
+.pu-table-container {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e2e5ec;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.pu-table-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px 16px 20px;
+    border-bottom: 4px solid #f0f2f6;
+    background: #fff;
+}
+
+.pu-table-header > div {
+    font-size: 12px;
+    font-weight: 700;
+    color: #171e2c;
+}
+
+.pu-col-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pu-col-role {
+    width: 144px;
+    flex-shrink: 0;
+}
+
+.pu-col-status {
+    width: 210px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pu-table-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f2f6;
+    background: #fff;
+}
+
+.pu-table-row:last-child {
+    border-bottom: none;
+}
+
+.pu-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.pu-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pu-user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pu-user-name {
+    font-size: 12px;
+    font-weight: 400;
+    color: #171e2c;
+}
+
+.pu-badge-you {
+    background: #f0f2f6;
+    color: #7e8799;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.36px;
+}
+
+.pu-user-email {
+    font-size: 10px;
+    font-weight: 400;
+    color: #7e8799;
+}
+
+.pu-col-role {
+    font-size: 12px;
+    font-weight: 400;
+    color: #171e2c;
+}
+
+.pu-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 18px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-aktif {
+    background: #e5fcea;
+    color: #089f32;
+}
+
+.status-menunggu {
+    background: #fff7e6;
+    color: #f5a623;
+}
+
+.pu-delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #fff;
+    border: 1px solid #e2e5ec;
+    border-radius: 18px;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #323b4d;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    transition: background 0.2s;
+}
+
+.pu-delete-btn:hover {
+    background: #f9fafc;
+}

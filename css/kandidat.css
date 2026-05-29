@@ -1,0 +1,532 @@
+/* Halaman Kandidat CSS Styles - Isolated with kan- prefix */
+
+.kan-view {
+    background-color: #f9fafc;
+    height: calc(100vh - 58px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.kan-header-container {
+    background: url('/assets/frame_header_dept.png') no-repeat center;
+    background-size: cover;
+    border-bottom: 1px solid var(--color-neutral-300, #e2e5ec);
+    padding: 16px 20px 18px 20px;
+    width: 100%;
+}
+
+.kan-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #171e2c;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Actions Bar */
+.kan-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--color-neutral-300, #e2e5ec);
+    width: 100%;
+}
+
+.kan-left-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kan-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kan-btn-primary {
+    background-color: #0977be;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.kan-btn-primary:hover {
+    background-color: #0466a6;
+}
+
+.kan-stats-badge {
+    background-color: #eef7fd;
+    color: #0977be;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.kan-stats-badge strong {
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.kan-divider {
+    width: 1px;
+    height: 16px;
+    background-color: #cbd0db;
+    margin: 0 4px;
+}
+
+/* Bulk Action styles */
+.kan-bulk-container {
+    position: relative;
+    display: inline-block;
+}
+
+.kan-btn-bulk {
+    background: #0977be;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.kan-btn-bulk:hover {
+    background: #0466a6;
+}
+
+.kan-btn-bulk .chevron-down {
+    transition: transform 0.2s ease;
+}
+
+.kan-btn-bulk.active .chevron-down {
+    transform: rotate(180deg);
+}
+
+.kan-bulk-badge {
+    background-color: #14b541;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.kan-bulk-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e2e5ec;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
+    z-index: 1000;
+    min-width: 160px;
+    padding: 8px 10px;
+    flex-direction: column;
+    gap: 7px;
+    animation: kanSlideDown 0.15s ease-out;
+}
+
+.kan-bulk-dropdown.active {
+    display: flex;
+}
+
+
+
+.bulk-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    font-size: 10px;
+    color: #323b4d;
+    font-weight: 500;
+    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.bulk-dropdown-item:hover {
+    color: #0977be;
+}
+
+.kan-bulk-dropdown-divider {
+    height: 1px;
+    background-color: #e2e5ec;
+    width: 100%;
+}
+
+/* Filter Dropdown Container */
+.kan-filter-container {
+    position: relative;
+}
+
+.kan-filter-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 8px;
+    box-shadow: 0px 10px 30px rgba(23, 30, 44, 0.1);
+    z-index: 1000;
+    padding: 12px 16px;
+    animation: kanSlideDown 0.15s ease-out;
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.kan-filter-dropdown.active {
+    display: flex;
+}
+
+.kan-filter-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kan-filter-column.w-left {
+    min-width: 90px;
+}
+
+.kan-filter-column.w-right {
+    min-width: 120px;
+}
+
+.kan-filter-column-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #abb2c1;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kan-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.kan-filter-item label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #323b4d;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.kan-filter-checkbox {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #cbd0db;
+    border-radius: 3px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.kan-filter-divider-horizontal {
+    height: 1px;
+    background: #f0f2f6;
+    width: 100%;
+}
+
+.kan-filter-divider-horizontal-thick {
+    height: 1px;
+    background: #e2e5ec;
+    width: 100%;
+    margin: 6px 0;
+}
+
+.kan-filter-divider-vertical {
+    width: 1px;
+    background-color: #cbd0db;
+    align-self: stretch;
+}
+
+/* Filter Button styling */
+.kan-btn-filter {
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #171e2c;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    height: 40px;
+}
+
+.kan-btn-filter.active {
+    border-color: #0977be;
+    color: #0977be;
+    background: #f7fbfe;
+}
+
+@keyframes kanSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Table Section */
+.kan-table-container {
+    background: #f9fafc;
+    width: 100%;
+    flex: 1;
+    overflow: auto;
+}
+
+.kan-table {
+    width: 100%;
+    min-width: 1200px; /* Exact Figma width */
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.kan-table thead tr {
+    background: url('/assets/frame_table_header.png') no-repeat center;
+    background-size: cover;
+}
+
+.kan-table th {
+    background: transparent;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #171e2c;
+    border-bottom: 4px solid #f0f2f6;
+    white-space: nowrap;
+}
+
+.kan-table tbody tr {
+    background-color: #ffffff;
+}
+
+.kan-table td {
+    padding: 14px 20px;
+    font-size: 12px;
+    color: #171e2c;
+    border-bottom: 1px solid #f0f2f6;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.kan-table td.kan-name {
+    color: #0977be;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.kan-table td.kan-name:hover {
+    text-decoration: underline;
+}
+
+.kan-jabatan-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.kan-jabatan {
+    font-size: 12px;
+    color: #171e2c;
+    font-weight: 400;
+}
+
+.kan-periode {
+    font-size: 10px;
+    color: #7e8799;
+    font-weight: 400;
+}
+
+/* Aksi Buttons */
+.kan-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.kan-btn-outline {
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 18px;
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #323b4d;
+    cursor: pointer;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 25px;
+}
+
+.kan-btn-outline img {
+    width: 9px !important;
+    height: 9px !important;
+    object-fit: contain !important;
+}
+
+/* Pagination */
+.kan-pagination {
+    background: #ffffff;
+    border-top: 1px solid var(--color-neutral-300, #e2e5ec);
+    padding: 11px 20px 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 52px;
+}
+
+.kan-page-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kan-page-box {
+    background-color: #ffffff;
+    border: 1px solid var(--color-neutral-400, #cbd0db);
+    border-radius: 6px;
+    width: 34px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-neutral-900, #171e2c);
+    text-align: center;
+}
+
+.kan-page-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-neutral-900, #171e2c);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.kan-page-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-neutral-400, #cbd0db);
+    border-radius: 6px;
+    background-color: #ffffff;
+    height: 28px;
+    width: 54px;
+    overflow: hidden;
+}
+
+.kan-page-btn {
+    background: none;
+    border: none;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+
+.kan-page-btn img {
+    width: 14px !important;
+    height: 14px !important;
+    object-fit: contain !important;
+}
+
+.kan-page-btn.prev img {
+    opacity: 0.35;
+}
+
+.kan-page-btn.next img {
+    opacity: 1.0;
+}
+
+.kan-page-btn-divider {
+    width: 1px;
+    height: 16px;
+    background-color: #cbd0db;
+}
+
+/* Custom Checkboxes styling */
+.kan-checkbox, .kan-checkbox-all {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #abb2c1;
+    border-radius: 3px;
+    background-color: #ffffff;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.kan-checkbox:checked, .kan-checkbox-all:checked {
+    background-color: #14b541;
+    border-color: #14b541;
+}
+
+.kan-checkbox:checked::after, .kan-checkbox-all:checked::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 6px;
+    border: solid #ffffff;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 1px;
+}

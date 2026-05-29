@@ -1,0 +1,309 @@
+/* Riwayat Transaksi View Styles */
+.rt-view {
+  background-color: #f9fafc;
+  min-height: calc(100vh - 58px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 60px;
+  box-sizing: border-box;
+}
+
+.rt-header {
+  text-align: left;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  max-width: 1080px;
+}
+
+.rt-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  color: #171e2c;
+  margin: 0;
+}
+
+.rt-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #323b4d;
+  margin: 0;
+}
+
+.rt-content-wrapper {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Filter */
+.rt-filter-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.rt-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #7e8799;
+}
+
+.rt-filter-box {
+  background: white;
+  border: 1px solid #e2e5ec;
+  border-radius: 16px;
+  height: 26px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #171e2c;
+  cursor: pointer;
+}
+
+/* Table */
+.rt-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rt-thead {
+  background: white;
+  border: 1px solid #e2e5ec;
+  border-radius: 10px 10px 0 0;
+  height: 44px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: #a5afc0;
+  margin-bottom: -1px;
+}
+
+.rt-tbody {
+  display: flex;
+  flex-direction: column;
+}
+
+.rt-tr {
+  background: white;
+  border: 1px solid #e2e5ec;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  /* FIXED: from flex-start to center */
+  margin-bottom: -1px;
+}
+
+.rt-th,
+.rt-td {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Columns */
+.rt-col-invoice {
+  width: 258px;
+  flex-shrink: 0;
+}
+
+.rt-col-plan {
+  width: 232px;
+  flex-shrink: 0;
+}
+
+.rt-col-date {
+  width: 159px;
+  flex-shrink: 0;
+}
+
+.rt-col-amount {
+  width: 147px;
+  flex-shrink: 0;
+}
+
+.rt-col-status {
+  width: 143px;
+  flex-shrink: 0;
+}
+
+.rt-col-action {
+  width: 76px;
+  flex-shrink: 0;
+}
+
+/* FIXED: removed flex: 1 */
+
+.rt-inv-id {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #171e2c;
+  margin-bottom: 2px;
+}
+
+.rt-inv-method {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  color: #abb2c1;
+}
+
+.rt-plan-name,
+.rt-date-text,
+.rt-amount-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #171e2c;
+}
+
+.rt-plan-name {
+  font-weight: 700;
+}
+
+.rt-date-text {
+  font-weight: 400;
+}
+
+.rt-amount-text {
+  font-weight: 700;
+}
+
+.rt-status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rt-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.rt-menunggu {
+  color: #fd800c;
+}
+
+.rt-verifikasi {
+  color: #ffae00;
+}
+
+.rt-lunas {
+  color: #089f32;
+}
+
+.rt-btn-bayar {
+  background-color: #089f32;
+  color: white;
+  border: none;
+  border-radius: 26px;
+  height: 23px;
+  width: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rt-btn-invoice {
+  background-color: #f0f2f6;
+  color: #323b4d;
+  border: none;
+  border-radius: 26px;
+  height: 23px;
+  width: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rt-tfoot {
+  background: white;
+  border: 1px solid #e2e5ec;
+  border-radius: 0 0 10px 10px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.rt-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rt-page-box {
+  background: white;
+  border: 1px solid #cbd0db;
+  border-radius: 6px;
+  width: 34px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #171e2c;
+  box-sizing: border-box;
+}
+
+.rt-page-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #171e2c;
+}
+
+.rt-page-arrows {
+  width: 53.67px;
+  height: 28px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rt-page-arrows svg {
+  position: absolute;
+  top: -3.5px;
+  left: -2px;
+  width: 58px;
+  height: 35px;
+}

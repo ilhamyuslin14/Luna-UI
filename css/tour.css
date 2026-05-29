@@ -1,0 +1,178 @@
+/* Product Tour Styles V3 */
+
+.tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    pointer-events: all;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+/* Spotlight Effect */
+#tour-spotlight {
+    position: fixed;
+    z-index: 9997;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(11, 23, 41, 0.7); /* Deep blue-tinted dark overlay */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    border: 2px solid #44a1ec; /* Highlight border */
+}
+
+/* Special case for centered intro step */
+#tour-spotlight.centered {
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    box-shadow: 0 0 0 9999px rgba(11, 23, 41, 0.85); /* Slightly darker for intro */
+}
+
+/* Tooltip Card */
+.tour-tooltip {
+    position: fixed;
+    z-index: 9999;
+    width: 340px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.tour-tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Centered Tooltip logic */
+.tour-tooltip[data-pos="center"] {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+.tour-tooltip[data-pos="center"] .tour-arrow { display: none; }
+
+.tour-tooltip-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tour-tooltip-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #171e2c;
+    margin: 0;
+}
+
+.tour-tooltip-desc {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555f71;
+    line-height: 1.6;
+}
+
+.tour-tooltip-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.tour-progress {
+    font-size: 12px;
+    font-weight: 600;
+    color: #abb2c1;
+}
+
+.tour-actions-left {
+    display: flex;
+    gap: 8px;
+}
+
+.tour-actions-right {
+    display: flex;
+    gap: 12px;
+}
+
+.tour-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.tour-btn-skip {
+    background: #f4f6fa;
+    color: #7e8799;
+}
+
+.tour-btn-back {
+    background: transparent;
+    color: #abb2c1;
+    padding: 8px 0;
+    margin-right: 12px;
+}
+
+.tour-btn-back:hover {
+    color: #7e8799;
+}
+
+.tour-btn-next {
+    background: #0977be;
+    color: #ffffff;
+}
+
+.tour-btn-next:hover {
+    background: #0466a6;
+}
+
+/* Arrow for tooltip */
+.tour-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.tour-tooltip[data-pos="bottom"] .tour-arrow {
+    top: -8px;
+    left: 30px;
+    border-width: 0 8px 8px 8px;
+    border-color: transparent transparent #ffffff transparent;
+}
+
+.tour-tooltip[data-pos="top"] .tour-arrow {
+    bottom: -8px;
+    left: 30px;
+    border-width: 8px 8px 0 8px;
+    border-color: #ffffff transparent transparent transparent;
+}
+
+.tour-tooltip[data-pos="right"] .tour-arrow {
+    left: -8px;
+    top: 30px;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent #ffffff transparent transparent;
+}
+
+.tour-tooltip[data-pos="left"] .tour-arrow {
+    right: -8px;
+    top: 30px;
+    border-width: 8px 0 8px 8px;
+    border-color: transparent transparent transparent #ffffff;
+}

@@ -1,0 +1,366 @@
+/* Bantuan View Styles */
+
+.bantuan-view {
+    background-color: #f9fafc;
+    height: calc(100vh - 58px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.bantuan-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 1050px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+/* Header Banner */
+.bantuan-header-container {
+    background: linear-gradient(52.54deg, #02306c 35.84%, #1153a9 99.55%);
+    border-radius: 18px;
+    width: 100%;
+    height: 206px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 90px 20px 40px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+
+
+.bh-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 553px;
+    position: relative;
+    z-index: 1;
+}
+
+.bh-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.bh-desc {
+    font-size: 14px;
+    font-weight: 400;
+    color: #f0f2f6;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.bh-benefit {
+    display: flex;
+    flex-direction: column;
+    width: 182px;
+    position: relative;
+    z-index: 1;
+}
+
+.bh-benefit-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bh-benefit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.bh-benefit-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #f7f8fa;
+}
+
+/* Cards Container */
+.bantuan-cards-container {
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    width: 100%;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.bantuan-card {
+    background: #ffffff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info-card {
+    border: 1px solid #e8eef6;
+    box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+    flex: 1 1 590px;
+    padding: 21px 26px 28px 26px;
+}
+
+.form-kendala-card {
+    background: #eef7fd;
+    border: 1px solid #89ccf6;
+    box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+    flex: 1 1 446px;
+    padding: 22px 24px;
+}
+
+.bc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.bc-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bc-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #171e2c;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.bc-title.blue {
+    color: #0466a6;
+}
+
+.bc-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid #e2e5ec;
+    border-radius: 30px;
+    padding: 6px 14px;
+    height: 28px;
+    font-size: 12px;
+    color: #171e2c;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.bc-edit-btn:hover {
+    background: #f4f6fa;
+}
+
+/* User Info Rows */
+.bc-rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.bc-row {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    width: 100%;
+}
+
+.bc-field {
+    display: flex;
+    flex: 1 1 0px;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bc-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #7e8799;
+}
+
+.bc-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #171e2c;
+    word-break: break-word;
+}
+
+/* Form Styles */
+.form-header {
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.bc-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.bcf-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bcf-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #171e2c;
+    display: flex;
+    gap: 2px;
+}
+
+.text-red {
+    color: #d41518;
+}
+
+.bcf-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bcf-select {
+    width: 100%;
+    height: 32px;
+    appearance: none;
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 8px;
+    padding: 0 32px 0 10px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: #171e2c;
+    cursor: pointer;
+}
+
+.bcf-select:invalid, .bcf-select option[value=""] {
+    color: #abb2c1;
+}
+
+.bcf-select-wrapper .chevron-down {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+    color: #abb2c1;
+}
+
+.bcf-textarea {
+    width: 100%;
+    height: 148px;
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: #171e2c;
+    resize: none;
+}
+
+.bcf-textarea::placeholder {
+    color: #abb2c1;
+}
+
+.bcf-submit-btn {
+    background: #035388;
+    color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.2s;
+}
+
+.bcf-submit-btn:hover {
+    background: #02436d;
+}
+
+/* Success State Styles */
+.success-state {
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.success-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.success-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #171e2c;
+    margin: 0;
+}
+
+.success-desc {
+    font-size: 12px;
+    color: #323b4d;
+    text-align: center;
+    margin: 0 0 4px 0;
+    line-height: 1.5;
+}
+
+.success-time {
+    font-size: 11px;
+    font-style: italic;
+    color: #7e8799;
+    text-align: center;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+.success-state .bcf-submit-btn {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .bantuan-header-container {
+        flex-direction: column;
+        height: auto;
+        padding: 30px;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    .bh-content {
+        width: 100%;
+    }
+}

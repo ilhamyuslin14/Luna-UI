@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Asset Viewer</title>
+    <style>
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 20px; }
+        .item { border: 1px solid #ccc; padding: 10px; text-align: center; }
+        .item img { max-width: 50px; max-height: 50px; border: 1px solid #eee; }
+        .name { font-size: 10px; margin-top: 5px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="grid" id="grid"></div>
+    <script>
+        const assets = [
+            'ellipse45.svg', 'ellipse46.svg', 'fi1004765.svg', 'fi3114812.svg',
+            'fi8799819.svg', 'fi8799820.svg', 'fi_16116710.svg', 'frame1000006975.svg',
+            'group.svg', 'group1.svg', 'group1000006025.svg', 'group1000006043.svg',
+            'group2.svg', 'group3.svg', 'group4.svg', 'group5.svg', 'group6.svg',
+            'layer1.svg', 'layer2.svg', 'line240.svg', 'line241.svg', 'line242.svg',
+            'line243.svg', 'line244.svg', 'vector.svg', 'vector1.svg', 'vector2.svg',
+            'vector3.svg', 'vector4.svg', 'vector5.svg', 'vector6.svg', 'vector7.svg'
+        ];
+        const grid = document.getElementById('grid');
+        assets.forEach(asset => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <img src="/assets/${asset}" alt="${asset}">
+                <div class="name">${asset}</div>
+            `;
+            grid.appendChild(div);
+        });
+    </script>
+</body>
+</html>

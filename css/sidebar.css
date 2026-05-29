@@ -1,0 +1,233 @@
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Plan Card */
+.plan-card {
+  /* Frame 1000006692 from Figma */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  gap: 16px;
+  isolation: isolate;
+
+  width: 100%;
+  height: auto;
+
+  background: linear-gradient(214.85deg, #1873CD 10.61%, #0950AE 82.65%);
+  border-radius: 14px;
+  
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-bg-ellipse {
+  position: absolute;
+  height: 266.376px;
+  left: -136px;
+  top: -31px;
+  width: 328px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.plan-header {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.plan-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #44a1ec;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.plan-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.plan-expiry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.plan-stats {
+  z-index: 1;
+  width: 100%;
+  border-top: 0.8px solid rgba(255, 255, 255, 0.2);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.stat-value span:last-child {
+  color: #79a0d3;
+}
+
+.progress-bar {
+  height: 3px;
+  background: #ffffff;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-primary-400);
+  border-radius: 2px;
+}
+
+.upgrade-btn {
+  background: var(--color-neutral-200);
+  border: none;
+  border-radius: 26px;
+  height: 32px;
+  width: 100%;
+  color: var(--color-primary-600);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.upgrade-btn:hover {
+  background: var(--color-neutral-white);
+  transform: translateY(-1px);
+}
+
+/* Sidebar Menu */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-neutral-500);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  padding-left: 8px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-neutral-800);
+}
+
+.menu-item img {
+  width: 16px;
+  height: 16px;
+}
+
+.menu-item:hover {
+  background-color: var(--color-neutral-200);
+}
+
+.menu-item.active {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-600);
+}
+
+.menu-item.active img {
+  filter: invert(29%) sepia(89%) saturate(1636%) hue-rotate(182deg) brightness(92%) contrast(98%);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.sidebar-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-neutral-600);
+}
+
+.sidebar-footer-item svg {
+  color: var(--color-neutral-600);
+  width: 15px;
+  height: 15px;
+  transition: color 0.2s ease-in-out;
+}
+
+.sidebar-footer-item:hover {
+  background-color: var(--color-neutral-200);
+  color: var(--color-neutral-800);
+}
+
+.sidebar-footer-item:hover svg {
+  color: var(--color-neutral-800);
+}
+
+.menu-icon-svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-neutral-800);
+  transition: stroke 0.2s ease-in-out;
+}
+
+.menu-item:hover .menu-icon-svg {
+  stroke: var(--color-neutral-800);
+}
+
+.menu-item.active .menu-icon-svg {
+  stroke: var(--color-primary-600);
+}
