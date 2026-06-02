@@ -33,6 +33,7 @@ const ChevronDown = () => (
 export default function KandidatSeleksi({ back, navigate, kandidat }) {
   const [rows, setRows]               = useState(INITIAL_DATA);
   const [showFilter, setShowFilter]   = useState(false);
+  const [activeFilters, setActiveFilters] = useState(new Set());
   const [openAlurRow, setOpenAlurRow] = useState(null);
   const [scorePanel, setScorePanel]   = useState(null);
 
@@ -40,6 +41,15 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
     nama: kandidat?.nama || row.posisi,
     skor: { level: row.fit, score: row.skor },
   });
+
+  const toggleFilter = (s) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(s)) next.delete(s);
+      else next.add(s);
+      return next;
+    });
+  };
 
   const updateAlur = (id, stage) => {
     setRows(prev => prev.map(r => r.id === id ? { ...r, alur: stage } : r));
@@ -68,24 +78,24 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
 
         <div className="ks-filter-container">
           <button
-            className={`kan-btn-filter${showFilter ? ' active' : ''}`}
+            className={`kan-btn-filter${(showFilter || activeFilters.size > 0) ? ' active' : ''}`}
             onClick={(e) => { e.stopPropagation(); setShowFilter(v => !v); }}
           >
             <FilterIcon /> Filter
           </button>
 
           {showFilter && (
-            <div className="kan-filter-dropdown active">
-              {/* Skor */}
+            <div className="kan-filter-dropdown active" onClick={e => e.stopPropagation()}>
+              {/* Penilaian */}
               <div className="kan-filter-column w-left">
-                <span className="kan-filter-column-title">Skor</span>
-                {['High Fit', 'Moderate Fit', 'Low Fit'].map(s => (
+                <span className="kan-filter-column-title">Penilaian</span>
+                {['High Fit', 'Moderate Fit', 'Low Fit'].map((s) => (
                   <div key={s}>
-                    <div className="kan-filter-item">
-                      <input type="checkbox" className="kan-filter-checkbox" />
+                    <div className="kan-filter-item" style={{ padding: '6px 0' }}>
+                      <input type="checkbox" className="kan-filter-checkbox" checked={activeFilters.has(s)} onChange={() => toggleFilter(s)} />
                       <label>{s}</label>
                     </div>
-                    <div className="kan-filter-divider-horizontal" />
+                    <div className="kan-filter-divider-horizontal" style={{ margin: '2px 0' }} />
                   </div>
                 ))}
               </div>
@@ -95,13 +105,13 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
               {/* Alur Seleksi */}
               <div className="kan-filter-column w-right">
                 <span className="kan-filter-column-title">Alur Seleksi</span>
-                {ALUR_STAGES.map(s => (
+                {ALUR_STAGES.map((s) => (
                   <div key={s}>
-                    <div className="kan-filter-item">
-                      <input type="checkbox" className="kan-filter-checkbox" />
+                    <div className="kan-filter-item" style={{ padding: '6px 0' }}>
+                      <input type="checkbox" className="kan-filter-checkbox" checked={activeFilters.has(s)} onChange={() => toggleFilter(s)} />
                       <label>{s}</label>
                     </div>
-                    <div className="kan-filter-divider-horizontal" />
+                    <div className="kan-filter-divider-horizontal" style={{ margin: '2px 0' }} />
                   </div>
                 ))}
               </div>
@@ -116,7 +126,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
         <div className="ks-table-head">
           <div className="ks-col-posisi">Posisi</div>
           <div className="ks-col-alur">Alur Seleksi</div>
-          <div className="ks-col-skor">Skor</div>
+          <div className="ks-col-skor">Penilaian</div>
           <div className="ks-col-action" />
         </div>
 
@@ -125,7 +135,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
           return (
             <div className="ks-table-row" key={row.id}>
               <div className="ks-col-posisi">
-                <span className="ks-posisi-link">{row.posisi}</span>
+                <span className="ks-posisi-link" onClick={() => navigate?.('seleksi-detail', { jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
               </div>
 
               <div className="ks-col-alur">
@@ -172,6 +182,27 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
             </div>
           );
         })}
+      </div>
+      <div className="lw-pagination" style={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12px', color: '#555f71', fontWeight: 500 }}>Tampilkan</span>
+          <select style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd0db', outline: 'none', color: '#171e2c', fontSize: '12px', background: '#fff', cursor: 'pointer' }}>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span style={{ fontSize: '12px', color: '#555f71', fontWeight: 500 }}>data</span>
+        </div>
+        <div className="lw-page-container">
+          <div className="lw-page-box">1</div>
+          <span className="lw-page-text">dari 3</span>
+          <div className="lw-page-controls">
+            <button className="lw-page-btn prev"><img src="/assets/line244.svg" alt="Prev" /></button>
+            <div className="lw-page-btn-divider"></div>
+            <button className="lw-page-btn next"><img src="/assets/line242.svg" alt="Next" /></button>
+          </div>
+        </div>
       </div>
       {scorePanel && <KandidatPenilaian kandidat={scorePanel} onClose={() => setScorePanel(null)} />}
     </div>

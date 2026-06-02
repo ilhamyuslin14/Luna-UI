@@ -1,3 +1,5 @@
+import React, { useState, useRef } from 'react';
+
 const CRITERIA_DATA = {
   high: [
     { level: 'high',     name: 'Talent Acquisition Experience', desc: 'Candidate has 6 years of experience in human capital and recruitment roles' },
@@ -54,12 +56,39 @@ const IconRefresh = () => (
   </svg>
 );
 
-const Tip = ({ text, children }) => (
-  <span className="sc-tip-wrap">
-    {children}
-    <span className="sc-tip">{text}</span>
-  </span>
-);
+const Tip = ({ text, children }) => {
+  const [position, setPosition] = useState('bottom');
+  const [align, setAlign] = useState('center');
+  const wrapRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (!wrapRef.current) return;
+    const rect = wrapRef.current.getBoundingClientRect();
+    
+    // Deteksi vertikal
+    if (rect.bottom + 80 > window.innerHeight) {
+      setPosition('top');
+    } else {
+      setPosition('bottom');
+    }
+
+    // Deteksi horizontal
+    if (rect.left < 150) {
+      setAlign('left');
+    } else if (window.innerWidth - rect.right < 150) {
+      setAlign('right');
+    } else {
+      setAlign('center');
+    }
+  };
+
+  return (
+    <span className="sc-tip-wrap" ref={wrapRef} onMouseEnter={handleMouseEnter}>
+      {children}
+      <span className={`sc-tip ${position} align-${align}`}>{text}</span>
+    </span>
+  );
+};
 
 /**
  * Props:
@@ -67,24 +96,32 @@ const Tip = ({ text, children }) => (
  *   onClose   — function
  */
 export default function KandidatPenilaian({ kandidat, onClose }) {
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => onClose(), 300);
+  };
+
   const criteria = CRITERIA_DATA[kandidat.skor.level] || [];
   const countByLevel = (lvl) => criteria.filter(c => c.level === lvl).length;
   const gaugeColor = GAUGE_COLORS[kandidat.skor.level];
-  const levelText = { high: 'High', moderate: 'Moderate', low: 'Low' }[kandidat.skor.level];
+  const levelText = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah' }[kandidat.skor.level];
 
   const r = 33;
   const circumference = 2 * Math.PI * r;
   const filled = (kandidat.skor.score / 100) * circumference;
 
   return (
-    <div className="sc-overlay" onClick={onClose}>
-      <div className="sc-panel" onClick={e => e.stopPropagation()}>
+    <div className={`sc-overlay${isClosing ? ' closing' : ''}`} onClick={handleClose}>
+      <div className={`sc-panel${isClosing ? ' closing' : ''}`} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="sc-header">
           <div className="sc-header-tag">
             <IconSpark />
-            AI Match Overview
+            Hasil Penilaian AI
           </div>
           <div className="sc-header-name">{kandidat.nama}</div>
         </div>
@@ -104,7 +141,7 @@ export default function KandidatPenilaian({ kandidat, onClose }) {
                 <circle cx="43" cy="43" r="27" fill="white" />
               </svg>
               <div className="sc-gauge-center">
-                <span className="sc-gauge-total-label">TOTAL SCORE</span>
+                <span className="sc-gauge-total-label">TOTAL SKOR</span>
                 <span className="sc-gauge-score" style={{ color: gaugeColor }}>{kandidat.skor.score}</span>
                 <span className="sc-gauge-level-text" style={{ color: gaugeColor }}>{levelText}</span>
               </div>
@@ -121,7 +158,7 @@ export default function KandidatPenilaian({ kandidat, onClose }) {
           <div className="sc-ai-summary">
             <div className="sc-ai-title">
               <IconSpark color="#171e2c" size={11} />
-              AI Summary
+              Rangkuman AI
             </div>
             <p className="sc-ai-text">{AI_SUMMARY[kandidat.skor.level]}</p>
           </div>
@@ -131,9 +168,9 @@ export default function KandidatPenilaian({ kandidat, onClose }) {
         <div className="sc-criteria-section">
           <div className="sc-criteria-col-header">
             <div className="sc-criteria-col-rating">
-              Rating <Tip text="AI menilai kesesuaian kandidat berdasarkan kriteria penilaian yang ditetapkan"><IconInfo /></Tip>
+              Penilaian <Tip text="AI menilai kesesuaian kandidat berdasarkan kriteria penilaian yang ditetapkan"><IconInfo /></Tip>
             </div>
-            <div className="sc-criteria-col-req">Requirements</div>
+            <div className="sc-criteria-col-req">Kriteria</div>
           </div>
           <div className="sc-criteria-list">
             {criteria.map((c, i) => (
@@ -155,12 +192,13 @@ export default function KandidatPenilaian({ kandidat, onClose }) {
 
         {/* Footer */}
         <div className="sc-footer">
-          <button className="sc-btn-reassess">
-            <IconRefresh />
-            Penilaian Ulang
-            <Tip text="Minta Luna AI menilai ulang kandidat ini berdasarkan kriteria terbaru"><IconInfo /></Tip>
-          </button>
-          <button className="sc-btn-close" onClick={onClose}>Close</button>
+          <Tip text="Minta Luna AI menilai ulang kandidat ini berdasarkan kriteria terbaru">
+            <button className="sc-btn-reassess">
+              <IconRefresh />
+              Penilaian Ulang
+            </button>
+          </Tip>
+          <button className="sc-btn-close" onClick={handleClose}>Tutup</button>
         </div>
       </div>
     </div>

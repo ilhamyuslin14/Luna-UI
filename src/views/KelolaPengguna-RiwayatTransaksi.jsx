@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function RiwayatTransaksi({ navigate }) {
+  const [filterStatus, setFilterStatus] = useState('Semua');
   const invoices = [
     { 
       id: 1,
@@ -31,6 +32,10 @@ export default function RiwayatTransaksi({ navigate }) {
     }
   ];
 
+  const filteredInvoices = invoices.filter(inv => 
+    filterStatus === 'Semua' ? true : inv.status === filterStatus
+  );
+
   return (
     <div className="rt-view">
       <div className="rt-header">
@@ -46,9 +51,31 @@ export default function RiwayatTransaksi({ navigate }) {
             </svg>
             <span>Filter:</span>
           </div>
-          <div className="rt-filter-box">
-            <span>Semua Status</span>
-            <svg width="7" height="4" viewBox="0 0 7 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="rt-filter-box" style={{ position: 'relative' }}>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{
+                appearance: 'none',
+                background: 'transparent',
+                border: 'none',
+                width: '100%',
+                height: '100%',
+                outline: 'none',
+                cursor: 'pointer',
+                fontFamily: 'Inter',
+                fontSize: '12px',
+                color: '#171e2c',
+                paddingRight: '14px',
+                fontWeight: '400'
+              }}
+            >
+              <option value="Semua">Semua Status</option>
+              <option value="Menunggu">Menunggu</option>
+              <option value="Sedang Verifikasi">Sedang Verifikasi</option>
+              <option value="Lunas">Lunas</option>
+            </select>
+            <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="7" height="4" viewBox="0 0 7 4" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3.49999 4C3.37453 4 3.2491 3.95198 3.15345 3.85614L0.143599 0.838878C-0.0478664 0.646942 -0.0478664 0.335751 0.143599 0.143893C0.334987 -0.0479645 0.645354 -0.0479645 0.836835 0.143893L3.49999 2.81374L6.16316 0.143987C6.35462 -0.0478713 6.66496 -0.0478713 6.85633 0.143987C7.04789 0.335845 7.04789 0.647035 6.85633 0.838971L3.84653 3.85624C3.75083 3.95209 3.6254 4 3.49999 4Z" fill="#171E2C"/>
             </svg>
           </div>
@@ -65,8 +92,18 @@ export default function RiwayatTransaksi({ navigate }) {
           </div>
           
           <div className="rt-tbody">
-            {invoices.map((inv, idx) => (
-              <div key={inv.id} className={`rt-tr ${idx === invoices.length - 1 ? 'rt-tr-last' : ''}`}>
+            {filteredInvoices.map((inv, idx) => (
+              <div 
+                key={inv.id} 
+                className={`rt-tr ${idx === filteredInvoices.length - 1 ? 'rt-tr-last' : ''}`}
+                onClick={() => {
+                  if (inv.status === 'Menunggu' || inv.status === 'Sedang Verifikasi') {
+                    navigate('menunggu-pembayaran');
+                  } else if (inv.status === 'Lunas') {
+                    navigate('pembayaran-berhasil');
+                  }
+                }}
+              >
                 <div className="rt-td rt-col-invoice">
                   <div className="rt-inv-id">{inv.invoice}</div>
                   <div className="rt-inv-method">{inv.method}</div>
@@ -147,31 +184,16 @@ export default function RiwayatTransaksi({ navigate }) {
               <div className="rt-page-box">1</div>
               <span className="rt-page-text">dari 3</span>
               <div className="rt-page-arrows">
-                <svg width="58" height="35" viewBox="0 0 58 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g filter="url(#filter0_dd_3145_241315)">
-                    <rect x="5.1875" y="2.5" width="47.6673" height="22" rx="4" fill="white"/>
-                    <rect x="5.6875" y="3" width="46.6673" height="21" rx="3.5" stroke="#E2E5EC"/>
-                  </g>
-                  <path d="M25.0225 10.1654C24.8975 10.0404 24.6975 10.0404 24.5725 10.1654L21.3975 13.3404C21.3058 13.432 21.3058 13.5654 21.3975 13.657L24.5725 16.832C24.6975 16.957 24.8975 16.957 25.0225 16.832C25.1475 16.707 25.1475 16.507 25.0225 16.382L22.1808 13.4987L25.0225 10.6154C25.1475 10.4987 25.1475 10.282 25.0225 10.1654Z" fill="#CBD0DB"/>
-                  <path d="M33.0225 10.1654C32.8975 10.0404 32.6975 10.0404 32.5725 10.1654L29.3975 13.3404C29.3058 13.432 29.3058 13.5654 29.3975 13.657L32.5725 16.832C32.6975 16.957 32.8975 16.957 33.0225 16.832C33.1475 16.707 33.1475 16.507 33.0225 16.382L30.1808 13.4987L33.0225 10.6154C33.1475 10.4987 33.1475 10.282 33.0225 10.1654Z" fill="#171E2C"/>
-                  <line x1="29.0205" y1="3" x2="29.0205" y2="24" stroke="#E2E5EC"/>
-                  <defs>
-                    <filter id="filter0_dd_3145_241315" x="0.1875" y="0.5" width="57.6673" height="34" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-                      <feFlood floodOpacity="0" result="BackgroundImageFix"/>
-                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                      <feOffset dy="1"/>
-                      <feGaussianBlur stdDeviation="1"/>
-                      <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.06 0"/>
-                      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3145_241315"/>
-                      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                      <feOffset dy="5"/>
-                      <feGaussianBlur stdDeviation="2.5"/>
-                      <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.04 0"/>
-                      <feBlend mode="normal" in2="effect1_dropShadow_3145_241315" result="effect2_dropShadow_3145_241315"/>
-                      <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_3145_241315" result="shape"/>
-                    </filter>
-                  </defs>
-                </svg>
+                <button className="rt-page-arrow-btn" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD0DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button className="rt-page-arrow-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#171E2C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>

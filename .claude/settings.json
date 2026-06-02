@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sips /tmp/lp-v4.png --cropOffset 1100 0 -c 1000 1280 --out /tmp/why_section_v4.png)",
+      "Bash(sips /tmp/lp-v4b.png -g pixelHeight -g pixelWidth)",
+      "Bash(sips /tmp/lp-v4b.png --cropOffset 1700 0 -c 240 1280 --out /tmp/why_bottom.png)",
+      "Bash(sips /tmp/lp-v5.png -g pixelHeight)",
+      "Bash(sips /tmp/lp-v5.png --cropOffset 1100 0 -c 1200 1280 --out /tmp/why_v5.png)",
+      "Bash(sips /tmp/lp-v6.png --cropOffset 1100 0 -c 1000 1280 --out /tmp/why_v6.png)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/5d33353c-2618-4b12-b60b-dd49f65b6ae2\" -o lp-masuk-bg.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/ce7de5a1-1453-460b-ae7e-dcb8aa25b368\" -o lp-masuk-logo.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/b8410766-4729-4fc4-a044-e38fb6ca4ad0\" -o lp-masuk-dot.svg)",
+      "Bash(sips /tmp/lpm-screen.png -g pixelHeight -g pixelWidth)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/6da57a2f-4c55-4946-b26d-4d2deecf1c79\" -o /tmp/figma-masuk.png)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/2517f6a5-0044-4e96-8aba-59dc05f764a0\" -o lp-daftar-pwbar.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/42d52c37-1b2b-45e1-89c3-ac5ed79d3b3f\" -o lp-otp-wa-icon.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/1831b1a0-cc42-4623-bd34-88368c84e515\" -o lp-otp-info-icon.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/29e04ae9-8f39-4029-85d8-cb94e4753f9b\" -o lp-otp-back-arrow.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/232fef07-5b8a-4713-b23a-f72bd4a7a9a4\" -o lp-otp-separator.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/6256a5dd-b1d7-436a-959b-450057c30ff7\" -o lp-otp-spinner.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/68c1cf0c-ea5d-49f8-83e4-15ed4642796b\" -o lp-lupa-lock.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/de8cf0ba-978a-4437-b846-e8c017fac004\" -o lp-lupa-arrow.svg)",
+      "Bash(curl -sL \"https://www.figma.com/api/mcp/asset/6c178c9e-ada0-4ea1-84df-5923191bf571\" -o /tmp/figma-otp-step1.png)",
+      "Bash(node --input-type=module)",
+      "Bash(sed -i '' 's/\\\\.lw-bulk-dropdown {/\\\\.lw-bulk-dropdown {\\\\n    min-width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi.css)",
+      "Bash(sed -i '' 's/\\\\.kan-bulk-dropdown {/\\\\.kan-bulk-dropdown {\\\\n    min-width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/kandidat.css)",
+      "Bash(sed -i '' 's/\\\\.sdk-bulk-dropdown {/\\\\.sdk-bulk-dropdown {\\\\n  min-width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi-detail.css)",
+      "Bash(sed -i '' 's/^    min-width: 100%;$/    width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi.css)",
+      "Bash(sed -i '' 's/^    min-width: 100%;$/    width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/kandidat.css)",
+      "Bash(sed -i '' 's/^  min-width: 100%;$/  width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi-detail.css)",
+      "Bash(sed -i '' 's/    min-width: 100%;/    width: 100%;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/departemen.css)",
+      "Bash(sed -i '' 's/    min-width: 160px;/    box-sizing: border-box;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi.css)",
+      "Bash(sed -i '' 's/    min-width: 160px;/    box-sizing: border-box;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/kandidat.css)",
+      "Bash(sed -i '' 's/  min-width: 160px;/  box-sizing: border-box;/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/css/seleksi-detail.css)",
+      "Bash(sed -i '' 's/onClick={\\(\\) => setShowBulkDropdown\\(v => !v\\)}/onClick={\\(\\) => { setShowFilterDropdown\\(false\\); setShowBulkDropdown\\(v => !v\\); }}/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/Kandidat.jsx)",
+      "Bash(sed -i '' 's/onClick={\\(\\) => setShowFilterDropdown\\(v => !v\\)}/onClick={\\(\\) => { setShowBulkDropdown\\(false\\); setShowFilterDropdown\\(v => !v\\); }}/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/Kandidat.jsx)",
+      "Bash(sed -i '' 's/onClick={\\(\\) => setShowBulkDropdown\\(v => !v\\)}/onClick={\\(\\) => { setShowFilterDropdown\\(false\\); setShowBulkDropdown\\(v => !v\\); }}/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/Departemen.jsx)",
+      "Bash(sed -i '' 's/onClick={\\(\\) => setShowFilterDropdown\\(v => !v\\)}/onClick={\\(\\) => { setShowBulkDropdown\\(false\\); setShowFilterDropdown\\(v => !v\\); }}/' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/Departemen.jsx)"
+    ]
+  }
+}

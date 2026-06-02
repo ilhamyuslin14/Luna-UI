@@ -2,83 +2,85 @@ import { useState, useRef } from 'react';
 
 const CalendarIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-    <rect x="1.5" y="3" width="15" height="13.5" rx="1.5" stroke="#abb2c1" strokeWidth="1.2"/>
-    <path d="M1.5 7.5h15" stroke="#abb2c1" strokeWidth="1.2"/>
-    <path d="M6 1.5v3M12 1.5v3" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
+    <rect x="1.5" y="3" width="15" height="13.5" rx="1.5" stroke="#abb2c1" strokeWidth="1.2" />
+    <path d="M1.5 7.5h15" stroke="#abb2c1" strokeWidth="1.2" />
+    <path d="M6 1.5v3M12 1.5v3" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
   </svg>
 );
 
 const ChevronIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const SpinnerIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M7 2.5V4.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M7 9.5V11.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M2.5 7H4.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M9.5 7H11.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M4.1 4.1L5.5 5.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M8.5 8.5L9.9 9.9" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M9.9 4.1L8.5 5.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M5.5 8.5L4.1 9.9" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round"/>
+    <path d="M7 2.5V4.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M7 9.5V11.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M2.5 7H4.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M9.5 7H11.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M4.1 4.1L5.5 5.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M8.5 8.5L9.9 9.9" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M9.9 4.1L8.5 5.5" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M5.5 8.5L4.1 9.9" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" />
   </svg>
 );
 
-const TOOLBAR_ITEMS = [
-  { title: 'Bold', icon: <strong style={{ fontSize: 13, fontFamily: 'Georgia, serif' }}>B</strong> },
-  { title: 'Italic', icon: <em style={{ fontSize: 13, fontFamily: 'Georgia, serif' }}>I</em> },
-  { title: 'Underline', icon: <span style={{ textDecoration: 'underline', fontSize: 12 }}>U</span> },
-  { title: 'Code', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-    </svg>
-  )},
-  { title: 'Heading', icon: <span style={{ fontSize: 11, fontWeight: 700 }}>H1</span> },
-  { title: 'Quote', icon: (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
-      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-    </svg>
-  )},
-  { title: 'Ordered List', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
-      <path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>
-    </svg>
-  )},
-  { title: 'Bullet List', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
-      <circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/>
-      <circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/>
-      <circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/>
-    </svg>
-  )},
-  { title: 'Align Left', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/>
-    </svg>
-  )},
-  { title: 'Align Center', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="21" y1="6" x2="3" y2="6"/><line x1="17" y1="12" x2="7" y2="12"/><line x1="19" y1="18" x2="5" y2="18"/>
-    </svg>
-  )},
-  { title: 'Align Right', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="7" y2="18"/>
-    </svg>
-  )},
-  { title: 'Justify', icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/>
-    </svg>
-  )},
-];
+// ── Toolbar icon helpers ────────────────────────────────────────
+const IcOrderedList = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <line x1="5" y1="2.5" x2="13" y2="2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="8.5" x2="13" y2="8.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <rect x="0.5" y="0.5" width="2.5" height="4" rx="0.4" stroke="currentColor" strokeWidth="0.8"/>
+    <path d="M0.5 8.5h1.5c.55 0 1 .45 1 1s-.45 1-1 1H0.5" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
+const IcUnorderedList = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <circle cx="1.5" cy="2.5" r="1.3" fill="currentColor"/>
+    <circle cx="1.5" cy="8.5" r="1.3" fill="currentColor"/>
+    <line x1="5" y1="2.5" x2="13" y2="2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="8.5" x2="13" y2="8.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
+const IcAlignLeft = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <line x1="0" y1="1" x2="13" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="4" x2="8" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="10" x2="8" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
+const IcAlignCenter = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <line x1="0" y1="1" x2="13" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="2.5" y1="4" x2="10.5" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="2.5" y1="10" x2="10.5" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
+const IcAlignRight = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <line x1="0" y1="1" x2="13" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="4" x2="13" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="10" x2="13" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
+
+const IcAlignJustify = () => (
+  <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+    <line x1="0" y1="1" x2="13" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="4" x2="13" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="0" y1="10" x2="13" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
 
 export default function SetupPenilaian({ navigate }) {
   const fileInputRef = useRef(null);
@@ -138,8 +140,8 @@ export default function SetupPenilaian({ navigate }) {
         <div className="sp-header-left">
           <div className="sp-header-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="4" y="2" width="16" height="20" rx="2" stroke="#0977be" strokeWidth="1.8"/>
-              <path d="M8 7h8M8 11h8M8 15h5" stroke="#0977be" strokeWidth="1.8" strokeLinecap="round"/>
+              <rect x="4" y="2" width="16" height="20" rx="2" stroke="#0977be" strokeWidth="1.8" />
+              <path d="M8 7h8M8 11h8M8 15h5" stroke="#0977be" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </div>
           <div className="sp-header-text">
@@ -237,8 +239,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-field sp-field-160">
               <label className="sp-label">Jumlah Rekrut (Orang) <span className="sp-req">*</span></label>
               <div className="sp-spinner-wrapper">
-                <input className="sp-input sp-input-center" type="number" min="1" placeholder="—" value={form.jumlahRekrut} onChange={set('jumlahRekrut')} />
-                <span className="sp-spinner-icon"><SpinnerIcon /></span>
+                <input className="sp-input" type="number" min="1" placeholder="—" value={form.jumlahRekrut} onChange={set('jumlahRekrut')} />
               </div>
             </div>
           </div>
@@ -321,8 +322,7 @@ export default function SetupPenilaian({ navigate }) {
           <div className="sp-field">
             <label className="sp-label">Minimal Pengalaman Kerja (Tahun) <span className="sp-req">*</span></label>
             <div className="sp-spinner-wrapper">
-              <input className="sp-input sp-input-center" type="number" min="0" placeholder="—" value={form.pengalaman} onChange={set('pengalaman')} />
-              <span className="sp-spinner-icon"><SpinnerIcon /></span>
+              <input className="sp-input" type="number" min="0" placeholder="—" value={form.pengalaman} onChange={set('pengalaman')} />
             </div>
           </div>
 
@@ -330,12 +330,25 @@ export default function SetupPenilaian({ navigate }) {
           <div className="sp-field sp-field-grow">
             <label className="sp-label">Deskripsi Pekerjaan dan Rincian Syarat &amp; Kualifikasi <span className="sp-req">*</span></label>
             <div className="sp-editor">
-              <div className="sp-toolbar">
-                {TOOLBAR_ITEMS.map((item) => (
-                  <button key={item.title} className="sp-toolbar-btn" title={item.title} type="button">
-                    {item.icon}
-                  </button>
-                ))}
+              <div className="sd-deskripsi-toolbar" style={{ borderRadius: '10px 10px 0 0', border: '1px solid #d1d5dc' }}>
+                <select className="sd-deskripsi-style-select" defaultValue="p">
+                  <option value="p">Body</option>
+                  <option value="h1">H1</option>
+                  <option value="h2">H2</option>
+                  <option value="h3">H3</option>
+                </select>
+                <span className="sd-deskripsi-toolbar-sep" />
+                <button className="sd-deskripsi-toolbar-btn" title="Bold" type="button"><b>B</b></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Italic" type="button"><i>I</i></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Underline" type="button"><u>U</u></button>
+                <span className="sd-deskripsi-toolbar-sep" />
+                <button className="sd-deskripsi-toolbar-btn" title="Ordered List" type="button"><IcOrderedList /></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Unordered List" type="button"><IcUnorderedList /></button>
+                <span className="sd-deskripsi-toolbar-sep" />
+                <button className="sd-deskripsi-toolbar-btn" title="Align Left" type="button"><IcAlignLeft /></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Align Center" type="button"><IcAlignCenter /></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Align Right" type="button"><IcAlignRight /></button>
+                <button className="sd-deskripsi-toolbar-btn" title="Justify" type="button"><IcAlignJustify /></button>
               </div>
               <textarea
                 className="sp-editor-area"

@@ -202,12 +202,12 @@
   background: white;
   border: 1px solid var(--color-neutral-300);
   border-radius: 12px;
-  overflow: hidden;
 }
 
 .kd-card-header {
   background: white;
   border-bottom: 1px solid var(--color-neutral-200);
+  border-radius: 12px 12px 0 0;
   height: 43px;
   display: flex;
   align-items: center;
@@ -517,4 +517,855 @@
 
 .kd-read-more:hover {
   color: var(--color-primary-600);
+}
+
+/* ── Tambahkan ke Posisi Modal ─────────────────────────── */
+.kd-posisi-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.kd-posisi-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 10px rgba(0,0,0,0.08);
+  width: 442px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.kd-posisi-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #555f71;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.kd-posisi-close:hover { background: #f4f6fa; }
+
+.kd-posisi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 29px 28px;
+  overflow-y: auto;
+}
+
+.kd-posisi-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.3;
+  padding-right: 20px;
+}
+
+/* Search */
+.kd-posisi-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kd-posisi-search {
+  width: 100%;
+  height: 39px;
+  border: 1px solid #d4d9e6;
+  border-radius: 8px;
+  padding: 0 36px 0 14px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #171e2c;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.kd-posisi-search:focus {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+}
+
+.kd-posisi-search::placeholder { color: #abb2c1; }
+
+.kd-posisi-search-icon {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+}
+
+/* Results */
+.kd-posisi-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kd-posisi-count {
+  font-size: 10px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+.kd-posisi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.kd-posisi-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 8px;
+  padding: 10px 12px 11px;
+  transition: border-color 0.15s;
+}
+
+.kd-posisi-item:hover { border-color: #d4d9e6; }
+
+.kd-posisi-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd-posisi-item-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #0977be;
+  line-height: 1.5;
+}
+
+.kd-posisi-item-dept {
+  font-size: 10px;
+  font-weight: 400;
+  color: #555f71;
+  line-height: 1.5;
+}
+
+.kd-posisi-tambah-btn {
+  background: #fff;
+  border: 0.889px solid #cbd0db;
+  border-radius: 8px;
+  padding: 6px 14px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #171e2c;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.kd-posisi-tambah-btn:hover:not(:disabled) {
+  background: #eef7fd;
+  border-color: #0977be;
+  color: #0977be;
+}
+
+.kd-posisi-tambah-done {
+  background: #edfcf2;
+  border-color: #3cd266;
+  color: #089f32;
+  cursor: default;
+}
+
+.kd-posisi-empty {
+  font-size: 12px;
+  color: #abb2c1;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Toast notification ─────────────────────────────────── */
+.kd-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 99999;
+  background: #fff;
+  border: 1px solid #e2e5ec;
+  border-left: 4px solid #14b541;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 340px;
+  max-width: 480px;
+  animation: kd-toast-in 0.3s ease;
+}
+
+@keyframes kd-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.kd-toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.kd-toast-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd-toast-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #171e2c;
+  line-height: 1.4;
+}
+
+.kd-toast-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+.kd-toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #555f71;
+  transition: background 0.15s;
+}
+
+.kd-toast-close:hover { background: #f4f6fa; }
+
+/* ── Penilaian AI hover effect ──────────────────────────── */
+.kd-ai-row--hoverable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.kd-ai-row--hoverable:hover {
+  background: #f4f7fb;
+}
+
+.kd-ai-row--hoverable:hover .kd-detail-penilaian-btn {
+  border-color: #0977be;
+  color: #0977be;
+}
+
+/* ── Keahlian section ───────────────────────────────────── */
+.kd-keahlian-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.kd-keahlian-header {
+  background: #fff;
+  border-bottom: 1px solid #f0f2f6;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.kd-keahlian-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #abb2c1;
+  letter-spacing: 0.65px;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.kd-keahlian-body {
+  padding: 14px 20px 21px;
+}
+
+.kd-keahlian-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 6px;
+  align-items: center;
+}
+
+/* Skill tag — Figma: bg #eef7fd, text #0466a6, h-26, rounded-26px */
+.kd-skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eef7fd;
+  height: 26px;
+  border-radius: 26px;
+  padding: 0 12px;
+  transition: background 0.15s;
+}
+
+.kd-skill-tag:hover {
+  background: #d9eef9;
+}
+
+.kd-skill-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #0466a6;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.kd-skill-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.kd-skill-remove:hover { opacity: 1; }
+
+/* Add button — blue gradient circle 26px */
+/* Wrapper input+button agar tetap satu baris saat flex-wrap */
+.kd-skill-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.kd-skill-add-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(197.3deg, #1d8fd8 16.34%, #0977be 88.78%);
+  box-shadow: 0 2px 2px rgba(11,23,43,0.05);
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.kd-skill-add-btn:hover { opacity: 0.85; }
+
+/* Inline input for adding skill */
+/* Inline skill input — styled seperti tag putih di Figma */
+.kd-skill-inline-input {
+  height: 26px;
+  border: 1px solid #cbd0db;
+  border-radius: 26px;
+  padding: 0 12px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  font-family: inherit;
+  outline: none;
+  width: 170px;
+  flex-shrink: 1;
+  line-height: 26px;
+  transition: border-color 0.15s;
+}
+
+.kd-skill-inline-input:focus {
+  border-color: #0977be;
+}
+
+.kd-skill-inline-input::placeholder { color: #abb2c1; }
+
+/* ── Edit: remove button on exp/edu items ── */
+.kd-exp-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.kd-exp-remove-btn:hover { background: #fff3f3; }
+
+/* ── Edit: add entry form (pengalaman & pendidikan) ── */
+.kd-add-entry-form {
+  padding: 8px 20px 12px;
+  border-top: 1px solid #f0f2f6;
+}
+
+.kd-add-entry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px dashed #cbd0db;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0977be;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kd-add-entry-btn:hover {
+  border-color: #0977be;
+  background: #f4fafe;
+}
+
+.kd-entry-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kd-entry-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── Entry form inputs (Figma style: h-30px border #d4d9e6 rounded-7px) ── */
+.kd-entry-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.kd-entry-input:focus {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.08);
+}
+
+.kd-entry-input::placeholder { color: #abb2c1; }
+
+.kd-entry-date-row {
+  display: flex;
+  gap: 6px;
+}
+
+.kd-entry-date {
+  flex: 1;
+}
+
+/* Rich text editor in entry form */
+.kd-entry-editor {
+  min-height: 93px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.kd-entry-editor .sd-deskripsi-editable {
+  min-height: 70px;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.kd-exp-desc-editor {
+  min-height: 70px;
+}
+
+/* Delete button — trash icon, pastel rose */
+.kd-exp-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  color: #e09090;
+  transition: background 0.15s, color 0.15s;
+}
+
+.kd-exp-remove-btn:hover {
+  background: #fff0f0;
+  color: #c0504a;
+}
+
+/* Skill field input (regular input style, not inline tag) */
+.kd-skill-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 8px;
+}
+
+.kd-skill-field-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.kd-skill-field-input:focus {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.08);
+}
+
+.kd-skill-field-input::placeholder { color: #abb2c1; }
+
+/* ── Education redesign (Figma 484:9797) ── */
+.kd-edu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px 21px;
+}
+
+/* Form card (add / inline edit) — bg #fbfcfe border #eff1f5 rounded-12px */
+.kd-edu-form-card {
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 12px;
+  padding: 15px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Input style from Figma: h-30 border #d4d9e6 rounded-7px p-10px */
+.kd-edu-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.kd-edu-input:focus { border-color: #0977be; }
+.kd-edu-input::placeholder { color: #abb2c1; }
+
+/* Degree select wrapper with chevron */
+.kd-edu-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kd-edu-select-wrap .kd-edu-input {
+  padding-right: 28px;
+}
+
+.kd-edu-select-chevron {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+}
+
+/* Display item card */
+.kd-edu-item {
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 12px;
+  padding: 10px 8px 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kd-edu-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.kd-edu-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.kd-edu-item-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+/* 3-dot menu */
+.kd-three-dot-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.kd-three-dot-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.kd-three-dot-btn:hover { background: #f0f2f6; }
+
+.kd-three-dot-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #fff;
+  border: 1px solid #e2e5ec;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 120px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.kd-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.kd-menu-item:hover { background: #f7f8fa; }
+
+.kd-menu-item--danger { color: #c0504a; }
+.kd-menu-item--danger:hover { background: #fff0f0; }
+
+/* ── Date input with calendar icon ── */
+/* ── Date field: icon + hint text inside the box ── */
+.kd-date-field {
+  position: relative;
+  flex: 1;
+  height: 30px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.kd-date-field:focus-within {
+  border-color: #0977be;
+}
+
+/* Native input: invisible, covers full area for click/calendar */
+.kd-date-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+/* Visual display layer: hint text + icon */
+.kd-date-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  pointer-events: none;
+}
+
+.kd-date-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #abb2c1;
+  white-space: nowrap;
+}
+
+.kd-date-val {
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+}
+
+/* ── Exp item description display ── */
+.kd-exp-item {
+  align-items: flex-start;
+}
+
+.kd-exp-desc-display {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd-exp-desc-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.kd-exp-desc-collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kd-read-more {
+  font-size: 10px;
+  font-weight: 500;
+  color: #0977be;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+
+/* ── Bullet-point inputs for exp description ── */
+.kd-bullets-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kd-bullet-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kd-bullet-dot {
+  font-size: 14px;
+  color: #abb2c1;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.kd-bullet-input {
+  flex: 1;
+}
+
+.kd-bullet-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.kd-bullet-remove:hover { background: #f0f2f6; }
+
+.kd-bullet-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: 1px dashed #cbd0db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0977be;
+  font-family: inherit;
+  padding: 7px 14px;
+  margin-top: 2px;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kd-bullet-add:hover {
+  border-color: #0977be;
+  background: #f4fafe;
 }

@@ -224,6 +224,10 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
   const kriteriaSnapshot = useRef(null);
   const nextKriteriaId = useRef(11);
 
+  // Inline add state
+  const [inlineAddKey, setInlineAddKey] = useState(null);
+  const [inlineAddValue, setInlineAddValue] = useState('');
+
   const set = (key, val) => setFormData(prev => ({ ...prev, [key]: val }));
 
   const handleCancel = () => {
@@ -262,9 +266,31 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
 
     // ── View mode ──
     if (!isEditing) {
+      if (inlineAddKey === field.key) {
+        return (
+          <div style={{ width: '285px', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type={field.type === 'date' ? 'date' : 'text'}
+              className={`sd-detail-input ${field.type === 'date' ? 'sd-detail-input--date' : ''}`}
+              value={inlineAddValue}
+              onChange={e => setInlineAddValue(e.target.value)}
+              placeholder="Tambahkan data"
+              autoFocus
+              style={{ flex: 1, minWidth: 0, width: '100%', margin: 0, height: '32px' }}
+            />
+            <button onClick={() => setInlineAddKey(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Batal">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 10.5L10.5 3.5M3.5 3.5l7 7"/></svg>
+            </button>
+            <button onClick={() => { set(field.key, inlineAddValue); setInlineAddKey(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Simpan">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#28a745" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.8 7l2.8 2.8 5.6-5.6"/></svg>
+            </button>
+          </div>
+        );
+      }
+
       if (field.type === 'add' && !val) {
         return (
-          <span className="sd-detail-value add-data">
+          <span className="sd-detail-value add-data" style={{ cursor: 'pointer' }} onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}>
             Tambahkan data
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
               <circle cx="8.5" cy="8.5" r="7.5" stroke="#0977be" strokeWidth="1"/>
@@ -276,7 +302,23 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
       if (field.type === 'date') {
         return <span className="sd-detail-value">{formatDateDisplay(val)}</span>;
       }
-      return <span className="sd-detail-value">{val}</span>;
+      return (
+        <span className="sd-detail-value">
+          {val || (
+            <span
+              className="sd-detail-value add-data"
+              style={{ cursor: 'pointer', gap: 4 }}
+              onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}
+            >
+              Tambahkan data
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style={{ marginLeft: 4 }}>
+                <circle cx="8.5" cy="8.5" r="7.5" stroke="#0977be" strokeWidth="1"/>
+                <path d="M8.5 5.5v6M5.5 8.5h6" stroke="#0977be" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            </span>
+          )}
+        </span>
+      );
     }
 
     // ── Edit mode ──

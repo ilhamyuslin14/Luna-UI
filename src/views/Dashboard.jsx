@@ -1,13 +1,14 @@
 import { useState } from 'react';
 
 export default function Dashboard({ navigate }) {
-  const [npsVisible, setNpsVisible] = useState(true);
+  const [npsState, setNpsState] = useState('popup');
   const [npsScore, setNpsScore] = useState(null);
+  const [npsText, setNpsText] = useState('');
   const [npsSubmitted, setNpsSubmitted] = useState(false);
 
   const handleNpsSubmit = () => {
     setNpsSubmitted(true);
-    setTimeout(() => setNpsVisible(false), 1000);
+    setTimeout(() => setNpsState('hidden'), 1500);
   };
 
   return (
@@ -128,7 +129,7 @@ export default function Dashboard({ navigate }) {
                 { posisi: 'VP of Finance', dept: 'Finance' },
                 { posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
               ].map((row, i) => (
-                <div className="db-row" key={i} style={{ cursor: 'pointer' }} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
+                <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
                   <div>{row.posisi}</div>
                   <div>{row.dept}</div>
                   <div><span className="db-cv-badge">12 CV</span></div>
@@ -169,39 +170,72 @@ export default function Dashboard({ navigate }) {
             </div>
           </div>
 
-          {/* NPS Widget */}
-          {npsVisible && (
+          {/* NPS — popup */}
+          {npsState === 'popup' && (
             <div className="nps-card">
-              <button className="nps-close-btn" onClick={() => setNpsVisible(false)}>
+              <button className="nps-close-btn" onClick={() => setNpsState('widget')}>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="1" y1="1" x2="11" y2="11"></line>
-                  <line x1="11" y1="1" x2="1" y2="11"></line>
+                  <line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" />
                 </svg>
               </button>
-              <p className="nps-title">Bagaimana kualitas analisa dan scoring kandidat dari LUNA menurut Anda?</p>
-              <div className="nps-scores-container">
-                <div className="nps-scores-row">
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
+
+              {npsScore === null ? (
+                <>
+                  <p className="nps-title">Bagaimana kualitas analisa dan scoring kandidat dari LUNA menurut Anda?</p>
+                  <div className="nps-scores-container">
+                    <div className="nps-scores-row">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                        <button key={n} className="nps-score-btn" onClick={() => setNpsScore(n)}>{n}</button>
+                      ))}
+                    </div>
+                    <div className="nps-labels-row">
+                      <span>SANGAT BURUK</span><span>SANGAT BAIK</span>
+                    </div>
+                  </div>
+                  <button className="nps-submit-btn" disabled>Pilih Skor Dulu</button>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                     <button
-                      key={n}
-                      className={`nps-score-btn${npsScore === n ? ' active' : ''}`}
-                      onClick={() => setNpsScore(n)}
-                    >{n}</button>
-                  ))}
-                </div>
-                <div className="nps-labels-row">
-                  <span>SANGAT BURUK</span>
-                  <span>SANGAT BAIK</span>
-                </div>
-              </div>
-              <button
-                className="nps-submit-btn"
-                disabled={!npsScore || npsSubmitted}
-                onClick={handleNpsSubmit}
-              >
-                {npsSubmitted ? 'Terkirim!' : npsScore ? 'Kirim Feedback' : 'Pilih Skor Dulu'}
-              </button>
+                      onClick={() => setNpsScore(null)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0 0 0', color: '#abb2c1', display: 'flex' }}
+                      title="Pilih Ulang Skor"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                      </svg>
+                    </button>
+                    <p className="nps-title" style={{ paddingRight: 0 }}>Ada hal yang perlu kami tingkatkan?</p>
+                  </div>
+                  <textarea
+                    className="nps-feedback-text"
+                    placeholder="Tulis saran Anda di sini..."
+                    value={npsText}
+                    onChange={(e) => {
+                      setNpsText(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
+                    rows={2}
+                  />
+                  <button className="nps-submit-btn" disabled={npsSubmitted} onClick={handleNpsSubmit}>
+                    {npsSubmitted ? 'Terkirim! ✓' : 'Kirim Feedback'}
+                  </button>
+                </>
+              )}
             </div>
+          )}
+
+          {/* NPS — collapsed widget */}
+          {npsState === 'widget' && (
+            <button className="nps-widget" onClick={() => setNpsState('popup')}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Beri Penilaian</span>
+            </button>
           )}
         </div>
       </div>

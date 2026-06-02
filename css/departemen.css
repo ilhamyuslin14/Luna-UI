@@ -99,22 +99,38 @@
 
 .dept-btn-filter {
     background: #ffffff;
-    border: 1px solid #cbd0db;
+    border: none;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 600;
-    color: #171e2c;
+    color: #a0a7b5;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.dept-btn-filter:hover {
+    background: #f4f6fa;
+    color: #555f71;
 }
 
 .dept-btn-filter img {
     width: 14px !important;
     height: 14px !important;
     object-fit: contain !important;
+    filter: brightness(0) saturate(100%) invert(75%) sepia(8%) saturate(478%) hue-rotate(182deg) brightness(88%) contrast(86%) !important;
+}
+
+.dept-btn-filter.active {
+    color: #0977be;
+    background: #f7fbfe;
+}
+
+.dept-btn-filter.active img {
+    filter: brightness(0) saturate(100%) invert(32%) sepia(81%) saturate(2326%) hue-rotate(183deg) brightness(91%) contrast(91%) !important;
 }
 
 .dept-view-toggle {
@@ -179,6 +195,11 @@
 
 .dept-table tbody tr {
     background-color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.dept-table tbody tr:hover {
+    background-color: #f7f9fc;
 }
 
 .dept-table td {
@@ -202,15 +223,16 @@
     background: #ffffff;
     border: 1px solid #e2e5ec;
     border-radius: 18px;
-    padding: 4px 12px;
+    padding: 6px 14px;
     font-size: 10px;
     font-weight: 500;
     color: #323b4d;
     cursor: pointer;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    height: 25px;
 }
 
 .dept-btn-outline img {
@@ -386,23 +408,17 @@
 }
 
 /* Dropdowns positioning & styles */
-.dept-filter-dropdown, .dept-bulk-dropdown {
+.dept-bulk-dropdown {
     display: none;
     position: absolute;
     top: calc(100% + 6px);
-    right: 0;
     background: #ffffff;
     border: 1px solid #e2e5ec;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
     z-index: 1000;
-    min-width: 160px;
+    width: 100%;
     animation: slideDown 0.15s ease-out;
-}
-
-/* Filter dropdown: block layout with own item padding */
-.dept-filter-dropdown {
-    padding: 6px 0;
 }
 
 /* Bulk action dropdown: flex-column with gap, padding di container */
@@ -414,8 +430,80 @@
     gap: 7px;
 }
 
+.dept-bulk-dropdown.active {
+    display: flex;
+}
+
+/* Filter dropdown styling (Match with Seleksi) */
+.dept-filter-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 8px;
+    box-shadow: 0px 10px 30px rgba(23, 30, 44, 0.1);
+    z-index: 1000;
+    padding: 12px 16px;
+    animation: slideDown 0.15s ease-out;
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-start;
+}
+
 .dept-filter-dropdown.active {
-    display: block;
+    display: flex;
+}
+
+.dept-filter-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dept-filter-column.w-status {
+    width: 65px;
+    min-width: 65px;
+}
+
+.dept-filter-column-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #abb2c1;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dept-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.dept-filter-item label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #323b4d;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.dept-filter-checkbox {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #cbd0db;
+    border-radius: 3px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.dept-filter-divider-horizontal {
+    height: 1px;
+    background: #f0f2f6;
+    width: 100%;
 }
 
 .dept-bulk-dropdown.active {

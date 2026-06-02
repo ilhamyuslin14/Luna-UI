@@ -1,0 +1,498 @@
+/* =========================================================
+   Menunggu Pembayaran — css/menunggu-pembayaran.css
+   ========================================================= */
+
+.mp-page-wrapper {
+    background-color: #f9fafc;
+    width: 100%;
+    min-height: calc(100vh - 60px); /* Assuming header is 60px */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+}
+
+.mp-card {
+    background: #ffffff;
+    border: 1px solid #e8eef6;
+    box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+    border-radius: 20px;
+    width: 550px;
+    padding: 24px 26px 20px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+/* Header & Timer */
+.mp-header-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.mp-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #171e2c;
+    margin: 0;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.mp-subtitle-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.mp-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #171e2c;
+    margin: 0;
+}
+
+.mp-timer-box {
+    background: #f7f8fa;
+    border-radius: 20px;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mp-timer-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #171e2c;
+    margin: 0;
+}
+
+/* Total Transfer Block */
+.mp-total-box {
+    background: #f6fcff;
+    border: 1px solid #89ccf6;
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mp-total-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #0466a6;
+    margin: 0;
+}
+
+.mp-amount-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mp-amount {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: #171e2c;
+    margin: 0;
+}
+
+.mp-amount-orange {
+    color: #e46002;
+}
+
+.mp-copy-icon {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.mp-warning-box {
+    background: #e9f5fc;
+    border-radius: 20px;
+    padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mp-warning-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: #323b4d;
+    margin: 0;
+}
+
+/* Bank Details Block */
+.mp-bank-box {
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    border-radius: 10px;
+    padding: 8px 14px 8px 11px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mp-bank-left {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+}
+
+.mp-bank-logo-wrap {
+    background: #f7f8fa;
+    border-radius: 5px;
+    width: 60px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mp-bank-logo {
+    width: 48px;
+}
+
+.mp-bank-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.mp-bank-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    margin: 0;
+}
+
+.mp-bank-holder {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #323b4d;
+    margin: 0;
+}
+
+.mp-bank-divider {
+    width: 1px;
+    height: 37px;
+    background: #e2e5ec;
+}
+
+.mp-bank-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.mp-acc-number {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #323b4d;
+    margin: 0;
+}
+
+/* Petunjuk Pembayaran */
+.mp-instructions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.mp-instructions-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #323b4d;
+    margin: 0;
+}
+
+.mp-instructions-list {
+    margin: 0;
+    padding-left: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    line-height: 1.8;
+    list-style-type: decimal;
+    list-style-position: outside;
+}
+
+/* Rincian Pesanan */
+.mp-details {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+}
+
+.mp-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mp-details-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #555f71;
+    margin: 0;
+}
+
+.mp-details-body {
+    border-top: 1px solid #e2e5ec;
+    border-bottom: 1px solid #e2e5ec;
+    padding: 12px 0 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mp-details-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mp-details-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    margin: 0;
+}
+
+.mp-details-value {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #171e2c;
+    margin: 0;
+}
+
+.mp-details-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+}
+
+.mp-details-total-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #555f71;
+    margin: 0;
+}
+
+.mp-details-total-value {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #171e2c;
+    margin: 0;
+}
+
+/* Actions */
+.mp-actions {
+    display: flex;
+    gap: 7px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.mp-btn-secondary {
+    flex: 1;
+    background: #f7f8fa;
+    border: 1px solid #e2e5ec;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 39px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #171e2c;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.mp-btn-secondary:hover {
+    background: #eef2f6;
+}
+
+.mp-btn-primary {
+    flex: 1;
+    background: #0977be;
+    border: none;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 39px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.mp-btn-primary:hover {
+    background: #0866a3;
+}
+
+.mp-upload-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    text-align: center;
+    margin-top: 16px;
+}
+
+.mp-upload-link-action {
+    color: #0977be;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.mp-upload-link-action:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   Modal Popup Styles
+   ========================================================= */
+.mp-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(23, 30, 44, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.mp-modal-box {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 8px 16px rgba(5, 49, 96, 0.1);
+    box-sizing: border-box;
+}
+
+.mp-modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.mp-modal-icon.uploading {
+    background-color: #cfeafc;
+    color: #0977be;
+}
+
+.mp-modal-icon.success {
+    background-color: #baf8ca;
+    color: #089f32;
+}
+
+.mp-modal-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #171e2c;
+    margin: 0 0 8px 0;
+    text-align: center;
+}
+
+.mp-modal-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #555f71;
+    margin: 0 0 20px 0;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.mp-progress-container {
+    width: 100%;
+    height: 6px;
+    background-color: #e2e5ec;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.mp-progress-fill {
+    height: 100%;
+    background-color: #0977be;
+    transition: width 0.2s ease;
+}
+
+.mp-progress-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #0977be;
+}
+
+.mp-modal-btn {
+    width: 100%;
+    height: 39px;
+    background-color: #0977be;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.mp-modal-btn:hover {
+    background-color: #0866a3;
+}

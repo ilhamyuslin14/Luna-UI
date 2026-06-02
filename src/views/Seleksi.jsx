@@ -41,7 +41,17 @@ export default function Seleksi({ navigate }) {
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(new Set());
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
+
+  const toggleFilter = (s) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(s)) next.delete(s);
+      else next.add(s);
+      return next;
+    });
+  };
   const [archiveModal, setArchiveModal] = useState(null); // { title, body, onConfirm }
   const [boardColumns, setBoardColumns] = useState(INITIAL_BOARD);
   const [collapsedCols, setCollapsedCols] = useState(new Set());
@@ -79,7 +89,9 @@ export default function Seleksi({ navigate }) {
     });
   };
 
-  const handleDragStart = (colKey, cardIdx) => {
+  const handleDragStart = (e, colKey, cardIdx) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', `${colKey}-${cardIdx}`);
     draggedCard.current = { colKey, cardIdx };
     draggedFromCol.current = colKey;
   };
@@ -143,7 +155,7 @@ export default function Seleksi({ navigate }) {
         <div className="lw-divider"></div>
         {!boardMode && selectedRows.size > 0 && (
           <div className="lw-bulk-container">
-            <button className={`lw-btn-bulk${showBulkDropdown ? ' active' : ''}`} onClick={() => setShowBulkDropdown(v => !v)}>
+            <button className={`lw-btn-bulk${showBulkDropdown ? ' active' : ''}`} onClick={() => { setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}>
               <div className="lw-bulk-badge" style={{ marginRight: 8 }}>{selectedRows.size}</div> Pilih Aksi
               <svg className="chevron-down" width="8" height="6" viewBox="0 0 10 6" fill="none" style={{ marginLeft: 4 }}>
                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -151,7 +163,7 @@ export default function Seleksi({ navigate }) {
             </button>
             {showBulkDropdown && (
               <div className="lw-bulk-dropdown active">
-                <a href="#" className="bulk-dropdown-item" onClick={(e) => { e.preventDefault(); handleArchive(); }}>
+                <a href="#" className="bulk-dropdown-item" style={{ padding: '6px 0' }} onClick={(e) => { e.preventDefault(); handleArchive(); }}>
                   <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>
                   Arsipkan
                 </a>
@@ -160,27 +172,27 @@ export default function Seleksi({ navigate }) {
           </div>
         )}
         <div className="lw-filter-container">
-          <button className={`lw-btn-filter${showFilterDropdown ? ' active' : ''}`} onClick={() => setShowFilterDropdown(v => !v)}>
+          <button className={`lw-btn-filter${(showFilterDropdown || activeFilters.size > 0) ? ' active' : ''}`} onClick={() => { setShowBulkDropdown(false); setShowFilterDropdown(v => !v); }}>
             <img src="/assets/line240.svg" /> Filter
           </button>
           {showFilterDropdown && (
-            <div className="lw-filter-dropdown active">
+            <div className="lw-filter-dropdown active" onClick={e => e.stopPropagation()}>
               <div className="lw-filter-column w-status">
                 <span className="lw-filter-column-title">Status</span>
-                {['Aktif', 'Arsip'].map(s => (
+                {['Aktif', 'Arsip'].map((s) => (
                   <div key={s}>
-                    <div className="lw-filter-item"><input type="checkbox" className="lw-filter-checkbox" /><label>{s}</label></div>
-                    <div className="lw-filter-divider-horizontal"></div>
+                    <div className="lw-filter-item" style={{ padding: '6px 0' }}><input type="checkbox" className="lw-filter-checkbox" checked={activeFilters.has(s)} onChange={() => toggleFilter(s)} /><label>{s}</label></div>
+                    <div className="lw-filter-divider-horizontal" style={{ margin: '2px 0' }}></div>
                   </div>
                 ))}
               </div>
               <div className="lw-filter-divider-vertical"></div>
               <div className="lw-filter-column w-alur">
                 <span className="lw-filter-column-title">Alur Seleksi</span>
-                {['Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima'].map(s => (
+                {['Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima'].map((s) => (
                   <div key={s}>
-                    <div className="lw-filter-item"><input type="checkbox" className="lw-filter-checkbox" /><label>{s}</label></div>
-                    <div className="lw-filter-divider-horizontal"></div>
+                    <div className="lw-filter-item" style={{ padding: '6px 0' }}><input type="checkbox" className="lw-filter-checkbox" checked={activeFilters.has(s)} onChange={() => toggleFilter(s)} /><label>{s}</label></div>
+                    <div className="lw-filter-divider-horizontal" style={{ margin: '2px 0' }}></div>
                   </div>
                 ))}
               </div>
@@ -200,7 +212,17 @@ export default function Seleksi({ navigate }) {
   );
 
   const Pagination = () => (
-    <div className="lw-pagination">
+    <div className="lw-pagination" style={{ justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '12px', color: '#555f71', fontWeight: 500 }}>Tampilkan</span>
+        <select style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd0db', outline: 'none', color: '#171e2c', fontSize: '12px', background: '#fff', cursor: 'pointer' }}>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span style={{ fontSize: '12px', color: '#555f71', fontWeight: 500 }}>data</span>
+      </div>
       <div className="lw-page-container">
         <div className="lw-page-box">1</div>
         <span className="lw-page-text">dari 3</span>
@@ -225,7 +247,7 @@ export default function Seleksi({ navigate }) {
         <h1 className="lw-title">Seleksi</h1>
       </div>
 
-      <ActionsBar boardMode={isBoardView} />
+      {ActionsBar({ boardMode: isBoardView })}
 
       {isBoardView ? (
         <div className="lw-board-container">
@@ -247,23 +269,22 @@ export default function Seleksi({ navigate }) {
                     </button>
                   </div>
                   {!collapsed && (
-                    <div
-                      className={`lw-board-col-cards${dragOverCol === colKey ? ' drag-over' : ''}`}
-                      onDragOver={(e) => { e.preventDefault(); setDragOverCol(colKey); }}
-                      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverCol(null); }}
-                      onDrop={() => { handleDrop(colKey); setDragOverCol(null); }}
-                    >
+                    <div className="lw-board-col-cards">
                       {col.cards.map((card, cardIdx) => {
                         const cardKey = `${colKey}-${cardIdx}`;
                         return (
                           <div
                             key={cardIdx}
                             className="lw-board-card"
-                            draggable
-                            onDragStart={() => handleDragStart(colKey, cardIdx)}
                           >
                             <div className="lw-board-card-top">
-                              <span className="lw-board-card-title">{card.posisi}</span>
+                              <span 
+                                className="lw-board-card-title" 
+                                style={{ cursor: 'pointer' }} 
+                                onClick={() => navigate('seleksi-detail', { jabatan: card.posisi })}
+                              >
+                                {card.posisi}
+                              </span>
                               <div className="lw-board-card-menu-wrap">
                                 <button
                                   className="lw-board-card-menu"
@@ -395,7 +416,7 @@ export default function Seleksi({ navigate }) {
                       </div>
                     </td>
                     <td>{row.alur}</td>
-                    <td>{row.kandidat}</td>
+                    <td><div className="lw-kandidat-badge">{row.kandidat}</div></td>
                     <td>{row.upahMin}</td>
                     <td>{row.upahMaks}</td>
                     <td>{row.tanggal}</td>
@@ -412,7 +433,7 @@ export default function Seleksi({ navigate }) {
         </div>
       )}
 
-      <Pagination />
+      {Pagination()}
 
       {archiveModal && (
         <div className="dept-modal-overlay" onClick={() => setArchiveModal(null)}>

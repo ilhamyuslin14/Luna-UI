@@ -247,9 +247,16 @@
 }
 
 .kt-select-placeholder {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   color: #abb2c1;
+  line-height: 1.5;
+}
+
+.kt-select-value {
+  font-size: 13px;
+  font-weight: 400;
+  color: #323b4d;
   line-height: 1.5;
 }
 

@@ -64,6 +64,31 @@
     line-height: 1.5;
 }
 
+.bh-tour-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #0466a6;
+    border: none;
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    margin-top: 8px;
+    width: fit-content;
+}
+
+.bh-tour-btn:hover {
+    background: #f4f6fa;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
 .bh-benefit {
     display: flex;
     flex-direction: column;
@@ -177,6 +202,52 @@
     background: #f4f6fa;
 }
 
+.bc-edit-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bc-edit-cancel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #e2e5ec;
+    border-radius: 30px;
+    padding: 6px 14px;
+    height: 28px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.bc-edit-cancel-btn:hover {
+    background: #f4f6fa;
+}
+
+.bc-edit-save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0977be;
+    border: 1px solid #0977be;
+    border-radius: 30px;
+    padding: 6px 14px;
+    height: 28px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.bc-edit-save-btn:hover {
+    background: #075a91;
+}
+
 /* User Info Rows */
 .bc-rows-container {
     display: flex;
@@ -210,6 +281,50 @@
     font-weight: 500;
     color: #171e2c;
     word-break: break-word;
+    line-height: 20px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+}
+
+/* Edit State Inputs (matching seleksi-ringkasan but keeping layout fixed) */
+.bc-edit-input, .bc-edit-select {
+    width: 100%;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid #e2e5ec;
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #171e2c;
+    background: white;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.bc-edit-input:focus, .bc-edit-select:focus {
+    border-color: #0977be;
+}
+
+.bc-edit-select-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.bc-edit-select-wrapper .bc-edit-select {
+    padding-right: 28px;
+    appearance: none;
+    cursor: pointer;
+}
+
+.bc-edit-select-wrapper svg {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+    color: #7e8799;
 }
 
 /* Form Styles */

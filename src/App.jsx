@@ -14,9 +14,17 @@ import DepartemenDetail from './views/DepartemenDetail.jsx';
 import Bantuan from './views/Bantuan.jsx';
 import PengaturanAkunProfil from './views/KelolaPengguna-AkunProfil.jsx';
 import PaketLangganan from './views/KelolaPengguna-PaketLangganan.jsx';
+import RingkasanPembayaran from './views/KelolaPengguna-RingkasanPembayaran.jsx';
 import SetupPenilaian from './views/Seleksi-SetupPenilaian.jsx';
 import PengaturanUser from './views/KelolaPengguna-User.jsx';
 import RiwayatTransaksi from './views/KelolaPengguna-RiwayatTransaksi.jsx';
+import MenungguPembayaran from './views/KelolaPengguna-MenungguPembayaran.jsx';
+import PembayaranBerhasil from './views/KelolaPengguna-PembayaranBerhasil.jsx';
+import LandingPage from './views/LandingPage.jsx';
+import LandingPageMasuk from './views/LandingPage-Masuk.jsx';
+import LandingPageDaftar from './views/LandingPage-Daftar.jsx';
+import LandingPageOTP from './views/LandingPage-OTP.jsx';
+import LandingPageLupaPassword from './views/LandingPage-LupaPassword.jsx';
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -25,13 +33,22 @@ export default function App() {
   const [selectedKandidat, setSelectedKandidat] = useState(null);
   const [selectedDepartemen, setSelectedDepartemen] = useState(null);
   const [seleksiActiveTab, setSeleksiActiveTab] = useState('ringkasan');
+  const [selectedPlan, setSelectedPlan] = useState('BASIC');
+  const [selectedCycle, setSelectedCycle] = useState('bulanan');
   const [historyStack, setHistoryStack] = useState([]);
 
   const navigate = (menu, params = {}) => {
     setHistoryStack(stack => [...stack, { menu: activeMenu, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, seleksiActiveTab }]);
-    if (menu === 'seleksi-detail') setSeleksiJabatan(params.jabatan || '');
+    if (menu === 'seleksi-detail') {
+      setSeleksiJabatan(params.jabatan || '');
+      if (params.activeTab) setSeleksiActiveTab(params.activeTab);
+    }
     if (menu === 'kandidat-detail') setSelectedKandidat(params.kandidat || null);
     if (menu === 'departemen-detail') setSelectedDepartemen(params.departemen || null);
+    if (menu === 'ringkasan-pembayaran') {
+      setSelectedPlan(params.plan || 'BASIC');
+      setSelectedCycle(params.cycle || 'bulanan');
+    }
     setActiveMenu(menu);
   };
 
@@ -48,37 +65,63 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'seleksi', 'kandidat', 'seleksi-detail', 'kandidat-detail', 'departemen-detail', 'bantuan', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'pengaturan-user', 'riwayat-transaksi', 'kandidat-tambah'].includes(activeMenu);
+  const noPadding = ['departemen', 'seleksi', 'kandidat', 'seleksi-detail', 'kandidat-detail', 'departemen-detail', 'bantuan', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'pembayaran-berhasil'].includes(activeMenu);
 
   if (activeMenu === 'laman-karir') {
     return <LamanKarir jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
+  if (activeMenu === 'landingpage') {
+    return <LandingPage navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-masuk') {
+    return <LandingPageMasuk navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-daftar') {
+    return <LandingPageDaftar navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-otp') {
+    return <LandingPageOTP navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-lupa-password') {
+    return <LandingPageLupaPassword navigate={navigate} />;
+  }
+
+  if (activeMenu === 'ringkasan-pembayaran') {
+    return <RingkasanPembayaran plan={selectedPlan} cycle={selectedCycle} navigate={navigate} back={back} />;
+  }
+
   const renderView = () => {
     switch (activeMenu) {
-      case 'dashboard':     return <Dashboard navigate={navigate} />;
-      case 'departemen':    return <Departemen navigate={navigate} />;
+      case 'dashboard': return <Dashboard navigate={navigate} />;
+      case 'departemen': return <Departemen navigate={navigate} />;
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
-      case 'seleksi':       return <Seleksi navigate={navigate} />;
-      case 'seleksi-detail':return <SeleksiDetail jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
-      case 'kandidat':        return <Kandidat navigate={navigate} />;
+      case 'seleksi': return <Seleksi navigate={navigate} />;
+      case 'seleksi-detail': return <SeleksiDetail jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'kandidat': return <Kandidat navigate={navigate} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;
-      case 'pengaturan':      return <KelolaPengguna navigate={navigate} />;
+      case 'pengaturan': return <KelolaPengguna navigate={navigate} />;
       case 'pengaturan-user': return <PengaturanUser navigate={navigate} />;
-      case 'pengguna-akun':   return <PengaturanAkunProfil navigate={navigate} />;
+      case 'pengguna-akun': return <PengaturanAkunProfil navigate={navigate} />;
       case 'paket-langganan': return <PaketLangganan navigate={navigate} />;
       case 'riwayat-transaksi': return <RiwayatTransaksi navigate={navigate} />;
-      case 'bantuan':         return <Bantuan />;
+      case 'menunggu-pembayaran': return <MenungguPembayaran navigate={navigate} back={back} />;
+      case 'pembayaran-berhasil': return <PembayaranBerhasil navigate={navigate} />;
+      case 'bantuan': return <Bantuan navigate={navigate} />;
       case 'setup-penilaian': return <SetupPenilaian navigate={navigate} />;
-      default:              return <Dashboard />;
+      default: return <Dashboard />;
     }
   };
 
   return (
     <div className="app-container">
       <header id="navbar">
-        <Navbar />
+        <Navbar navigate={navigate} />
       </header>
       <aside id="sidebar">
         <Sidebar activeMenu={activeMenu} onNavigate={(menu) => { setHistoryStack([]); setActiveMenu(menu); }} />

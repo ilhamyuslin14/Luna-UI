@@ -64,7 +64,7 @@ class TourManager {
         menu: 'departemen',
         selector: '.menu-item[data-menu="seleksi"]',
         title: 'Menu Seleksi',
-        description: 'Pantau semua proses seleksi lowongan, dari kandidat baru hingga penawaran kerja.',
+        description: 'Pantau semua proses seleksi posisi, dari kandidat baru hingga penawaran kerja.',
         position: 'right'
       },
       {
@@ -200,7 +200,7 @@ class TourManager {
     // Navigate if needed
     if (step.menu) {
       const currentMenuActive = document.querySelector('.menu-item.active');
-      const currentMenuId = currentMenuActive ? currentMenuActive.getAttribute('data-menu') : 'dashboard';
+      const currentMenuId = currentMenuActive ? currentMenuActive.getAttribute('data-menu') : null;
 
       if (step.menu !== currentMenuId) {
         if (window.switchMenu) {
@@ -314,8 +314,15 @@ class TourManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (new URLSearchParams(window.location.search).get('view') === 'laman-karir') return;
+  const v = new URLSearchParams(window.location.search).get('view');
+  if (v === 'laman-karir' || v === 'landingpage') return;
   const tour = new TourManager();
+
+  window.startProductTour = () => {
+    localStorage.removeItem('luna_tour_completed');
+    tour.init();
+  };
+
   setTimeout(() => {
     tour.init();
   }, 1200);

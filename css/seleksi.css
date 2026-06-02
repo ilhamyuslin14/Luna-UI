@@ -138,6 +138,7 @@
 }
 
 .lw-bulk-dropdown {
+    width: 100%;
     display: none;
     position: absolute;
     top: calc(100% + 6px);
@@ -147,7 +148,7 @@
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
     z-index: 1000;
-    min-width: 160px;
+    box-sizing: border-box;
     padding: 8px 10px;
     flex-direction: column;
     gap: 7px;
@@ -183,23 +184,36 @@
 
 .lw-btn-filter {
     background: #ffffff;
-    border: 1px solid #cbd0db;
+    border: none;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 600;
-    color: #171e2c;
+    color: #a0a7b5;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
     height: 40px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.lw-btn-filter:hover {
+    background: #f4f6fa;
+    color: #555f71;
+}
+
+.lw-btn-filter img {
+    filter: brightness(0) saturate(100%) invert(75%) sepia(8%) saturate(478%) hue-rotate(182deg) brightness(88%) contrast(86%) !important;
 }
 
 .lw-btn-filter.active {
-    border-color: #0977be;
     color: #0977be;
     background: #f7fbfe;
+}
+
+.lw-btn-filter.active img {
+    filter: brightness(0) saturate(100%) invert(32%) sepia(81%) saturate(2326%) hue-rotate(183deg) brightness(91%) contrast(91%) !important;
 }
 
 .lw-filter-dropdown {
@@ -266,7 +280,7 @@
 }
 
 .lw-filter-item label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     color: #323b4d;
     cursor: pointer;
@@ -314,6 +328,12 @@
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.lw-toggle-item:not(.active):hover {
+    background: #f4f6fa;
+    color: #555f71;
 }
 
 .lw-toggle-item img {
@@ -360,6 +380,11 @@
 
 .lw-table tbody tr {
     background-color: #ffffff;
+    transition: background-color 0.15s ease;
+}
+
+.lw-table tbody tr:hover {
+    background-color: #f7f8fa;
 }
 
 .lw-table td {
@@ -374,6 +399,18 @@
 .lw-table td.lw-posisi {
     color: #0977be;
     font-weight: 400; /* Normal weight matching Figma */
+}
+
+.lw-kandidat-badge {
+    background-color: #eef7fd;
+    color: #0977be;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Status Bubble Capsule */
@@ -484,7 +521,7 @@
 
 .lw-btn-outline {
     background: #ffffff;
-    border: 1px solid #cbd0db;
+    border: 1px solid #e2e5ec;
     border-radius: 18px;
     padding: 6px 14px;
     font-size: 10px;
@@ -499,8 +536,8 @@
 }
 
 .lw-btn-outline img {
-    width: 9px !important;
-    height: 9px !important;
+    width: 10px !important;
+    height: 10px !important;
     object-fit: contain !important;
 }
 

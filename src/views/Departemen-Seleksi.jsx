@@ -17,12 +17,22 @@ const STATUS_CONFIG = {
 };
 
 
-export default function DepartemenSeleksi({ navigate }) {
+export default function DepartemenSeleksi({ navigate, onBack }) {
   const [rows, setRows] = useState(INITIAL_SELEKSI_ROWS);
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(new Set());
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
+
+  const toggleFilter = (s) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(s)) next.delete(s);
+      else next.add(s);
+      return next;
+    });
+  };
 
   const selectAll = selectedRows.size === rows.length;
 
@@ -53,7 +63,15 @@ export default function DepartemenSeleksi({ navigate }) {
       }}
     >
       {/* Actions Bar */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 20px', height: '64px', flexShrink: 0 }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: '64px', flexShrink: 0 }}>
+        {onBack && (
+          <button className="sd-back-btn" onClick={onBack}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Kembali
+          </button>
+        )}
         <div className="lw-right-actions">
           <div className="lw-stats-badge">Jumlah Posisi : <strong>{rows.length}</strong></div>
           <div className="lw-divider" />
@@ -71,7 +89,7 @@ export default function DepartemenSeleksi({ navigate }) {
               </button>
               {showBulkDropdown && (
                 <div className="lw-bulk-dropdown active">
-                  <a href="#" className="bulk-dropdown-item" onClick={(e) => { e.preventDefault(); alert(`${selectedRows.size} Posisi berhasil diarsipkan!`); setSelectedRows(new Set()); setShowBulkDropdown(false); }}>
+                  <a href="#" className="bulk-dropdown-item" style={{ padding: '6px 0' }} onClick={(e) => { e.preventDefault(); alert(`${selectedRows.size} Posisi berhasil diarsipkan!`); setSelectedRows(new Set()); setShowBulkDropdown(false); }}>
                     <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>
                     Arsipkan
                   </a>
@@ -81,7 +99,7 @@ export default function DepartemenSeleksi({ navigate }) {
           )}
           <div className="lw-filter-container">
             <button
-              className={`lw-btn-filter${showFilterDropdown ? ' active' : ''}`}
+              className={`lw-btn-filter${(showFilterDropdown || activeFilters.size > 0) ? ' active' : ''}`}
               onClick={(e) => { e.stopPropagation(); setShowFilterDropdown(v => !v); }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -93,13 +111,13 @@ export default function DepartemenSeleksi({ navigate }) {
               <div className="lw-filter-dropdown active" onClick={e => e.stopPropagation()} style={{ padding: '12px 16px', minWidth: '200px' }}>
                 <div className="lw-filter-column" style={{ width: '100%' }}>
                   <span className="lw-filter-column-title" style={{ marginBottom: '8px' }}>Alur Seleksi</span>
-                  {['Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima'].map((s, idx, arr) => (
+                  {['Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima'].map((s) => (
                     <div key={s}>
                       <div className="lw-filter-item" style={{ padding: '6px 0' }}>
-                        <input type="checkbox" className="lw-filter-checkbox" />
+                        <input type="checkbox" className="lw-filter-checkbox" checked={activeFilters.has(s)} onChange={() => toggleFilter(s)} />
                         <label>{s}</label>
                       </div>
-                      {idx < arr.length - 1 && <div className="lw-filter-divider-horizontal" style={{ margin: '2px 0' }} />}
+                      <div className="lw-filter-divider-horizontal" style={{ margin: '2px 0' }} />
                     </div>
                   ))}
                 </div>
@@ -158,7 +176,7 @@ export default function DepartemenSeleksi({ navigate }) {
                     </div>
                   </td>
                   <td>{row.alur}</td>
-                  <td>{row.kandidat}</td>
+                  <td><div className="lw-kandidat-badge">{row.kandidat}</div></td>
                   <td>{row.upahMin}</td>
                   <td>{row.upahMaks}</td>
                   <td>{row.tanggal}</td>

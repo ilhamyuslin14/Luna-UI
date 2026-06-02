@@ -20,17 +20,19 @@ export default function DepartemenDetail({ departemen = 'Human Resource', naviga
 
       <div className="sd-content" style={activeTab === 'seleksi' ? { padding: 0 } : {}}>
         {activeTab !== 'seleksi' && (
-          <button className="sd-back-btn" onClick={() => back ? back() : navigate('departemen')} style={{ marginBottom: 4 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            Kembali
-          </button>
+          <div style={{ margin: '-20px -20px 0', padding: '0 20px', height: 64, display: 'flex', alignItems: 'center' }}>
+            <button className="sd-back-btn" onClick={() => back ? back() : navigate('departemen')}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              Kembali
+            </button>
+          </div>
         )}
         {activeTab === 'ringkasan' ? (
           <DepartemenRingkasan departemen={departemen} />
         ) : (
-          <DepartemenSeleksi navigate={navigate} />
+          <DepartemenSeleksi navigate={navigate} onBack={() => back ? back() : navigate('departemen')} />
         )}
       </div>
     </div>

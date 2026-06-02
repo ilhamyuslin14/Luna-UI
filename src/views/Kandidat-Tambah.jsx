@@ -58,43 +58,59 @@ const IconRetry = () => (
   </svg>
 );
 
-const TICK_MS = 50;
-const FILE_DURATION = 1400;
-const FAIL_CHANCE = 0.2;
-
 export default function KandidatTambah({ navigate }) {
-  const [phase, setPhase] = useState('drop'); // 'drop' | 'files' | 'uploading'
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [files, setFiles] = useState([]);
+  const [phase, setPhase]             = useState('drop'); 
+  const [files, setFiles]             = useState([]);
   const [fileStatuses, setFileStatuses] = useState([]);
-  const [uploadedAt, setUploadedAt] = useState('');
-  const inputRef = useRef(null);
-  const intervalRef = useRef(null);
-  const statusesRef = useRef([]);
+  const [uploadedAt, setUploadedAt]   = useState('');
+  const [isDragOver, setIsDragOver]   = useState(false);
+  const inputRef                      = useRef(null);
+  
+  const [showLowongan, setShowLowongan] = useState(false);
+  const [lowongan, setLowongan] = useState('');
+  const LOWONGAN_OPTIONS = [
+    'Project Manager',
+    'Frontend Developer',
+    'Backend Developer',
+    'UI/UX Designer',
+    'Product Manager',
+    'QA Engineer'
+  ];
 
-  useEffect(() => () => clearInterval(intervalRef.current), []);
+  const statusesRef = useRef([]);
+  const intervalRef = useRef(null);
+  const FILE_DURATION = 3000;
+  const TICK_MS = 100;
+  const FAIL_CHANCE = 0.2;
+
+  useEffect(() => {
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setFiles(prev => [...prev, ...newFiles]);
+      setPhase('files');
+    }
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const dropped = Array.from(e.dataTransfer.files);
-    if (!dropped.length) return;
-    setFiles(prev => [...prev, ...dropped]);
-    setPhase('files');
-  };
-
-  const handleFileChange = (e) => {
-    const selected = Array.from(e.target.files);
-    if (!selected.length) return;
-    setFiles(prev => [...prev, ...selected]);
-    setPhase('files');
-    e.target.value = '';
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      setFiles(prev => [...prev, ...newFiles]);
+      setPhase('files');
+    }
   };
 
   const removeFile = (idx) => {
-    const next = files.filter((_, i) => i !== idx);
-    setFiles(next);
-    if (next.length === 0) setPhase('drop');
+    setFiles(prev => {
+      const next = prev.filter((_, i) => i !== idx);
+      if (next.length === 0) setPhase('drop');
+      return next;
+    });
   };
 
   const timestamp = () => {
@@ -157,7 +173,9 @@ export default function KandidatTambah({ navigate }) {
   const failedFiles = fileStatuses.filter(s => s.status === 'gagal');
 
   return (
-    <div className="kt-view">
+    <div className="kt-view" onClick={(e) => {
+      if (!e.target.closest('.kt-field-lowongan')) setShowLowongan(false);
+    }}>
       <div className="kt-title-bar">
         <h1 className="kt-title">{phase === 'drop' ? 'Tambah Kandidat' : 'Unggah CV Kandidat'}</h1>
         <button className="kt-btn-close" onClick={() => navigate('kandidat')}>Tutup</button>
@@ -210,12 +228,39 @@ export default function KandidatTambah({ navigate }) {
           {/* ── FILES SELECTED ── */}
           {phase === 'files' && (
             <div className="kt-files-section">
-              <div className="kt-field">
+              <div className="kt-field kt-field-lowongan" style={{ position: 'relative' }}>
                 <label className="kt-field-label">Pilih Lowongan</label>
-                <div className="kt-select-input">
-                  <span className="kt-select-placeholder">Pilih Lowongan Untuk Kandidat</span>
+                <div 
+                  className="kt-select-input"
+                  onClick={(e) => { e.stopPropagation(); setShowLowongan(!showLowongan); }}
+                >
+                  <span className={lowongan ? "kt-select-value" : "kt-select-placeholder"}>
+                    {lowongan || 'Pilih Lowongan Untuk Kandidat'}
+                  </span>
                   <ChevronIcon />
                 </div>
+
+                {showLowongan && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0,
+                    background: 'white', border: '1px solid #d4d9e6', borderRadius: 8,
+                    marginTop: 4, zIndex: 10, padding: '4px 0',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {LOWONGAN_OPTIONS.map(opt => (
+                      <div 
+                        key={opt}
+                        style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 14, color: '#323b4d' }}
+                        onMouseEnter={e => e.target.style.background = '#f7f8fa'}
+                        onMouseLeave={e => e.target.style.background = 'transparent'}
+                        onClick={() => { setLowongan(opt); setShowLowongan(false); }}
+                      >
+                        {opt}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="kt-file-list-box">
                 {files.map((file, idx) => (
@@ -241,7 +286,14 @@ export default function KandidatTambah({ navigate }) {
               </div>
               <div className="kt-actions">
                 <button className="kt-btn-cancel" onClick={() => { setFiles([]); setPhase('drop'); }}>Cancel</button>
-                <button className="kt-btn-upload" onClick={startUpload}>Upload</button>
+                <button 
+                  className="kt-btn-upload" 
+                  onClick={startUpload}
+                  disabled={!lowongan}
+                  style={{ opacity: !lowongan ? 0.5 : 1, cursor: !lowongan ? 'not-allowed' : 'pointer' }}
+                >
+                  Upload
+                </button>
               </div>
             </div>
           )}
@@ -279,7 +331,9 @@ export default function KandidatTambah({ navigate }) {
                             </div>
                           )}
                           {fs.status === 'berhasil' && (
-                            <div className="kt-detail-badge">Detail</div>
+                            <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail')}>
+                              Detail
+                            </div>
                           )}
                         </div>
                         <div className={`kt-status-label ${fs.status}`}>
