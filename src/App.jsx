@@ -1,34 +1,36 @@
 import { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
-import Dashboard from './views/Dashboard.jsx';
-import Seleksi from './views/Seleksi.jsx';
-import SeleksiDetail from './views/SeleksiDetail.jsx';
-import Departemen from './views/Departemen.jsx';
-import Kandidat from './views/Kandidat.jsx';
-import KelolaPengguna from './views/KelolaPengguna.jsx';
-import KandidatTambah from './views/Kandidat-Tambah.jsx';
-import LamanKarir from './views/Seleksi-LamanKarir.jsx';
-import KandidatDetail from './views/KandidatDetail.jsx';
-import DepartemenDetail from './views/DepartemenDetail.jsx';
-import Bantuan from './views/Bantuan.jsx';
-import PengaturanAkunProfil from './views/KelolaPengguna-AkunProfil.jsx';
-import PaketLangganan from './views/KelolaPengguna-PaketLangganan.jsx';
-import RingkasanPembayaran from './views/KelolaPengguna-RingkasanPembayaran.jsx';
-import SetupPenilaian from './views/Seleksi-SetupPenilaian.jsx';
-import PengaturanUser from './views/KelolaPengguna-User.jsx';
-import RiwayatTransaksi from './views/KelolaPengguna-RiwayatTransaksi.jsx';
-import MenungguPembayaran from './views/KelolaPengguna-MenungguPembayaran.jsx';
-import PembayaranBerhasil from './views/KelolaPengguna-PembayaranBerhasil.jsx';
-import LandingPage from './views/LandingPage.jsx';
-import LandingPageMasuk from './views/LandingPage-Masuk.jsx';
-import LandingPageDaftar from './views/LandingPage-Daftar.jsx';
-import LandingPageOTP from './views/LandingPage-OTP.jsx';
-import LandingPageLupaPassword from './views/LandingPage-LupaPassword.jsx';
+import TourGuide from './components/TourGuide.jsx';
+import Beranda from './views/beranda/Beranda.jsx';
+import Seleksi from './views/seleksi/Seleksi.jsx';
+import SeleksiDetail from './views/seleksi/SeleksiDetail.jsx';
+import Departemen from './views/departemen/Departemen.jsx';
+import Kandidat from './views/kandidat/Kandidat.jsx';
+import KelolaPengguna from './views/kelola-pengguna/KelolaPengguna.jsx';
+import KandidatTambah from './views/kandidat/Kandidat-Tambah.jsx';
+import SeleksiTambahKandidat from './views/seleksi/Seleksi-TambahKandidat.jsx';
+import LamanKarir from './views/seleksi/Seleksi-LamanKarir.jsx';
+import KandidatDetail from './views/kandidat/KandidatDetail.jsx';
+import DepartemenDetail from './views/departemen/DepartemenDetail.jsx';
+import Bantuan from './views/bantuan/Bantuan.jsx';
+import PengaturanAkunProfil from './views/kelola-pengguna/KelolaPengguna-AkunProfil.jsx';
+import PaketLangganan from './views/kelola-pengguna/KelolaPengguna-PaketLangganan.jsx';
+import RingkasanPembayaran from './views/kelola-pengguna/KelolaPengguna-RingkasanPembayaran.jsx';
+import SetupPenilaian from './views/seleksi/Seleksi-SetupPenilaian.jsx';
+import PengaturanUser from './views/kelola-pengguna/KelolaPengguna-User.jsx';
+import RiwayatTransaksi from './views/kelola-pengguna/KelolaPengguna-RiwayatTransaksi.jsx';
+import MenungguPembayaran from './views/kelola-pengguna/KelolaPengguna-MenungguPembayaran.jsx';
+import PembayaranBerhasil from './views/kelola-pengguna/KelolaPengguna-PembayaranBerhasil.jsx';
+import LandingPage from './views/landing/LandingPage.jsx';
+import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
+import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
+import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
+import LandingPageLupaPassword from './views/landing/LandingPage-LupaPassword.jsx';
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
-  const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'dashboard');
+  const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda');
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(null);
   const [selectedDepartemen, setSelectedDepartemen] = useState(null);
@@ -65,7 +67,7 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'seleksi', 'kandidat', 'seleksi-detail', 'kandidat-detail', 'departemen-detail', 'bantuan', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'pembayaran-berhasil'].includes(activeMenu);
+  const noPadding = ['departemen', 'seleksi', 'kandidat', 'seleksi-detail', 'kandidat-detail', 'departemen-detail', 'bantuan', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
   if (activeMenu === 'laman-karir') {
     return <LamanKarir jabatan={seleksiJabatan} navigate={navigate} />;
@@ -97,13 +99,14 @@ export default function App() {
 
   const renderView = () => {
     switch (activeMenu) {
-      case 'dashboard': return <Dashboard navigate={navigate} />;
+      case 'beranda': return <Beranda navigate={navigate} />;
       case 'departemen': return <Departemen navigate={navigate} />;
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
       case 'seleksi': return <Seleksi navigate={navigate} />;
       case 'seleksi-detail': return <SeleksiDetail jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'kandidat': return <Kandidat navigate={navigate} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} />;
+      case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;
       case 'pengaturan': return <KelolaPengguna navigate={navigate} />;
       case 'pengaturan-user': return <PengaturanUser navigate={navigate} />;
@@ -114,7 +117,7 @@ export default function App() {
       case 'pembayaran-berhasil': return <PembayaranBerhasil navigate={navigate} />;
       case 'bantuan': return <Bantuan navigate={navigate} />;
       case 'setup-penilaian': return <SetupPenilaian navigate={navigate} />;
-      default: return <Dashboard />;
+      default: return <Beranda />;
     }
   };
 
@@ -129,6 +132,7 @@ export default function App() {
       <main id="content" className={noPadding ? 'no-padding' : ''}>
         {renderView()}
       </main>
+      <TourGuide navigate={navigate} />
     </div>
   );
 }

@@ -1,0 +1,109 @@
+.pg-pagination {
+  background: #ffffff;
+  border-top: 1px solid var(--color-neutral-300, #e2e5ec);
+  padding: 11px 20px 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 52px;
+}
+
+.pg-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-neutral-700, #555f71);
+}
+
+.pg-per-page-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-neutral-400, #cbd0db);
+  outline: none;
+  color: var(--color-neutral-900, #171e2c);
+  font-size: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pg-page-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pg-page-box {
+  background-color: #ffffff;
+  border: 1px solid var(--color-neutral-400, #cbd0db);
+  border-radius: 6px;
+  width: 34px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-neutral-900, #171e2c);
+  text-align: center;
+}
+
+.pg-page-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-neutral-900, #171e2c);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pg-page-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-neutral-400, #cbd0db);
+  border-radius: 6px;
+  background-color: #ffffff;
+  height: 28px;
+  width: 54px;
+  overflow: hidden;
+}
+
+.pg-page-btn {
+  background: none;
+  border: none;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+
+.pg-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.pg-page-btn img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.pg-page-btn-prev img { opacity: 0.35; }
+.pg-page-btn-next img { opacity: 1; }
+
+.pg-page-btn-prev:not(:disabled) img { opacity: 1; }
+.pg-page-btn-prev:disabled img { opacity: 0.35; }
+
+.pg-page-btn-divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-neutral-400, #cbd0db);
+}

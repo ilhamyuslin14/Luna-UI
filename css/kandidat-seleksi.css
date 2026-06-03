@@ -188,3 +188,300 @@
   font-weight: 600;
   background: #eef7fd;
 }
+
+/* ─── Drop Modal (Tidak Sesuai) ───────────────────────────── */
+.sdk-drop-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(23, 30, 44, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100001;
+}
+
+.sdk-drop-modal {
+  background: white;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90vw;
+  box-shadow: 0 12px 32px rgba(23, 30, 44, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sdk-drop-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f2f6;
+}
+
+.sdk-drop-modal-desc {
+  font-size: 14px;
+  color: #323b4d;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.sdk-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0; /* Gap dihilangkan karena RejectSvg sudah punya marginRight */
+  background: #ffffff;
+  border: 1px solid #e2e5ec;
+  color: #323b4d;
+  border-radius: 18px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 0 14px;
+  height: 25px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.sdk-btn-outline:hover {
+  background: #f9fafc;
+  border-color: #cbd0db;
+}
+
+.sdk-drop-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #171e2c;
+  margin: 0;
+}
+
+.sdk-drop-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7e8799;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.sdk-drop-modal-close:hover {
+  background: #f0f2f6;
+  color: #323b4d;
+}
+
+.sdk-drop-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sdk-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sdk-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b4d;
+}
+
+.sdk-form-select-wrap {
+  position: relative;
+}
+
+.sdk-form-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: 1px solid #cbd0db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #171e2c;
+  appearance: none;
+  background: white;
+  outline: none;
+}
+
+.sdk-form-select:focus, .sdk-form-textarea:focus {
+  border-color: #0977be;
+}
+
+.sdk-form-select-wrap svg {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #7e8799;
+}
+
+.sdk-form-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px 14px;
+  border: 1px solid #cbd0db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #171e2c;
+  resize: vertical;
+  outline: none;
+}
+
+.sdk-form-textarea::placeholder {
+  color: #abb2c1;
+}
+
+.sdk-drop-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f9fafc;
+  border-top: 1px solid #f0f2f6;
+}
+
+.sdk-btn-cancel {
+  padding: 0 16px;
+  height: 36px;
+  border: 1px solid #cbd0db;
+  border-radius: 6px;
+  background: white;
+  color: #4a5568;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sdk-btn-cancel:hover {
+  background: #f0f2f6;
+}
+
+.sdk-btn-drop {
+  padding: 0 16px;
+  height: 36px;
+  border: 1px solid #0977be;
+  border-radius: 6px;
+  background: #0977be;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sdk-btn-drop:hover {
+  background: #075a91;
+}
+
+/* ─── Score Popover ───────────────────────────────────────── */
+.sdk-score-popover-wrapper {
+  position: fixed;
+  padding-top: 6px; /* Transparent bridge for hover */
+  z-index: 100000;
+}
+
+.sdk-score-popover {
+  background: white;
+  border: 1px solid #f0f2f6;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(23, 30, 44, 0.08);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: default;
+}
+
+.sdk-score-popover-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Donut Chart Simulation */
+.sdk-score-donut {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(#f29a01 75%, #f0f2f6 75%);
+}
+
+.sdk-score-donut::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: white;
+  border-radius: 50%;
+}
+
+.sdk-score-donut-val {
+  position: relative;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f29a01;
+  line-height: 1;
+}
+
+.sdk-score-donut-lbl {
+  position: relative;
+  font-size: 8px;
+  font-weight: 600;
+  color: #f29a01;
+  margin-top: 2px;
+}
+
+/* Stats Badges */
+.sdk-score-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sdk-stat-pill {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.sdk-stat-pill.tinggi { background: #e5fcea; color: #089f32; }
+.sdk-stat-pill.sedang { background: #fdf9e1; color: #da8700; }
+.sdk-stat-pill.rendah { background: #fff3f3; color: #fb484b; }
+
+.sdk-score-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  border: 1px solid #cbd0db;
+  border-radius: 6px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  color: #171e2c;
+  cursor: pointer;
+}
+
+.sdk-score-action:hover {
+  background: #f9fafc;
+}

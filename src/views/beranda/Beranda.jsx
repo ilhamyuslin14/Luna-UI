@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function Dashboard({ navigate }) {
+export default function Beranda({ navigate }) {
   const [npsState, setNpsState] = useState('popup');
   const [npsScore, setNpsScore] = useState(null);
   const [npsText, setNpsText] = useState('');

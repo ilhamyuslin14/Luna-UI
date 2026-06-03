@@ -1,0 +1,38 @@
+.tabnav {
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-neutral-300, #e2e5ec);
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.tabnav-list {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.tabnav-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 11px 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-neutral-700, #555f71);
+  cursor: pointer;
+  font-family: var(--font-family);
+  line-height: 1.4;
+  transition: color 0.2s;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.tabnav-btn:hover {
+  color: var(--color-neutral-900, #171e2c);
+}
+
+.tabnav-btn.active {
+  border-bottom-color: var(--color-primary-500, #0977be);
+  font-weight: 700;
+  color: var(--color-neutral-900, #171e2c);
+}

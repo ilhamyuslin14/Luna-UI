@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import PopupKonfirmasi from './PopupKonfirmasi.jsx';
 
 export default function Sidebar({ activeMenu, onNavigate }) {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const menuItems = [
-    { id: 'dashboard', icon: '/assets/frame1000006975.svg', label: 'Beranda' },
+    { id: 'beranda', icon: '/assets/frame1000006975.svg', label: 'Beranda' },
     { id: 'departemen', icon: '/assets/vector3.svg', label: 'Departemen' },
     { id: 'seleksi', icon: '/assets/group3.svg', label: 'Seleksi' },
     { id: 'kandidat', icon: '/assets/vector4.svg', label: 'Kandidat' },
@@ -123,20 +124,13 @@ export default function Sidebar({ activeMenu, onNavigate }) {
       </div>
 
       {showLogoutModal && (
-        <div className="dept-modal-overlay" onClick={() => setShowLogoutModal(false)}>
-          <div className="dept-modal dept-modal-confirm" onClick={e => e.stopPropagation()}>
-            <div className="dept-modal-confirm-text">
-              <p className="dept-modal-title" style={{ fontSize: '18px' }}>Keluar dari Akun?</p>
-              <p className="dept-modal-subtitle">
-                Apakah Anda yakin ingin keluar?
-              </p>
-            </div>
-            <div className="dept-modal-footer dept-modal-footer-stretch">
-              <button className="dept-modal-btn-cancel dept-modal-btn-cancel-lg" onClick={() => setShowLogoutModal(false)}>Batal</button>
-              <button className="dept-modal-btn-primary dept-modal-btn-primary-lg" onClick={() => { setShowLogoutModal(false); onNavigate('landingpage'); }}>Keluar</button>
-            </div>
-          </div>
-        </div>
+        <PopupKonfirmasi
+          title="Keluar dari Akun?"
+          body="Apakah Anda yakin ingin keluar?"
+          confirmLabel="Keluar"
+          onConfirm={() => { setShowLogoutModal(false); onNavigate('landingpage'); }}
+          onClose={() => setShowLogoutModal(false)}
+        />
       )}
     </>
   );

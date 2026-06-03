@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════════
+   LANDING PAGE — OTP  (prefix: lpotp-)
+   ═══════════════════════════════════════════════ */
+
+.lpotp-page {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: #fafbfd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.lpotp-page *, .lpotp-page *::before, .lpotp-page *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card */
+.lpotp-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 30px 24px;
+}
+
+.lpotp-card-400 { width: 400px; }
+.lpotp-card-330 {
+  width: 330px;
+  padding: 30px 30px 32px;
+}
+
+/* Head — icon + title/desc */
+.lpotp-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.lpotp-icon-wrap {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.lpotp-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-width: none;
+}
+
+.lpotp-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.lpotp-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.lpotp-desc {
+  font-size: 11px;
+  font-weight: 400;
+  color: #555f71;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Body */
+.lpotp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* Mengirim state */
+.lpotp-mengirim-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+@keyframes lpotp-spin { to { transform: rotate(360deg); } }
+
+.lpotp-spinner-img {
+  width: 34px;
+  height: 34px;
+  animation: lpotp-spin 1s linear infinite;
+  max-width: none;
+}
+
+/* Phone input */
+.lpotp-phone-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lpotp-phone-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  padding: 0 12px;
+  height: 38px;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.lpotp-phone-input-wrap:focus-within {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+}
+
+.lpotp-prefix {
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.lpotp-prefix-sep {
+  width: 1px;
+  height: 24px;
+  background: #d4d9e6;
+  flex-shrink: 0;
+}
+
+.lpotp-phone-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  font-family: inherit;
+  background: transparent;
+  line-height: 1.5;
+}
+
+.lpotp-phone-input::placeholder { color: #abb2c1; }
+
+/* Info box */
+.lpotp-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  background: #f4fafe;
+  border-radius: 8px;
+  padding: 8px 9px;
+}
+
+.lpotp-info-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  max-width: none;
+}
+
+.lpotp-info-text {
+  font-size: 10px;
+  font-weight: 400;
+  color: #555f71;
+  line-height: 1.5;
+}
+
+/* Actions */
+.lpotp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lpotp-btn {
+  width: 100%;
+  height: 44px;
+  background: #0977be;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.lpotp-btn:hover:not(.lpotp-btn-disabled) { background: #0868a8; }
+
+.lpotp-btn-disabled {
+  background: #cbd0db;
+  cursor: not-allowed;
+}
+
+/* Back link */
+/* Back link — full-width container, centered, Figma: w-full justify-center gap-4px */
+.lpotp-back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f6fb5;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.5;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.lpotp-back-link:hover { opacity: 0.75; }
+
+/* Arrow: Figma uses 12×12 container with large inset → visible area ~5×9px */
+.lpotp-back-arrow {
+  width: 5px;
+  height: 9px;
+  max-width: none;
+  flex-shrink: 0;
+  transform: rotate(180deg); /* SVG points right → rotate to point left */
+}
+
+/* Phone error message */
+.lpotp-phone-error {
+  font-size: 10px;
+  font-weight: 400;
+  color: #fb484b;
+  line-height: 1.5;
+  padding: 0 2px;
+}
+
+/* OTP boxes */
+.lpotp-boxes {
+  display: flex;
+  gap: 8px;
+}
+
+.lpotp-box {
+  width: 46px;
+  height: 46px;
+  border: 1.8px solid #e2e5ec;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  color: #323b4d;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  caret-color: #0977be;
+  line-height: 1.4;
+}
+
+.lpotp-box:focus {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+}
+
+.lpotp-box-filled {
+  border-color: #0977be;
+  color: #171e2c;
+  font-weight: 600;
+}
+
+/* Ubah nomor inline button */
+.lpotp-ubah-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #0977be;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+.lpotp-ubah-btn:hover { text-decoration: underline; }
+
+.lpotp-edit-icon {
+  width: 10px;
+  height: 10px;
+  max-width: none;
+}
+
+/* Resend */
+.lpotp-resend-block {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lpotp-resend-q {
+  font-size: 12px;
+  font-weight: 400;
+  color: #171e2c;
+  line-height: 1.5;
+}
+
+.lpotp-resend-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0977be;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.lpotp-resend-btn:hover:not(.lpotp-resend-disabled) { text-decoration: underline; }
+
+.lpotp-resend-disabled {
+  color: #abb2c1;
+  cursor: not-allowed;
+}
+
+

@@ -108,7 +108,7 @@ export default function Navbar({ navigate }) {
       <div className="navbar-brand">
         <div className="brand-top">
           <div className="brand-logo">
-            <img src="/assets/logo-icon.png" alt="Luna Logo" />
+            <img src="/assets/logos/logo-icon.png" alt="Luna Logo" />
           </div>
           <span className="brand-title">LUNA</span>
         </div>

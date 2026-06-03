@@ -1,0 +1,144 @@
+.pua-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 30, 44, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.pua-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 29px 24px;
+  width: 442px;
+  max-width: 90vw;
+  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pua-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pua-title {
+  font-family: var(--font-family);
+  font-size: 22px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.pua-desc {
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 500;
+  color: #171e2c;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.pua-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pua-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pua-label {
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 600;
+  color: #323b4d;
+  line-height: 1.4;
+}
+
+.pua-input {
+  border: 1px solid #d4d9e6;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: var(--font-family);
+  color: #171e2c;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.pua-input::placeholder {
+  color: #abb2c1;
+}
+
+.pua-input:focus {
+  border-color: #0977be;
+}
+
+.pua-input--readonly {
+  background: #f7f8fa;
+  border-color: #e2e5ec;
+  color: #7e8799;
+  cursor: default;
+}
+
+.pua-input--readonly:focus {
+  border-color: #e2e5ec;
+}
+
+.pua-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pua-btn-cancel {
+  background: #e2e5ec;
+  color: #555f71;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-family);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.pua-btn-cancel:hover {
+  background: #d4d9e6;
+}
+
+.pua-btn-confirm {
+  background: #0977be;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-family);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.pua-btn-confirm:hover:not(:disabled) {
+  background: #0466a6;
+}
+
+.pua-btn-confirm:disabled {
+  background: #cbd0db;
+  cursor: not-allowed;
+}

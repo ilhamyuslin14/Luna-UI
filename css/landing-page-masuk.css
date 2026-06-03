@@ -1,0 +1,260 @@
+/* ═══════════════════════════════════════════════
+   LANDING PAGE — MASUK  (prefix: lpm-)
+   ═══════════════════════════════════════════════ */
+
+.lpm-page {
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.lpm-page *, .lpm-page *::before, .lpm-page *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Left panel: dark blue, 769/1440 = 53.4% ── */
+.lpm-left {
+  position: relative;
+  width: 53.4%;
+  min-height: 100%;
+  background: #02306c; /* fallback — SVG has the actual gradient */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.lpm-left-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  transform: rotate(180deg) scaleY(-1); /* matches Figma -scale-y-100 rotate-180 */
+  pointer-events: none;
+  /* opacity: 1 — SVG owns the gradient, no CSS overlay */
+}
+
+.lpm-left-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 41px;
+  padding: 70px 250px 70px 70px;
+  width: 100%;
+}
+
+.lpm-left-logo {
+  display: flex;
+  align-items: center;
+  gap: 9.8px;
+}
+
+.lpm-left-logo-icon {
+  width: 31px;
+  height: 25px;
+  object-fit: contain;
+  max-width: none;
+}
+
+.lpm-left-logo-text {
+  font-size: 28.16px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.lpm-left-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lpm-left-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.lpm-left-subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: #89ccf6;
+  line-height: 1.5;
+}
+
+/* ── Right panel: white, 671/1440 = 46.6% ── */
+.lpm-right {
+  width: 46.6%;
+  min-height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(40px, 10%, 150px); /* 150px at 1440px, responsive down */
+}
+
+.lpm-form-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lpm-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lpm-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.2;
+}
+
+.lpm-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #7e8799;
+  line-height: 1.4;
+}
+
+/* Form — gap-[20px] between field groups per Figma */
+.lpm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lpm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #fff;
+}
+
+.lpm-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lpm-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.lpm-forgot {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0977be;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.lpm-forgot:hover { text-decoration: underline; }
+
+.lpm-pass-wrap { position: relative; }
+
+.lpm-input {
+  width: 100%;
+  height: 39px;
+  padding: 10px 14px 11px;
+  border: 1px solid #d4d9e6;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #171e2c;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.lpm-input:focus {
+  border-color: #0977be;
+  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+}
+
+.lpm-input::placeholder { color: #abb2c1; font-size: 12px; }
+
+.lpm-pass-wrap .lpm-input { padding-right: 40px; }
+
+.lpm-pass-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #abb2c1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.lpm-pass-toggle:hover { color: #555f71; }
+
+/* Submit */
+.lpm-submit {
+  height: 44px;
+  background: #0977be;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s, opacity 0.15s;
+  margin-top: 10px;
+}
+
+.lpm-submit:hover:not(.lpm-disabled):not(.lpm-loading) { background: #0868a8; }
+
+.lpm-disabled { background: #cbd0db; cursor: not-allowed; }
+.lpm-loading  { opacity: 0.8; cursor: not-allowed; }
+
+@keyframes lpm-spin { to { transform: rotate(360deg); } }
+.lpm-spin { animation: lpm-spin 0.75s linear infinite; }
+
+/* Register */
+.lpm-register {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.lpm-register-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0977be;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.lpm-register-link:hover { text-decoration: underline; }
+

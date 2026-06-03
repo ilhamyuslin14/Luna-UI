@@ -1,0 +1,586 @@
+/* =========================================================
+   Ringkasan Pembayaran — css/ringkasan-pembayaran.css
+   ========================================================= */
+
+/* ── Page Wrapper ─────────────────────────────────────── */
+.rp-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #ffffff; /* Sisi kanan background putih */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Pseudoelement untuk background abu-abu sisi kiri pada desktop */
+@media (min-width: 1024px) {
+    .rp-page::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: calc(50% + 149px);
+        background-color: #f9fafc;
+        z-index: 1;
+    }
+}
+
+@media (max-width: 1023px) {
+    .rp-page {
+        background-color: #f9fafc;
+    }
+}
+
+/* Saat halaman ringkasan aktif (standalone), body perlu bisa scroll */
+body:has(.rp-page) {
+    overflow: auto;
+}
+
+.rp-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1440px;
+    padding: 32px 80px 100px 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 1023px) {
+    .rp-container {
+        padding: 24px 20px 80px 20px;
+    }
+}
+
+/* ── Back Button ──────────────────────────────────────── */
+.rp-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    width: fit-content;
+    margin-bottom: 22px;
+    background: none;
+    border: none;
+    padding: 0;
+    opacity: 1;
+    transition: opacity 0.15s ease;
+}
+
+.rp-back-btn:hover {
+    opacity: 0.7;
+}
+
+.rp-back-btn span {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #555f71;
+}
+
+/* ── Page Title ───────────────────────────────────────── */
+.rp-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+    margin-top: 24px;
+    margin-bottom: 22px;
+}
+
+/* RESET override dari src/style.css yang set h1 { font-size:56px; margin:32px 0; } */
+.rp-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 28px !important;
+    color: #171e2c !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    letter-spacing: normal !important;
+}
+
+.rp-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #323b4d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Main Layout (2 kolom) ────────────────────────────── */
+.rp-layout {
+    display: flex;
+    gap: 162px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+@media (max-width: 1023px) {
+    .rp-layout {
+        flex-direction: column;
+        gap: 32px;
+    }
+}
+
+/* ── Left Column ──────────────────────────────────────── */
+.rp-left {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 709px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1023px) {
+    .rp-left {
+        width: 100%;
+    }
+}
+
+/* ── Right Column ─────────────────────────────────────── */
+.rp-right {
+    display: flex;
+    flex-direction: column;
+    width: 408px;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    /* Posisi sticky agar panel kanan tetap terlihat saat scroll */
+    position: sticky;
+    top: 32px;
+    align-self: flex-start;
+}
+
+@media (max-width: 1023px) {
+    .rp-right {
+        width: 100%;
+        position: static;
+        background: #ffffff;
+        border: 1px solid #e8eef6;
+        box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+        border-radius: 20px;
+        padding: 24px;
+        box-sizing: border-box;
+    }
+}
+
+/* ── Card Generik ─────────────────────────────────────── */
+.rp-card {
+    background: #ffffff;
+    border: 1px solid #e8eef6;
+    box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 21px 26px 28px 26px;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ── Card Header (icon + judul + subtitle) ────────────── */
+.rp-card-header {
+    border-bottom: 1px solid #f0f2f6;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.rp-card-icon {
+    background: #eef7fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+.rp-card-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* RESET override dari src/style.css yang set h2 { font-size:24px; margin:0 0 8px; } */
+.rp-card-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    color: #171e2c !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+    letter-spacing: normal !important;
+}
+
+.rp-card-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #7e8799;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Form Fields ──────────────────────────────────────── */
+.rp-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.rp-field-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.rp-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.rp-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #7e8799;
+    line-height: 1.5;
+}
+
+.rp-label-optional {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    color: #7e8799;
+}
+
+.rp-input {
+    background: #ffffff;
+    border: 1px solid #cbd0db;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.rp-input-muted {
+    background: #f0f2f6;
+    border: 1px solid #e2e5ec;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.rp-input-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #323b4d;
+    font-weight: 400;
+}
+
+.rp-input-text-muted {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    font-weight: 400;
+}
+
+.rp-input-placeholder {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #abb2c1;
+    font-weight: 400;
+}
+
+/* ── Metode Pembayaran ────────────────────────────────── */
+.rp-payment-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+    padding-top: 4px;
+}
+
+.rp-radio-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding-top: 4px;
+}
+
+.rp-radio-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #0977be;
+    border-radius: 50%;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rp-radio-input:checked::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background-color: #0977be;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.rp-bank-logo {
+    background: #ffffff;
+    border: 1px solid #e2e5ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    height: 38px;
+    width: 80px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.rp-mandiri-logo {
+    width: 61.395px;
+    height: 18.815px;
+}
+
+.rp-payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.rp-payment-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #323b4d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.rp-payment-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Panel Kanan: Rincian Transaksi ───────────────────── */
+/* RESET override dari src/style.css yang set h2 { margin:0 0 8px; } */
+.rp-section-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    color: #171e2c !important;
+    margin: 0 0 19px 0 !important;
+    line-height: 1.3 !important;
+    letter-spacing: normal !important;
+}
+
+.rp-plan-badge {
+    background: #eef7fd;
+    border: 1px solid #89ccf6;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 19px;
+    box-sizing: border-box;
+}
+
+.rp-plan-badge-icon {
+    background: #cfeafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+.rp-plan-badge-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #0466a6;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.rp-plan-badge-cycle {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #555f71;
+    font-weight: 400;
+    text-transform: capitalize;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Price Rows ───────────────────────────────────────── */
+.rp-price-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 19px;
+}
+
+.rp-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.rp-price-label {
+    color: #555f71;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+}
+
+.rp-price-value {
+    font-weight: 600;
+    color: #171e2c;
+    font-family: 'Inter', sans-serif;
+}
+
+.rp-kode-unik-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.rp-price-value-orange {
+    font-weight: 600;
+    color: #e46002;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Dashed Separator Line */
+.rp-dashed-line {
+    width: 100%;
+    height: 1px;
+    border-top: 1px dashed #cbd0db;
+    margin-bottom: 19px;
+}
+
+/* ── Total Block ──────────────────────────────────────── */
+.rp-total-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 19px;
+}
+
+.rp-total-label-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rp-total-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #555f71;
+    margin: 0;
+}
+
+.rp-total-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #abb2c1;
+    font-weight: 500;
+}
+
+.rp-total-amount {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #171e2c;
+    line-height: 1.3;
+}
+
+/* ── Tombol BUAT PESANAN ──────────────────────────────── */
+.rp-btn-order {
+    background: #0977be;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 0 15px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #ffffff;
+    letter-spacing: normal;
+    margin-top: 0;
+    margin-bottom: 19px;
+}
+
+.rp-btn-order:hover {
+    background: #075d95;
+}
+
+/* ── Syarat & Ketentuan ───────────────────────────────── */
+.rp-tos-text {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: #7e8799;
+    margin-top: 0;
+    line-height: 1.5;
+    padding: 0;
+    width: 376px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.rp-tos-link {
+    font-weight: 600;
+    font-style: italic;
+    color: #0977be;
+    cursor: pointer;
+    transition: text-decoration 0.15s ease;
+}
+
+.rp-tos-link:hover {
+    text-decoration: underline;
+}
