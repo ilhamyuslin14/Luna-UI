@@ -14,7 +14,7 @@
   height: 64px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   padding: 12px 20px;
   flex-shrink: 0;
 }
@@ -284,6 +284,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .kt-file-name {
@@ -431,12 +433,10 @@
   border-bottom: none;
 }
 
-/* Right side: 259px = slot(92) + gap(42) + status(125) */
 .kt-upload-row-right {
   display: flex;
   align-items: center;
   gap: 42px;
-  width: 259px;
   flex-shrink: 0;
 }
 
@@ -481,21 +481,35 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  width: 125px;
   flex-shrink: 0;
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
 }
 
-.kt-status-label.uploading { color: #0977be; }
-.kt-status-label.waiting   { color: #555f71; }
-.kt-status-label.berhasil  { color: #089f32; }
-.kt-status-label.gagal     { color: #fb484b; }
+.kt-status-label.uploading {
+  color: #0977be;
+}
+
+.kt-status-label.waiting {
+  color: #555f71;
+}
+
+.kt-status-label.berhasil {
+  color: #089f32;
+}
+
+.kt-status-label.gagal {
+  color: #fb484b;
+}
 
 @keyframes kt-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .kt-spin {
   animation: kt-spin 0.9s linear infinite;
   display: block;
@@ -506,6 +520,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
 }
 
 .kt-gagal-header {
@@ -536,13 +551,16 @@
   cursor: pointer;
 }
 
-.kt-btn-retry:hover { background: #f7f8fa; }
+.kt-btn-retry:hover {
+  background: #f7f8fa;
+}
 
 .kt-upload-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
+  width: 100%;
 }
 
 .kt-btn-lihat {
@@ -560,7 +578,9 @@
   line-height: 1.5;
 }
 
-.kt-btn-lihat:hover { background: #eef7fd; }
+.kt-btn-lihat:hover {
+  background: #eef7fd;
+}
 
 .kt-btn-upload-more {
   background: #0977be;
@@ -577,4 +597,118 @@
   line-height: 1.5;
 }
 
-.kt-btn-upload-more:hover { background: #0466a6; }
+.kt-btn-upload-more:hover {
+  background: #0466a6;
+}
+
+.kt-btn-upload-more:hover {
+  background: #0466a6;
+}
+
+/* ─── Riwayat Unggah (ktr-) ─────────────────────────────────── */
+.ktr-table-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e5ec;
+}
+
+.ktr-table-header,
+.ktr-table-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f2f6;
+  gap: 12px;
+}
+
+.ktr-table-header {
+  border-bottom: 4px solid #f0f2f6;
+  background: #ffffff;
+}
+
+.ktr-table-header>div {
+  font-size: 12px;
+  font-weight: 700;
+  color: #171e2c;
+}
+
+.ktr-table-row {
+  cursor: pointer;
+  transition: background 0.12s;
+  height: 54px;
+}
+
+.ktr-table-row:hover {
+  background: #f0f7fd;
+}
+
+.ktr-row-alt {
+  background: #f6fbff;
+}
+
+.ktr-row-alt:hover {
+  background: #e8f4fd;
+}
+
+.ktr-col-name {
+  width: 380px;
+  flex-shrink: 0;
+}
+
+.ktr-col-count {
+  flex: 1;
+  min-width: 0;
+}
+
+.ktr-col-status {
+  flex: 1;
+  min-width: 0;
+}
+
+.ktr-col-berhasil {
+  flex: 1;
+  min-width: 0;
+}
+
+.ktr-col-gagal {
+  flex: 1;
+  min-width: 0;
+}
+
+.ktr-import-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: #0977be;
+  white-space: nowrap;
+}
+
+.ktr-table-row .ktr-col-count,
+.ktr-table-row .ktr-col-berhasil,
+.ktr-table-row .ktr-col-gagal {
+  font-size: 12px;
+  font-weight: 400;
+  color: #171e2c;
+}
+
+.ktr-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 14px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.ktr-status-badge--selesai {
+  background: #e5fcea;
+  color: #089f32;
+}
+
+.ktr-status-badge--processing {
+  background: #fdf9e1;
+  color: #e46002;
+}

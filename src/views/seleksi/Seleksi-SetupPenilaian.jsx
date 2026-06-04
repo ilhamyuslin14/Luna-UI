@@ -107,6 +107,24 @@ export default function SetupPenilaian({ navigate }) {
 
   const set = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
+  const formatRupiah = (value) => {
+    const numberString = value.replace(/[^,\d]/g, '').toString();
+    const split = numberString.split(',');
+    const sisa = split[0].length % 3;
+    let rupiah = split[0].substr(0, sisa);
+    const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+    if (ribuan) {
+      const separator = sisa ? '.' : '';
+      rupiah += separator + ribuan.join('.');
+    }
+    rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+    return rupiah ? `Rp. ${rupiah}` : '';
+  };
+
+  const handleUpah = (key) => (e) => {
+    setForm(prev => ({ ...prev, [key]: formatRupiah(e.target.value) }));
+  };
+
   const handleFileChange = (e) => {
     if (!e.target.files[0]) return;
     const name = e.target.files[0].name;
@@ -213,6 +231,7 @@ export default function SetupPenilaian({ navigate }) {
               <select className="sp-select" style={{ color: form.departemen ? '#171e2c' : '#abb2c1' }} value={form.departemen} onChange={set('departemen')}>
                 <option value="" disabled>Pilih Departemen</option>
                 {['Product', 'Tech', 'HR', 'Engineering', 'Marketing', 'Finance'].map(d => <option key={d} value={d}>{d}</option>)}
+                <option value="new">+ Buat Departemen Baru</option>
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -231,7 +250,7 @@ export default function SetupPenilaian({ navigate }) {
               <div className="sp-select-wrapper">
                 <select className="sp-select" style={{ color: form.statusRekrutmen ? '#171e2c' : '#abb2c1' }} value={form.statusRekrutmen} onChange={set('statusRekrutmen')}>
                   <option value="" disabled>Pilih Status Rekrutmen</option>
-                  {['Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'].map(s => <option key={s} value={s}>{s}</option>)}
+                  {['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <span className="sp-select-icon"><ChevronIcon /></span>
               </div>
@@ -250,7 +269,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.ikatanKerja ? '#171e2c' : '#abb2c1' }} value={form.ikatanKerja} onChange={set('ikatanKerja')}>
                 <option value="" disabled>Pilih Ikatan Kerja</option>
-                {['Waktu Tidak Tertentu', 'Waktu Tertentu', 'Freelance'].map(s => <option key={s} value={s}>{s}</option>)}
+                {['Waktu Tertentu', 'Waktu Tidak Tertentu', 'Freelance', 'Magang', 'Part Time', 'Temporer'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -260,11 +279,11 @@ export default function SetupPenilaian({ navigate }) {
           <div className="sp-row">
             <div className="sp-field sp-field-flex">
               <label className="sp-label">Upah Minimum</label>
-              <input className="sp-input" placeholder="Masukan Nominal" value={form.upahMin} onChange={set('upahMin')} />
+              <input className="sp-input" placeholder="Masukan Nominal" value={form.upahMin} onChange={handleUpah('upahMin')} />
             </div>
             <div className="sp-field sp-field-flex">
               <label className="sp-label">Upah Maksimum</label>
-              <input className="sp-input" placeholder="Masukan Nominal" value={form.upahMax} onChange={set('upahMax')} />
+              <input className="sp-input" placeholder="Masukan Nominal" value={form.upahMax} onChange={handleUpah('upahMax')} />
             </div>
           </div>
 
@@ -274,7 +293,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.siklusUpah ? '#171e2c' : '#abb2c1' }} value={form.siklusUpah} onChange={set('siklusUpah')}>
                 <option value="" disabled>Pilih Siklus Upah</option>
-                {['Bulanan', 'Mingguan', 'Harian'].map(s => <option key={s} value={s}>{s}</option>)}
+                {['Jam', 'Harian', 'Mingguan', 'Bulanan', 'Kwartal', 'Tahunan'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -285,14 +304,14 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-field sp-field-flex">
               <label className="sp-label">Tanggal Mulai Rekrutmen</label>
               <div className="sp-date-wrapper">
-                <input className="sp-input sp-input-date" placeholder="Pilih Tanggal" value={form.tglMulai} onChange={set('tglMulai')} />
+                <input type="date" className="sp-input sp-input-date" placeholder="Pilih Tanggal" value={form.tglMulai} onChange={set('tglMulai')} />
                 <span className="sp-date-icon"><CalendarIcon /></span>
               </div>
             </div>
             <div className="sp-field sp-field-flex">
               <label className="sp-label">Tanggal Target On-boarding</label>
               <div className="sp-date-wrapper">
-                <input className="sp-input sp-input-date" placeholder="Pilih Tanggal" value={form.tglOnboarding} onChange={set('tglOnboarding')} />
+                <input type="date" className="sp-input sp-input-date" placeholder="Pilih Tanggal" value={form.tglOnboarding} onChange={set('tglOnboarding')} />
                 <span className="sp-date-icon"><CalendarIcon /></span>
               </div>
             </div>
@@ -312,7 +331,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.pendidikan ? '#171e2c' : '#abb2c1' }} value={form.pendidikan} onChange={set('pendidikan')}>
                 <option value="" disabled>Pilih Jenjang Minimal</option>
-                {['SMA/SMK', 'D3 (Diploma)', 'D4/S1 (Sarjana)', 'S2 (Magister)', 'S3 (Doktor)'].map(s => <option key={s} value={s}>{s}</option>)}
+                {['SD/Sederajat', 'SMP/Sederajat', 'SMA/SMK/Sederajat', 'DI/DII/DIII (Diploma)', 'D4/S1 (Sarjana)', 'S2 (Magister)', 'S3 (Doktor)'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>

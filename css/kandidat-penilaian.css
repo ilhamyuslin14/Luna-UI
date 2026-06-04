@@ -26,6 +26,24 @@
   animation: scSlideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
+/* Embedded mode — render inline tanpa overlay/fixed */
+.sc-overlay.embedded {
+  position: static;
+  inset: auto;
+  background: none;
+  z-index: auto;
+  display: block;
+  animation: none;
+}
+
+.sc-overlay.embedded .sc-panel {
+  width: 100%;
+  height: auto;
+  box-shadow: none;
+  animation: none;
+  border-top: 1px solid #e2e5ec;
+}
+
 /* ── Header ── */
 .sc-header {
   padding: 22px 24px 20px;
@@ -198,6 +216,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .sc-criteria-col-header {
@@ -233,6 +252,7 @@
 .sc-criteria-list {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .sc-criteria-row {

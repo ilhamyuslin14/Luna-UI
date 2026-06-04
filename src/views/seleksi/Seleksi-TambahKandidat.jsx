@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import TabNav from '../../components/TabNav.jsx';
 import KandidatUnggahCV from '../kandidat/Kandidat-UnggahCV.jsx';
+import KandidatRiwayatUnggah from '../kandidat/Kandidat-RiwayatUnggah.jsx';
 import Toast from '../../components/Toast.jsx';
 
 const AVATAR_COLORS = ['#f042a1', '#0977be', '#089f32', '#f8aa01', '#fb484b', '#8b5cf6', '#06b6d4'];
@@ -51,14 +52,25 @@ function PilihKandidatTab({ jabatan, onTambah }) {
 }
 
 export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
-  const [activeTab, setActiveTab] = useState('pilih');
-  const [toast, setToast]         = useState(false);
-  const toastTimer                = useRef(null);
+  const [activeTab,   setActiveTab]   = useState('pilih');
+  const [historyData, setHistoryData] = useState(null);
+  const [toast, setToast]             = useState(false);
+  const toastTimer                    = useRef(null);
 
   const showToast = () => {
     setToast(true);
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(false), 4000);
+  };
+
+  const handleViewRiwayat = (item) => {
+    setHistoryData(item);
+    setActiveTab('unggah');
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab !== 'unggah') setHistoryData(null);
   };
 
   return (
@@ -70,14 +82,27 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
 
       <TabNav
         tabs={[
-          { id: 'pilih',  label: 'Pilih Kandidat' },
-          { id: 'unggah', label: 'Unggah CV'       },
+          { id: 'pilih',   label: 'Pilih Kandidat' },
+          { id: 'unggah',  label: 'Unggah CV'       },
+          { id: 'riwayat', label: 'Riwayat'         },
         ]}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onChange={handleTabChange}
       />
 
       {activeTab === 'pilih' && <PilihKandidatTab jabatan={jabatan} onTambah={showToast} />}
+
+      {activeTab === 'unggah' && (
+        <div className="stk-unggah-wrap">
+          <KandidatUnggahCV
+            navigate={navigate}
+            historyData={historyData}
+            onUploadMore={historyData ? () => { setHistoryData(null); } : undefined}
+          />
+        </div>
+      )}
+
+      {activeTab === 'riwayat' && <KandidatRiwayatUnggah onView={handleViewRiwayat} />}
 
       {toast && (
         <Toast
@@ -85,12 +110,6 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
           subMessage="Harap tunggu, proses penilaian sedang berlangsung"
           onClose={() => setToast(false)}
         />
-      )}
-
-      {activeTab === 'unggah' && (
-        <div className="stk-unggah-wrap">
-          <KandidatUnggahCV navigate={navigate} />
-        </div>
       )}
     </div>
   );

@@ -33,13 +33,16 @@ const IconBerhasil = () => (
   </svg>
 );
 const IconGagal = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fb484b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" stroke="#fb484b"/>
+    <line x1="15" y1="9" x2="9" y2="15" stroke="#fb484b"/>
+    <line x1="9" y1="9" x2="15" y2="15" stroke="#fb484b"/>
   </svg>
 );
 const IconRetry = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#323b4d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.44"/>
+    <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
   </svg>
 );
 
@@ -51,8 +54,10 @@ const LOWONGAN_OPTIONS = [
 const FILE_DURATION = 3000;
 const TICK_MS       = 100;
 const FAIL_CHANCE   = 0.2;
+const FAIL_REASONS  = ['Gagal Parsing', 'CV Tidak Sesuai', 'Ukuran Terlalu Besar', 'Format Tidak Didukung', 'Koneksi Terputus'];
+const randomFailReason = () => FAIL_REASONS[Math.floor(Math.random() * FAIL_REASONS.length)];
 
-export default function KandidatUnggahCV({ navigate }) {
+export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }) {
   const [phase, setPhase]               = useState('drop');
   const [files, setFiles]               = useState([]);
   const [fileStatuses, setFileStatuses] = useState([]);
@@ -60,11 +65,49 @@ export default function KandidatUnggahCV({ navigate }) {
   const [isDragOver, setIsDragOver]     = useState(false);
   const [showLowongan, setShowLowongan] = useState(false);
   const [lowongan, setLowongan]         = useState('');
-  const inputRef    = useRef(null);
-  const statusesRef = useRef([]);
-  const intervalRef = useRef(null);
+  const [historyLive, setHistoryLive]   = useState(false);
+  const inputRef       = useRef(null);
+  const statusesRef    = useRef([]);
+  const intervalRef    = useRef(null);
+  const startTimerRef  = useRef(null); // guards against Strict Mode double-invoke
 
-  useEffect(() => () => clearInterval(intervalRef.current), []);
+  useEffect(() => () => {
+    clearInterval(intervalRef.current);
+    clearTimeout(startTimerRef.current);
+  }, []);
+
+  // Auto-start live animation for "processing" history items
+  useEffect(() => {
+    if (!historyData) { setHistoryLive(false); return; }
+    if (historyData.status === 'processing') {
+      startHistoryLive(historyData);
+    } else {
+      setHistoryLive(false);
+    }
+    return () => {
+      clearInterval(intervalRef.current);
+      clearTimeout(startTimerRef.current);
+    };
+  }, [historyData?.id]); // eslint-disable-line
+
+  const startHistoryLive = (data, isRetry = false) => {
+    clearInterval(intervalRef.current);
+    clearTimeout(startTimerRef.current);
+    const initial = data.files.map(f => ({
+      name:      f.name,
+      status:    f.status === 'berhasil' ? 'berhasil' : 'waiting',
+      progress:  f.status === 'berhasil' ? 100 : 0,
+      // kalau dari Coba Lagi: file yang diretry masuk retrySection (retrying: true)
+      // kalau auto-start processing: semua tampil di normalSection (retrying: false)
+      retrying:  isRetry && f.status !== 'berhasil',
+    }));
+    statusesRef.current = initial;
+    setFileStatuses([...initial]);
+    setUploadedAt(data.tanggal);
+    setPhase('uploading');
+    setHistoryLive(true);
+    startTimerRef.current = setTimeout(() => processNext(), 300);
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files?.length > 0) {
@@ -111,7 +154,8 @@ export default function KandidatUnggahCV({ navigate }) {
       setFileStatuses([...statusesRef.current]);
       if (progress >= 100) {
         clearInterval(intervalRef.current);
-        statusesRef.current[idx] = { ...statusesRef.current[idx], status: Math.random() < FAIL_CHANCE ? 'gagal' : 'berhasil', progress: 100 };
+        const isFail = Math.random() < FAIL_CHANCE;
+        statusesRef.current[idx] = { ...statusesRef.current[idx], status: isFail ? 'gagal' : 'berhasil', failReason: isFail ? randomFailReason() : undefined, progress: 100, retrying: false };
         setFileStatuses([...statusesRef.current]);
         setTimeout(processNext, 250);
       }
@@ -129,18 +173,86 @@ export default function KandidatUnggahCV({ navigate }) {
 
   const retryFailed = () => {
     statusesRef.current = statusesRef.current.map(s =>
-      s.status === 'gagal' ? { ...s, status: 'waiting', progress: 0 } : s
+      s.status === 'gagal' ? { ...s, status: 'waiting', progress: 0, failReason: undefined, retrying: true } : s
     );
     setFileStatuses([...statusesRef.current]);
     processNext();
   };
 
-  const doneCount   = fileStatuses.filter(s => s.status === 'berhasil' || s.status === 'gagal').length;
-  const total       = fileStatuses.length;
-  const allDone     = total > 0 && doneCount === total;
-  const overallPct  = total > 0 ? (doneCount / total) * 100 : 0;
-  const normalFiles = fileStatuses.filter(s => s.status !== 'gagal');
-  const failedFiles = fileStatuses.filter(s => s.status === 'gagal');
+  const doneCount    = fileStatuses.filter(s => s.status === 'berhasil' || s.status === 'gagal').length;
+  const total        = fileStatuses.length;
+  const allDone      = total > 0 && doneCount === total;
+  const overallPct   = total > 0 ? (doneCount / total) * 100 : 0;
+  // normalFiles: not retrying AND not permanently failed
+  const normalFiles  = fileStatuses.filter(s => !s.retrying && s.status !== 'gagal');
+  // retrySection: files currently retrying (any status) OR permanently failed
+  const retrySection = fileStatuses.filter(s => s.retrying || s.status === 'gagal');
+  const failedFiles  = retrySection.filter(s => !s.retrying && s.status === 'gagal');
+
+  // ── History static view (selesai, not live) ───────────────────
+  if (historyData && !historyLive) {
+    const hNormal = historyData.files.filter(f => f.status !== 'gagal');
+    const hFailed = historyData.files.filter(f => f.status === 'gagal');
+    return (
+      <div className="kt-content">
+        <div className="kt-upload-card">
+          <p className="kt-upload-timestamp">Uploaded {historyData.tanggal}</p>
+          <div className="kt-overall-progress">
+            <div className="kt-overall-label">
+              <span>Selesai</span>
+              <span>({historyData.berhasil}/{historyData.total})</span>
+            </div>
+            <div className="kt-progress-track">
+              <div className="kt-progress-fill" style={{ width: `${(historyData.berhasil / historyData.total) * 100}%` }} />
+            </div>
+          </div>
+          {hNormal.length > 0 && (
+            <div className="kt-upload-list-box">
+              {hNormal.map((f, i) => (
+                <div className={`kt-upload-row${i === hNormal.length - 1 ? ' last' : ''}`} key={i}>
+                  <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{f.name}</span></div>
+                  <div className="kt-upload-row-right">
+                    <div className="kt-upload-slot">
+                      {f.status === 'berhasil' && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail')}>Detail</div>}
+                    </div>
+                    <div className={`kt-status-label ${f.status}`}>
+                      {f.status === 'berhasil' && <><IconBerhasil /><span>Berhasil</span></>}
+                      {f.status === 'waiting'   && <><IconWaiting /><span>Menunggu</span></>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {hFailed.length > 0 && (
+            <div className="kt-gagal-section">
+              <div className="kt-gagal-header">
+                <span className="kt-gagal-title">Gagal Upload</span>
+                <button className="kt-btn-retry" onClick={() => startHistoryLive(historyData, true)}>
+                  <IconRetry /> Coba Lagi
+                </button>
+              </div>
+              <div className="kt-upload-list-box">
+                {hFailed.map((f, i) => (
+                  <div className={`kt-upload-row${i === hFailed.length - 1 ? ' last' : ''}`} key={i}>
+                    <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{f.name}</span></div>
+                    <div className="kt-upload-row-right">
+                      <div className="kt-upload-slot" />
+                      <div className="kt-status-label gagal"><IconGagal /><span>{f.failReason || 'Gagal Upload'}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="kt-upload-footer">
+            <button className="kt-btn-lihat" onClick={() => navigate('kandidat')}>Lihat Kandidat</button>
+            <button className="kt-btn-upload-more" onClick={() => onUploadMore ? onUploadMore() : navigate('kandidat-tambah')}>Upload CV Lainnya</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="kt-content" onClick={(e) => { if (!e.target.closest('.kt-field-lowongan')) setShowLowongan(false); }}>
@@ -234,14 +346,30 @@ export default function KandidatUnggahCV({ navigate }) {
                 ))}
               </div>
             )}
-            {failedFiles.length > 0 && (
+            {retrySection.length > 0 && (
               <div className="kt-gagal-section">
-                <div className="kt-gagal-header"><span className="kt-gagal-title">Gagal Upload</span><button className="kt-btn-retry" onClick={retryFailed}><IconRetry />Coba Lagi</button></div>
+                <div className="kt-gagal-header">
+                  <span className="kt-gagal-title">Gagal Upload</span>
+                  {!retrySection.some(s => s.retrying) && (
+                    <button className="kt-btn-retry" onClick={retryFailed}>
+                      <IconRetry /> Coba Lagi
+                    </button>
+                  )}
+                </div>
                 <div className="kt-upload-list-box">
-                  {failedFiles.map((fs, idx) => (
-                    <div className={`kt-upload-row${idx === failedFiles.length - 1 ? ' last' : ''}`} key={idx}>
+                  {retrySection.map((fs, idx) => (
+                    <div className={`kt-upload-row${idx === retrySection.length - 1 ? ' last' : ''}`} key={idx}>
                       <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{fs.name}</span></div>
-                      <div className="kt-upload-row-right"><div className="kt-upload-slot" /><div className="kt-status-label gagal"><IconGagal /><span>Gagal Upload</span></div></div>
+                      <div className="kt-upload-row-right">
+                        <div className="kt-upload-slot">
+                          {fs.status === 'uploading' && <div className="kt-file-progress-track"><div className="kt-file-progress-fill" style={{ width: `${fs.progress}%` }} /></div>}
+                        </div>
+                        <div className={`kt-status-label ${fs.status}`}>
+                          {fs.status === 'uploading' && <><IconUploading /><span>Proses Upload</span></>}
+                          {fs.status === 'waiting'   && <><IconWaiting /><span>Menunggu</span></>}
+                          {fs.status === 'gagal'     && <><IconGagal /><span>{fs.failReason || 'Gagal Upload'}</span></>}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

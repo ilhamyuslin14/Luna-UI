@@ -26,7 +26,7 @@ const CalendarIcon = () => (
 );
 
 /* Bullet-point input list */
-const BulletInputs = ({ bullets, onChange }) => (
+const BulletInputs = ({ bullets, onChange, placeholder = "Tulis tanggung jawab atau pencapaian..." }) => (
   <div className="kd-bullets-wrap">
     {bullets.map((b, i) => (
       <div className="kd-bullet-row" key={i}>
@@ -35,7 +35,7 @@ const BulletInputs = ({ bullets, onChange }) => (
           className="kd-edu-input kd-bullet-input"
           value={b}
           onChange={e => onChange(setBulletStatic(bullets, i, e.target.value))}
-          placeholder="Tulis tanggung jawab atau pencapaian..."
+          placeholder={placeholder}
         />
         {bullets.length > 1 && (
           <button
@@ -154,6 +154,28 @@ const PENDIDIKAN = [
   },
 ];
 
+const SERTIFIKASI = [
+  {
+    judul: 'Sertifikasi Kompetensi Manajer Sumber Daya Manusia',
+    penyelenggara: 'BNSP (Badan Nasional Sertifikasi Profesi)',
+    periode: '2023-08-10 – 2026-08-10',
+    deskripsi: [
+      'Merumuskan kebijakan organisasi dan sistem manajemen SDM.',
+      'Merancang program pembelajaran dan pengembangan pekerja.',
+      'Mengelola hubungan industrial dan kinerja pegawai.',
+    ],
+  },
+  {
+    judul: 'Sertifikasi Ahli K3 Umum (AK3U)',
+    penyelenggara: 'Kementerian Ketenagakerjaan RI',
+    periode: '2022-04-15 – 2025-04-15',
+    deskripsi: [
+      'Melaksanakan identifikasi potensi bahaya dan risiko keselamatan kerja.',
+      'Menyusun prosedur tanggap darurat dan SMK3 (Sistem Manajemen K3).',
+    ],
+  },
+];
+
 const AI_SCORES = [
   { posisi: 'Backend Engineer', fit: 'moderate', label: 'Sedang', score: 75 },
   { posisi: 'Frontend Engineer', fit: 'high', label: 'Tinggi', score: 90 },
@@ -184,13 +206,21 @@ const TAMBAHAN_FIELDS = [
   { key: 'harapanBenefit', label: 'Harapan Benefit', type: 'add' },
 ];
 
-export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
+export default function KandidatRingkasan({
+  kandidat = {},
+  onChangeTab,
+  hideAIPanel      = false,
+  initialSkills    = ['Microsoft Office', 'Komunikasi', 'Sourcing', 'Proses Rekrutmen end to end', 'Bernegosiasi'],
+  initialPengalaman = PENGALAMAN,
+  initialPendidikan = PENDIDIKAN,
+  initialSertifikasi = SERTIFIKASI,
+}) {
   const [expandedExp, setExpandedExp] = useState(new Set());
   const [scorePanel, setScorePanel] = useState(null);
 
   /* ── Keahlian state ── */
   const [isEditingSkills, setIsEditingSkills] = useState(false);
-  const [skills, setSkills] = useState(['Microsoft Office', 'Komunikasi', 'Sourcing', 'Proses Rekrutmen end to end', 'Bernegosiasi']);
+  const [skills, setSkills] = useState(initialSkills);
   const [addingSkill, setAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState('');
   const skillInputRef = useRef(null);
@@ -214,7 +244,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
 
   /* ── Pengalaman Kerja state ── */
   const [isEditingExp, setIsEditingExp] = useState(false);
-  const [pengalamanList, setPengalamanList] = useState(PENGALAMAN.map((e, i) => ({ ...e, id: i })));
+  const [pengalamanList, setPengalamanList] = useState(initialPengalaman.map((e, i) => ({ ...e, id: i })));
   const pengalamanSnap = useRef(null);
   const [addingExp, setAddingExp] = useState(false);
   const [newExp, setNewExp] = useState({ jabatan: '', perusahaan: '', tglMulai: '', tglSelesai: '', bullets: [''] });
@@ -268,7 +298,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
 
   /* ── Pendidikan state ── */
   const [isEditingEdu, setIsEditingEdu] = useState(false);
-  const [pendidikanList, setPendidikanList] = useState(PENDIDIKAN.map((e, i) => ({ ...e, id: i })));
+  const [pendidikanList, setPendidikanList] = useState(initialPendidikan.map((e, i) => ({ ...e, id: i })));
   const pendidikanSnap = useRef(null);
   const [addingEdu, setAddingEdu] = useState(false);
   const [newEdu, setNewEdu] = useState({ institusi: '', jenjang: '', tglMulai: '', tglSelesai: '' });
@@ -299,6 +329,52 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
     const periode = [editEduData.tglMulai, editEduData.tglSelesai].filter(Boolean).join(' – ') || '';
     setPendidikanList(prev => prev.map(e => e.id === id ? { ...e, institusi: editEduData.institusi, gelar: editEduData.jenjang, periode } : e));
     setEditingEduId(null);
+  };
+
+  /* ── Sertifikasi state ── */
+  const [isEditingSert, setIsEditingSert] = useState(false);
+  const [sertifikasiList, setSertifikasiList] = useState(initialSertifikasi.map((s, i) => ({ ...s, id: i })));
+  const sertSnap = useRef(null);
+  const [addingSert, setAddingSert] = useState(false);
+  const [newSert, setNewSert] = useState({ judul: '', penyelenggara: '', tglMulai: '', tglSelesai: '', bullets: [''] });
+  const [sertMenuOpen, setSertMenuOpen] = useState(null);
+  const [editingSertId, setEditingSertId] = useState(null);
+  const [editSertData, setEditSertData] = useState({});
+  const [expandedSert, setExpandedSert] = useState(new Set());
+
+  const startEditSert = () => { sertSnap.current = sertifikasiList.map(s => ({ ...s })); setIsEditingSert(true); };
+  const EMPTY_SERT = { judul: '', penyelenggara: '', tglMulai: '', tglSelesai: '', bullets: [''] };
+  const cancelSert = () => { setSertifikasiList(sertSnap.current); setAddingSert(false); setNewSert(EMPTY_SERT); setEditingSertId(null); setIsEditingSert(false); };
+  const saveSert = () => { setAddingSert(false); setIsEditingSert(false); };
+  const removeSert = (id) => { setSertifikasiList(prev => prev.filter(s => s.id !== id)); setSertMenuOpen(null); setDeleteTarget(null); };
+  const confirmSert = () => {
+    if (!newSert.judul.trim()) return;
+    const periode = [newSert.tglMulai, newSert.tglSelesai].filter(Boolean).join(' – ') || '';
+    const deskripsi = newSert.bullets.filter(b => b.trim());
+    setSertifikasiList(prev => [...prev, { judul: newSert.judul, penyelenggara: newSert.penyelenggara, periode, id: Date.now(), deskripsi }]);
+    setNewSert(EMPTY_SERT);
+    setAddingSert(false);
+  };
+  const startInlineEditSert = (sert) => {
+    const parts = (sert.periode || '').split(' – ');
+    setEditSertData({
+      judul: sert.judul, penyelenggara: sert.penyelenggara,
+      tglMulai: parts[0] || '', tglSelesai: parts[1] || '',
+      bullets: sert.deskripsi?.length ? [...sert.deskripsi] : [''],
+    });
+    setEditingSertId(sert.id);
+    setSertMenuOpen(null);
+  };
+  const saveInlineEditSert = (id) => {
+    const periode = [editSertData.tglMulai, editSertData.tglSelesai].filter(Boolean).join(' – ') || '';
+    const deskripsi = editSertData.bullets.filter(b => b.trim());
+    setSertifikasiList(prev => prev.map(s => s.id === id ? { ...s, judul: editSertData.judul, penyelenggara: editSertData.penyelenggara, periode, deskripsi } : s));
+    setEditingSertId(null);
+  };
+  const toggleSert = (i) => {
+    const next = new Set(expandedSert);
+    if (next.has(i)) next.delete(i); else next.add(i);
+    setExpandedSert(next);
   };
 
   /* ── Detail Kandidat edit state ── */
@@ -487,12 +563,135 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
           )}
         </div>
 
+        {/* ── Sertifikasi ── */}
+        <div className="kd-card" onClick={() => setSertMenuOpen(null)}>
+          <div className="kd-card-header">
+            <span className="kd-card-label">Sertifikasi</span>
+            {!isEditingSert && (
+              <button className="kd-edit-btn" onClick={startEditSert}><EditIcon /> Edit</button>
+            )}
+          </div>
+
+          <div className="kd-edu-body">
+            {sertifikasiList.length === 0 && !isEditingSert && (
+              <div className="kd-empty-state">
+                <p className="kd-empty-text">Belum ada sertifikasi yang ditambahkan.<br/>Lisensi dan sertifikasi profesional kandidat akan tampil di sini.</p>
+                <button className="kd-empty-add-btn" onClick={() => { startEditSert(); setAddingSert(true); }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  Tambah Sertifikasi
+                </button>
+              </div>
+            )}
+            {isEditingSert && addingSert && (
+              <div className="kd-edu-form-card">
+                <input className="kd-edu-input" placeholder="Judul Sertifikasi *" value={newSert.judul} onChange={e => setNewSert(p => ({ ...p, judul: e.target.value }))} />
+                <div className="kd-edu-select-wrap">
+                  <input className="kd-edu-input" placeholder="Badan Penyelenggara *" value={newSert.penyelenggara} onChange={e => setNewSert(p => ({ ...p, penyelenggara: e.target.value }))} />
+                </div>
+                <div className="kd-entry-date-row">
+                  <DateInputField label="Tanggal Diterbitkan" value={newSert.tglMulai} onChange={e => setNewSert(p => ({ ...p, tglMulai: e.target.value }))} />
+                  <DateInputField label="Tanggal Berakhir" value={newSert.tglSelesai} onChange={e => setNewSert(p => ({ ...p, tglSelesai: e.target.value }))} />
+                </div>
+                <BulletInputs
+                  bullets={newSert.bullets}
+                  onChange={b => setNewSert(p => ({ ...p, bullets: b }))}
+                  placeholder="Tulis list kompetensi..."
+                />
+                <div className="kd-entry-row-actions">
+                  <button className="sd-edit-cancel-btn" onClick={() => { setAddingSert(false); setNewSert(EMPTY_SERT); }}>Batal</button>
+                  <button className="sd-edit-save-btn" onClick={confirmSert}>Simpan</button>
+                </div>
+              </div>
+            )}
+
+            {sertifikasiList.map((sert) => (
+              <div key={sert.id}>
+                {editingSertId === sert.id ? (
+                  <div className="kd-edu-form-card">
+                    <input className="kd-edu-input" placeholder="Judul Sertifikasi *" value={editSertData.judul} onChange={e => setEditSertData(p => ({ ...p, judul: e.target.value }))} />
+                    <div className="kd-edu-select-wrap">
+                      <input className="kd-edu-input" placeholder="Badan Penyelenggara *" value={editSertData.penyelenggara} onChange={e => setEditSertData(p => ({ ...p, penyelenggara: e.target.value }))} />
+                    </div>
+                    <div className="kd-entry-date-row">
+                      <DateInputField label="Tanggal Diterbitkan" value={editSertData.tglMulai} onChange={e => setEditSertData(p => ({ ...p, tglMulai: e.target.value }))} />
+                      <DateInputField label="Tanggal Berakhir" value={editSertData.tglSelesai} onChange={e => setEditSertData(p => ({ ...p, tglSelesai: e.target.value }))} />
+                    </div>
+                    <BulletInputs
+                      bullets={editSertData.bullets || ['']}
+                      onChange={b => setEditSertData(p => ({ ...p, bullets: b }))}
+                      placeholder="Tulis list kompetensi..."
+                    />
+                    <div className="kd-entry-row-actions">
+                      <button className="sd-edit-cancel-btn" onClick={() => setEditingSertId(null)}>Batal</button>
+                      <button className="sd-edit-save-btn" onClick={() => saveInlineEditSert(sert.id)}>Simpan</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="kd-edu-item kd-exp-item">
+                    <div className="kd-edu-item-content">
+                      <span className="kd-edu-item-name">{sert.judul}</span>
+                      <span className="kd-edu-item-sub">{sert.penyelenggara}</span>
+                      <span className="kd-edu-item-sub">{sert.periode}</span>
+                      {(sert.deskripsiHtml || sert.deskripsi?.[0]) && (
+                        <div className="kd-exp-desc-display">
+                          <div
+                            className={`kd-exp-desc-text${expandedSert.has(sert.id) ? '' : ' kd-exp-desc-collapsed'}`}
+                            dangerouslySetInnerHTML={{ __html: sert.deskripsiHtml || sert.deskripsi?.join('<br/>') || '' }}
+                          />
+                          <button className="kd-read-more" onClick={(e) => { e.stopPropagation(); toggleSert(sert.id); }}>
+                            {expandedSert.has(sert.id) ? 'Lihat Lebih Sedikit' : 'Lihat Lebih Banyak'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="kd-three-dot-wrap" onClick={e => e.stopPropagation()}>
+                      <button className="kd-three-dot-btn" onClick={() => setSertMenuOpen(prev => prev === sert.id ? null : sert.id)}>
+                        <svg width="3" height="13" viewBox="0 0 3 13" fill="none">
+                          <circle cx="1.5" cy="1.5" r="1.5" fill="#abb2c1" />
+                          <circle cx="1.5" cy="6.5" r="1.5" fill="#abb2c1" />
+                          <circle cx="1.5" cy="11.5" r="1.5" fill="#abb2c1" />
+                        </svg>
+                      </button>
+                      {sertMenuOpen === sert.id && (
+                        <div className="kd-three-dot-menu">
+                          <button className="kd-menu-item" onClick={() => startInlineEditSert(sert)}>
+                            <EditIcon /> Edit
+                          </button>
+                          <button className="kd-menu-item kd-menu-item--danger" onClick={() => setDeleteTarget({ type: 'sert', id: sert.id })}>
+                            <TrashIcon /> Hapus
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {isEditingSert && !addingSert && (
+              <button className="kd-add-entry-btn" onClick={() => setAddingSert(true)}>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                Tambah Sertifikasi
+              </button>
+            )}
+          </div>
+
+          {isEditingSert && (
+            <div className="sd-detail-edit-footer">
+              <button className="sd-edit-cancel-btn" onClick={cancelSert}>Batal</button>
+              <button className="sd-edit-save-btn" onClick={saveSert}>Simpan</button>
+            </div>
+          )}
+        </div>
+
       </div>
 
       <div className="kd-col-right">
 
         {/* Penilaian AI */}
-        <div className="kd-card">
+        {!hideAIPanel && <div className="kd-card">
           <div className="kd-card-header">
             <span className="kd-card-label">Penilaian AI</span>
           </div>
@@ -517,7 +716,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
           <div className="kd-card-footer-btn">
             <button className="kd-lihat-lainnya" onClick={() => onChangeTab && onChangeTab('seleksi')}>Lihat Lainnya</button>
           </div>
-        </div>
+        </div>}
 
         {/* ── Keahlian ── */}
         <div className="kd-card kd-keahlian-card">
@@ -530,6 +729,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
             )}
           </div>
           <div className="kd-keahlian-body">
+            {skills.length === 0 && !isEditingSkills && (
+              <div className="kd-empty-state">
+                <p className="kd-empty-text">Belum ada keahlian yang ditambahkan.<br/>Keterampilan teknis maupun non-teknis kandidat akan tampil di sini.</p>
+                <button className="kd-empty-add-btn" onClick={startEditSkills}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  Tambah Keahlian
+                </button>
+              </div>
+            )}
             <div className="kd-keahlian-tags">
               {skills.map((skill, idx) => (
                 <div className="kd-skill-tag" key={idx}>
@@ -591,6 +799,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
 
           <div className="kd-edu-body">
             {/* Form tambah di ATAS */}
+            {pengalamanList.length === 0 && !isEditingExp && (
+              <div className="kd-empty-state">
+                <p className="kd-empty-text">Belum ada pengalaman kerja yang ditambahkan.<br/>Riwayat pekerjaan kandidat akan tampil di sini.</p>
+                <button className="kd-empty-add-btn" onClick={() => { startEditExp(); setAddingExp(true); }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  Tambah Pengalaman
+                </button>
+              </div>
+            )}
             {isEditingExp && addingExp && (
               <div className="kd-edu-form-card">
                 <input className="kd-edu-input" placeholder="Nama Jabatan *" value={newExp.jabatan} onChange={e => setNewExp(p => ({ ...p, jabatan: e.target.value }))} />
@@ -716,6 +933,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
           </div>
 
           <div className="kd-edu-body">
+            {pendidikanList.length === 0 && !isEditingEdu && (
+              <div className="kd-empty-state">
+                <p className="kd-empty-text">Belum ada riwayat pendidikan yang ditambahkan.<br/>Informasi institusi dan jenjang kandidat akan tampil di sini.</p>
+                <button className="kd-empty-add-btn" onClick={() => { startEditEdu(); setAddingEdu(true); }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  Tambah Pendidikan
+                </button>
+              </div>
+            )}
             {/* Form tambah di ATAS — sesuai Figma */}
             {isEditingEdu && addingEdu && (
               <div className="kd-edu-form-card">
@@ -816,13 +1042,14 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab }) {
 
       {deleteTarget !== null && (
         <PopupKonfirmasi
-          title={`Hapus ${deleteTarget.type === 'exp' ? 'Pengalaman Kerja' : 'Pendidikan'}`}
+          title={`Hapus ${deleteTarget.type === 'exp' ? 'Pengalaman Kerja' : deleteTarget.type === 'edu' ? 'Pendidikan' : 'Sertifikasi'}`}
           body="Apakah Anda yakin ingin menghapus data ini?"
           confirmLabel="Hapus"
           onConfirm={() => {
-            const label = deleteTarget.type === 'exp' ? 'Pengalaman Kerja' : 'Pendidikan';
+            const label = deleteTarget.type === 'exp' ? 'Pengalaman Kerja' : deleteTarget.type === 'edu' ? 'Pendidikan' : 'Sertifikasi';
             if (deleteTarget.type === 'exp') removeExp(deleteTarget.id);
             if (deleteTarget.type === 'edu') removeEdu(deleteTarget.id);
+            if (deleteTarget.type === 'sert') removeSert(deleteTarget.id);
             setDeleteTarget(null);
             showToast(`${label} berhasil dihapus`, 'Data telah dihapus secara permanen');
           }}

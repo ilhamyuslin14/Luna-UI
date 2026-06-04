@@ -2,6 +2,7 @@ import { useState } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import Pagination from '../../components/Pagination.jsx';
 
 const INITIAL_SELEKSI_ROWS = [
   { posisi: 'Backend Engineer', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'rencana' },
@@ -159,36 +160,11 @@ export default function DepartemenSeleksi({ navigate, onBack }) {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div style={{
-        background: 'white', borderTop: '1px solid #e2e5ec',
-        display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-        padding: '11px 20px 12px', flexShrink: 0,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid #cbd0db', borderRadius: '6px',
-            padding: '4px', width: '34px',
-            fontSize: '14px', color: '#171e2c', background: 'white',
-            fontFamily: 'var(--font-family)',
-          }}>
-            1
-          </div>
-          <span style={{ fontSize: '14px', color: '#171e2c', whiteSpace: 'nowrap', fontFamily: 'var(--font-family)' }}>
-            dari 3
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #cbd0db', borderRadius: '8px', overflow: 'hidden', height: '28px' }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 10px', height: '100%' }}>
-              <img src="/assets/line244.svg" alt="Prev" />
-            </button>
-            <div style={{ width: '1px', background: '#cbd0db', alignSelf: 'stretch' }} />
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 10px', height: '100%' }}>
-              <img src="/assets/line242.svg" alt="Next" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Pagination 
+        page={1} 
+        total={3} 
+        perPage={10} 
+      />
     </div>
   );
 }

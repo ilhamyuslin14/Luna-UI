@@ -74,7 +74,10 @@
       "Bash(grep -n 'filter-container\\\\|btn-filter\\\\|filter-dropdown\\\\|filter-column\\\\|ALUR_STAGES\\\\|BOARD_COLUMNS' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/__TRACKED_VAR__)",
       "Bash(cp /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/assets/*.svg /Users/ilham/Documents/Project/Node/projects/Luna-UI/public/assets/ && echo \"Done\" && ls /Users/ilham/Documents/Project/Node/projects/Luna-UI/public/assets/ | grep -E \"back_arrow|building|chevron|edit_pencil|ellipse|lock|shield|success|user_profile\")",
       "Bash(grep -n 'confirmLabel\\\\|toast\\\\|Toast\\\\|useRef\\\\|import.*Toast' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/__TRACKED_VAR__)",
-      "Bash(grep -n 'onConfirm\\\\|onClose\\\\|import' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/__TRACKED_VAR__)"
+      "Bash(grep -n 'onConfirm\\\\|onClose\\\\|import' /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/__TRACKED_VAR__)",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__get_project"
     ],
     "additionalDirectories": [
       "/Users/ilham/Documents/Project/Node/projects/Luna-UI/src/assets"

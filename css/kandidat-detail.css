@@ -267,15 +267,15 @@
 .kd-detail-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 32px;
 }
 
 .kd-detail-label {
-  flex: 1;
+  flex: 0 0 160px;
   font-size: 12px;
   font-weight: 600;
   color: var(--color-neutral-800);
-  min-width: 0;
 }
 
 .kd-detail-value {
@@ -284,7 +284,8 @@
   font-size: 12px;
   font-weight: 400;
   color: var(--color-neutral-800);
-  padding-left: 12px;
+  padding: 10px 12px;
+  border-radius: 7px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -523,7 +524,7 @@
 .kd-posisi-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -534,7 +535,7 @@
   position: relative;
   background: #fff;
   border-radius: 18px;
-  box-shadow: 0 8px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
   width: 442px;
   max-height: 80vh;
   display: flex;
@@ -560,7 +561,9 @@
   z-index: 1;
 }
 
-.kd-posisi-close:hover { background: #f4f6fa; }
+.kd-posisi-close:hover {
+  background: #f4f6fa;
+}
 
 .kd-posisi-body {
   display: flex;
@@ -602,10 +605,12 @@
 
 .kd-posisi-search:focus {
   border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+  box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.1);
 }
 
-.kd-posisi-search::placeholder { color: #abb2c1; }
+.kd-posisi-search::placeholder {
+  color: #abb2c1;
+}
 
 .kd-posisi-search-icon {
   position: absolute;
@@ -646,7 +651,9 @@
   transition: border-color 0.15s;
 }
 
-.kd-posisi-item:hover { border-color: #d4d9e6; }
+.kd-posisi-item:hover {
+  border-color: #d4d9e6;
+}
 
 .kd-posisi-item-info {
   display: flex;
@@ -713,7 +720,7 @@
   border: 1px solid #e2e5ec;
   border-left: 4px solid #14b541;
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   padding: 14px 16px;
   display: flex;
   align-items: flex-start;
@@ -724,8 +731,15 @@
 }
 
 @keyframes kd-toast-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kd-toast-icon {
@@ -768,7 +782,9 @@
   transition: background 0.15s;
 }
 
-.kd-toast-close:hover { background: #f4f6fa; }
+.kd-toast-close:hover {
+  background: #f4f6fa;
+}
 
 /* ── Penilaian AI hover effect ──────────────────────────── */
 .kd-ai-row--hoverable {
@@ -860,7 +876,9 @@
   transition: opacity 0.15s;
 }
 
-.kd-skill-remove:hover { opacity: 1; }
+.kd-skill-remove:hover {
+  opacity: 1;
+}
 
 /* Add button — blue gradient circle 26px */
 /* Wrapper input+button agar tetap satu baris saat flex-wrap */
@@ -881,12 +899,14 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(197.3deg, #1d8fd8 16.34%, #0977be 88.78%);
-  box-shadow: 0 2px 2px rgba(11,23,43,0.05);
+  box-shadow: 0 2px 2px rgba(11, 23, 43, 0.05);
   flex-shrink: 0;
   transition: opacity 0.15s;
 }
 
-.kd-skill-add-btn:hover { opacity: 0.85; }
+.kd-skill-add-btn:hover {
+  opacity: 0.85;
+}
 
 /* Inline input for adding skill */
 /* Inline skill input — styled seperti tag putih di Figma */
@@ -911,7 +931,9 @@
   border-color: #0977be;
 }
 
-.kd-skill-inline-input::placeholder { color: #abb2c1; }
+.kd-skill-inline-input::placeholder {
+  color: #abb2c1;
+}
 
 /* ── Edit: remove button on exp/edu items ── */
 .kd-exp-remove-btn {
@@ -927,7 +949,9 @@
   transition: background 0.15s;
 }
 
-.kd-exp-remove-btn:hover { background: #fff3f3; }
+.kd-exp-remove-btn:hover {
+  background: #fff3f3;
+}
 
 /* ── Edit: add entry form (pengalaman & pendidikan) ── */
 .kd-add-entry-form {
@@ -989,10 +1013,12 @@
 
 .kd-entry-input:focus {
   border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9,119,190,0.08);
+  box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.08);
 }
 
-.kd-entry-input::placeholder { color: #abb2c1; }
+.kd-entry-input::placeholder {
+  color: #abb2c1;
+}
 
 .kd-entry-date-row {
   display: flex;
@@ -1070,10 +1096,12 @@
 
 .kd-skill-field-input:focus {
   border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9,119,190,0.08);
+  box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.08);
 }
 
-.kd-skill-field-input::placeholder { color: #abb2c1; }
+.kd-skill-field-input::placeholder {
+  color: #abb2c1;
+}
 
 /* ── Education redesign (Figma 484:9797) ── */
 .kd-edu-body {
@@ -1110,8 +1138,13 @@
   line-height: 1.5;
 }
 
-.kd-edu-input:focus { border-color: #0977be; }
-.kd-edu-input::placeholder { color: #abb2c1; }
+.kd-edu-input:focus {
+  border-color: #0977be;
+}
+
+.kd-edu-input::placeholder {
+  color: #abb2c1;
+}
 
 /* Degree select wrapper with chevron */
 .kd-edu-select-wrap {
@@ -1180,7 +1213,9 @@
   transition: background 0.15s;
 }
 
-.kd-three-dot-btn:hover { background: #f0f2f6; }
+.kd-three-dot-btn:hover {
+  background: #f0f2f6;
+}
 
 .kd-three-dot-menu {
   position: absolute;
@@ -1189,7 +1224,7 @@
   background: #fff;
   border: 1px solid #e2e5ec;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 120px;
   z-index: 100;
   overflow: hidden;
@@ -1211,10 +1246,17 @@
   transition: background 0.15s;
 }
 
-.kd-menu-item:hover { background: #f7f8fa; }
+.kd-menu-item:hover {
+  background: #f7f8fa;
+}
 
-.kd-menu-item--danger { color: #c0504a; }
-.kd-menu-item--danger:hover { background: #fff0f0; }
+.kd-menu-item--danger {
+  color: #c0504a;
+}
+
+.kd-menu-item--danger:hover {
+  background: #fff0f0;
+}
 
 /* ── Date input with calendar icon ── */
 /* ── Date field: icon + hint text inside the box ── */
@@ -1344,7 +1386,9 @@
   transition: background 0.15s;
 }
 
-.kd-bullet-remove:hover { background: #f0f2f6; }
+.kd-bullet-remove:hover {
+  background: #f0f2f6;
+}
 
 .kd-bullet-add {
   display: flex;
@@ -1368,4 +1412,42 @@
 .kd-bullet-add:hover {
   border-color: #0977be;
   background: #f4fafe;
+}
+
+/* ── Empty state ── */
+.kd-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.kd-empty-text {
+  font-size: 12px;
+  color: #abb2c1;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.kd-empty-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0977be;
+  background: none;
+  border: 1px dashed #cce4f7;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.kd-empty-add-btn:hover {
+  background: #f0f8fe;
+  border-color: #0977be;
 }

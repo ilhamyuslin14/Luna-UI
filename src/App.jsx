@@ -27,6 +27,7 @@ import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
 import LandingPageLupaPassword from './views/landing/LandingPage-LupaPassword.jsx';
+import Sandbox from './views/sandbox/Sandbox.jsx';
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -120,6 +121,10 @@ export default function App() {
       default: return <Beranda />;
     }
   };
+
+  if (window.location.pathname === '/sandbox') {
+    return <Sandbox navigate={navigate} />;
+  }
 
   return (
     <div className="app-container">

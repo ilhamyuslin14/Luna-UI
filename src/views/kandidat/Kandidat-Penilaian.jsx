@@ -1,36 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const CRITERIA_DATA = {
-  high: [
-    { level: 'high',     name: 'Talent Acquisition Experience', desc: 'Candidate has 6 years of experience in human capital and recruitment roles', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.' },
-    { level: 'high',     name: 'ATS Experience',                desc: 'Candidate is familiar with using ATS for recruitment purposes', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).' },
-    { level: 'high',     name: 'Time Management',               desc: 'Candidate has experience working with time-to-hire targets in previous roles', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.' },
-    { level: 'moderate', name: 'Professional Network',          desc: 'Candidate has some experience in professional communities but needs more evidence', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.' },
-    { level: 'moderate', name: 'Technical Knowledge',           desc: 'Candidate shows some understanding of technical terms but requires more demonstration', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.' },
-    { level: 'none',     name: 'Communication Skills',          desc: 'Candidate lacks clear evidence of strong communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.' },
-  ],
-  moderate: [
-    { level: 'high',     name: 'ATS Experience',                desc: 'Candidate is familiar with using ATS for recruitment purposes', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).' },
-    { level: 'moderate', name: 'Talent Acquisition Experience', desc: 'Candidate has some recruitment experience but not enough for all requirements', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.' },
-    { level: 'moderate', name: 'Professional Network',          desc: 'Candidate has a developing professional network in the industry', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.' },
-    { level: 'moderate', name: 'Technical Knowledge',           desc: 'Candidate shows basic understanding of technical requirements', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.' },
-    { level: 'none',     name: 'Communication Skills',          desc: 'Candidate lacks evidence of advanced communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.' },
-    { level: 'low',      name: 'Time Management',               desc: 'Candidate does not show measurable time-to-hire management experience', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.' },
-  ],
-  low: [
-    { level: 'moderate', name: 'ATS Experience',                desc: 'Candidate has limited exposure to ATS tools in previous roles', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).' },
-    { level: 'none',     name: 'Professional Network',          desc: 'Limited professional community presence and engagement', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.' },
-    { level: 'none',     name: 'Talent Acquisition Experience', desc: 'Candidate has minimal recruitment experience for this role', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.' },
-    { level: 'low',      name: 'Communication Skills',          desc: 'Candidate lacks clear evidence of strong communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.' },
-    { level: 'low',      name: 'Time Management',               desc: 'No evidence of time-to-hire management in previous experience', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.' },
-    { level: 'low',      name: 'Technical Knowledge',           desc: 'Candidate shows very limited technical knowledge relevant to the role', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.' },
-  ],
+  high: {
+    criteriaData: [
+      { level: 'high', name: 'Talent Acquisition Experience', desc: 'Candidate has 6 years of experience in human capital and recruitment roles', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.', bobot: 'tinggi', score: 100 },
+      { level: 'high', name: 'ATS Experience', desc: 'Candidate is familiar with using ATS for recruitment purposes', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).', bobot: 'tinggi', score: 100 },
+      { level: 'high', name: 'Time Management', desc: 'Candidate has experience working with time-to-hire targets in previous roles', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.', bobot: 'sedang', score: 70 },
+      { level: 'moderate', name: 'Professional Network', desc: 'Candidate has some experience in professional communities but needs more evidence', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.', bobot: 'sedang', score: 70 },
+      { level: 'moderate', name: 'Technical Knowledge', desc: 'Candidate shows some understanding of technical terms but requires more demonstration', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.', bobot: 'sedang', score: 70 },
+      { level: 'none', name: 'Communication Skills', desc: 'Candidate lacks clear evidence of strong communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.', bobot: 'tinggi', score: 0 },
+    ],
+    prefData: [
+      { level: 'high', name: 'Sertifikasi HR', desc: 'Memiliki sertifikasi CHRP', req: 'Sertifikasi profesional di bidang HR.', bobot: 'rendah', score: 70 },
+    ]
+  },
+  moderate: {
+    criteriaData: [
+      { level: 'high', name: 'ATS Experience', desc: 'Candidate is familiar with using ATS for recruitment purposes', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).', bobot: 'tinggi', score: 100 },
+      { level: 'moderate', name: 'Talent Acquisition Experience', desc: 'Candidate has some recruitment experience but not enough for all requirements', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.', bobot: 'tinggi', score: 70 },
+      { level: 'moderate', name: 'Professional Network', desc: 'Candidate has a developing professional network in the industry', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.', bobot: 'sedang', score: 70 },
+      { level: 'moderate', name: 'Technical Knowledge', desc: 'Candidate shows basic understanding of technical requirements', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.', bobot: 'sedang', score: 70 },
+      { level: 'none', name: 'Communication Skills', desc: 'Candidate lacks evidence of advanced communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.', bobot: 'tinggi', score: 0 },
+      { level: 'low', name: 'Time Management', desc: 'Candidate does not show measurable time-to-hire management experience', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.', bobot: 'sedang', score: 40 },
+    ],
+    prefData: [
+      { level: 'none', name: 'Sertifikasi HR', desc: 'Tidak ada sertifikasi yang dilampirkan', req: 'Sertifikasi profesional di bidang HR.', bobot: 'rendah', score: 0 },
+    ]
+  },
+  low: {
+    criteriaData: [
+      { level: 'moderate', name: 'ATS Experience', desc: 'Candidate has limited exposure to ATS tools in previous roles', req: 'Memiliki pengalaman dalam mengoperasikan sistem ATS (Applicant Tracking System).', bobot: 'tinggi', score: 70 },
+      { level: 'none', name: 'Professional Network', desc: 'Limited professional community presence and engagement', req: 'Memiliki jejaring profesional yang luas dalam komunitas industri terkait.', bobot: 'sedang', score: 0 },
+      { level: 'none', name: 'Talent Acquisition Experience', desc: 'Candidate has minimal recruitment experience for this role', req: 'Pengalaman minimal 5 tahun di bidang Human Capital dan Talent Acquisition.', bobot: 'tinggi', score: 0 },
+      { level: 'low', name: 'Communication Skills', desc: 'Candidate lacks clear evidence of strong communication and negotiation skills', req: 'Kemampuan komunikasi persuasif dan negosiasi yang kuat.', bobot: 'tinggi', score: 40 },
+      { level: 'low', name: 'Time Management', desc: 'No evidence of time-to-hire management in previous experience', req: 'Mampu mengelola proses rekrutmen dengan target time-to-hire yang terukur.', bobot: 'sedang', score: 40 },
+      { level: 'low', name: 'Technical Knowledge', desc: 'Candidate shows very limited technical knowledge relevant to the role', req: 'Memahami istilah dan kebutuhan teknis untuk berbagai posisi yang sedang dibuka.', bobot: 'sedang', score: 40 },
+    ],
+    prefData: [
+      { level: 'none', name: 'Sertifikasi HR', desc: 'Tidak ada sertifikasi yang dilampirkan', req: 'Sertifikasi profesional di bidang HR.', bobot: 'rendah', score: 0 },
+    ]
+  }
 };
 
 const AI_SUMMARY = {
-  high:     'Candidate has strong experience, meets most required criteria including ATS and LinkedIn Recruiter usage, with good potential fit in professional network and technical terms.',
+  high: 'Candidate has strong experience, meets most required criteria including ATS and LinkedIn Recruiter usage, with good potential fit in professional network and technical terms.',
   moderate: 'Candidate has 6 years of experience, meets some required criteria like using ATS and LinkedIn Recruiter, but lacks evidence of good communication and negotiation skills, with potential fit in professional network and technical terms.',
-  low:      'Candidate does not sufficiently meet the key criteria for this role. Most required skills and experience are either absent or need significant development.',
+  low: 'Candidate does not sufficiently meet the key criteria for this role. Most required skills and experience are either absent or need significant development.',
 };
 
 const LEVEL_LABELS = { high: 'Tinggi', moderate: 'Sedang', none: 'Tidak Sesuai', low: 'Rendah' };
@@ -64,7 +79,7 @@ const Tip = ({ text, children }) => {
   const handleMouseEnter = () => {
     if (!wrapRef.current) return;
     const rect = wrapRef.current.getBoundingClientRect();
-    
+
     // Deteksi vertikal
     if (rect.bottom + 80 > window.innerHeight) {
       setPosition('top');
@@ -96,7 +111,7 @@ const Tip = ({ text, children }) => {
  *   onClose   — function
  *   onReject  — function
  */
-export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
+export default function KandidatPenilaian({ kandidat, onClose, onReject, embedded = false }) {
   const [isClosing, setIsClosing] = useState(false);
   const [isAlurOpen, setIsAlurOpen] = useState(false);
   const [selectedAlur, setSelectedAlur] = useState(kandidat.alur || 'Terseleksi');
@@ -124,10 +139,19 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
     setTimeout(() => onClose(), 300);
   };
 
-  const criteria = CRITERIA_DATA[kandidat.skor.level] || [];
-  const countByLevel = (lvl) => criteria.filter(c => c.level === lvl).length;
-  const gaugeColor = GAUGE_COLORS[kandidat.skor.level];
-  const levelText = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah' }[kandidat.skor.level];
+  const criteria = kandidat.skor?.criteriaData || CRITERIA_DATA[kandidat.skor?.level]?.criteriaData || (Array.isArray(CRITERIA_DATA[kandidat.skor?.level]) ? CRITERIA_DATA[kandidat.skor?.level] : []);
+  const prefs = kandidat.skor?.prefData || CRITERIA_DATA[kandidat.skor?.level]?.prefData || [];
+  const allCriteria = [...criteria, ...prefs];
+  const aiSummaryText = kandidat.skor?.aiSummary || AI_SUMMARY[kandidat.skor?.level] || '';
+  const countByLevel = (lvl) => allCriteria.filter(c => c.level === lvl).length;
+
+  let gaugeColor = GAUGE_COLORS[kandidat.skor?.level];
+  if (!gaugeColor) {
+    if (kandidat.skor?.score >= 80) gaugeColor = GAUGE_COLORS.high;
+    else if (kandidat.skor?.score >= 50) gaugeColor = GAUGE_COLORS.moderate;
+    else gaugeColor = GAUGE_COLORS.low;
+  }
+  const levelText = kandidat.skor?.level ? { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah' }[kandidat.skor.level] : '';
 
   const r = 33;
   const circumference = 2 * Math.PI * r;
@@ -168,7 +192,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
   };
 
   return (
-    <div className={`sc-overlay${isClosing ? ' closing' : ''}`} onClick={handleClose}>
+    <div className={`sc-overlay${isClosing ? ' closing' : ''}${embedded ? ' embedded' : ''}`} onClick={!embedded ? handleClose : undefined}>
       <div className={`sc-panel${isClosing ? ' closing' : ''}`} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -210,21 +234,21 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
                   <circle cx="7" cy="7" r="7" fill="#089f32" />
                   <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Tinggi: {countByLevel('high')}/{criteria.length}
+                Tinggi: {countByLevel('high')}/{allCriteria.length}
               </span>
               <span className="sc-chip moderate">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
                   <circle cx="7" cy="7" r="7" fill="#da8700" />
                   <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Sedang: {countByLevel('moderate')}/{criteria.length}
+                Sedang: {countByLevel('moderate')}/{allCriteria.length}
               </span>
               <span className="sc-chip low">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
                   <circle cx="7" cy="7" r="7" fill="#ef4444" />
                   <path d="M4.5 4.5L9.5 9.5M9.5 4.5L4.5 9.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Rendah: {countByLevel('low')}/{criteria.length}
+                Rendah: {countByLevel('low')}/{allCriteria.length}
               </span>
             </div>
           </div>
@@ -235,7 +259,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
             <div className="sc-ai-title">
               Rangkuman AI
             </div>
-            <p className="sc-ai-text">{AI_SUMMARY[kandidat.skor.level]}</p>
+            <p className="sc-ai-text">{aiSummaryText}</p>
           </div>
         </div>
 
@@ -262,8 +286,13 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
             <div className="sc-criteria-col-req">Kriteria</div>
           </div>
           <div className="sc-criteria-list">
+            {criteria.length > 0 && (
+              <div style={{ padding: '8px 24px', fontSize: '12px', fontWeight: 600, color: '#323b4d', background: '#f8fafc', borderBottom: '1px solid #e2e5ec' }}>
+                Kriteria Utama (Requirements)
+              </div>
+            )}
             {criteria.map((c, i) => (
-              <div key={i} className="sc-criteria-row">
+              <div key={`req-${i}`} className="sc-criteria-row">
                 <div className="sc-criteria-level-col">
                   <span className={`sc-level-badge ${c.level}`}>
                     {getLevelIcon(c.level)}
@@ -275,8 +304,60 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
                     {c.name}
                     <Tip text={
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <strong style={{ color: '#171e2c' }}>Kriteria Penilaian</strong>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                          <strong style={{ color: '#171e2c' }}>Kriteria Penilaian</strong>
+                          {c.score !== undefined && (
+                            <span style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                              {c.score}%
+                            </span>
+                          )}
+                        </div>
                         <span>{c.req}</span>
+                        {c.bobot && (
+                          <span style={{ fontSize: '11px', color: '#7e8799', marginTop: '2px', textTransform: 'capitalize' }}>
+                            {c.bobot}
+                          </span>
+                        )}
+                      </div>
+                    }><IconInfo /></Tip>
+                  </div>
+                  <div className="sc-criteria-desc">{c.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            {prefs.length > 0 && (
+              <div style={{ padding: '8px 24px', fontSize: '12px', fontWeight: 600, color: '#323b4d', background: '#f8fafc', borderBottom: '1px solid #e2e5ec', borderTop: '1px solid #e2e5ec' }}>
+                Kriteria Tambahan (Preferences)
+              </div>
+            )}
+            {prefs.map((c, i) => (
+              <div key={`pref-${i}`} className="sc-criteria-row">
+                <div className="sc-criteria-level-col">
+                  <span className={`sc-level-badge ${c.level}`}>
+                    {getLevelIcon(c.level)}
+                    {LEVEL_LABELS[c.level]}
+                  </span>
+                </div>
+                <div className="sc-criteria-info">
+                  <div className="sc-criteria-name">
+                    {c.name}
+                    <Tip text={
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                          <strong style={{ color: '#171e2c' }}>Kriteria Penilaian</strong>
+                          {c.score !== undefined && (
+                            <span style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                              {c.score}%
+                            </span>
+                          )}
+                        </div>
+                        <span>{c.req}</span>
+                        {c.bobot && (
+                          <span style={{ fontSize: '11px', color: '#7e8799', marginTop: '2px', textTransform: 'capitalize' }}>
+                            {c.bobot}
+                          </span>
+                        )}
                       </div>
                     }><IconInfo /></Tip>
                   </div>
@@ -296,9 +377,9 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
                 Penilaian Ulang
               </button>
             </Tip>
-            
+
             <div style={{ position: 'relative' }} ref={dropdownRef}>
-              <div 
+              <div
                 className={`sc-btn-action ${isAlurOpen ? 'active' : ''}`}
                 onClick={() => setIsAlurOpen(!isAlurOpen)}
                 style={{ justifyContent: 'space-between', minWidth: '150px' }}
@@ -311,8 +392,8 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
               {isAlurOpen && (
                 <div className="sc-alur-dropdown">
                   {alurOptions.map(opt => (
-                    <button 
-                      key={opt} 
+                    <button
+                      key={opt}
                       className={`sc-alur-option ${selectedAlur === opt ? 'active' : ''}`}
                       onClick={() => {
                         setSelectedAlur(opt);
@@ -325,9 +406,9 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject }) {
                 </div>
               )}
             </div>
-            
-            <button 
-              className="sc-btn-action grey" 
+
+            <button
+              className="sc-btn-action grey"
               onClick={(e) => {
                 e.stopPropagation();
                 if (isClosing) return;
