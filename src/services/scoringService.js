@@ -50,8 +50,9 @@ export async function getScoringByKandidat(kandidatId) {
   if (!kandidatId) return [];
   const { data, error } = await supabase
     .from('scoring')
-    .select('*, seleksi:seleksi_id(jabatan)')
+    .select('*, seleksi!inner(jabatan, arsip)')
     .eq('kandidat_id', kandidatId)
+    .neq('seleksi.arsip', true)
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
