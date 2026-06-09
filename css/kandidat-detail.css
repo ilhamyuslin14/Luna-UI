@@ -12,11 +12,12 @@
 .kd-title-bar {
   background: #ffffff;
   border-bottom: 1px solid var(--color-neutral-300);
-  height: 64px;
+  height: auto;
+  min-height: 120px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 24px 20px;
   flex-shrink: 0;
 }
 
@@ -24,6 +25,56 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.kd-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kd-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #ec4899; /* Pink background */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.kd-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kd-profile-job {
+  font-size: 13px;
+  font-weight: 400;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.kd-profile-exp {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.kd-profile-loc {
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
 }
 
 .kd-back-btn {
@@ -48,15 +99,16 @@
 }
 
 .kd-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-neutral-900);
-  line-height: 1.3;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 400px;
+  max-width: 500px;
+  letter-spacing: -0.5px;
 }
 
 .kd-title-actions {
@@ -260,15 +312,15 @@
 .kd-detail-rows {
   display: flex;
   flex-direction: column;
-  padding: 16px 20px 12px 20px;
-  gap: 10px;
+  padding: 12px 20px 12px 20px;
+  gap: 2px;
 }
 
 .kd-detail-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 32px;
+  height: 28px;
 }
 
 .kd-detail-label {
@@ -316,6 +368,14 @@
   flex-direction: column;
 }
 
+.kd-ai-empty {
+  font-size: 12px;
+  color: #abb2c1;
+  text-align: center;
+  padding: 16px 12px;
+  line-height: 1.5;
+}
+
 .kd-ai-row {
   display: flex;
   align-items: center;
@@ -357,6 +417,10 @@
   flex-shrink: 0;
 }
 
+.kd-fit-badge.low {
+  border-color: #fca5a5;
+}
+
 .kd-fit-badge.moderate {
   border-color: #ffd086;
 }
@@ -386,6 +450,10 @@
   font-size: 10px;
   font-weight: 600;
   color: white;
+}
+
+.kd-fit-score.low {
+  background: #ef4444;
 }
 
 .kd-fit-score.moderate {
@@ -703,6 +771,19 @@
   cursor: default;
 }
 
+.kd-posisi-tambah-btn:disabled:not(.kd-posisi-tambah-done):not(.kd-posisi-tambah-error) {
+  background: #f5f7fa;
+  border-color: #e2e6ed;
+  color: #9aa3b0;
+  cursor: not-allowed;
+}
+
+.kd-posisi-tambah-error {
+  background: #fff5f5;
+  border-color: #f87171;
+  color: #c0392b;
+}
+
 .kd-posisi-empty {
   font-size: 12px;
   color: #abb2c1;
@@ -974,12 +1055,43 @@
   font-family: inherit;
   width: 100%;
   justify-content: center;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .kd-add-entry-btn:hover {
   border-color: #0977be;
   background: #f4fafe;
+  color: #0466a6;
+  transform: scale(1.02);
+  box-shadow: 0 3px 10px rgba(9, 119, 190, 0.1);
+}
+
+.kd-add-entry-btn:active {
+  transform: scale(0.99);
+  box-shadow: none;
+}
+
+.kd-item-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kd-item-clickable:hover {
+  border-color: #b3d4ef;
+  background: #f4fafe;
+}
+
+/* ── Skill tag edit action buttons — lebih kecil dari InlineEditRow ── */
+.kd-skill-tag--editing .inline-action-btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  padding: 3px;
+}
+
+.kd-skill-tag--editing .inline-action-btn svg {
+  width: 10px;
+  height: 10px;
 }
 
 .kd-entry-fields {

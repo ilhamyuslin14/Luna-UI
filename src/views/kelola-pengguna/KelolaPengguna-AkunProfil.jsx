@@ -1,6 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import PopupKonfirmasiPassword from '../../components/PopupKonfirmasiPassword.jsx';
+import InlineEditRow from '../../components/InlineEditRow.jsx';
+import Toast from '../../components/Toast.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { supabase } from '../../config/supabase.js';
 
 const buildingIcon     = '/assets/building.svg';
 const userProfileIcon  = '/assets/user_profile.svg';
@@ -8,111 +12,101 @@ const lockIcon         = '/assets/lock.svg';
 const shieldIcon       = '/assets/shield.svg';
 const chevronRightIcon = '/assets/chevron_right.svg';
 
-const CheckIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-const XIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-const PencilIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </svg>
-);
-
-function EditableRow({ label, fieldKey, value, editingField, tempValue, onStartEdit, onSave, onCancel, onTempChange, noBorder }) {
-  const isEditing = editingField === fieldKey;
-  const inputRef  = useRef(null);
-
-  useEffect(() => {
-    if (isEditing) inputRef.current?.focus();
-  }, [isEditing]);
-
-  return (
-    <div
-      className={`pap-row pap-row--editable${noBorder ? ' no-border' : ''}`}
-      onClick={!isEditing ? () => onStartEdit(fieldKey, value) : undefined}
-    >
-      <span className="pap-label">{label}</span>
-      {isEditing ? (
-        <div className="pap-edit-wrap" onClick={e => e.stopPropagation()}>
-          <input
-            ref={inputRef}
-            className="pap-edit-input"
-            value={tempValue}
-            onChange={e => onTempChange(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter')  onSave(fieldKey, tempValue);
-              if (e.key === 'Escape') onCancel();
-            }}
-          />
-          <div className="pap-edit-actions">
-            <button className="pap-edit-save-btn" onClick={() => onSave(fieldKey, tempValue)} title="Simpan">
-              <CheckIcon />
-            </button>
-            <button className="pap-edit-cancel-btn" onClick={onCancel} title="Batal">
-              <XIcon />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="pap-value-wrap">
-          <span className="pap-value">{value}</span>
-          <div className="pap-pencil-btn">
-            <PencilIcon />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function PenggunaAkunProfil({ navigate }) {
+  const { user, companyId, companyName, companyDetails, userRole, refreshCompanyData } = useAuth();
   const [isKeamananExpanded, setIsKeamananExpanded] = useState(false);
-  const [editingField,  setEditingField]  = useState(null);
-  const [tempValue,     setTempValue]     = useState('');
   const [showEmailPopup, setShowEmailPopup] = useState(false);
 
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+
+  const showToast = (message, subMessage, type = 'success') => {
+    setToast({ message, subMessage, type });
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  };
+
   const [perusahaan, setPerusahaan] = useState({
-    namaPerusahaan: 'PT. Inovasi Mandiri',
-    industri:       'Industri ABC',
-    ukuran:         'Skala ABC',
-    lokasi:         'Jakarta Selatan, DKI Jakarta',
+    namaPerusahaan: '',
+    industri: '',
+    ukuran: '',
+    lokasi: '',
   });
 
   const [profil, setProfil] = useState({
-    namaLengkap:   'Dito Arkademi',
-    namaTampilan:  'Dito',
-    email:         'dito.admin@arkademi.com',
-    telepon:       '+62 812 3456 7890',
-    lokasi:        'Jakarta, Indonesia',
+    namaLengkap: '',
+    namaTampilan: '',
+    email: '',
+    telepon: '',
+    lokasi: '',
   });
 
-  const startEdit = (field, value) => {
-    setEditingField(field);
-    setTempValue(value);
-  };
+  useEffect(() => {
+    if (companyDetails || companyName) {
+      setPerusahaan({
+        namaPerusahaan: companyName || '',
+        industri: companyDetails?.industri || '',
+        ukuran: companyDetails?.ukuran || '',
+        lokasi: companyDetails?.lokasi || '',
+      });
+    }
+    if (user) {
+      setProfil({
+        namaLengkap: user.user_metadata?.nama_lengkap || '',
+        namaTampilan: user.user_metadata?.nama_tampilan || '',
+        email: user.email || '',
+        telepon: user.user_metadata?.telepon || '',
+        lokasi: user.user_metadata?.lokasi || '',
+      });
+    }
+  }, [companyDetails, companyName, user]);
 
-  const saveEdit = (field, value) => {
-    if (field in perusahaan)
+  const handleUpdateCompany = async (field, value) => {
+    if (!companyId) return;
+    const updatePayload = {};
+    if (field === 'namaPerusahaan') updatePayload.name = value;
+    else updatePayload[field] = value;
+
+    const { error } = await supabase
+      .from('companies')
+      .update(updatePayload)
+      .eq('id', companyId);
+
+    if (!error) {
       setPerusahaan(prev => ({ ...prev, [field]: value }));
-    else
+      if (refreshCompanyData && user?.id) {
+        await refreshCompanyData(user.id);
+      }
+      showToast('Berhasil', 'Data perusahaan berhasil disimpan', 'success');
+    } else {
+      console.error(error);
+      showToast('Gagal', 'Terjadi kesalahan saat menyimpan data perusahaan', 'error');
+      throw error;
+    }
+  };
+
+  const handleUpdateProfile = async (field, value) => {
+    if (!user) return;
+    const metadataUpdate = {};
+    
+    if (field === 'namaLengkap') metadataUpdate.nama_lengkap = value;
+    else if (field === 'namaTampilan') metadataUpdate.nama_tampilan = value;
+    else if (field === 'telepon') metadataUpdate.telepon = value;
+    else if (field === 'lokasi') metadataUpdate.lokasi = value;
+
+    const { error } = await supabase.auth.updateUser({
+      data: metadataUpdate
+    });
+
+    if (!error) {
       setProfil(prev => ({ ...prev, [field]: value }));
-    setEditingField(null);
-    setTempValue('');
+      showToast('Berhasil', 'Data profil berhasil disimpan', 'success');
+    } else {
+      console.error(error);
+      showToast('Gagal', 'Terjadi kesalahan saat menyimpan data profil', 'error');
+      throw error;
+    }
   };
-
-  const cancelEdit = () => {
-    setEditingField(null);
-    setTempValue('');
-  };
-
-  const editProps = { editingField, tempValue, onStartEdit: startEdit, onSave: saveEdit, onCancel: cancelEdit, onTempChange: setTempValue };
 
   return (
     <div className="pap-view">
@@ -136,11 +130,11 @@ export default function PenggunaAkunProfil({ navigate }) {
                 <p className="pap-card-subtitle">Informasi perusahaan yang terdaftar di akun Anda.</p>
               </div>
             </div>
-            <div className="pap-card-body">
-              <EditableRow label="Nama Perusahaan" fieldKey="namaPerusahaan" value={perusahaan.namaPerusahaan} {...editProps} />
-              <EditableRow label="Industri"        fieldKey="industri"       value={perusahaan.industri}       {...editProps} />
-              <EditableRow label="Ukuran Perusahaan" fieldKey="ukuran"       value={perusahaan.ukuran}         {...editProps} />
-              <EditableRow label="Lokasi"          fieldKey="lokasi"         value={perusahaan.lokasi}         {...editProps} noBorder />
+            <div className="pap-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px' }}>
+              <InlineEditRow label="Nama Perusahaan" value={perusahaan.namaPerusahaan} onSave={(val) => handleUpdateCompany('namaPerusahaan', val)} />
+              <InlineEditRow label="Industri"        value={perusahaan.industri}       onSave={(val) => handleUpdateCompany('industri', val)} />
+              <InlineEditRow label="Ukuran Perusahaan" value={perusahaan.ukuran}         onSave={(val) => handleUpdateCompany('ukuran', val)} />
+              <InlineEditRow label="Lokasi"          value={perusahaan.lokasi}         onSave={(val) => handleUpdateCompany('lokasi', val)} type="location" />
             </div>
           </div>
 
@@ -155,35 +149,32 @@ export default function PenggunaAkunProfil({ navigate }) {
                 <p className="pap-card-subtitle">Kelola profil pengguna dan detail kontak Anda.</p>
               </div>
             </div>
-            <div className="pap-card-body">
-              <EditableRow label="Nama Lengkap"   fieldKey="namaLengkap"  value={profil.namaLengkap}  {...editProps} />
-              <EditableRow label="Nama Tampilan"  fieldKey="namaTampilan" value={profil.namaTampilan} {...editProps} />
+            <div className="pap-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px' }}>
+              <InlineEditRow label="Nama Lengkap"   value={profil.namaLengkap}  onSave={(val) => handleUpdateProfile('namaLengkap', val)} />
+              <InlineEditRow label="Nama Tampilan"  value={profil.namaTampilan} onSave={(val) => handleUpdateProfile('namaTampilan', val)} />
 
               {/* Peran — locked */}
-              <div className="pap-row">
-                <span className="pap-label">Peran (Role)</span>
-                <div className="pap-role-value">
-                  <div className="pap-role-name">
-                    <span className="pap-value-light">Admin</span>
+              <div className="inline-edit-row">
+                <div className="inline-edit-label">Peran (Role)</div>
+                <div className="inline-edit-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div className="pap-role-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="pap-value-light" style={{textTransform: 'capitalize', color: '#8892a3'}}>{userRole || 'Admin'}</span>
                     <img src={lockIcon} alt="Lock" width="12" height="12" />
                   </div>
-                  <span className="pap-badge-default">DEFAULT</span>
+                  <span className="pap-badge-default" style={{ fontSize: '10px', background: '#f4f6f9', padding: '2px 6px', borderRadius: '4px', color: '#8892a3', fontWeight: 'bold' }}>DEFAULT</span>
                 </div>
               </div>
 
-              {/* Email — konfirmasi password dulu */}
-              <div
-                className="pap-row pap-row--editable"
-                onClick={() => setShowEmailPopup(true)}
-              >
-                <span className="pap-label">Alamat Email</span>
-                <div className="pap-value-wrap">
-                  <span className="pap-value">{profil.email}</span>
-                  <div className="pap-pencil-btn"><PencilIcon /></div>
+              {/* Email — locked, but open popup on click */}
+              <div className="inline-edit-row" onClick={() => setShowEmailPopup(true)} style={{cursor: 'pointer'}}>
+                <div className="inline-edit-label">Alamat Email</div>
+                <div className="inline-edit-value">
+                  <span className="inline-edit-text">{profil.email}</span>
                 </div>
               </div>
-              <EditableRow label="Nomor Telepon"  fieldKey="telepon" value={profil.telepon} {...editProps} />
-              <EditableRow label="Lokasi"         fieldKey="profilLokasi" value={profil.lokasi} {...editProps} noBorder />
+
+              <InlineEditRow label="Nomor Telepon"  value={profil.telepon} onSave={(val) => handleUpdateProfile('telepon', val)} type="tel" />
+              <InlineEditRow label="Lokasi"         value={profil.lokasi} onSave={(val) => handleUpdateProfile('lokasi', val)} type="location" />
             </div>
           </div>
 
@@ -218,21 +209,23 @@ export default function PenggunaAkunProfil({ navigate }) {
           </div>
 
         </div>
-
-        <div className="pap-save-section">
-          <button className="pap-btn-save">Simpan Pengaturan</button>
-        </div>
-
       </div>
 
       {showEmailPopup && (
         <PopupKonfirmasiPassword
           onConfirm={() => {
             setShowEmailPopup(false);
-            setEditingField('email');
-            setTempValue(profil.email);
           }}
           onClose={() => setShowEmailPopup(false)}
+        />
+      )}
+
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          subMessage={toast.subMessage} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
         />
       )}
 

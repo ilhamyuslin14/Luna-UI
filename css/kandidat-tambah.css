@@ -421,12 +421,13 @@
 
 .kt-upload-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  height: 44px;
-  padding: 8px 0;
+  min-height: 44px;
+  padding: 10px 0;
   border-bottom: 1px solid #eceef3;
   box-sizing: border-box;
+  gap: 8px;
 }
 
 .kt-upload-row.last {
@@ -482,10 +483,11 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  white-space: nowrap;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
+  width: 130px;
+  white-space: nowrap;
 }
 
 .kt-status-label.uploading {
@@ -553,6 +555,48 @@
 
 .kt-btn-retry:hover {
   background: #f7f8fa;
+}
+
+/* ─── Error label tooltip ─────────────────────────────────── */
+
+.kt-err-tip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+  color: inherit;
+}
+
+.kt-err-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-radius: 7px;
+  width: 220px;
+  white-space: normal;
+  z-index: 200;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+
+.kt-err-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 4px;
+  border: 5px solid transparent;
+  border-top-color: #1e293b;
+}
+
+.kt-err-tip-wrap:hover .kt-err-tooltip {
+  display: block;
 }
 
 .kt-upload-footer {

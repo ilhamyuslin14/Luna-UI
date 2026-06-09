@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect, memo } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getSeleksiByJabatan, updateSeleksi } from '../../services/seleksiService.js';
+import { getDepartments } from '../../services/departmentService.js';
+import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
+import Toast from '../../components/Toast.jsx';
 import KriteriaPenilaian from '../../components/KriteriaPenilaian';
+import InlineEditRow from '../../components/InlineEditRow.jsx';
+import { generateKriteria } from '../../utils/generateKriteria';
+import { supabase } from '../../config/supabase.js';
 
 const EditIcon = () => (
   <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
@@ -110,21 +118,13 @@ function formatDateDisplay(val) {
   return `${HARI_ID[dt.getDay()]}, ${d} ${BULAN_ID[m]} ${y}`;
 }
 
-// ── Dropdown options ─────────────────────────────────────────────
-const DROPDOWN_OPTIONS = {
-  dept:   ['Product', 'Tech', 'HR', 'Finance', 'Marketing', 'Operations'],
-  status: ['Aktif', 'Rencana', 'Ditahan', 'Selesai', 'Dibatalkan'],
-  ikatan: ['Waktu Tidak Tertentu', 'Waktu Tertentu (PKWT)', 'Magang', 'Kontrak'],
-  siklus: ['Bulanan', 'Mingguan', 'Harian'],
-};
-
 const FIELDS = [
   { key: 'kode',        label: 'Kode Seleksi',                     type: 'readonly'  },
   { key: 'jabatan',     label: 'Nama Jabatan',                      type: 'text'      },
   { key: 'dept',        label: 'Departemen',                        type: 'dropdown'  },
-  { key: 'lokasi',      label: 'Lokasi',                            type: 'text'      },
-  { key: 'remote',      label: 'Remote',                            type: 'add'       },
-  { key: 'status',      label: 'Status Rekrutmen',                  type: 'dropdown'  },
+  { key: 'lokasi',      label: 'Lokasi',                            type: 'location'  },
+  { key: 'remote',      label: 'Remote',                            type: 'add',      tooltip: 'Menandakan apakah posisi pekerjaan ini dapat dilakukan secara remote/WFH' },
+  { key: 'status',      label: 'Status Rekrutmen',                  type: 'dropdown', tooltip: 'Ubah status menjadi Aktif agar lowongan ini tampil di Laman Karier publik (akses via tombol di kanan atas).' },
   { key: 'jumlah',      label: 'Jumlah Rekrut (Orang)',             type: 'text'      },
   { key: 'ikatan',      label: 'Ikatan Kerja',                      type: 'dropdown'  },
   { key: 'upahMin',     label: 'Upah Minimal',                      type: 'text'      },
@@ -186,22 +186,182 @@ const DESKRIPSI_HTML = `<h3 class="sd-deskripsi-section-title">Role Overview</h3
 </ul>`;
 
 export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
+  const { companyId } = useAuth();
+  const [seleksiId, setSeleksiId] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [toast, setToast] = useState(null);
+  
+  const showToast = (message, subMessage, type = 'success') => {
+    setToast({ message, subMessage, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   const [isEditing, setIsEditing] = useState(false);
+  const [originalData, setOriginalData] = useState(() => ({ ...DEFAULT_VALUES, jabatan }));
   const [formData, setFormData] = useState(() => ({ ...DEFAULT_VALUES, jabatan }));
   const [isEditingDeskripsi, setIsEditingDeskripsi] = useState(false);
-  const [deskripsiHtml, setDeskripsiHtml] = useState(DESKRIPSI_HTML);
+  const [hoveredDeskripsi, setHoveredDeskripsi] = useState(false);
+  const [deskripsiHtml, setDeskripsiHtml] = useState('');
   const editorRef = useRef(null);
   const savedRangeRef = useRef(null);
-  const [kriteria, setKriteria] = useState(INITIAL_KRITERIA);
+  const [kriteria, setKriteria] = useState([]);
+  const [isGeneratingKriteria, setIsGeneratingKriteria] = useState(false);
 
-  // Inline add state
-  const [inlineAddKey, setInlineAddKey] = useState(null);
-  const [inlineAddValue, setInlineAddValue] = useState('');
+  const formatRupiah = (value) => {
+    const numberString = value.toString().replace(/[^,\d]/g, '');
+    const split = numberString.split(',');
+    const sisa = split[0].length % 3;
+    let rupiah = split[0].substr(0, sisa);
+    const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+    if (ribuan) {
+      const separator = sisa ? '.' : '';
+      rupiah += separator + ribuan.join('.');
+    }
+    rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+    return rupiah ? `Rp. ${rupiah}` : '';
+  };
 
-  const set = (key, val) => setFormData(prev => ({ ...prev, [key]: val }));
+  const handleEditChange = (key, value) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  useEffect(() => {
+    if (!companyId || !jabatan) return;
+    
+    getDepartments().then(setDepartments).catch(console.error);
+    
+    getSeleksiByJabatan(companyId, jabatan).then(data => {
+      if (data) {
+        setSeleksiId(data.id);
+        const mapped = {
+          kode: `SLS-${String(data.id || '').padStart(5, '0').substring(0, 5)}`,
+          jabatan: data.jabatan || '',
+          dept: data.department_id || '',
+          lokasi: data.lokasi || '',
+          remote: data.remote || '',
+          status: data.status || 'Rencana',
+          jumlah: data.jumlah_rekrut || '',
+          ikatan: data.ikatan_kerja || '',
+          upahMin: data.upah_min || '',
+          upahMaks: data.upah_maks || '',
+          siklus: data.siklus_upah || '',
+          tglMulai: data.tgl_mulai || '',
+          tglOnboard: data.tgl_onboard || '',
+          pendidikan: data.pendidikan || '',
+          pengalaman: data.pengalaman || '',
+        };
+        
+        const formatDeskripsiToHtml = (text) => {
+          if (!text) return '';
+          if (text.includes('<p>') || text.includes('<ul>') || text.includes('<br')) return text;
+          return text.split('\n').map(line => {
+            if (line.trim().startsWith('•')) return `<ul><li>${line.substring(1).trim()}</li></ul>`;
+            return `<p>${line}</p>`;
+          }).join('').replace(/<\/ul><ul>/g, '');
+        };
+
+        setFormData(mapped);
+        setOriginalData(mapped);
+        if (data.deskripsi) {
+          setDeskripsiHtml(formatDeskripsiToHtml(data.deskripsi));
+        }
+        if (data.kriteria && Array.isArray(data.kriteria)) {
+          if (data.kriteria[0] && data.kriteria[0]._isGenerating) {
+            setKriteria([]);
+            setIsGeneratingKriteria(true);
+            runAIGeneration(data.id, data.deskripsi);
+          } else {
+            setKriteria(data.kriteria);
+          }
+        }
+      }
+    }).catch(console.error);
+
+    // Listen to global status updates from Header
+    const handleSync = (e) => {
+      setFormData(prev => ({ ...prev, status: e.detail }));
+      setOriginalData(prev => ({ ...prev, status: e.detail }));
+    };
+    window.addEventListener('syncSeleksiStatus', handleSync);
+
+    return () => window.removeEventListener('syncSeleksiStatus', handleSync);
+  }, [companyId, jabatan]);
+
+  const runAIGeneration = async (id, deskripsiText) => {
+    try {
+      const { data: configData } = await supabase.from('sandbox_configs').select('api_key').order('updated_at', { ascending: false }).limit(1);
+      const { data: promptData } = await supabase.from('prompt_settings').select('*').eq('type', 'JD').limit(1);
+
+      let apiKey = configData?.[0]?.api_key;
+      let model = promptData?.[0]?.model;
+      let prompt = promptData?.[0]?.prompt;
+      let useFlexMode = promptData?.[0]?.use_flex || false;
+      let temperature = promptData?.[0]?.temperature ?? 0.2;
+
+      if (!apiKey || !model) {
+        showToast('AI Kriteria Gagal', 'API Key atau Model belum disetup.', 'error');
+        setIsGeneratingKriteria(false);
+        await updateSeleksi(id, { kriteria: [] });
+        return;
+      }
+
+      const { kriteria: result } = await generateKriteria({
+        deskripsi: deskripsiText,
+        apiKey,
+        model,
+        prompt,
+        useFlexMode,
+        temperature
+      });
+
+      setKriteria(result || []);
+      await updateSeleksi(id, { kriteria: result || [] });
+      showToast('Kriteria Selesai', 'Kriteria AI berhasil dirumuskan.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('AI Error', 'Gagal merumuskan kriteria otomatis.', 'error');
+      await updateSeleksi(id, { kriteria: [] });
+    } finally {
+      setIsGeneratingKriteria(false);
+    }
+  };
 
   const handleCancel = () => {
-    setFormData({ ...DEFAULT_VALUES, jabatan });
+    setFormData(originalData);
+    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    if (!seleksiId) {
+      setIsEditing(false);
+      return;
+    }
+    try {
+      await updateSeleksi(seleksiId, {
+        jabatan: formData.jabatan,
+        department_id: formData.dept,
+        lokasi: formData.lokasi,
+        status: formData.status,
+        jumlah_rekrut: formData.jumlah,
+        ikatan_kerja: formData.ikatan,
+        upah_min: formData.upahMin,
+        upah_maks: formData.upahMaks,
+        siklus_upah: formData.siklus,
+        tgl_mulai: formData.tglMulai,
+        tgl_onboard: formData.tglOnboard || null,
+        pendidikan: formData.pendidikan,
+        pengalaman: formData.pengalaman,
+      });
+      setOriginalData(formData);
+      showToast('Berhasil', 'Data detail pekerjaan berhasil disimpan.');
+      setIsEditing(false);
+      
+      // Sync global status just in case it was edited globally
+      window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: formData.status }));
+    } catch (error) {
+      console.error(error);
+      showToast('Gagal', 'Gagal menyimpan data.', 'error');
+    }
     setIsEditing(false);
   };
 
@@ -213,9 +373,20 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
     }
   }, [isEditingDeskripsi]);
 
-  const handleSaveDeskripsi = () => {
-    if (editorRef.current) setDeskripsiHtml(editorRef.current.innerHTML);
+  const handleSaveDeskripsi = async () => {
+    const html = editorRef.current?.innerHTML || '';
+    setDeskripsiHtml(html);
     setIsEditingDeskripsi(false);
+    
+    if (seleksiId) {
+      try {
+        await updateSeleksi(seleksiId, { deskripsi: html });
+        showToast('Berhasil', 'Deskripsi berhasil diperbarui.');
+      } catch (e) {
+        console.error(e);
+        showToast('Gagal', 'Gagal menyimpan deskripsi.', 'error');
+      }
+    }
   };
 
   const handleCancelDeskripsi = () => setIsEditingDeskripsi(false);
@@ -223,69 +394,30 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
   const renderValue = (field) => {
     const val = formData[field.key] ?? '';
 
+    // ── Edit mode (Global Form) ──
     if (field.type === 'readonly') {
-      return <span className="sd-detail-value">{val}</span>;
+      return <span className="inline-edit-value">{val}</span>;
     }
 
-    // ── View mode ──
-    if (!isEditing) {
-      if (inlineAddKey === field.key) {
-        return (
-          <div style={{ width: '285px', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
-              type={field.type === 'date' ? 'date' : 'text'}
-              className={`sd-detail-input ${field.type === 'date' ? 'sd-detail-input--date' : ''}`}
-              value={inlineAddValue}
-              onChange={e => setInlineAddValue(e.target.value)}
-              placeholder="Tambahkan data"
-              autoFocus
-              style={{ flex: 1, minWidth: 0, width: '100%', margin: 0, height: '32px' }}
-            />
-            <button onClick={() => setInlineAddKey(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Batal">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 10.5L10.5 3.5M3.5 3.5l7 7"/></svg>
-            </button>
-            <button onClick={() => { set(field.key, inlineAddValue); setInlineAddKey(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Simpan">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#28a745" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.8 7l2.8 2.8 5.6-5.6"/></svg>
-            </button>
-          </div>
-        );
-      }
-
-      if (field.type === 'add' && !val) {
-        return (
-          <span className="sd-detail-value add-data" style={{ cursor: 'pointer' }} onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}>
-            Tambahkan data
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-              <circle cx="8.5" cy="8.5" r="7.5" stroke="#0977be" strokeWidth="1"/>
-              <path d="M8.5 5.5v6M5.5 8.5h6" stroke="#0977be" strokeWidth="1.2" strokeLinecap="round"/>
-            </svg>
-          </span>
-        );
-      }
-      if (field.type === 'date') {
-        return <span className="sd-detail-value">{formatDateDisplay(val)}</span>;
-      }
-      return (
-        <span className="sd-detail-value">
-          {val || (
-            <span
-              className="sd-detail-value add-data"
-              style={{ cursor: 'pointer', gap: 4 }}
-              onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}
-            >
-              Tambahkan data
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style={{ marginLeft: 4 }}>
-                <circle cx="8.5" cy="8.5" r="7.5" stroke="#0977be" strokeWidth="1"/>
-                <path d="M8.5 5.5v6M5.5 8.5h6" stroke="#0977be" strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
-            </span>
-          )}
-        </span>
-      );
-    }
 
     // ── Edit mode ──
     if (field.type === 'dropdown') {
+      if (field.key === 'dept') {
+        return (
+          <div className="sd-detail-select-wrap">
+            <select
+              className="sd-detail-select"
+              value={val}
+              onChange={e => set(field.key, e.target.value)}
+            >
+              {departments.map(d => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+            <ChevronDown />
+          </div>
+        );
+      }
       return (
         <div className="sd-detail-select-wrap">
           <select
@@ -347,17 +479,81 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
             )}
           </div>
           <div className="sd-detail-rows">
-            {FIELDS.map(field => (
-              <div className="sd-detail-row" key={field.key}>
-                <span className="sd-detail-label">{field.label}</span>
-                {renderValue(field)}
-              </div>
-            ))}
+            {FIELDS.map(field => {
+              if (!isEditing && field.type !== 'readonly') {
+                // Determine props for InlineEditRow
+                let type = 'text';
+                let options = [];
+                if (field.key === 'dept') { type = 'dropdown'; options = departments; }
+                else if (field.key === 'remote') { type = 'dropdown'; options = DROPDOWN_OPTIONS.remote; }
+                else if (field.key === 'pendidikan') { type = 'dropdown'; options = DROPDOWN_OPTIONS.pendidikan; }
+                else if (field.key === 'status') { type = 'dropdown'; options = DROPDOWN_OPTIONS.statusRekrutmen; }
+                else if (field.key === 'ikatan') { type = 'dropdown'; options = DROPDOWN_OPTIONS.ikatanKerja; }
+                else if (field.key === 'siklus') { type = 'dropdown'; options = DROPDOWN_OPTIONS.siklusUpah; }
+                else if (field.type === 'dropdown') { type = 'dropdown'; options = DROPDOWN_OPTIONS[field.key]; }
+                else if (field.type === 'date') { type = 'date'; }
+                else if (field.key === 'jumlah' || field.key === 'pengalaman') { type = 'number'; }
+                else if (field.type === 'location') { type = 'location'; }
+
+                const dbKeyMap = {
+                  jabatan: 'jabatan', dept: 'department_id', lokasi: 'lokasi', status: 'status',
+                  jumlah: 'jumlah_rekrut', ikatan: 'ikatan_kerja', upahMin: 'upah_min', upahMaks: 'upah_maks',
+                  siklus: 'siklus_upah', tglMulai: 'tgl_mulai', tglOnboard: 'tgl_onboard',
+                  pendidikan: 'pendidikan', pengalaman: 'pengalaman', remote: 'remote'
+                };
+
+                const handleInlineSave = async (valToSave) => {
+                   setFormData(prev => ({ ...prev, [field.key]: valToSave }));
+                   if (seleksiId && dbKeyMap[field.key]) {
+                     const dbCol = dbKeyMap[field.key];
+                     const finalVal = field.type === 'date' ? (valToSave || null) : valToSave;
+                     await updateSeleksi(seleksiId, { [dbCol]: finalVal });
+                     showToast('Berhasil', 'Data diperbarui.');
+                     
+                     // If status changes, sync it to Header
+                     if (field.key === 'status') {
+                       window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: valToSave }));
+                     }
+                   }
+                };
+
+                let displayVal = formData[field.key];
+                if (field.type === 'date' && displayVal) displayVal = formatDateDisplay(displayVal);
+                if (field.key === 'dept' && displayVal) {
+                  const d = departments.find(x => String(x.id) === String(displayVal));
+                  if (d) displayVal = d.name;
+                }
+                if (field.key === 'pengalaman' && displayVal) {
+                  displayVal = `${displayVal} Tahun`;
+                }
+
+                return (
+                  <InlineEditRow
+                    key={field.key}
+                    label={field.label}
+                    tooltip={field.tooltip}
+                    value={formData[field.key]}
+                    displayValue={displayVal}
+                    type={type}
+                    options={options}
+                    onSave={handleInlineSave}
+                    formatRupiah={field.key === 'upahMin' || field.key === 'upahMaks' ? formatRupiah : undefined}
+                  />
+                );
+              }
+
+              return (
+                <div className="inline-edit-row" key={field.key}>
+                  <span className="inline-edit-label">{field.label}</span>
+                  {renderValue(field)}
+                </div>
+              );
+            })}
           </div>
           {isEditing && (
             <div className="sd-detail-edit-footer">
               <button className="sd-edit-cancel-btn" onClick={handleCancel}>Batal</button>
-              <button className="sd-edit-save-btn" onClick={() => setIsEditing(false)}>Simpan</button>
+              <button className="sd-edit-save-btn" onClick={handleSave}>Simpan</button>
             </div>
           )}
         </div>
@@ -421,6 +617,16 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
             <div
               className="sd-deskripsi-content"
               dangerouslySetInnerHTML={{ __html: deskripsiHtml }}
+              onClick={() => setIsEditingDeskripsi(true)}
+              onMouseEnter={() => setHoveredDeskripsi(true)}
+              onMouseLeave={() => setHoveredDeskripsi(false)}
+              style={{
+                cursor: 'text',
+                borderRadius: 6,
+                border: `1.5px solid ${hoveredDeskripsi ? '#0977be44' : 'transparent'}`,
+                background: hoveredDeskripsi ? '#f0f6ff' : 'transparent',
+                transition: 'border-color 0.15s, background 0.15s',
+              }}
             />
           )}
         </div>
@@ -428,8 +634,31 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
 
       {/* Kolom Kanan */}
       <div className="sd-col-right">
-        <KriteriaPenilaian kriteria={kriteria} onChange={setKriteria} />
+        <KriteriaPenilaian 
+          kriteria={kriteria} 
+          onChange={(newKriteria) => {
+            setKriteria(newKriteria);
+            if (seleksiId) {
+              updateSeleksi(seleksiId, { kriteria: newKriteria })
+                .then(() => showToast('Disimpan', 'Kriteria penilaian berhasil diperbarui', 'success'))
+                .catch((err) => {
+                  console.error(err);
+                  showToast('Gagal', 'Gagal menyimpan perubahan kriteria', 'error');
+                });
+            }
+          }} 
+          isGenerating={isGeneratingKriteria} 
+          onRefresh={() => {
+            if (seleksiId && deskripsiHtml) {
+              setIsGeneratingKriteria(true);
+              runAIGeneration(seleksiId, deskripsiHtml);
+            } else {
+              showToast('Gagal', 'Deskripsi pekerjaan masih kosong', 'error');
+            }
+          }}
+        />
       </div>
+      {toast && <Toast message={toast.message} subMessage={toast.subMessage} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

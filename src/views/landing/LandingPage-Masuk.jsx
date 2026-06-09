@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function LandingPageMasuk({ navigate }) {
   const [email, setEmail]       = useState('');
@@ -11,14 +12,22 @@ export default function LandingPageMasuk({ navigate }) {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const handleSubmit = (e) => {
+  const { login } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) return;
     setLoading(true);
-    setTimeout(() => {
+    setErrorMsg('');
+    try {
+      await login(email, password);
+      // App.jsx will automatically handle redirect to 'beranda'
+    } catch (err) {
+      setErrorMsg(err.message || 'Gagal masuk. Silakan cek kembali email & password Anda.');
+    } finally {
       setLoading(false);
-      navigate?.('beranda');
-    }, 1200);
+    }
   };
 
   const isValid = email.trim() && password.trim();
@@ -60,6 +69,13 @@ export default function LandingPageMasuk({ navigate }) {
             <h2 className="lpm-title">Selamat Datang</h2>
             <p className="lpm-subtitle">Silakan masuk ke workspace LUNA Anda.</p>
           </div>
+
+          {errorMsg && (
+            <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           {/* Form */}
           <form className="lpm-form" onSubmit={handleSubmit}>

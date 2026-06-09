@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 function getPasswordStrength(pw) {
   if (!pw) return 0;
@@ -62,14 +63,23 @@ export default function LandingPageDaftar({ navigate }) {
 
   const isValid = nama.trim() && perusahaan.trim() && email.trim() && password.length >= 8;
 
-  const handleSubmit = (e) => {
+  const { register } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
     setLoading(true);
-    setTimeout(() => {
+    setErrorMsg('');
+    try {
+      await register(email, password, { nama_lengkap: nama, nama_perusahaan: perusahaan });
+      // Redirect ke OTP dummy untuk gaya-gayaan sesuai request
+      navigate('landingpage-otp');
+    } catch (err) {
+      setErrorMsg(err.message || 'Gagal mendaftar. Silakan coba lagi.');
+    } finally {
       setLoading(false);
-      navigate?.('landingpage-otp');
-    }, 1400);
+    }
   };
 
   return (
@@ -105,6 +115,13 @@ export default function LandingPageDaftar({ navigate }) {
             <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
             <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
           </div>
+
+          {errorMsg && (
+            <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           {/* Form */}
           <form className="lpm-form" onSubmit={handleSubmit}>

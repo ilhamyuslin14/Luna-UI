@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import TourGuide from './components/TourGuide.jsx';
+import UploadProgressWidget from './components/UploadProgressWidget.jsx';
 import Beranda from './views/beranda/Beranda.jsx';
 import Seleksi from './views/seleksi/Seleksi.jsx';
 import SeleksiDetail from './views/seleksi/SeleksiDetail.jsx';
@@ -33,12 +35,25 @@ export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda');
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
-  const [selectedKandidat, setSelectedKandidat] = useState(null);
-  const [selectedDepartemen, setSelectedDepartemen] = useState(null);
+  const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
+  const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
+  const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
   const [seleksiActiveTab, setSeleksiActiveTab] = useState('ringkasan');
   const [selectedPlan, setSelectedPlan] = useState('BASIC');
   const [selectedCycle, setSelectedCycle] = useState('bulanan');
+  const [searchQuery, setSearchQuery] = useState(urlParams.get('search') || '');
   const [historyStack, setHistoryStack] = useState([]);
+
+  const updateUrl = (menu, params) => {
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('view', menu);
+    if (params.jabatan) newUrl.searchParams.set('jabatan', params.jabatan); else newUrl.searchParams.delete('jabatan');
+    const kandidatId = params.kandidat?.id ?? (typeof params.kandidat === 'string' ? params.kandidat : null);
+    if (kandidatId) newUrl.searchParams.set('kandidat', kandidatId); else newUrl.searchParams.delete('kandidat');
+    if (params.departemen) newUrl.searchParams.set('departemen', params.departemen); else newUrl.searchParams.delete('departemen');
+    if (params.search) newUrl.searchParams.set('search', params.search); else newUrl.searchParams.delete('search');
+    window.history.pushState({}, '', newUrl);
+  };
 
   const navigate = (menu, params = {}) => {
     setHistoryStack(stack => [...stack, { menu: activeMenu, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, seleksiActiveTab }]);
@@ -53,6 +68,13 @@ export default function App() {
       setSelectedCycle(params.cycle || 'bulanan');
     }
     setActiveMenu(menu);
+    updateUrl(menu, { 
+      jabatan: menu === 'seleksi-detail' ? params.jabatan : seleksiJabatan,
+      kandidat: menu === 'kandidat-detail' ? params.kandidat : selectedKandidat,
+      departemen: menu === 'departemen-detail' ? params.departemen : selectedDepartemen,
+      search: params.search
+    });
+    setSearchQuery(params.search || '');
   };
 
   const back = () => {
@@ -63,15 +85,45 @@ export default function App() {
     setSeleksiJabatan(prev.jabatan);
     setSelectedKandidat(prev.kandidat);
     setSelectedDepartemen(prev.departemen);
-    setSeleksiActiveTab(prev.seleksiActiveTab ?? 'ringkasan');
+    setSeleksiActiveTab(prev.seleksiActiveTab);
+    setActiveMenu(prev.menu);
+    setSearchQuery(prev.search || '');
+    updateUrl(prev.menu, { jabatan: prev.jabatan, kandidat: prev.kandidat, departemen: prev.departemen, search: prev.search });
   };
 
   window.switchMenu = navigate;
 
   const noPadding = ['departemen', 'seleksi', 'kandidat', 'seleksi-detail', 'kandidat-detail', 'departemen-detail', 'bantuan', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (loading) return;
+    
+    const publicMenus = ['landingpage', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'laman-karir', 'sandbox'];
+    const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password'];
+
+    if (!user && !publicMenus.includes(activeMenu)) {
+      // Not logged in -> redirect to login
+      navigate('landingpage-masuk');
+    } else if (user && authMenus.includes(activeMenu)) {
+      // Logged in -> redirect to beranda
+      navigate('beranda');
+    }
+  }, [user, loading, activeMenu]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" style={{ animation: 'sb-spin 1s linear infinite' }}>
+          <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+        </svg>
+      </div>
+    );
+  }
+
   if (activeMenu === 'laman-karir') {
-    return <LamanKarir jabatan={seleksiJabatan} navigate={navigate} />;
+    return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage') {
@@ -101,11 +153,11 @@ export default function App() {
   const renderView = () => {
     switch (activeMenu) {
       case 'beranda': return <Beranda navigate={navigate} />;
-      case 'departemen': return <Departemen navigate={navigate} />;
+      case 'departemen': return <Departemen navigate={navigate} searchQuery={searchQuery} />;
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
-      case 'seleksi': return <Seleksi navigate={navigate} />;
+      case 'seleksi': return <Seleksi navigate={navigate} searchQuery={searchQuery} />;
       case 'seleksi-detail': return <SeleksiDetail jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
-      case 'kandidat': return <Kandidat navigate={navigate} />;
+      case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} />;
       case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;
@@ -132,12 +184,13 @@ export default function App() {
         <Navbar navigate={navigate} />
       </header>
       <aside id="sidebar">
-        <Sidebar activeMenu={activeMenu} onNavigate={(menu) => { setHistoryStack([]); setActiveMenu(menu); }} />
+        <Sidebar activeMenu={activeMenu} onNavigate={(menu) => { setHistoryStack([]); navigate(menu); }} />
       </aside>
       <main id="content" className={noPadding ? 'no-padding' : ''}>
         {renderView()}
       </main>
       <TourGuide navigate={navigate} />
+      <UploadProgressWidget navigate={navigate} />
     </div>
   );
 }

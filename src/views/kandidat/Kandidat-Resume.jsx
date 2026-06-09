@@ -75,35 +75,51 @@ const IconSettings = () => (
   </svg>
 );
 
-const TOTAL_PAGES = 3;
-
 export default function KandidatResume({ kandidat = {} }) {
-  const [zoom, setZoom] = useState(100);
-  const [page, setPage] = useState(1);
-  const [pageInput, setPageInput] = useState('1');
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const zoomOut = () => setZoom(z => Math.max(z - 25, 25));
-  const zoomIn  = () => setZoom(z => Math.min(z + 25, 300));
+  if (!kandidat.cv_url) {
+    return (
+      <div className="kr-view" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+        <p>Dokumen CV tidak tersedia.</p>
+      </div>
+    );
+  }
 
-  const prevPage = () => {
-    const p = Math.max(page - 1, 1);
-    setPage(p);
-    setPageInput(String(p));
-  };
-  const nextPage = () => {
-    const p = Math.min(page + 1, TOTAL_PAGES);
-    setPage(p);
-    setPageInput(String(p));
-  };
-  const handlePageInput = (e) => {
-    setPageInput(e.target.value);
-    const n = parseInt(e.target.value);
-    if (!isNaN(n) && n >= 1 && n <= TOTAL_PAGES) setPage(n);
-  };
+  const cvUrl = kandidat.cv_url;
+  const isPdf = cvUrl.toLowerCase().endsWith('.pdf');
+  const viewerUrl = isPdf 
+    ? cvUrl 
+    : `https://docs.google.com/gview?url=${encodeURIComponent(cvUrl)}&embedded=true`;
 
-  const initials = kandidat.nama
-    ? kandidat.nama.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-    : 'CV';
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    try {
+      setIsDownloading(true);
+      const ext = cvUrl.split('.').pop().split('?')[0] || 'pdf';
+      const safeName = (kandidat.nama || 'Kandidat').replace(/[^a-zA-Z0-9]/g, '_');
+      const filename = `CV_${safeName}.${ext}`;
+
+      const response = await fetch(cvUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed, using fallback', err);
+      // Fallback jika kena CORS Supabase
+      window.open(cvUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="kr-view">
@@ -113,31 +129,9 @@ export default function KandidatResume({ kandidat = {} }) {
         <div className="kr-toolbar-left">
           <button className="kr-tb-btn" title="Toggle panel"><IconSidebar /></button>
           <div className="kr-tb-sep" />
-          <button className="kr-tb-btn" onClick={zoomOut} title="Perkecil"><IconZoomOut /></button>
-          <div className="kr-zoom-nav">
-            <button className="kr-tb-btn kr-nav-btn" onClick={prevPage} title="Halaman sebelumnya"><IconChevronUp /></button>
-            <button className="kr-tb-btn kr-nav-btn" onClick={nextPage} title="Halaman selanjutnya"><IconChevronDown /></button>
-          </div>
-          <input
-            className="kr-page-input"
-            value={pageInput}
-            onChange={handlePageInput}
-            onBlur={() => setPageInput(String(page))}
-          />
-          <span className="kr-page-total">dari {TOTAL_PAGES}</span>
-          <div className="kr-tb-sep" />
-          <button className="kr-tb-btn" onClick={zoomIn} title="Perbesar"><IconZoomIn /></button>
+          <span style={{ fontSize: '13px', fontWeight: 500, color: '#323b4d' }}>Document Viewer</span>
         </div>
         <div className="kr-toolbar-right">
-          <select className="kr-zoom-select" value="auto" onChange={() => {}}>
-            <option value="auto">Perbesaran Otomatis</option>
-            <option value="page">Sesuai Halaman</option>
-            <option value="width">Sesuai Lebar</option>
-            <option value="75">75%</option>
-            <option value="100">100%</option>
-            <option value="125">125%</option>
-            <option value="150">150%</option>
-          </select>
           <button className="kr-tb-btn" title="Layar penuh"><IconMaximize /></button>
         </div>
       </div>
@@ -146,58 +140,12 @@ export default function KandidatResume({ kandidat = {} }) {
       <div className="kr-viewer-area">
 
         {/* Document viewport */}
-        <div className="kr-doc-viewport">
-          <div className="kr-doc-page" style={{ transform: `scale(${zoom / 100})` }}>
-
-            {/* Header / Profil */}
-            <div className="kr-cv-header">
-              <div className="kr-cv-avatar">{initials}</div>
-              <div className="kr-cv-header-info">
-                <h1 className="kr-cv-name">{kandidat.nama || 'Nama Kandidat'}</h1>
-                <div className="kr-cv-contacts">
-                  {kandidat.email    && <span>✉ {kandidat.email}</span>}
-                  {kandidat.linkedin && <span>in {kandidat.linkedin}</span>}
-                  {kandidat.phone    && <span>✆ +62 {kandidat.phone}</span>}
-                  {kandidat.domisili && <span>📍 {kandidat.domisili}</span>}
-                </div>
-              </div>
-            </div>
-
-            <hr className="kr-cv-divider" />
-
-            {/* Pendidikan */}
-            <div className="kr-cv-section">
-              <h2 className="kr-cv-section-title">Pendidikan</h2>
-              <div className="kr-cv-entry">
-                <div className="kr-cv-entry-header">
-                  <strong>{kandidat.universitas || 'Universitas'}</strong>
-                  <span className="kr-cv-entry-date">2018 – 2022</span>
-                </div>
-                <div>{kandidat.jurusan || 'Program Studi'}</div>
-              </div>
-            </div>
-
-            <hr className="kr-cv-divider" />
-
-            {/* Pengalaman Kerja */}
-            <div className="kr-cv-section">
-              <h2 className="kr-cv-section-title">Pengalaman Kerja</h2>
-              <div className="kr-cv-entry">
-                <div className="kr-cv-entry-header">
-                  <strong>{kandidat.jabatan || 'Jabatan'}</strong>
-                  <span className="kr-cv-entry-date">{kandidat.periode || ''}</span>
-                </div>
-                <div className="kr-cv-entry-company">{kandidat.perusahaan || 'Perusahaan'}</div>
-                <ul className="kr-cv-list">
-                  <li>Memposting lowongan pekerjaan pada platform rekrutmen.</li>
-                  <li>Melakukan screening CV pelamar dan wawancara awal.</li>
-                  <li>Berkoordinasi dengan hiring manager untuk proses seleksi lanjutan.</li>
-                  <li>Menyusun laporan rekrutmen bulanan.</li>
-                </ul>
-              </div>
-            </div>
-
-          </div>
+        <div className="kr-doc-viewport" style={{ padding: 0, overflow: 'hidden' }}>
+          <iframe 
+            src={viewerUrl} 
+            title="CV Viewer" 
+            style={{ width: '100%', height: '100%', border: 'none', background: '#f0f2f5' }}
+          />
         </div>
 
         {/* Right sidebar icons */}
@@ -212,7 +160,7 @@ export default function KandidatResume({ kandidat = {} }) {
           <button className="kr-sidebar-btn" title="Outline"><IconLayers /></button>
           <div className="kr-sidebar-sep" />
           <button className="kr-sidebar-btn" title="Layar penuh"><IconExpand /></button>
-          <button className="kr-sidebar-btn" title="Unduh"><IconDownload /></button>
+          <button className="kr-sidebar-btn" title="Unduh" onClick={handleDownload}><IconDownload /></button>
           <button className="kr-sidebar-btn" title="Pengaturan"><IconSettings /></button>
         </div>
 

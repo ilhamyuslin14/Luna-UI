@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getDepartments, createDepartment, archiveDepartment, unarchiveDepartment } from '../../services/departmentService.js';
 
 const ArchiveSvg = () => (
   <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5 }}>
@@ -11,28 +13,24 @@ const ArchiveSvg = () => (
   </svg>
 );
 
-const DeleteSvg = () => (
-  <svg width="9" height="9" viewBox="0 0 8.1819 9" fill="none" style={{ marginRight: 4.5 }}>
-    <path d="M7.77272 1.63636H6.54545V1.22727C6.54545 0.901781 6.41615 0.58962 6.18599 0.359462C5.95583 0.129303 5.64367 1.90735e-06 5.31818 1.90735e-06H2.86364C2.53814 1.90735e-06 2.22598 0.129303 1.99582 0.359462C1.76566 0.58962 1.63636 0.901781 1.63636 1.22727V1.63636H0.409091C0.300593 1.63636 0.196539 1.67947 0.11982 1.75618C0.0431005 1.8329 0 1.93696 0 2.04546C0 2.15395 0.0431005 2.25801 0.11982 2.33473C0.196539 2.41145 0.300593 2.45455 0.409091 2.45455H0.433636L0.724091 7.08136C0.756405 7.60157 0.986092 8.08983 1.36624 8.44641C1.74639 8.80299 2.24833 9.001 2.76954 9H5.42045C5.94167 9.001 6.4436 8.80299 6.82375 8.44641C7.20391 8.08983 7.43359 7.60157 7.46591 7.08136L7.74818 2.45455H7.77272C7.88122 2.45455 7.98528 2.41145 8.062 2.33473C8.13871 2.25801 8.18182 2.15395 8.18182 2.04546C8.18182 1.93696 8.13871 1.8329 8.062 1.75618C7.98528 1.67947 7.88122 1.63636 7.77272 1.63636ZM2.45454 1.22727C2.45454 1.11878 2.49765 1.01472 2.57436 0.938003C2.65108 0.861284 2.75514 0.818183 2.86364 0.818183H5.31818C5.42668 0.818183 5.53073 0.861284 5.60745 0.938003C5.68417 1.01472 5.72727 1.11878 5.72727 1.22727V1.63636H2.45454V1.22727ZM6.64363 7.03227C6.62385 7.34411 6.48586 7.63665 6.25781 7.85026C6.02976 8.06387 5.72882 8.18244 5.41636 8.18182H2.76545C2.45299 8.18244 2.15205 8.06387 1.92401 7.85026C1.69596 7.63665 1.55797 7.34411 1.53818 7.03227L1.25182 2.45455H6.93L6.64363 7.03227Z" fill="currentColor" />
-    <path d="M3.27273 3.68182C3.16423 3.68182 3.06017 3.72492 2.98345 3.80164C2.90674 3.87836 2.86363 3.98241 2.86363 4.09091V6.54545C2.86363 6.65395 2.90674 6.75801 2.98345 6.83472C3.06017 6.91144 3.16423 6.95454 3.27273 6.95454C3.38122 6.95454 3.48528 6.91144 3.562 6.83472C3.63872 6.75801 3.68182 6.65395 3.68182 6.54545V4.09091C3.68182 3.98241 3.63872 3.87836 3.562 3.80164C3.48528 3.72492 3.38122 3.68182 3.27273 3.68182Z" fill="currentColor" />
-    <path d="M4.90909 3.68182C4.80059 3.68182 4.69654 3.72492 4.61982 3.80164C4.5431 3.87836 4.5 3.98241 4.5 4.09091V6.54545C4.5 6.65395 4.5431 6.75801 4.61982 6.83472C4.69654 6.91144 4.80059 6.95454 4.90909 6.95454C5.01759 6.95454 5.12164 6.91144 5.19836 6.83472C5.27508 6.75801 5.31818 6.65395 5.31818 6.54545V4.09091C5.31818 3.98241 5.27508 3.87836 5.19836 3.80164C5.12164 3.72492 5.01759 3.68182 4.90909 3.68182Z" fill="currentColor" />
+const ShowSvg = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4.5 }}>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
   </svg>
 );
 
-const INITIAL_DATA = [
-  { name: 'HR', totalPosisi: 5, lowongan: 'Backend Engineer', tanggal: '19 Feb 2026', canDelete: true },
-  { name: 'Engineering', totalPosisi: 12, lowongan: 'Frontend Developer', tanggal: '19 Feb 2026', canDelete: false },
-  { name: 'Marketing', totalPosisi: 3, lowongan: 'Social Media Lead', tanggal: '19 Feb 2026', canDelete: false },
-  { name: 'Finance', totalPosisi: 4, lowongan: 'Head of Finance', tanggal: '19 Feb 2026', canDelete: true },
-  { name: 'Product', totalPosisi: 8, lowongan: 'UX Researcher', tanggal: '19 Feb 2026', canDelete: true },
-];
-
-export default function Departemen({ navigate }) {
-  const [deptData, setDeptData] = useState(INITIAL_DATA);
+export default function Departemen({ navigate, searchQuery = '' }) {
+  const { companyId } = useAuth();
+  const [deptData, setDeptData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
   const toggleFilter = (s) => {
     setActiveFilters(prev => {
@@ -43,30 +41,59 @@ export default function Departemen({ navigate }) {
     });
   };
 
+  const fetchDepts = () => {
+    const bothOn = activeFilters.has('Arsip') && activeFilters.has('Aktif');
+    const archiveOnly = activeFilters.has('Arsip') && !activeFilters.has('Aktif');
+    setLoading(true);
+    getDepartments({ showArchived: archiveOnly, showAll: bothOn })
+      .then(data => setDeptData(data))
+      .catch(() => showToast('Gagal memuat data', 'Terjadi kesalahan saat memuat departemen'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    const bothOn = activeFilters.has('Arsip') && activeFilters.has('Aktif');
+    const archiveOnly = activeFilters.has('Arsip') && !activeFilters.has('Aktif');
+    setShowArchived(archiveOnly || bothOn);
+    setPage(1);
+    fetchDepts();
+  }, [activeFilters]);
+
+  let filteredData = deptData;
+  if (searchQuery.trim()) {
+    const sq = searchQuery.toLowerCase().trim();
+    filteredData = filteredData.filter(d => 
+      (d.name || '').toLowerCase().includes(sq)
+    );
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
+  const pagedData  = filteredData.slice((page - 1) * perPage, page * perPage);
+
   const [showAddModal, setShowAddModal] = useState(false);
-  const [namaInput, setNamaInput] = useState('');
+  const [namaInput, setNamaInput]       = useState('');
   const [deskripsiInput, setDeskripsiInput] = useState('');
 
-  const [archiveTarget, setArchiveTarget] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [toast, setToast]               = useState(null);
-  const toastTimer                      = useRef(null);
+  const [archiveTarget, setArchiveTarget]   = useState(null);
+  const [unarchiveTarget, setUnarchiveTarget] = useState(null);
+  const [toast, setToast]                   = useState(null);
+  const toastTimer                          = useRef(null);
   const showToast = (message, subMessage) => {
     setToast({ message, subMessage });
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 4000);
   };
 
-  const selectAll = selectedRows.size === deptData.length;
-
+  const selectAll = pagedData.length > 0 && pagedData.every(d => selectedRows.has(d.id));
   const toggleSelectAll = () => {
-    if (selectAll) setSelectedRows(new Set());
-    else setSelectedRows(new Set(deptData.map((_, i) => i)));
-  };
-
-  const toggleRow = (i) => {
     const next = new Set(selectedRows);
-    if (next.has(i)) next.delete(i); else next.add(i);
+    if (selectAll) pagedData.forEach(d => next.delete(d.id));
+    else           pagedData.forEach(d => next.add(d.id));
+    setSelectedRows(next);
+  };
+  const toggleRow = (id) => {
+    const next = new Set(selectedRows);
+    next.has(id) ? next.delete(id) : next.add(id);
     setSelectedRows(next);
   };
 
@@ -81,40 +108,45 @@ export default function Departemen({ navigate }) {
     setShowAddModal(true);
   };
 
-  const handleSimpan = () => {
-    if (!namaInput.trim()) return;
-    setShowAddModal(false);
-    navigate('departemen-detail', { departemen: namaInput.trim() });
+  const handleSimpan = async () => {
+    if (!namaInput.trim() || !companyId) return;
+    try {
+      await createDepartment(companyId, { name: namaInput.trim(), description: deskripsiInput.trim() });
+      showToast('Berhasil', 'Departemen baru telah ditambahkan');
+      setShowAddModal(false);
+      fetchDepts();
+    } catch {
+      showToast('Gagal menyimpan', 'Terjadi kesalahan saat menambah departemen');
+    }
   };
 
-  const handleArchiveConfirm = () => {
-    if (archiveTarget === 'bulk') {
-      showToast(`${selectedRows.size} departemen berhasil diarsipkan`, 'Data telah dipindahkan ke arsip');
-      setDeptData(prev => prev.filter((_, i) => !selectedRows.has(i)));
-      setSelectedRows(new Set());
-      setShowBulkDropdown(false);
-    } else if (archiveTarget !== null) {
-      showToast('Departemen berhasil diarsipkan', 'Data telah dipindahkan ke arsip');
-      setDeptData(prev => prev.filter((_, i) => i !== archiveTarget));
-      setSelectedRows(prev => {
-        const next = new Set(prev);
-        next.delete(archiveTarget);
-        return next;
-      });
+  const handleArchiveConfirm = async () => {
+    try {
+      if (archiveTarget === 'bulk') {
+        await Promise.all([...selectedRows].map(id => archiveDepartment(id)));
+        showToast(`${selectedRows.size} departemen diarsipkan`, 'Data dipindahkan ke arsip');
+        setSelectedRows(new Set());
+        setShowBulkDropdown(false);
+      } else {
+        await archiveDepartment(archiveTarget.id);
+        showToast('Departemen diarsipkan', 'Data dipindahkan ke arsip');
+      }
+      fetchDepts();
+    } catch {
+      showToast('Gagal', 'Terjadi kesalahan saat mengarsipkan');
     }
     setArchiveTarget(null);
   };
 
-  const handleDeleteConfirm = () => {
-    if (deleteTarget === null) return;
-    showToast('Departemen berhasil dihapus', 'Data telah dihapus secara permanen');
-    setDeptData(prev => prev.filter((_, i) => i !== deleteTarget));
-    setSelectedRows(prev => {
-      const next = new Set(prev);
-      next.delete(deleteTarget);
-      return next;
-    });
-    setDeleteTarget(null);
+  const handleUnarchiveConfirm = async () => {
+    try {
+      await unarchiveDepartment(unarchiveTarget.id);
+      showToast('Departemen ditampilkan kembali', 'Status diubah ke aktif');
+      fetchDepts();
+    } catch {
+      showToast('Gagal', 'Terjadi kesalahan saat menampilkan departemen');
+    }
+    setUnarchiveTarget(null);
   };
 
   return (
@@ -131,14 +163,14 @@ export default function Departemen({ navigate }) {
           <div className="dept-left-actions">
             <button className="dept-btn-primary" onClick={openAddModal}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
-                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg> Tambah Departemen
             </button>
           </div>
           <div className="dept-right-actions">
             <div className="dept-stats-badge">Jumlah Departemen : <strong>{deptData.length}</strong></div>
-            <div className="dept-divider"></div>
-            {selectedRows.size > 0 && (
+            <div className="dept-divider" />
+            {selectedRows.size > 0 && !showArchived && (
               <CTABulkAksi
                 count={selectedRows.size}
                 isOpen={showBulkDropdown}
@@ -149,9 +181,7 @@ export default function Departemen({ navigate }) {
               />
             )}
             <FilterDropdown
-              groups={[
-                { title: 'Status', options: ['Aktif', 'Arsip'] },
-              ]}
+              groups={[{ title: 'Status', options: ['Arsip'] }]}
               activeFilters={activeFilters}
               onToggle={toggleFilter}
               isOpen={showFilterDropdown}
@@ -164,10 +194,10 @@ export default function Departemen({ navigate }) {
           <table className="dept-table">
             <thead>
               <tr>
-                <th width="3%"><input type="checkbox" className="dept-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
+                <th width="3%"><input type="checkbox" className="dept-checkbox-all" checked={selectAll} onChange={toggleSelectAll} disabled={pagedData.length === 0 || loading} /></th>
                 <th width="27%">Departemen</th>
                 <th width="15%">Total Posisi</th>
-                <th width="25%">Lowongan Terkait</th>
+                <th width="25%">Kontak</th>
                 <th width="30%">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <span>Dibuat Pada</span>
@@ -177,42 +207,55 @@ export default function Departemen({ navigate }) {
               </tr>
             </thead>
             <tbody>
-              {deptData.map((dept, i) => (
-                <tr key={i}>
-                  <td><input type="checkbox" className="dept-checkbox row-checkbox" checked={selectedRows.has(i)} onChange={() => toggleRow(i)} /></td>
-                  <td className="dept-name" onClick={() => navigate && navigate('departemen-detail', { departemen: dept.name })} style={{ cursor: 'pointer' }}>{dept.name}</td>
-                  <td>
-                    <span style={{ background: '#eef7fd', color: '#0977be', padding: '4px 12px', borderRadius: '16px', fontWeight: '600', fontSize: '11px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {dept.totalPosisi}
-                    </span>
-                  </td>
-                  <td>{dept.lowongan}</td>
-                  <td>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <span>{dept.tanggal}</span>
-                      <div className="dept-actions">
-                        <button className="dept-btn-outline btn-archive" onClick={() => setArchiveTarget(i)}>
-                          <ArchiveSvg /> Arsipkan
-                        </button>
-                        {dept.canDelete ? (
-                          <button className="dept-btn-outline btn-delete" onClick={() => setDeleteTarget(i)}>
-                            <DeleteSvg /> Hapus
-                          </button>
-                        ) : (
-                          <button className="dept-btn-outline btn-delete-disabled" disabled>
-                            <DeleteSvg /> Hapus
-                          </button>
-                        )}
+              {loading ? (
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>Memuat data...</td></tr>
+              ) : pagedData.length === 0 ? (
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                  {showArchived ? 'Tidak ada departemen yang diarsipkan.' : 'Belum ada departemen. Silakan tambah baru.'}
+                </td></tr>
+              ) : pagedData.map((dept) => {
+                const dateObj = new Date(dept.created_at);
+                const displayDate = isNaN(dateObj) ? '-' : dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                return (
+                  <tr key={dept.id} className={dept.status === 'arsip' ? 'dept-row-archived' : ''}>
+                    <td><input type="checkbox" className="dept-checkbox row-checkbox" checked={selectedRows.has(dept.id)} onChange={() => toggleRow(dept.id)} /></td>
+                    <td className="dept-name" onClick={() => navigate && navigate('departemen-detail', { departemen: dept.name })} style={{ cursor: 'pointer' }}>{dept.name}</td>
+                    <td>
+                      <span style={{ background: '#eef7fd', color: '#0977be', padding: '4px 12px', borderRadius: '16px', fontWeight: '600', fontSize: '11px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {dept.totalPosisi ?? 0}
+                      </span>
+                    </td>
+                    <td>{dept.contact || '-'}</td>
+                    <td>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <span>{displayDate}</span>
+                        <div className="dept-actions">
+                          {dept.status === 'arsip' ? (
+                            <button className="dept-btn-outline btn-show" onClick={() => setUnarchiveTarget(dept)}>
+                              Tampilkan
+                            </button>
+                          ) : (
+                            <button className="dept-btn-outline btn-archive" onClick={() => setArchiveTarget(dept)}>
+                              <ArchiveSvg /> Arsipkan
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        <Pagination />
+        <Pagination
+          page={page}
+          total={totalPages}
+          perPage={perPage}
+          onPageChange={(p) => setPage(Math.max(1, Math.min(p, totalPages)))}
+          onPerPageChange={(n) => { setPerPage(n); setPage(1); }}
+        />
       </div>
 
       {/* Modal: Tambah Departemen */}
@@ -226,23 +269,13 @@ export default function Departemen({ navigate }) {
                   <p className="dept-modal-label">Nama Departemen</p>
                   <p className="dept-modal-hint">Pastikan jabatan telah sesuai. Contoh: Marketing, Accountant, dll</p>
                 </div>
-                <input
-                  className="dept-modal-input"
-                  placeholder="Isi Nama Departemen"
-                  value={namaInput}
-                  onChange={e => setNamaInput(e.target.value)}
-                />
+                <input className="dept-modal-input" placeholder="Isi Nama Departemen" value={namaInput} onChange={e => setNamaInput(e.target.value)} />
               </div>
               <div className="dept-modal-field">
                 <div className="dept-modal-label-group">
                   <p className="dept-modal-label">Deskripsi</p>
                 </div>
-                <textarea
-                  className="dept-modal-textarea"
-                  placeholder="Masukan Deskripsi Singkat"
-                  value={deskripsiInput}
-                  onChange={e => setDeskripsiInput(e.target.value)}
-                />
+                <textarea className="dept-modal-textarea" placeholder="Masukan Deskripsi Singkat" value={deskripsiInput} onChange={e => setDeskripsiInput(e.target.value)} />
               </div>
             </div>
             <div className="dept-modal-footer dept-modal-footer-end">
@@ -258,20 +291,20 @@ export default function Departemen({ navigate }) {
           title="Arsipkan Departemen"
           body={archiveTarget === 'bulk'
             ? `Apakah Anda yakin ingin mengarsipkan ${selectedRows.size} departemen yang dipilih?`
-            : 'Apakah Anda yakin ingin mengarsipkan departemen ini?'}
+            : `Apakah Anda yakin ingin mengarsipkan departemen "${archiveTarget.name}"?`}
           confirmLabel="Arsipkan"
           onConfirm={handleArchiveConfirm}
           onClose={() => setArchiveTarget(null)}
         />
       )}
 
-      {deleteTarget !== null && (
+      {unarchiveTarget !== null && (
         <PopupKonfirmasi
-          title="Hapus Departemen"
-          body="Apakah Anda yakin ingin menghapus departemen ini? Tindakan ini tidak dapat dibatalkan."
-          confirmLabel="Hapus"
-          onConfirm={handleDeleteConfirm}
-          onClose={() => setDeleteTarget(null)}
+          title="Tampilkan Departemen"
+          body={`Tampilkan kembali departemen "${unarchiveTarget.name}"? Status akan diubah ke aktif.`}
+          confirmLabel="Tampilkan"
+          onConfirm={handleUnarchiveConfirm}
+          onClose={() => setUnarchiveTarget(null)}
         />
       )}
 

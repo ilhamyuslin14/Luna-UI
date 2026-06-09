@@ -6,39 +6,33 @@ import Toast from '../../components/Toast.jsx';
 import KandidatRingkasan from './Kandidat-Ringkasan.jsx';
 import KandidatResume from './Kandidat-Resume.jsx';
 import KandidatSeleksi from './Kandidat-Seleksi.jsx';
-
-const KANDIDAT_DEFAULT = {
-  nama: 'Aula Maulidatul Mufidah',
-  id: 'R78YXRY4R',
-  jabatan: 'Freelancer Recruitment',
-  perusahaan: 'Duta Generasi Mandiri',
-  domisili: 'Jakarta Selatan, Indonesia',
-  linkedin: '',
-  gender: 'N/A',
-  jurusan: 'Psikologi',
-  universitas: 'Universitas Mercu Buana',
-  pengalaman: '3 tahun',
-  email: 'aulamdtlmufidah@gmail.com',
-  phone: '6285157707461',
-  periode: '2023-09-01 – Sekarang',
-};
-
-const POSISI_LIST = [
-  { id: 1, nama: 'Project Manager',       dept: 'Tech'      },
-  { id: 2, nama: 'Backend Engineer',      dept: 'Tech'      },
-  { id: 3, nama: 'UI/UX Designer',        dept: 'Design'    },
-  { id: 4, nama: 'Data Analyst',          dept: 'Tech'      },
-  { id: 5, nama: 'Frontend Engineer',     dept: 'Tech'      },
-  { id: 6, nama: 'HR Specialist',         dept: 'HR'        },
-  { id: 7, nama: 'Product Marketing Manager', dept: 'Marketing' },
-  { id: 8, nama: 'VP of Finance',         dept: 'Finance'   },
-];
+import ScoringProgressWidget from '../../components/ScoringProgressWidget.jsx';
+import { getKandidatById } from '../../services/kandidatService.js';
+import { getSeleksi } from '../../services/seleksiService.js';
+import { runScoring, getScoringByKandidat } from '../../services/scoringService.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 /* ── Tambahkan ke Posisi Modal ─────────────────────────── */
-function TambahkanKePosisiModal({ onClose, kandidatNama, onAdded }) {
-  const [query, setQuery]       = useState('');
-  const [added, setAdded]       = useState(new Set());
-  const inputRef                = useRef(null);
+function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScoring }) {
+  const { companyId }             = useAuth();
+  const [query, setQuery]         = useState('');
+  const [preChecked, setPreChecked] = useState({}); // { [posisiId]: 'done' } — from DB
+  const [posisiList, setPosisiList] = useState([]);
+  const [isLoading, setIsLoading]   = useState(true);
+
+  // Pre-check posisi yang sudah pernah di-scoring dari DB
+  useEffect(() => {
+    if (!kandidatId) return;
+    getScoringByKandidat(kandidatId)
+      .then(data => {
+        const done = {};
+        (data || []).forEach(s => { done[s.seleksi_id] = 'done'; });
+        setPreChecked(done);
+      })
+      .catch(() => {});
+  }, [kandidatId]);
+
+  const inputRef = useRef(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -47,21 +41,44 @@ function TambahkanKePosisiModal({ onClose, kandidatNama, onAdded }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const filtered = POSISI_LIST.filter(p =>
+  useEffect(() => {
+    async function loadPosisi() {
+      if (!companyId) return;
+      try {
+        const data = await getSeleksi(companyId);
+        setPosisiList((data || []).map(s => ({
+          id: s.id,
+          nama: s.jabatan || '-',
+          dept: s.departments?.name || s.departemen || '-',
+        })));
+      } catch (err) {
+        console.error('Error loading posisi:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadPosisi();
+  }, [companyId]);
+
+  // Derive button state: live job from parent takes priority over DB pre-check
+  const getState = (posisiId) =>
+    scoringJobs[posisiId]?.status || preChecked[posisiId] || 'idle';
+
+  const available = posisiList.filter(p => getState(p.id) !== 'done');
+  const allScored = posisiList.length > 0 && available.length === 0;
+  const filtered = available.filter(p =>
     p.nama.toLowerCase().includes(query.toLowerCase()) ||
     p.dept.toLowerCase().includes(query.toLowerCase())
   );
 
-  const handleAdd = (id) => {
-    setAdded(prev => new Set([...prev, id]));
-    onAdded?.(); // hanya trigger toast, modal tetap terbuka
+  const handleAdd = (posisiId, posisiNama) => {
+    onStartScoring(posisiId, posisiNama);
   };
 
   return (
     <div className="kd-posisi-overlay" onClick={onClose}>
       <div className="kd-posisi-modal" onClick={e => e.stopPropagation()}>
 
-        {/* Close button — × rotated from + icon */}
         <button className="kd-posisi-close" onClick={onClose}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#555f71" strokeWidth="2" strokeLinecap="round">
             <line x1="1" y1="1" x2="13" y2="13"/>
@@ -70,10 +87,8 @@ function TambahkanKePosisiModal({ onClose, kandidatNama, onAdded }) {
         </button>
 
         <div className="kd-posisi-body">
-          {/* Title */}
           <h3 className="kd-posisi-title">Tambahkan ke Posisi</h3>
 
-          {/* Search */}
           <div className="kd-posisi-search-wrap">
             <input
               ref={inputRef}
@@ -88,31 +103,41 @@ function TambahkanKePosisiModal({ onClose, kandidatNama, onAdded }) {
             </svg>
           </div>
 
-          {/* Results */}
           <div className="kd-posisi-results">
-            <p className="kd-posisi-count">
-              {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
-            </p>
+            {!isLoading && (
+              <p className="kd-posisi-count">
+                {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
+              </p>
+            )}
 
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="kd-posisi-empty">Memuat posisi...</div>
+            ) : posisiList.length === 0 ? (
               <div className="kd-posisi-empty">Tidak ada posisi ditemukan</div>
+            ) : allScored ? (
+              <div className="kd-posisi-empty">Kandidat sudah dinilai di semua posisi yang tersedia</div>
+            ) : filtered.length === 0 ? (
+              <div className="kd-posisi-empty">Tidak ada posisi yang cocok</div>
             ) : (
               <div className="kd-posisi-list">
-                {filtered.map(p => (
-                  <div className="kd-posisi-item" key={p.id}>
-                    <div className="kd-posisi-item-info">
-                      <span className="kd-posisi-item-name">{p.nama}</span>
-                      <span className="kd-posisi-item-dept">{p.dept}</span>
+                {filtered.map(p => {
+                  const st = getState(p.id);
+                  return (
+                    <div className="kd-posisi-item" key={p.id}>
+                      <div className="kd-posisi-item-info">
+                        <span className="kd-posisi-item-name">{p.nama}</span>
+                        <span className="kd-posisi-item-dept">{p.dept}</span>
+                      </div>
+                      <button
+                        className={`kd-posisi-tambah-btn${st === 'done' ? ' kd-posisi-tambah-done' : st === 'error' ? ' kd-posisi-tambah-error' : ''}`}
+                        onClick={() => handleAdd(p.id, p.nama)}
+                        disabled={st === 'loading' || st === 'done'}
+                      >
+                        {st === 'loading' ? 'Memproses...' : st === 'done' ? 'Ditambahkan' : st === 'error' ? 'Coba Lagi' : 'Tambahkan'}
+                      </button>
                     </div>
-                    <button
-                      className={`kd-posisi-tambah-btn${added.has(p.id) ? ' kd-posisi-tambah-done' : ''}`}
-                      onClick={() => handleAdd(p.id)}
-                      disabled={added.has(p.id)}
-                    >
-                      {added.has(p.id) ? 'Ditambahkan' : 'Tambahkan'}
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -124,11 +149,16 @@ function TambahkanKePosisiModal({ onClose, kandidatNama, onAdded }) {
 }
 
 /* ── Main component ─────────────────────────────────────── */
-export default function KandidatDetail({ kandidat = KANDIDAT_DEFAULT, navigate, back }) {
+export default function KandidatDetail({ kandidat = {}, navigate, back }) {
+  const { companyId }                   = useAuth();
   const [activeTab, setActiveTab]       = useState('ringkasan');
   const [archiveModal, setArchiveModal] = useState(false);
   const [posisiModal, setPosisiModal]   = useState(false);
   const [toast, setToast]               = useState(null);
+  const [resolvedData, setResolvedData] = useState(null);
+  const [isFetching, setIsFetching]     = useState(false);
+  const [scoringJobs, setScoringJobs]   = useState({}); // { [posisiId]: { nama, status, error } }
+  const [scoringVersion, setScoringVersion] = useState(0);
   const toastTimer                      = useRef(null);
 
   const showToast = (message, subMessage) => {
@@ -137,13 +167,71 @@ export default function KandidatDetail({ kandidat = KANDIDAT_DEFAULT, navigate, 
     toastTimer.current = setTimeout(() => setToast(null), 4000);
   };
 
-  const k = { ...KANDIDAT_DEFAULT, ...kandidat };
+  const handleStartScoring = (posisiId, posisiNama) => {
+    const kandidatId = resolvedData?.id;
+    setScoringJobs(prev => ({ ...prev, [posisiId]: { nama: posisiNama, status: 'loading' } }));
+    runScoring(kandidatId, posisiId, companyId)
+      .then(() => {
+        setScoringJobs(prev => ({ ...prev, [posisiId]: { ...prev[posisiId], status: 'done' } }));
+        setScoringVersion(v => v + 1);
+      })
+      .catch(err => {
+        setScoringJobs(prev => ({
+          ...prev,
+          [posisiId]: { ...prev[posisiId], status: 'error', error: err.message || 'Gagal' },
+        }));
+      });
+  };
+
+  useEffect(() => {
+    const id = typeof kandidat === 'string' ? kandidat : kandidat?.id;
+
+    if (id) {
+      setIsFetching(true);
+      getKandidatById(id)
+        .then(data => setResolvedData(data || {}))
+        .catch(() => setResolvedData(typeof kandidat === 'object' ? kandidat : {}))
+        .finally(() => setIsFetching(false));
+    } else if (typeof kandidat === 'object' && kandidat?.nama_lengkap) {
+      setResolvedData(kandidat);
+    } else {
+      setResolvedData({});
+    }
+  }, []);
+
+  const k = { ...(resolvedData || {}) };
+  if (!k.nama) k.nama = k.nama_lengkap || '';
+
+  if (isFetching || resolvedData === null) {
+    return (
+      <div className="kd-view" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: 14 }}>
+        Memuat data kandidat...
+      </div>
+    );
+  }
 
   return (
     <div className="kd-view">
       {/* Title Bar */}
       <div className="kd-title-bar">
-        <h1 className="kd-title">{k.nama}</h1>
+        <div className="kd-profile-header">
+          <div className="kd-profile-info">
+            <h1 className="kd-title">{k.nama}</h1>
+            <div className="kd-profile-job">
+              {k.jabatan_saat_ini || 'Belum ada jabatan'} {k.perusahaan_saat_ini && k.perusahaan_saat_ini !== '-' ? `at ${k.perusahaan_saat_ini}` : ''}
+            </div>
+            <div className="kd-profile-exp">
+              {k.pengalaman_tahun ? `${k.pengalaman_tahun} tahun` : '0 tahun'}
+            </div>
+            <div className="kd-profile-loc">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {k.domisili || 'Belum ada domisili'}
+            </div>
+          </div>
+        </div>
         <div className="kd-title-actions">
           <button className="kd-btn-primary" onClick={() => setPosisiModal(true)}>
             Tambah ke Posisi
@@ -175,7 +263,7 @@ export default function KandidatDetail({ kandidat = KANDIDAT_DEFAULT, navigate, 
             <div style={{ height: 40 }} />
           </div>
         )}
-        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} />}
+        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
         {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}
       </div>
@@ -183,9 +271,18 @@ export default function KandidatDetail({ kandidat = KANDIDAT_DEFAULT, navigate, 
       {/* Tambahkan ke Posisi Modal */}
       {posisiModal && (
         <TambahkanKePosisiModal
-          kandidatNama={k.nama}
+          kandidatId={k.id}
           onClose={() => setPosisiModal(false)}
-          onAdded={() => showToast('Kandidat berhasil ditambahkan ke posisi', 'Harap tunggu, proses penilaian sedang berlangsung')}
+          scoringJobs={scoringJobs}
+          onStartScoring={handleStartScoring}
+        />
+      )}
+
+      {/* Scoring Progress Widget — persists even when modal is closed */}
+      {Object.keys(scoringJobs).length > 0 && (
+        <ScoringProgressWidget
+          jobs={scoringJobs}
+          onDismiss={() => setScoringJobs({})}
         />
       )}
 

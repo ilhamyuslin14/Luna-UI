@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, memo } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getDepartmentByName, updateDepartmentDetails } from '../../services/departmentRingkasanService.js';
+import Toast from '../../components/Toast.jsx';
+import InlineEditRow from '../../components/InlineEditRow.jsx';
 
-// ── Icons ──────────────────────────────────────────────────────────
 const EditIcon = () => (
   <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
     <path d="M6.364 0.636a1.5 1.5 0 0 1 2.121 2.121L3.06 8.182 0.5 8.5l.318-2.56L6.364.636Z" stroke="#555f71" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
@@ -98,24 +101,23 @@ const EditableContent = memo(
   () => true
 );
 
-// ── Field definitions ─────────────────────────────────────────────
-const DETAIL_FIELDS = [
-  { key: 'name',     label: 'Departement Name',    type: 'text' },
-  { key: 'website',  label: 'Departement Website',  type: 'add'  },
-  { key: 'industry', label: 'Departement Industry', type: 'add'  },
-  { key: 'location', label: 'Departement Location', type: 'add'  },
-  { key: 'address',  label: 'Departement Address',  type: 'add'  },
-  { key: 'contact',  label: 'Contact',              type: 'add'  },
-];
 
-// ── Main component ─────────────────────────────────────────────────
 export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
+  const { companyId } = useAuth();
+  const [departmentId, setDepartmentId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+  const showToast = (message, subMessage) => {
+    setToast({ message, subMessage });
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  };
   // Details card state
-  const [isEditingDetails, setIsEditingDetails] = useState(false);
-  const [details, setDetails]                   = useState({
+  const [details, setDetails] = useState({
     name: departemen, website: '', industry: '', location: '', address: '', contact: '',
   });
-  const detailsSnap = useRef(null);
 
   // Description card state
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -123,9 +125,35 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
   const editorRef                         = useRef(null);
   const savedRangeRef                     = useRef(null);
 
-  // Inline add state
-  const [inlineAddKey, setInlineAddKey] = useState(null);
-  const [inlineAddValue, setInlineAddValue] = useState('');
+
+  const loadData = async () => {
+    if (!companyId || !departemen) return;
+    setIsLoading(true);
+    try {
+      const data = await getDepartmentByName(companyId, departemen);
+      if (data) {
+        setDepartmentId(data.id);
+        setDetails({
+          name: data.name || departemen,
+          website: data.website || '',
+          industry: data.industry || '',
+          location: data.location || '',
+          address: data.address || '',
+          contact: data.contact || '',
+        });
+        setDescHtml(data.description || '');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memuat', 'Data departemen tidak ditemukan.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [companyId, departemen]);
 
   useEffect(() => {
     if (isEditingDesc && editorRef.current) {
@@ -136,70 +164,35 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
 
   const set = (key, val) => setDetails(prev => ({ ...prev, [key]: val }));
 
-  const startEditDetails = () => { detailsSnap.current = { ...details }; setIsEditingDetails(true); };
-  const cancelDetails    = () => { setDetails(detailsSnap.current); setIsEditingDetails(false); };
-  const saveDetails      = () => setIsEditingDetails(false);
+  const handleSaveField = async (key, val) => {
+    set(key, val);
+    if (!departmentId) return;
+    try {
+      await updateDepartmentDetails(departmentId, { [key]: val });
+      showToast('Berhasil', 'Data departemen diperbarui');
+    } catch (err) {
+      showToast('Gagal', 'Terjadi kesalahan saat menyimpan');
+    }
+  };
 
-  const handleSaveDesc   = () => { if (editorRef.current) setDescHtml(editorRef.current.innerHTML); setIsEditingDesc(false); };
+  const handleSaveDesc   = async () => { 
+    if (!editorRef.current || !departmentId) return;
+    const newHtml = editorRef.current.innerHTML;
+    try {
+      await updateDepartmentDetails(departmentId, { description: newHtml });
+      setDescHtml(newHtml);
+      setIsEditingDesc(false);
+      showToast('Berhasil', 'Deskripsi departemen diperbarui');
+    } catch (err) {
+      showToast('Gagal', 'Terjadi kesalahan saat menyimpan deskripsi');
+    }
+  };
   const handleCancelDesc = () => setIsEditingDesc(false);
 
-  const renderDetailValue = (field) => {
-    const val = details[field.key] ?? '';
 
-    if (!isEditingDetails) {
-      if (inlineAddKey === field.key) {
-        return (
-          <div style={{ width: '285px', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
-              type={field.type === 'date' ? 'date' : 'text'}
-              className={`sd-detail-input ${field.type === 'date' ? 'sd-detail-input--date' : ''}`}
-              value={inlineAddValue}
-              onChange={e => setInlineAddValue(e.target.value)}
-              placeholder="Tambahkan data"
-              autoFocus
-              style={{ flex: 1, minWidth: 0, width: '100%', margin: 0, height: '32px' }}
-            />
-            <button onClick={() => setInlineAddKey(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Batal">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 10.5L10.5 3.5M3.5 3.5l7 7"/></svg>
-            </button>
-            <button onClick={() => { set(field.key, inlineAddValue); setInlineAddKey(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }} title="Simpan">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#28a745" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.8 7l2.8 2.8 5.6-5.6"/></svg>
-            </button>
-          </div>
-        );
-      }
-
-      if (field.type === 'add' && !val) {
-        return (
-          <span className="sd-detail-value add-data" style={{ cursor: 'pointer' }} onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}>
-            Tambahkan data <AddIcon />
-          </span>
-        );
-      }
-      return (
-        <span className="sd-detail-value" style={{ color: '#323b4d', fontWeight: 400 }}>
-          {val || (
-            <span
-              className="sd-detail-value add-data"
-              style={{ cursor: 'pointer', gap: 4 }}
-              onClick={() => { setInlineAddKey(field.key); setInlineAddValue(''); }}
-            >
-              Tambahkan data <AddIcon />
-            </span>
-          )}
-        </span>
-      );
-    }
-
-    return (
-      <input
-        className="sd-detail-input"
-        value={val}
-        onChange={e => set(field.key, e.target.value)}
-        placeholder={field.type === 'add' ? 'Tambahkan data' : field.label}
-      />
-    );
-  };
+  if (isLoading) {
+    return <div style={{ padding: '24px', color: '#666' }}>Memuat data departemen...</div>;
+  }
 
   return (
     <div className="sd-columns" style={{ width: '569px', maxWidth: '100%' }}>
@@ -209,37 +202,68 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
         <div className="sd-card">
           <div className="sd-card-header">
             <span className="sd-card-title" style={{ textTransform: 'uppercase', letterSpacing: '0.65px', fontSize: '13px' }}>
-              Details
+              Detail
             </span>
-            {!isEditingDetails && (
-              <button className="sd-edit-btn" onClick={startEditDetails}>
-                <EditIcon /> Edit
-              </button>
-            )}
           </div>
 
           <div className="sd-detail-rows">
-            {DETAIL_FIELDS.map(field => (
-              <div className="sd-detail-row" key={field.key}>
-                <span className="sd-detail-label">{field.label}</span>
-                {renderDetailValue(field)}
-              </div>
-            ))}
+            <InlineEditRow
+              label="Nama Departemen"
+              tooltip="Nama resmi departemen yang digunakan di seluruh sistem"
+              value={details.name}
+              onSave={val => handleSaveField('name', val)}
+              width="285px"
+            />
+            <InlineEditRow
+              label="Website"
+              tooltip="URL website departemen atau perusahaan, contoh: https://arkademi.com"
+              value={details.website}
+              onSave={val => handleSaveField('website', val)}
+              emptyLabel="Tambahkan data"
+              width="285px"
+            />
+            <InlineEditRow
+              label="Industri"
+              tooltip="Bidang industri departemen ini beroperasi, contoh: Teknologi, Pendidikan, Keuangan"
+              value={details.industry}
+              onSave={val => handleSaveField('industry', val)}
+              emptyLabel="Tambahkan data"
+              width="285px"
+            />
+            <InlineEditRow
+              label="Lokasi"
+              tooltip="Kota atau wilayah tempat departemen berada, contoh: Jakarta Selatan"
+              type="location"
+              value={details.location}
+              onSave={val => handleSaveField('location', val)}
+              emptyLabel="Tambahkan data"
+              width="285px"
+            />
+            <InlineEditRow
+              label="Alamat Lengkap"
+              tooltip="Alamat fisik lengkap termasuk nama jalan, nomor gedung, dan kode pos"
+              value={details.address}
+              onSave={val => handleSaveField('address', val)}
+              emptyLabel="Tambahkan data"
+              width="285px"
+            />
+            <InlineEditRow
+              label="Kontak"
+              tooltip="Nama atau email penanggung jawab departemen yang bisa dihubungi"
+              type="tel"
+              value={details.contact}
+              onSave={val => handleSaveField('contact', val)}
+              emptyLabel="Tambahkan data"
+              width="285px"
+            />
           </div>
-
-          {isEditingDetails && (
-            <div className="sd-detail-edit-footer">
-              <button className="sd-edit-cancel-btn" onClick={cancelDetails}>Batal</button>
-              <button className="sd-edit-save-btn" onClick={saveDetails}>Simpan</button>
-            </div>
-          )}
         </div>
 
         {/* ── Description Card ── */}
         <div className="sd-card">
           <div className="sd-card-header">
             <span className="sd-card-title" style={{ textTransform: 'uppercase', letterSpacing: '0.65px', fontSize: '13px' }}>
-              Description
+              Deskripsi
             </span>
             {!isEditingDesc && (
               <button className="sd-edit-btn" onClick={() => setIsEditingDesc(true)}>
@@ -300,14 +324,16 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
             /* ── View mode ── */
             descHtml ? (
               <div
-                className="sd-deskripsi-content"
+                className="sd-deskripsi-content sd-deskripsi-content--hoverable"
                 dangerouslySetInnerHTML={{ __html: descHtml }}
+                onClick={() => setIsEditingDesc(true)}
+                title="Klik untuk mengedit"
               />
             ) : (
               <div className="sd-detail-rows">
-                <div className="sd-detail-row" style={{ borderBottom: 'none' }}>
-                  <span className="sd-detail-label">Departement Description</span>
-                  <span className="sd-detail-value add-data">
+                <div className="inline-edit-row" style={{ borderBottom: 'none' }}>
+                  <div className="inline-edit-label">Deskripsi Departemen</div>
+                  <span className="inline-edit-value add-data" onClick={() => setIsEditingDesc(true)} style={{ width: '285px', cursor: 'pointer' }}>
                     Tambahkan data <AddIcon />
                   </span>
                 </div>
@@ -317,6 +343,7 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
         </div>
 
       </div>
+      {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
     </div>
   );
 }

@@ -201,6 +201,15 @@
 .dept-table tbody tr:hover {
     background-color: #f7f9fc;
 }
+.dept-table tbody tr.dept-row-archived {
+    background-color: #f4f6fa;
+}
+.dept-table tbody tr.dept-row-archived td {
+    color: #9aa3b0;
+}
+.dept-table tbody tr.dept-row-archived .dept-name {
+    color: #9aa3b0;
+}
 
 .dept-table td {
     padding: 14px 20px;
@@ -247,6 +256,16 @@
     color: #cbd0db;
     border: none;
     box-shadow: none;
+}
+
+.dept-btn-outline.btn-show {
+    color: #0977be;
+    border-color: #cfeafc;
+    background: #eef7fd;
+}
+
+.dept-btn-outline.btn-show:hover {
+    background: #cfeafc;
 }
 
 /* Pagination */

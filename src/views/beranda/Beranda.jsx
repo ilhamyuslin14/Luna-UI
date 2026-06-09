@@ -1,6 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getDashboardMetrics, getRecentJobs, getRecentActivities } from '../../services/dashboardService.js';
+import { supabase } from '../../config/supabase.js';
+
+const STATUS_CONFIG = {
+  rencana: { icon: '/assets/status/status_rencana.svg', label: 'Rencana' },
+  aktif: { icon: '/assets/status/status_aktif.svg', label: 'Aktif' },
+  ditahan: { icon: '/assets/status/status_ditahan.svg', label: 'Ditahan' },
+  selesai: { icon: '/assets/status/status_selesai.svg', label: 'Selesai' },
+  dibatalkan: { icon: '/assets/status/status_dibatalkan.svg', label: 'Dibatalkan' },
+};
 
 export default function Beranda({ navigate }) {
+  const { companyId } = useAuth();
   const [npsState, setNpsState] = useState('popup');
   const [npsScore, setNpsScore] = useState(null);
   const [npsText, setNpsText] = useState('');
@@ -11,6 +23,23 @@ export default function Beranda({ navigate }) {
     setTimeout(() => setNpsState('hidden'), 1500);
   };
 
+  const [metrics, setMetrics] = useState({
+    totalKandidat: 0,
+    lowonganAktif: 0,
+    direkrut: 0,
+    rataKecocokan: 0
+  });
+  const [recentJobs, setRecentJobs] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  useEffect(() => {
+    if (companyId) {
+      getDashboardMetrics(companyId).then(data => setMetrics(data));
+      getRecentJobs(companyId).then(data => setRecentJobs(data));
+      getRecentActivities(companyId).then(data => setRecentActivities(data));
+    }
+  }, [companyId]);
+
   return (
     <div className="db-view">
       {/* Stats Cards */}
@@ -20,11 +49,11 @@ export default function Beranda({ navigate }) {
             <div className="db-stat-icon-wrapper" style={{ background: '#eef7fd' }}>
               <img src="/assets/group1.svg" alt="Talenta" />
             </div>
-            <div className="db-stat-trend">+124 mgg ini</div>
+            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
           </div>
           <div className="db-stat-card-body">
             <div className="db-stat-label">Total Talenta</div>
-            <div className="db-stat-value">3,248</div>
+            <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
           </div>
         </div>
 
@@ -33,11 +62,11 @@ export default function Beranda({ navigate }) {
             <div className="db-stat-icon-wrapper" style={{ background: '#ffedff' }}>
               <img src="/assets/fi8799819.svg" alt="Jobs" />
             </div>
-            <div className="db-stat-trend">+5 bln ini</div>
+            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
           </div>
           <div className="db-stat-card-body">
             <div className="db-stat-label">Lowongan Aktif</div>
-            <div className="db-stat-value">12</div>
+            <div className="db-stat-value">{metrics.lowonganAktif.toLocaleString()}</div>
           </div>
         </div>
 
@@ -46,11 +75,11 @@ export default function Beranda({ navigate }) {
             <div className="db-stat-icon-wrapper" style={{ background: '#e1fce7' }}>
               <img src="/assets/group4.svg" alt="Hired" />
             </div>
-            <div className="db-stat-trend">+2 mgg ini</div>
+            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
           </div>
           <div className="db-stat-card-body">
             <div className="db-stat-label">Karyawan Direkrut</div>
-            <div className="db-stat-value">145</div>
+            <div className="db-stat-value">{metrics.direkrut.toLocaleString()}</div>
           </div>
         </div>
 
@@ -59,11 +88,11 @@ export default function Beranda({ navigate }) {
             <div className="db-stat-icon-wrapper" style={{ background: '#fff4dd' }}>
               <img src="/assets/group1000006043.svg" alt="AI Match" />
             </div>
-            <div className="db-stat-trend">+2.4% vs mgg lalu</div>
+            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
           </div>
           <div className="db-stat-card-body">
             <div className="db-stat-label">Rata-rata Kecocokan AI</div>
-            <div className="db-stat-value">88%</div>
+            <div className="db-stat-value">{metrics.rataKecocokan}%</div>
           </div>
         </div>
       </div>
@@ -123,24 +152,31 @@ export default function Beranda({ navigate }) {
                 <div>Kandidat Baru</div>
                 <div>Status</div>
               </div>
-              {[
-                { posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
-                { posisi: 'Product Marketing Manager', dept: 'Marketing' },
-                { posisi: 'VP of Finance', dept: 'Finance' },
-                { posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
-              ].map((row, i) => (
-                <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
-                  <div>{row.posisi}</div>
-                  <div>{row.dept}</div>
-                  <div><span className="db-cv-badge">12 CV</span></div>
-                  <div>
-                    <div className="db-status-badge">
-                      <div className="db-status-icon"><img src="/assets/layer1.svg" /></div>
-                      <span>Rencana</span>
+              {recentJobs.length > 0 ? (
+                recentJobs.map((row, i) => {
+                  const statusKey = (row.status || 'rencana').toLowerCase();
+                  const cfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.rencana;
+                  return (
+                    <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
+                      <div>{row.posisi}</div>
+                      <div>{row.dept}</div>
+                      <div><span className="db-cv-badge">{row.kandidatCount} CV</span></div>
+                      <div>
+                        <div className={`lw-status-bubble ${statusKey}`} style={{ pointerEvents: 'none' }}>
+                          <div className="lw-status-content">
+                            <div className="lw-icon-wrapper"><img src={cfg.icon} alt={cfg.label} /></div>
+                            <span className="lw-status-text">{cfg.label}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  );
+                })
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#8b95a5', fontSize: '14px' }}>
+                  Belum ada posisi terbaru
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -150,23 +186,23 @@ export default function Beranda({ navigate }) {
           <div className="db-activity-card">
             <h2 className="db-section-title">Aktivitas Terbaru</h2>
             <div className="db-activity-list">
-              {[
-                { bg: '#eef7fd', icon: '/assets/fi_16116710.svg', text: '24 CV baru berhasil diparsing AI untuk Senior Frontend Engineer.', time: 'Baru saja' },
-                { bg: '#ffedff', icon: '/assets/fi8799819.svg', text: "Lowongan 'Product Marketing Manager' dipublikasikan.", time: '2 jam yang lalu' },
-                { bg: '#e1fce7', icon: '/assets/fi1004765.svg', text: "Kandidat 'Rofiq Gonzalez' diubah statusnya menjadi Wawancara.", time: 'Kemarin, 14:30 WIB' },
-                { bg: '#eef7fd', icon: '/assets/fi_16116710.svg', text: '50 CV diimpor massal ke dalam Candidate Warehouse.', time: 'Kemarin, 10:15 WIB' },
-                { bg: '#f4f7fb', icon: '/assets/fi3114812.svg', text: 'Kriteria penilaian AI diperbarui untuk Departemen Engineering.', time: '21 Okt, 16:00 WIB' },
-              ].map((item, i) => (
-                <div className="db-activity-item" key={i}>
-                  <div className="db-activity-icon-wrapper" style={{ background: item.bg }}>
-                    <img src={item.icon} />
+              {recentActivities.length > 0 ? (
+                recentActivities.map((item, i) => (
+                  <div className="db-activity-item" key={i}>
+                    <div className="db-activity-icon-wrapper" style={{ background: item.bg }}>
+                      <img src={item.icon} />
+                    </div>
+                    <div className="db-activity-content">
+                      <div className="db-activity-text">{item.text}</div>
+                      <div className="db-activity-time">{item.time}</div>
+                    </div>
                   </div>
-                  <div className="db-activity-content">
-                    <div className="db-activity-text">{item.text}</div>
-                    <div className="db-activity-time">{item.time}</div>
-                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#8b95a5', fontSize: '14px' }}>
+                  Belum ada aktivitas
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

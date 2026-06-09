@@ -474,3 +474,23 @@
   min-height: 346px;
 }
 .sp-editor-area::placeholder { color: #abb2c1; }
+
+.sp-editor-area p {
+  margin: 0 0 16px 0;
+}
+
+.sp-editor-area ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sp-editor-area ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sp-editor-area li {
+  margin-bottom: 6px;
+}

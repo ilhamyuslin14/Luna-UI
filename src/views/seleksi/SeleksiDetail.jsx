@@ -4,6 +4,9 @@ import TabNav from '../../components/TabNav.jsx';
 import ToastProgress from '../../components/ToastProgress.jsx';
 import SeleksiKandidat from './Seleksi-Kandidat.jsx';
 import SeleksiRingkasan from './Seleksi-Ringkasan.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getSeleksiByJabatan, updateSeleksi } from '../../services/seleksiService.js';
+import { slugify } from '../../utils/slug.js';
 
 const STATUS_OPTS = [
   { val: 'rencana', label: 'Rencana', text: '#555f71', bg: '#f4f6fa', border: '#cbd0db' },
@@ -49,7 +52,12 @@ const StatusIcon = ({ val, size = 13 }) => {
 };
 
 export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
+  const { companyId } = useAuth();
+  
   const [recruitStatus, setRecruitStatus] = useState('rencana');
+  const [seleksiId, setSeleksiId] = useState(null);
+  const [seleksiKode, setSeleksiKode] = useState(null);
+  const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
   const [pageCreated, setPageCreated] = useState(false);
   const [pageCreation, setPageCreation] = useState('idle'); // 'idle' | 'creating'
@@ -57,17 +65,58 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
   const [showSuccess, setShowSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const kaririUrl = `${window.location.origin}/?view=laman-karir&jabatan=${encodeURIComponent(jabatan)}`;
+  const kaririUrl = seleksiKode
+    ? `${window.location.origin}/?view=laman-karir&perusahaan=${slugify(companyName)}&posisi=${slugify(jabatan)}&kode=${encodeURIComponent(seleksiKode)}`
+    : `${window.location.origin}/?view=laman-karir&jabatan=${encodeURIComponent(jabatan)}`;
   const karilEnabled = recruitStatus === 'aktif' && pageCreated;
-  const currentOpt = STATUS_OPTS.find(o => o.val === recruitStatus);
+  const currentOpt = STATUS_OPTS.find(o => o.val === recruitStatus) || STATUS_OPTS[0];
 
-  const handleStatusChange = (newVal) => {
+  useEffect(() => {
+    if (!companyId || !jabatan) return;
+    getSeleksiByJabatan(companyId, jabatan).then(data => {
+      if (data) {
+        setSeleksiId(data.id);
+        setSeleksiKode(data.kode || null);
+        setCompanyName(data.companies?.name || null);
+        if (data.status) {
+          const s = data.status.trim().toLowerCase();
+          setRecruitStatus(s);
+          if (s === 'aktif') {
+            setPageCreated(true);
+          }
+        }
+      }
+    });
+  }, [companyId, jabatan]);
+
+  // Listen to global status updates from Ringkasan
+  useEffect(() => {
+    const handleSync = (e) => {
+      const newVal = e.detail.toLowerCase();
+      setRecruitStatus(newVal);
+      if (newVal === 'aktif') {
+        setPageCreation(prev => {
+          if (prev === 'idle') {
+            setPageCreated(false);
+            setCreationProgress(0);
+            return 'creating';
+          }
+          return prev;
+        });
+      }
+    };
+    window.addEventListener('syncSeleksiStatus', handleSync);
+    return () => window.removeEventListener('syncSeleksiStatus', handleSync);
+  }, []);
+
+  const handleStatusChange = async (newVal) => {
     setRecruitStatus(newVal);
     setShowStatusDrop(false);
-    if (newVal === 'aktif' && pageCreation === 'idle') {
-      setPageCreated(false);
-      setCreationProgress(0);
-      setPageCreation('creating');
+    
+    if (seleksiId) {
+      const cap = newVal.charAt(0).toUpperCase() + newVal.slice(1);
+      await updateSeleksi(seleksiId, { status: cap });
+      window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: cap }));
     }
   };
 
@@ -214,10 +263,17 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
 
       <div className="sd-content">
         {activeTab === 'kandidat' ? (
-          <SeleksiKandidat navigate={navigate} back={back} />
+          <SeleksiKandidat navigate={navigate} back={back} seleksiId={seleksiId} />
         ) : (
           <>
-            <div style={{ margin: '-20px -20px 0', padding: '0 30px', height: 64, display: 'flex', alignItems: 'center' }}>
+            <div style={{ 
+              margin: '-20px -20px -16px -20px', 
+              padding: '0 30px', 
+              height: 64, 
+              display: 'flex', 
+              alignItems: 'center',
+              flexShrink: 0
+            }}>
               <BackButton onClick={() => back ? back() : navigate('seleksi')} />
             </div>
             <SeleksiRingkasan jabatan={jabatan} />

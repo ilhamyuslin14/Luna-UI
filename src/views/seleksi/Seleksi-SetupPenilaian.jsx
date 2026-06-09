@@ -1,4 +1,13 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { createSeleksi } from '../../services/seleksiService.js';
+import { getDepartments, createDepartment } from '../../services/departmentService.js';
+import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
+import { ID_REGIONS } from '../../utils/idRegions.js';
+import Toast from '../../components/Toast.jsx';
+import mammoth from 'mammoth';
+import pdfToText from 'react-pdftotext';
+import { parseJobDescManual } from '../../utils/parseJobDescManual';
 
 const CalendarIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -82,33 +91,133 @@ const IcAlignJustify = () => (
   </svg>
 );
 
+// ── Toolbar button component ─────────────────────────────────────
+const TBtn = ({ title, cmd, val, children, onClick }) => (
+  <button
+    className="sd-deskripsi-toolbar-btn"
+    title={title}
+    type="button"
+    onMouseDown={e => {
+      e.preventDefault();
+      if (onClick) { onClick(); return; }
+      document.execCommand(cmd, false, val ?? null);
+    }}
+  >
+    {children}
+  </button>
+);
+
+// ── Memoized contenteditable ─────────────────────────────────────
+const EditableContent = React.memo(
+  ({ htmlRef, initialHtml }) => (
+    <div
+      ref={htmlRef}
+      contentEditable
+      suppressContentEditableWarning
+      className="sp-editor-area"
+      style={{ minHeight: '200px', overflowY: 'auto' }}
+      dangerouslySetInnerHTML={{ __html: initialHtml }}
+    />
+  ),
+  () => true
+);
+
 export default function SetupPenilaian({ navigate }) {
+  const { companyId } = useAuth();
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState('');
   const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle' | 'uploading' | 'done'
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [departments, setDepartments] = useState([]);
+  const [showDeptModal, setShowDeptModal] = useState(false);
+  const [newDeptName, setNewDeptName] = useState('');
+  const [isCreatingDept, setIsCreatingDept] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+
+  const showToast = (message, subMessage, type = 'success') => {
+    setToast({ message, subMessage, type });
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  };
+
+  useEffect(() => {
+    getDepartments().then(data => setDepartments(data || [])).catch(console.error);
+  }, []);
+
   const [form, setForm] = useState({
-    namaJabatan: '',
-    departemen: '',
-    lokasi: '',
-    statusRekrutmen: '',
-    jumlahRekrut: '',
-    ikatanKerja: '',
-    upahMin: '',
-    upahMax: '',
-    siklusUpah: '',
-    tglMulai: '',
-    tglOnboarding: '',
-    pendidikan: '',
-    pengalaman: '',
-    deskripsi: '',
+    jabatan: '', departemen: '', lokasi: '', statusRekrutmen: '', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: ''
   });
+
+  const editorRef = useRef(null);
+  const savedRangeRef = useRef(null);
+  const lokasiInputContainerRef = useRef(null);
+
+  const [lokasiSuggestions, setLokasiSuggestions] = useState([]);
+  const [showLokasiDropdown, setShowLokasiDropdown] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (lokasiInputContainerRef.current && !lokasiInputContainerRef.current.contains(e.target)) {
+        setShowLokasiDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const set = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
+  const handleLokasiChange = (e) => {
+    const val = e.target.value;
+    setForm(prev => ({ ...prev, lokasi: val }));
+    if (!val.trim()) {
+      setLokasiSuggestions([]);
+      setShowLokasiDropdown(false);
+      return;
+    }
+    const q = val.toLowerCase();
+    setLokasiSuggestions(ID_REGIONS.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8));
+    setShowLokasiDropdown(true);
+  };
+
+  const handleLokasiSelect = (s) => {
+    const val = s.type === 'city' && s.province ? `${s.name}, ${s.province}` : s.name;
+    setForm(prev => ({ ...prev, lokasi: val }));
+    setShowLokasiDropdown(false);
+  };
+
+  const handleDepartemenChange = (e) => {
+    const val = e.target.value;
+    if (val === 'new') {
+      setShowDeptModal(true);
+      setNewDeptName('');
+    } else {
+      setForm(prev => ({ ...prev, departemen: val }));
+    }
+  };
+
+  const submitNewDept = async () => {
+    if (!newDeptName.trim() || !companyId) return;
+    setIsCreatingDept(true);
+    try {
+      const newDept = await createDepartment(companyId, { name: newDeptName.trim() });
+      setDepartments(prev => [newDept, ...prev]);
+      setForm(prev => ({ ...prev, departemen: newDept.id }));
+      setShowDeptModal(false);
+      showToast('Berhasil', `Departemen ${newDept.name} ditambahkan.`);
+    } catch (err) {
+      showToast('Gagal', 'Tidak dapat menambahkan departemen.', 'error');
+    } finally {
+      setIsCreatingDept(false);
+    }
+  };
+
   const formatRupiah = (value) => {
-    const numberString = value.replace(/[^,\d]/g, '').toString();
+    const numberString = value.toString().replace(/[^,\d]/g, '');
     const split = numberString.split(',');
     const sisa = split[0].length % 3;
     let rupiah = split[0].substr(0, sisa);
@@ -125,30 +234,119 @@ export default function SetupPenilaian({ navigate }) {
     setForm(prev => ({ ...prev, [key]: formatRupiah(e.target.value) }));
   };
 
-  const handleFileChange = (e) => {
-    if (!e.target.files[0]) return;
-    const name = e.target.files[0].name;
-    setUploadStatus('uploading');
-    setUploadProgress(0);
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 18 + 8;
-      if (progress >= 100) {
-        progress = 100;
-        setUploadProgress(100);
-        clearInterval(interval);
-        setTimeout(() => {
-          setFileName(name);
-          setUploadStatus('done');
-        }, 300);
-      } else {
-        setUploadProgress(progress);
-      }
-    }, 120);
+  const extractTextFromFile = async (file) => {
+    const extension = file.name.split('.').pop().toLowerCase();
+    if (extension === 'pdf') {
+      return await pdfToText(file);
+    } else if (extension === 'docx') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+            resolve(result.value);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    } else if (extension === 'txt') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    } else {
+      throw new Error('Format file tidak didukung.');
+    }
   };
 
-  const handleSimpan = () => {
-    navigate('seleksi');
+  const formatDeskripsiToHtml = (text) => {
+    if (!text) return '';
+    if (text.includes('<p>') || text.includes('<ul>') || text.includes('<br')) return text;
+    return text.split('\n').map(line => {
+      if (!line.trim()) return '<p><br/></p>';
+      if (line.trim().startsWith('•')) return `<ul><li>${line.substring(1).trim()}</li></ul>`;
+      return `<p>${line}</p>`;
+    }).join('').replace(/<\/ul><ul>/g, '');
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setFileName(file.name);
+    setUploadStatus('uploading');
+    setUploadProgress(20);
+    try {
+      const rawText = await extractTextFromFile(file);
+      setUploadProgress(60);
+      const parsedData = parseJobDescManual(rawText);
+      
+      if (parsedData.upahMin) parsedData.upahMin = formatRupiah(parsedData.upahMin);
+      if (parsedData.upahMax) parsedData.upahMax = formatRupiah(parsedData.upahMax);
+
+      const htmlDeskripsi = formatDeskripsiToHtml(parsedData.deskripsi);
+      parsedData.deskripsi = htmlDeskripsi;
+      
+      // Remap namaJabatan to jabatan for state
+      if (parsedData.namaJabatan) parsedData.jabatan = parsedData.namaJabatan;
+      delete parsedData.namaJabatan;
+
+      setForm(prev => ({ ...prev, ...parsedData }));
+      
+      if (editorRef.current && htmlDeskripsi) {
+        editorRef.current.innerHTML = htmlDeskripsi;
+      }
+      setUploadProgress(100);
+      setTimeout(() => {
+        setUploadStatus('done');
+        showToast('Berhasil', 'Isi dokumen telah diurai ke dalam form.');
+      }, 500);
+    } catch (err) {
+      console.error(err);
+      setUploadStatus('idle');
+      setUploadProgress(0);
+      showToast('Gagal', err.message || 'Gagal mengekstrak dokumen.', 'error');
+    }
+    e.target.value = '';
+  };
+
+  const handleSimpan = async () => {
+    if (!companyId) return;
+    const htmlDeskripsi = editorRef.current ? editorRef.current.innerHTML : form.deskripsi;
+    if (!form.jabatan || !form.departemen || !form.statusRekrutmen || !htmlDeskripsi) {
+      showToast('Lengkapi Form', 'Harap isi semua field wajib (*)', 'error');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await createSeleksi(companyId, {
+        department_id: form.departemen,
+        jabatan: form.jabatan,
+        lokasi: form.lokasi,
+        status: form.statusRekrutmen,
+        jumlah_rekrut: parseInt(form.jumlahRekrut) || null,
+        ikatan_kerja: form.ikatanKerja,
+        upah_min: form.upahMin,
+        upah_maks: form.upahMax,
+        siklus_upah: form.siklusUpah,
+        tgl_mulai: form.tglMulai || null,
+        tgl_onboard: form.tglOnboarding || null,
+        pendidikan: form.pendidikan,
+        pengalaman: form.pengalaman,
+        deskripsi: htmlDeskripsi,
+        kode: `LUN-${Math.floor(Math.random() * 10000)}`,
+        kriteria: [{ _isGenerating: true }]
+      });
+      navigate('seleksi-detail', { jabatan: form.jabatan, activeTab: 'ringkasan' });
+    } catch (err) {
+      showToast('Gagal', 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -221,16 +419,16 @@ export default function SetupPenilaian({ navigate }) {
           {/* Nama Jabatan */}
           <div className="sp-field">
             <label className="sp-label">Nama Jabatan <span className="sp-req">*</span></label>
-            <input className="sp-input" placeholder="Isi Nama Jabatan" value={form.namaJabatan} onChange={set('namaJabatan')} />
+            <input className="sp-input" placeholder="Isi Nama Jabatan" value={form.jabatan} onChange={set('jabatan')} />
           </div>
 
           {/* Departemen */}
           <div className="sp-field">
             <label className="sp-label">Departemen <span className="sp-req">*</span></label>
             <div className="sp-select-wrapper">
-              <select className="sp-select" style={{ color: form.departemen ? '#171e2c' : '#abb2c1' }} value={form.departemen} onChange={set('departemen')}>
+              <select className="sp-select" style={{ color: form.departemen ? '#171e2c' : '#abb2c1' }} value={form.departemen} onChange={handleDepartemenChange}>
                 <option value="" disabled>Pilih Departemen</option>
-                {['Product', 'Tech', 'HR', 'Engineering', 'Marketing', 'Finance'].map(d => <option key={d} value={d}>{d}</option>)}
+                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 <option value="new">+ Buat Departemen Baru</option>
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
@@ -240,7 +438,51 @@ export default function SetupPenilaian({ navigate }) {
           {/* Lokasi */}
           <div className="sp-field">
             <label className="sp-label">Lokasi <span className="sp-req">*</span></label>
-            <input className="sp-input" placeholder="Lokasi Penempatan Kerja" value={form.lokasi} onChange={set('lokasi')} />
+            <div style={{ position: 'relative' }} ref={lokasiInputContainerRef}>
+              <input 
+                className="sp-input" 
+                placeholder="Lokasi Penempatan Kerja" 
+                value={form.lokasi} 
+                onChange={handleLokasiChange}
+                onFocus={() => { if (form.lokasi.trim().length > 0) setShowLokasiDropdown(true); }}
+              />
+              {showLokasiDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  left: 0,
+                  right: 0,
+                  background: '#fff',
+                  border: '1px solid #d4d9e6',
+                  borderRadius: 8,
+                  zIndex: 999,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                  maxHeight: 220,
+                  overflowY: 'auto'
+                }}>
+                  {lokasiSuggestions.length === 0 ? (
+                    <div style={{ padding: '10px 12px', fontSize: 13, color: '#abb2c1' }}>Tidak ada kota/daerah ditemukan</div>
+                  ) : lokasiSuggestions.map((s, i) => (
+                    <div
+                      key={i}
+                      onMouseDown={e => { e.preventDefault(); handleLokasiSelect(s); }}
+                      style={{
+                        padding: '8px 12px', cursor: 'pointer', fontSize: 13, color: '#323b4d',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+                        borderBottom: i < lokasiSuggestions.length - 1 ? '1px solid #f0f2f5' : 'none',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f4fafe'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span>{s.name}{s.province ? `, ${s.province}` : ''}</span>
+                      <span style={{ fontSize: 10, color: '#abb2c1', flexShrink: 0 }}>
+                        {s.type === 'city' ? 'Kota/Kab' : 'Provinsi'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Status + Jumlah Rekrut */}
@@ -249,8 +491,8 @@ export default function SetupPenilaian({ navigate }) {
               <label className="sp-label">Status Rekrutmen <span className="sp-req">*</span></label>
               <div className="sp-select-wrapper">
                 <select className="sp-select" style={{ color: form.statusRekrutmen ? '#171e2c' : '#abb2c1' }} value={form.statusRekrutmen} onChange={set('statusRekrutmen')}>
-                  <option value="" disabled>Pilih Status Rekrutmen</option>
-                  {['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'].map(s => <option key={s} value={s}>{s}</option>)}
+                  <option value="" disabled>Pilih Status</option>
+                  {DROPDOWN_OPTIONS.statusRekrutmen.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <span className="sp-select-icon"><ChevronIcon /></span>
               </div>
@@ -269,7 +511,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.ikatanKerja ? '#171e2c' : '#abb2c1' }} value={form.ikatanKerja} onChange={set('ikatanKerja')}>
                 <option value="" disabled>Pilih Ikatan Kerja</option>
-                {['Waktu Tertentu', 'Waktu Tidak Tertentu', 'Freelance', 'Magang', 'Part Time', 'Temporer'].map(s => <option key={s} value={s}>{s}</option>)}
+                {DROPDOWN_OPTIONS.ikatanKerja.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -293,7 +535,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.siklusUpah ? '#171e2c' : '#abb2c1' }} value={form.siklusUpah} onChange={set('siklusUpah')}>
                 <option value="" disabled>Pilih Siklus Upah</option>
-                {['Jam', 'Harian', 'Mingguan', 'Bulanan', 'Kwartal', 'Tahunan'].map(s => <option key={s} value={s}>{s}</option>)}
+                {DROPDOWN_OPTIONS.siklusUpah.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -331,7 +573,7 @@ export default function SetupPenilaian({ navigate }) {
             <div className="sp-select-wrapper">
               <select className="sp-select" style={{ color: form.pendidikan ? '#171e2c' : '#abb2c1' }} value={form.pendidikan} onChange={set('pendidikan')}>
                 <option value="" disabled>Pilih Jenjang Minimal</option>
-                {['SD/Sederajat', 'SMP/Sederajat', 'SMA/SMK/Sederajat', 'DI/DII/DIII (Diploma)', 'D4/S1 (Sarjana)', 'S2 (Magister)', 'S3 (Doktor)'].map(s => <option key={s} value={s}>{s}</option>)}
+                {DROPDOWN_OPTIONS.pendidikan.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <span className="sp-select-icon"><ChevronIcon /></span>
             </div>
@@ -349,36 +591,82 @@ export default function SetupPenilaian({ navigate }) {
           <div className="sp-field sp-field-grow">
             <label className="sp-label">Deskripsi Pekerjaan dan Rincian Syarat &amp; Kualifikasi <span className="sp-req">*</span></label>
             <div className="sp-editor">
-              <div className="sd-deskripsi-toolbar" style={{ borderRadius: '10px 10px 0 0', border: '1px solid #d1d5dc' }}>
-                <select className="sd-deskripsi-style-select" defaultValue="p">
+              <div className="sd-deskripsi-toolbar" style={{ borderRadius: '10px 10px 0 0', border: '1px solid #d1d5dc', borderBottom: 'none' }}>
+                <select 
+                  className="sd-deskripsi-style-select" 
+                  defaultValue="p"
+                  onMouseDown={() => {
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0) savedRangeRef.current = sel.getRangeAt(0).cloneRange();
+                  }}
+                  onChange={e => {
+                    if (savedRangeRef.current) {
+                      const sel = window.getSelection();
+                      sel.removeAllRanges();
+                      sel.addRange(savedRangeRef.current);
+                      savedRangeRef.current = null;
+                    }
+                    editorRef.current?.focus();
+                    document.execCommand('formatBlock', false, e.target.value);
+                  }}
+                >
                   <option value="p">Body</option>
                   <option value="h1">H1</option>
                   <option value="h2">H2</option>
                   <option value="h3">H3</option>
                 </select>
                 <span className="sd-deskripsi-toolbar-sep" />
-                <button className="sd-deskripsi-toolbar-btn" title="Bold" type="button"><b>B</b></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Italic" type="button"><i>I</i></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Underline" type="button"><u>U</u></button>
+                <TBtn title="Bold" cmd="bold"><b>B</b></TBtn>
+                <TBtn title="Italic" cmd="italic"><i>I</i></TBtn>
+                <TBtn title="Underline" cmd="underline"><u>U</u></TBtn>
                 <span className="sd-deskripsi-toolbar-sep" />
-                <button className="sd-deskripsi-toolbar-btn" title="Ordered List" type="button"><IcOrderedList /></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Unordered List" type="button"><IcUnorderedList /></button>
+                <TBtn title="Ordered List" cmd="insertOrderedList"><IcOrderedList /></TBtn>
+                <TBtn title="Unordered List" cmd="insertUnorderedList"><IcUnorderedList /></TBtn>
                 <span className="sd-deskripsi-toolbar-sep" />
-                <button className="sd-deskripsi-toolbar-btn" title="Align Left" type="button"><IcAlignLeft /></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Align Center" type="button"><IcAlignCenter /></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Align Right" type="button"><IcAlignRight /></button>
-                <button className="sd-deskripsi-toolbar-btn" title="Justify" type="button"><IcAlignJustify /></button>
+                <TBtn title="Align Left" cmd="justifyLeft"><IcAlignLeft /></TBtn>
+                <TBtn title="Align Center" cmd="justifyCenter"><IcAlignCenter /></TBtn>
+                <TBtn title="Align Right" cmd="justifyRight"><IcAlignRight /></TBtn>
+                <TBtn title="Justify" cmd="justifyFull"><IcAlignJustify /></TBtn>
               </div>
-              <textarea
-                className="sp-editor-area"
-                placeholder="Masukan deskripsi pekerjaan dan Rincian Kualifikasi disini"
-                value={form.deskripsi}
-                onChange={set('deskripsi')}
-              />
+              <div style={{ border: '1px solid #d1d5dc', borderRadius: '0 0 10px 10px' }}>
+                <EditableContent htmlRef={editorRef} initialHtml={form.deskripsi} />
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
+      
+      {/* Modal Departemen Baru */}
+      {showDeptModal && (
+        <div className="cm-overlay" onClick={() => !isCreatingDept && setShowDeptModal(false)}>
+          <div className="cm-modal" onClick={e => e.stopPropagation()}>
+            <div className="cm-text">
+              <p className="cm-title">Buat Departemen Baru</p>
+              <p className="cm-body">Masukkan nama departemen baru yang akan ditambahkan.</p>
+            </div>
+            <div className="sp-field" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+              <input
+                className="sp-input"
+                placeholder="Misal: Marketing, Tech, dll..."
+                value={newDeptName}
+                onChange={(e) => setNewDeptName(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitNewDept();
+                  if (e.key === 'Escape') setShowDeptModal(false);
+                }}
+              />
+            </div>
+            <div className="cm-footer">
+              <button className="cm-btn-cancel" onClick={() => setShowDeptModal(false)} disabled={isCreatingDept}>Batal</button>
+              <button className="cm-btn-confirm" onClick={submitNewDept} disabled={!newDeptName.trim() || isCreatingDept}>
+                {isCreatingDept ? 'Menyimpan...' : 'Simpan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

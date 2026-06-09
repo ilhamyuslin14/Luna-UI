@@ -9,6 +9,23 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.lk-status-page {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px;
+}
+
+.lk-status-page .lk-uploading-title {
+  margin: 0;
+}
+
+.lk-status-page .lk-uploading-sub {
+  margin: 0;
+  max-width: 420px;
+}
+
 /* ── Top Bar ──────────────────────────────────────────────── */
 .lk-topbar {
   background: rgba(255, 255, 255, 0.95);

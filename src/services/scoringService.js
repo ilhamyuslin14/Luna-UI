@@ -1,0 +1,95 @@
+import { supabase } from '../config/supabase.js';
+
+export async function markTidakSesuai(scoringId, alasan, alasanDetail = '') {
+  const { error } = await supabase
+    .from('scoring')
+    .update({
+      alur_proses: 0,
+      alasan_tidak_sesuai: alasan,
+      alasan_tidak_sesuai_detail: alasanDetail || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', scoringId);
+  if (error) throw error;
+}
+
+export async function updateAlurProses(scoringId, alurLevel) {
+  const { error } = await supabase
+    .from('scoring')
+    .update({ alur_proses: alurLevel, updated_at: new Date().toISOString() })
+    .eq('id', scoringId);
+  if (error) throw error;
+}
+
+export async function getScoringBySeleksi(seleksiId) {
+  if (!seleksiId) return [];
+  const { data, error } = await supabase
+    .from('scoring')
+    .select(`
+      id, kandidat_id, total_score, kategori_fit, alur_proses,
+      ai_summary, detail_kriteria, raw_kriteria, created_at,
+      kandidat:kandidat_id (
+        id, nama_lengkap, jabatan_saat_ini, perusahaan_saat_ini,
+        pengalaman_tahun, linkedin_url, arsip
+      ),
+      seleksi:seleksi_id(jabatan)
+    `)
+    .eq('seleksi_id', seleksiId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  // Deduplicate: ambil record terbaru per kandidat
+  const latest = {};
+  (data || []).forEach(s => {
+    if (!latest[s.kandidat_id]) latest[s.kandidat_id] = s;
+  });
+  return Object.values(latest);
+}
+
+export async function getScoringByKandidat(kandidatId) {
+  if (!kandidatId) return [];
+  const { data, error } = await supabase
+    .from('scoring')
+    .select('*, seleksi:seleksi_id(jabatan)')
+    .eq('kandidat_id', kandidatId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+// Scoring AI dijalankan di server (Edge Function `run-scoring`) dengan service
+// role — supaya API key & prompt AI tidak pernah terkirim ke browser (penting
+// untuk alur publik Laman Karir yang diakses pengunjung anonim).
+export async function runScoring(kandidatId, seleksiId, companyId) {
+  const { data, error } = await supabase.functions.invoke('run-scoring', {
+    body: { kandidatId, seleksiId, companyId },
+  });
+
+  if (error) {
+    console.error('[runScoring] Gagal memanggil fungsi:', error);
+    throw new Error(error.message || 'Gagal menjalankan scoring.');
+  }
+  if (data?.error) {
+    console.error('[runScoring] Error dari AI/Server:', data.message);
+    throw new Error(data.message || 'Gagal menjalankan scoring.');
+  }
+
+  return data.scoring;
+}
+
+export async function runRescore(scoringId, kandidatId, seleksiId, companyId) {
+  const { data, error } = await supabase.functions.invoke('run-scoring', {
+    body: { kandidatId, seleksiId, companyId, scoringId },
+  });
+
+  if (error) {
+    console.error('[runRescore] Gagal memanggil fungsi:', error);
+    throw new Error(error.message || 'Gagal menjalankan ulang scoring.');
+  }
+  if (data?.error) {
+    console.error('[runRescore] Error dari AI/Server:', data.message);
+    throw new Error(data.message || 'Gagal menjalankan ulang scoring.');
+  }
+
+  return data.scoring;
+}

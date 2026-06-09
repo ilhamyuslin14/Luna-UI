@@ -1,25 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 
-const MOCK_KANDIDAT = [
-  { initials: 'AM', color: '#19b243', name: 'Aula Maulidatul Mufidah', sub: 'Psikologi · Jakarta Selatan · 3 thn pengalaman' },
-  { initials: 'AR', color: '#0977be', name: 'Arif Jackberwin',         sub: 'Human Resources · Jakarta · 10 thn pengalaman' },
-  { initials: 'RG', color: '#9333ea', name: 'Rofiq Gonzalez',          sub: 'Frontend Engineer · Bandung · 4 thn pengalaman' },
-  { initials: 'DA', color: '#ea580c', name: 'Dito Arkademi',           sub: 'Admin Manager · Tangerang · 2 thn pengalaman' },
-];
-
-const MOCK_SELEKSI = [
-  { name: 'Senior Frontend Engineer',  sub: 'Engineering · 12 CV masuk',      status: 'Rencana' },
-  { name: 'Product Marketing Manager', sub: 'Marketing · 8 CV masuk',          status: 'Aktif'   },
-  { name: 'VP of Finance',             sub: 'Finance · 5 CV masuk',            status: 'Ditahan' },
-  { name: 'Junior HR Specialist',      sub: 'Human Resources · 3 CV masuk',    status: 'Selesai' },
-];
-
-const MOCK_DEPT = [
-  { name: 'Engineering',     sub: '3 Lowongan Aktif · 1,204 Kandidat' },
-  { name: 'Marketing',       sub: '2 Lowongan Aktif · 856 Kandidat'   },
-  { name: 'Finance',         sub: '1 Lowongan Aktif · 432 Kandidat'   },
-  { name: 'Human Resources', sub: '1 Lowongan Aktif · 298 Kandidat'   },
-];
+import { useAuth } from '../context/AuthContext.jsx';
+import { searchUniversal } from '../services/searchService.js';
 
 const STATUS_STYLE = {
   Rencana: { text: '#555f71', bg: '#f4f6fa', border: '#cbd0db' },
@@ -73,19 +55,49 @@ const HINTS = {
 };
 
 export default function Navbar({ navigate }) {
+  const { companyId, companyName, user, userRole, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
   const [open, setOpen]         = useState(false);
   const [query, setQuery]       = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('kandidat');
+  const [results, setResults]   = useState({ kandidat: [], seleksi: [], departemen: [] });
+  
   const wrapRef  = useRef(null);
   const inputRef = useRef(null);
+  const profileRef = useRef(null);
 
   useEffect(() => {
     const onDown = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults({ kandidat: [], seleksi: [], departemen: [] });
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const data = await searchUniversal(companyId, q);
+        setResults(data);
+      } catch (err) {
+        console.error('Search error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, companyId]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -97,9 +109,9 @@ export default function Navbar({ navigate }) {
   const q = query.trim();
   const hasQuery = q.length >= 2;
 
-  const kandidatResults  = hasQuery ? MOCK_KANDIDAT.filter(k => k.name.toLowerCase().includes(q.toLowerCase())) : [];
-  const seleksiResults   = hasQuery ? MOCK_SELEKSI.filter(s => s.name.toLowerCase().includes(q.toLowerCase())) : [];
-  const deptResults      = hasQuery ? MOCK_DEPT.filter(d => d.name.toLowerCase().includes(q.toLowerCase())) : [];
+  const kandidatResults  = results.kandidat || [];
+  const seleksiResults   = results.seleksi || [];
+  const deptResults      = results.departemen || [];
 
   const navTarget = { kandidat: 'kandidat', seleksi: 'seleksi', departemen: 'departemen' };
 
@@ -165,56 +177,63 @@ export default function Navbar({ navigate }) {
               </div>
             ) : (
               <>
-                {activeTab === 'kandidat' && kandidatResults.map((k, i) => (
-                  <div key={i} className="srch-result-item" onClick={() => { navigate?.('kandidat-detail', { kandidat: { nama: k.name } }); close(); }}>
-                    <div className="srch-avatar" style={{ background: k.color }}>{k.initials}</div>
-                    <div className="srch-result-info">
-                      <div className="srch-result-name"><Highlight text={k.name} query={q} /></div>
-                      <div className="srch-result-sub">{k.sub}</div>
+                <div className="srch-results-list">
+                  {activeTab === 'kandidat' && kandidatResults.map((k, i) => (
+                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('kandidat-detail', { kandidat: { id: k.id, nama_lengkap: k.name } }); close(); }}>
+                      <div className="srch-avatar" style={{ background: k.color }}>{k.initials}</div>
+                      <div className="srch-result-info">
+                        <div className="srch-result-name"><Highlight text={k.name} query={q} /></div>
+                        <div className="srch-result-sub">{k.sub}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
-                {activeTab === 'seleksi' && seleksiResults.map((s, i) => {
-                  const st = STATUS_STYLE[s.status] || STATUS_STYLE.Rencana;
-                  return (
-                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail', { jabatan: s.name }); close(); }}>
-                      <div className="srch-icon-circle srch-icon-blue">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                        </svg>
+                  {activeTab === 'seleksi' && seleksiResults.map((s, i) => {
+                    const st = STATUS_STYLE[s.status] || STATUS_STYLE.Rencana;
+                    return (
+                      <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail', { jabatan: s.name }); close(); }}>
+                        <div className="srch-icon-circle srch-icon-blue">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                          </svg>
+                        </div>
+                        <div className="srch-result-info">
+                          <div className="srch-result-name"><Highlight text={s.name} query={q} /></div>
+                          <div className="srch-result-sub">{s.sub}</div>
+                        </div>
+                        <span className="srch-status-badge" style={{ color: st.text, background: st.bg, borderColor: st.border }}>{s.status}</span>
+                      </div>
+                    );
+                  })}
+
+                  {activeTab === 'departemen' && deptResults.map((d, i) => (
+                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('departemen'); close(); }}>
+                      <div className="srch-icon-circle srch-icon-gray">
+                        <IcDepartemen />
                       </div>
                       <div className="srch-result-info">
-                        <div className="srch-result-name"><Highlight text={s.name} query={q} /></div>
-                        <div className="srch-result-sub">{s.sub}</div>
+                        <div className="srch-result-name"><Highlight text={d.name} query={q} /></div>
+                        <div className="srch-result-sub">{d.sub}</div>
                       </div>
-                      <span className="srch-status-badge" style={{ color: st.text, background: st.bg, borderColor: st.border }}>{s.status}</span>
                     </div>
-                  );
-                })}
+                  ))}
 
-                {activeTab === 'departemen' && deptResults.map((d, i) => (
-                  <div key={i} className="srch-result-item" onClick={() => { navigate?.('departemen'); close(); }}>
-                    <div className="srch-icon-circle srch-icon-gray">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="#555f71">
-                        <path d="M1 22V9l11-7 11 7v13H15v-5h-6v5H1zm2-2h4v-5h6v5h4V10.1L12 4.2 3 10.1V20zm5-9h2v2H8v-2zm4 0h2v2h-2v-2z"/>
-                      </svg>
-                    </div>
-                    <div className="srch-result-info">
-                      <div className="srch-result-name"><Highlight text={d.name} query={q} /></div>
-                      <div className="srch-result-sub">{d.sub}</div>
-                    </div>
-                  </div>
-                ))}
+                  {/* Loading state */}
+                  {isLoading ? (
+                    <div className="srch-no-results">Mencari "<strong>{q}</strong>"...</div>
+                  ) : (
+                    <>
+                      {/* No results */}
+                      {((activeTab === 'kandidat' && kandidatResults.length === 0) ||
+                        (activeTab === 'seleksi'   && seleksiResults.length === 0)  ||
+                        (activeTab === 'departemen'&& deptResults.length === 0)) && (
+                        <div className="srch-no-results">Tidak ada hasil untuk "<strong>{q}</strong>"</div>
+                      )}
+                    </>
+                  )}
+                </div>
 
-                {/* No results */}
-                {((activeTab === 'kandidat' && kandidatResults.length === 0) ||
-                  (activeTab === 'seleksi'   && seleksiResults.length === 0)  ||
-                  (activeTab === 'departemen'&& deptResults.length === 0)) && (
-                  <div className="srch-no-results">Tidak ada hasil untuk "<strong>{q}</strong>"</div>
-                )}
-
-                <div className="srch-footer" onClick={() => { navigate?.(navTarget[activeTab]); close(); }}>
+                <div className="srch-footer" onClick={() => { navigate?.(navTarget[activeTab], { search: q }); close(); }}>
                   Lihat Semua
                 </div>
               </>
@@ -224,18 +243,54 @@ export default function Navbar({ navigate }) {
       </div>
 
       <div className="navbar-actions">
-        <div className="user-profile">
-          <div className="user-avatar">
-            <img src="/assets/layer2.svg" alt="User Avatar" />
-          </div>
-          <div className="user-info">
-            <span className="user-name">Dito Arkademi</span>
-            <div className="user-role-container">
-              <span className="user-role">Admin</span>
-              <div className="role-divider"></div>
-              <span className="user-role">PT Arkademi</span>
+        <div className="user-profile-wrapper" ref={profileRef}>
+          <div className="user-profile" onClick={() => setProfileOpen(!profileOpen)}>
+            <div className="user-company-avatar">
+              {companyName ? companyName.charAt(0).toUpperCase() : 'P'}
+            </div>
+            <div className="user-info">
+              <span className="user-name">{companyName || 'Perusahaan'}</span>
+              <div className="user-role-container">
+                <span className="user-role" style={{ textTransform: 'capitalize' }}>
+                  {userRole || 'Staff'}
+                </span>
+              </div>
+            </div>
+            <div className={`user-profile-chevron ${profileOpen ? 'open' : ''}`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
           </div>
+
+          {profileOpen && (
+            <div className="profile-dropdown">
+              <div 
+                className="pd-header" 
+                onClick={() => {
+                  setProfileOpen(false);
+                  navigate('pengaturan'); // Rute ke menu kelola pengguna (profil)
+                }}
+              >
+                <div className="pd-user-initials">
+                  {(user?.user_metadata?.nama_lengkap || user?.email || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div className="pd-user-info">
+                  <div className="pd-user-name">{user?.user_metadata?.nama_lengkap || 'User'}</div>
+                  <div className="pd-user-email">{user?.email}</div>
+                </div>
+              </div>
+              <div className="pd-divider"></div>
+              <button className="pd-logout" onClick={() => logout()}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8 }}>
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Keluar
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

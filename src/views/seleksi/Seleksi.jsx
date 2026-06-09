@@ -1,17 +1,19 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import {
+  getSeleksi,
+  updateSeleksiStatus,
+  getKandidatCountBySeleksi,
+  getMaxAlurBySeleksi,
+  archiveSeleksi,
+  unarchiveSeleksi,
+} from '../../services/seleksiService.js';
+import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
-
-const INITIAL_ROWS = [
-  { posisi: 'Project Manager', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'rencana' },
-  { posisi: 'Backend Engineer', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'aktif' },
-  { posisi: 'UI/UX Designer', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'ditahan' },
-  { posisi: 'Data Analyst', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'selesai' },
-  { posisi: 'Frontend Engineer', dept: 'Tech', lokasi: 'Jakarta Selatan', alur: 'Tanpa Kandidat', kandidat: 86, upahMin: 'Rp. 6.000.000', upahMaks: 'Rp. 8.000.000', tanggal: '19 Feb 2026', status: 'dibatalkan' },
-];
 
 const STATUS_CONFIG = {
   rencana: { icon: '/assets/status/status_rencana.svg', label: 'Rencana' },
@@ -21,106 +23,319 @@ const STATUS_CONFIG = {
   dibatalkan: { icon: '/assets/status/status_dibatalkan.svg', label: 'Dibatalkan' },
 };
 
-const INITIAL_BOARD = {
-  belum: { title: 'Belum Ada Kandidat', cards: [] },
-  baru: {
-    title: 'Kandidat Baru', cards: [
-      { posisi: 'Project Manager', dept: 'Tech', lokasi: 'Jakarta Selatan', status: 'rencana', statusLabel: 'Rencana' },
-      { posisi: 'Backend Engineer', dept: 'Tech', lokasi: 'Jakarta Selatan', status: 'aktif', statusLabel: 'Aktif' },
-    ]
-  },
-  ditinjau: { title: 'Ditinjau', cards: [{ posisi: 'UI/UX Designer', dept: 'Tech', lokasi: 'Jakarta Selatan', status: 'ditahan', statusLabel: 'Ditahan' }] },
-  diajukan: { title: 'Diajukan', cards: [{ posisi: 'Data Analyst', dept: 'Tech', lokasi: 'Jakarta Selatan', status: 'selesai', statusLabel: 'Selesai' }] },
-  penjadwalan: { title: 'Penjadwalan Wawancara', cards: [] },
-  wawancaraHr: { title: 'Wawancara HR', cards: [{ posisi: 'Frontend Engineer', dept: 'Tech', lokasi: 'Jakarta Selatan', status: 'dibatalkan', statusLabel: 'Dibatalkan' }] },
-  wawancaraAkhir: { title: 'Wawancara Akhir', cards: [] },
-  penawaran: { title: 'Penawaran Kerja', cards: [] },
-  diterima: { title: 'Diterima', cards: [] },
-  onboarding: { title: 'Onboarding', cards: [] },
-  lolos: { title: 'Lolos Masa Percobaan', cards: [] },
+const STATUS_NORMALIZE = {
+  Aktif: 'aktif', aktif: 'aktif',
+  Rencana: 'rencana', rencana: 'rencana',
+  Ditahan: 'ditahan', ditahan: 'ditahan',
+  Selesai: 'selesai', selesai: 'selesai',
+  Dibatalkan: 'dibatalkan', dibatalkan: 'dibatalkan',
 };
 
-export default function Seleksi({ navigate }) {
+const STATUS_TO_DB = {
+  rencana: 'Rencana', aktif: 'Aktif', ditahan: 'Ditahan',
+  selesai: 'Selesai', dibatalkan: 'Dibatalkan',
+};
+
+const ArchiveSvg = () => (
+  <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5 }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
+  </svg>
+);
+
+function applyStatusFilters(rows, activeFilters) {
+  const statusFilterActive = [...activeFilters].some(f => f !== 'Arsip');
+  if (!statusFilterActive) return rows;
+  return rows.filter(r => {
+    if (r.arsip) return activeFilters.has('Arsip');
+    const label = STATUS_CONFIG[r.status]?.label;
+    return activeFilters.has(label);
+  });
+}
+
+function buildBoardFromData(alurList, rows, maxAlurMap) {
+  const belumCol = { title: 'Belum Ada Kandidat', cards: [] };
+  const alurCols = alurList
+    .filter(a => a.level > 0)
+    .map(a => ({ level: a.level, title: a.nama, cards: [] }));
+
+  rows.forEach(r => {
+    const maxLevel = maxAlurMap[r.id];
+    const card = { ...r, statusLabel: STATUS_CONFIG[r.status]?.label || 'Rencana' };
+    if (maxLevel == null) {
+      belumCol.cards.push(card);
+    } else {
+      const col = alurCols.find(c => c.level === maxLevel);
+      if (col) col.cards.push(card);
+      else belumCol.cards.push(card);
+    }
+  });
+
+  const colEntries = [['belum', belumCol]];
+  alurCols.forEach(c => colEntries.push([`alur_${c.level}`, c]));
+  return Object.fromEntries(colEntries);
+}
+
+export default function Seleksi({ navigate, searchQuery = '' }) {
+  const { companyId } = useAuth();
   const [isBoardView, setIsBoardView] = useState(false);
-  const [rows, setRows] = useState(INITIAL_ROWS);
+  const [rows, setRows] = useState([]);
+  const [alurList, setAlurList] = useState(DEFAULT_ALUR);
+  const [maxAlurMap, setMaxAlurMap] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
-  const toggleFilter = (s) => {
-    setActiveFilters(prev => {
-      const next = new Set(prev);
-      if (next.has(s)) next.delete(s);
-      else next.add(s);
-      return next;
-    });
-  };
-  const [archiveModal, setArchiveModal] = useState(null); // { title, body, onConfirm }
-  const [toast, setToast]               = useState(null);
-  const toastTimer                      = useRef(null);
+  // archive filter logic (same pattern as Departemen)
+  const filterArchiveOnly = activeFilters.has('Arsip') && activeFilters.size === 1;
+  const filterBothOn = activeFilters.has('Arsip') && activeFilters.size > 1;
+
+  const [archiveModal, setArchiveModal] = useState(null);
+  const [unarchiveTarget, setUnarchiveTarget] = useState(null);
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
   const showToast = (message, subMessage) => {
     setToast({ message, subMessage });
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 4000);
   };
-  const [boardColumns, setBoardColumns] = useState(INITIAL_BOARD);
+
+  const [boardColumns, setBoardColumns] = useState({});
   const [collapsedCols, setCollapsedCols] = useState(new Set());
   const [dragOverCol, setDragOverCol] = useState(null);
-  const [openCardStatus, setOpenCardStatus] = useState(null); // { key, left, bottom }
-  const [openCardMenu, setOpenCardMenu] = useState(null);    // { key, right, top }
+  const [openCardStatus, setOpenCardStatus] = useState(null);
+  const [openCardMenu, setOpenCardMenu] = useState(null);
   const draggedCard = useRef(null);
   const draggedFromCol = useRef(null);
 
-  const selectAll = selectedRows.size === rows.length;
+  const loadData = async (opts = {}) => {
+    if (!companyId) return;
+    setIsLoading(true);
+    try {
+      const showArchived = opts.showArchived ?? filterArchiveOnly;
+      const showAll = opts.showAll ?? filterBothOn;
 
-  const toggleSelectAll = () => {
-    if (selectAll) setSelectedRows(new Set());
-    else setSelectedRows(new Set(rows.map((_, i) => i)));
+      const [data, kandCountMap, maxMap, alur] = await Promise.all([
+        getSeleksi(companyId, { showArchived, showAll }),
+        getKandidatCountBySeleksi(companyId),
+        getMaxAlurBySeleksi(companyId),
+        getAlurSeleksi(companyId),
+      ]);
+
+      setAlurList(alur);
+      setMaxAlurMap(maxMap);
+
+      const formattedRows = (data || []).map(item => {
+        const maxLevel = maxMap[item.id];
+        const alurNama = maxLevel != null
+          ? (alurNamaByLevel(alur, maxLevel) || 'Belum ada kandidat')
+          : 'Belum ada kandidat';
+        return {
+          id: item.id,
+          posisi: item.jabatan || '-',
+          dept: item.departments?.name || '-',
+          lokasi: item.lokasi || '-',
+          alur: alurNama,
+          kandidat: kandCountMap[item.id] || 0,
+          upahMin: item.upah_min || '-',
+          upahMaks: item.upah_maks || '-',
+          tanggal: new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          status: STATUS_NORMALIZE[item.status] || 'rencana',
+          arsip: item.arsip || false,
+        };
+      });
+      setRows(formattedRows);
+
+      const boardRows = applyStatusFilters(formattedRows, activeFilters);
+      setBoardColumns(buildBoardFromData(alur, boardRows, maxMap));
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memuat', 'Data seleksi tidak dapat dimuat.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const toggleRow = (i) => {
+  useEffect(() => {
+    loadData();
+  }, [companyId]);
+
+  // reload when filter changes (archive filter affects DB query)
+  useEffect(() => {
+    setPage(1);
+    if (companyId) loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
+  }, [activeFilters]);
+
+  const toggleFilter = (s) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(s)) next.delete(s); else next.add(s);
+      return next;
+    });
+  };
+
+  // client-side filter by recruitment status (not archive)
+  let filteredRows = applyStatusFilters(rows, activeFilters);
+
+  if (searchQuery.trim()) {
+    const sq = searchQuery.toLowerCase().trim();
+    filteredRows = filteredRows.filter(r => 
+      (r.posisi || '').toLowerCase().includes(sq) ||
+      (r.dept || '').toLowerCase().includes(sq)
+    );
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / perPage));
+  const pagedRows = filteredRows.slice((page - 1) * perPage, page * perPage);
+
+  // count only non-archived for the stats badge
+  const activeCount = rows.filter(r => !r.arsip).length;
+
+  const selectAll = pagedRows.length > 0 && pagedRows.every(r => selectedRows.has(r.id));
+  const toggleSelectAll = () => {
     const next = new Set(selectedRows);
-    if (next.has(i)) next.delete(i); else next.add(i);
+    if (selectAll) pagedRows.forEach(r => next.delete(r.id));
+    else pagedRows.forEach(r => next.add(r.id));
+    setSelectedRows(next);
+  };
+  const toggleRow = (id) => {
+    const next = new Set(selectedRows);
+    next.has(id) ? next.delete(id) : next.add(id);
     setSelectedRows(next);
   };
 
-  const updateStatus = (rowIdx, newStatus) => {
-    setRows(prev => prev.map((r, i) => i === rowIdx ? { ...r, status: newStatus } : r));
+  const updateStatus = (rowId, newStatus) => {
+    const label = STATUS_CONFIG[newStatus]?.label || newStatus;
+    setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
+    updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
+      .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${label}`))
+      .catch(err => {
+        showToast('Gagal memperbarui status', err.message);
+        setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: r.status } : r));
+      });
   };
 
-  const handleArchive = () => {
+  const handleBulkArchive = () => {
     if (selectedRows.size === 0) return;
     const n = selectedRows.size;
     setArchiveModal({
       title: 'Arsipkan Posisi',
       body: `Apakah Anda yakin ingin mengarsipkan ${n} posisi yang dipilih?`,
-      onConfirm: () => { setSelectedRows(new Set()); setShowBulkDropdown(false); setArchiveModal(null); },
+      onConfirm: async () => {
+        try {
+          await Promise.all([...selectedRows].map(id => archiveSeleksi(id)));
+          showToast(`${n} posisi diarsipkan`, 'Data dipindahkan ke arsip');
+          setSelectedRows(new Set());
+          setShowBulkDropdown(false);
+          setArchiveModal(null);
+          loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
+        } catch {
+          showToast('Gagal', 'Terjadi kesalahan saat mengarsipkan');
+          setArchiveModal(null);
+        }
+      },
+    });
+  };
+
+  const handleRowArchive = (row) => {
+    setArchiveModal({
+      title: 'Arsipkan Posisi',
+      body: `Apakah Anda yakin ingin mengarsipkan posisi "${row.posisi}"?`,
+      onConfirm: async () => {
+        try {
+          await archiveSeleksi(row.id);
+          showToast('Posisi diarsipkan', 'Data dipindahkan ke arsip');
+          setArchiveModal(null);
+          loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
+        } catch {
+          showToast('Gagal', 'Tidak dapat mengarsipkan posisi');
+          setArchiveModal(null);
+        }
+      },
+    });
+  };
+
+  const handleUnarchiveConfirm = async () => {
+    try {
+      await unarchiveSeleksi(unarchiveTarget.id);
+      showToast('Posisi ditampilkan kembali', 'Status diubah ke aktif');
+      setUnarchiveTarget(null);
+      loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
+    } catch {
+      showToast('Gagal', 'Terjadi kesalahan saat menampilkan posisi');
+      setUnarchiveTarget(null);
+    }
+  };
+
+  // board card archive
+  const archiveCard = (colKey, cardIdx) => {
+    setOpenCardMenu(null);
+    const card = boardColumns[colKey].cards[cardIdx];
+    setArchiveModal({
+      title: 'Arsipkan Posisi',
+      body: `Apakah Anda yakin ingin mengarsipkan posisi "${card.posisi}"?`,
+      onConfirm: async () => {
+        try {
+          if (card.id) await archiveSeleksi(card.id);
+          setBoardColumns(prev => {
+            const cards = prev[colKey].cards.filter((_, i) => i !== cardIdx);
+            return { ...prev, [colKey]: { ...prev[colKey], cards } };
+          });
+          setRows(prev => prev.filter(r => r.id !== card.id));
+          setArchiveModal(null);
+          showToast('Posisi berhasil diarsipkan', 'Data telah dipindahkan ke arsip');
+        } catch {
+          showToast('Gagal', 'Tidak dapat mengarsipkan posisi');
+          setArchiveModal(null);
+        }
+      },
     });
   };
 
   const handleDragStart = (e, colKey, cardIdx) => {
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', `${colKey}-${cardIdx}`);
     draggedCard.current = { colKey, cardIdx };
     draggedFromCol.current = colKey;
   };
 
-  const handleDrop = (targetColKey) => {
+  const handleDrop = async (targetColKey) => {
     const src = draggedCard.current;
     if (!src || src.colKey === targetColKey) return;
-    setBoardColumns(prev => {
-      const srcCards = [...prev[src.colKey].cards];
-      const [card] = srcCards.splice(src.cardIdx, 1);
-      const tgtCards = [...prev[targetColKey].cards, card];
-      return { ...prev, [src.colKey]: { ...prev[src.colKey], cards: srcCards }, [targetColKey]: { ...prev[targetColKey], cards: tgtCards } };
-    });
+    
+    // Get the actual card
+    const cardToMove = boardColumns[src.colKey].cards[src.cardIdx];
+    const newStatusLabel = STATUS_CONFIG[targetColKey].label;
+
+    try {
+      // Update DB
+      await updateSeleksi(cardToMove.id, { status: newStatusLabel });
+      showToast('Status Diperbarui', 'Status posisi berhasil diubah.');
+
+      // Update Local State
+      setBoardColumns(prev => {
+        const srcCards = [...prev[src.colKey].cards];
+        const [card] = srcCards.splice(src.cardIdx, 1);
+        card.status = targetColKey;
+        card.statusLabel = newStatusLabel;
+        const tgtCards = [...prev[targetColKey].cards, card];
+        return { ...prev, [src.colKey]: { ...prev[src.colKey], cards: srcCards }, [targetColKey]: { ...prev[targetColKey], cards: tgtCards } };
+      });
+      // Also update rows so List View is in sync
+      setRows(prev => prev.map(r => r.id === cardToMove.id ? { ...r, status: targetColKey } : r));
+    } catch (err) {
+      showToast('Gagal', 'Terjadi kesalahan saat memindahkan status.', 'error');
+    }
+
     draggedCard.current = null;
   };
 
   const updateCardStatus = (colKey, cardIdx, newStatus) => {
+    const card = boardColumns[colKey].cards[cardIdx];
     setBoardColumns(prev => {
       const cards = prev[colKey].cards.map((c, i) =>
         i === cardIdx ? { ...c, status: newStatus, statusLabel: STATUS_CONFIG[newStatus].label } : c
@@ -128,21 +343,11 @@ export default function Seleksi({ navigate }) {
       return { ...prev, [colKey]: { ...prev[colKey], cards } };
     });
     setOpenCardStatus(null);
-  };
-
-  const archiveCard = (colKey, cardIdx) => {
-    setOpenCardMenu(null);
-    setArchiveModal({
-      title: 'Arsipkan Posisi',
-      body: 'Apakah Anda yakin ingin mengarsipkan posisi ini?',
-      onConfirm: () => {
-        setBoardColumns(prev => {
-          const cards = prev[colKey].cards.filter((_, i) => i !== cardIdx);
-          return { ...prev, [colKey]: { ...prev[colKey], cards } };
-        });
-        setArchiveModal(null);
-      },
-    });
+    if (card.id) {
+      updateSeleksiStatus(card.id, STATUS_TO_DB[newStatus] || newStatus)
+        .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${STATUS_CONFIG[newStatus].label}`))
+        .catch(() => showToast('Gagal memperbarui status', 'Coba lagi'));
+    }
   };
 
   const toggleColCollapse = (colKey) => {
@@ -163,26 +368,20 @@ export default function Seleksi({ navigate }) {
         </button>
       </div>
       <div className="lw-right-actions">
-        <div className="lw-stats-badge">Jumlah Posisi : <strong>5</strong></div>
+        <div className="lw-stats-badge">Jumlah Posisi : <strong>{activeCount}</strong></div>
         <div className="lw-divider"></div>
-        {!boardMode && selectedRows.size > 0 && (
+        {!boardMode && selectedRows.size > 0 && !activeFilters.has('Arsip') && (
           <CTABulkAksi
             count={selectedRows.size}
             isOpen={showBulkDropdown}
             onToggle={() => { setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
-            actions={[
-              {
-                icon: <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>,
-                label: 'Arsipkan',
-                onClick: handleArchive,
-              },
-            ]}
+            actions={[{ icon: <ArchiveSvg />, label: 'Arsipkan', onClick: handleBulkArchive }]}
           />
         )}
         <FilterDropdown
           groups={[
-            { title: 'Status', options: ['Aktif', 'Arsip'] },
-            { title: 'Alur Seleksi', options: ['Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima'] },
+            { title: 'Arsip', options: ['Arsip'] },
+            { title: 'Status Rekrutmen', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
           ]}
           activeFilters={activeFilters}
           onToggle={toggleFilter}
@@ -200,7 +399,6 @@ export default function Seleksi({ navigate }) {
       </div>
     </div>
   );
-
 
   return (
     <div className="lw-view" onClick={(e) => {
@@ -222,7 +420,11 @@ export default function Seleksi({ navigate }) {
             {Object.entries(boardColumns).map(([colKey, col]) => {
               const collapsed = collapsedCols.has(colKey);
               return (
-                <div key={colKey} className={`lw-board-column${collapsed ? ' collapsed' : ''}`}>
+                <div
+                  key={colKey}
+                  className="lw-board-col"
+                  style={{ width: collapsed ? '48px' : '280px', flexShrink: 0, transition: 'width 0.2s' }}
+                >
                   <div className="lw-board-col-header">
                     <div className="lw-board-col-left">
                       <span className="lw-board-col-title">{col.title}</span>
@@ -245,10 +447,10 @@ export default function Seleksi({ navigate }) {
                             className="lw-board-card"
                           >
                             <div className="lw-board-card-top">
-                              <span 
-                                className="lw-board-card-title" 
-                                style={{ cursor: 'pointer' }} 
-                                onClick={() => navigate('seleksi-detail', { jabatan: card.posisi })}
+                              <span
+                                className="lw-board-card-title"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate('seleksi-detail', { jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                               >
                                 {card.posisi}
                               </span>
@@ -274,10 +476,7 @@ export default function Seleksi({ navigate }) {
                                       className="lw-board-card-menu-item"
                                       onClick={(e) => { e.stopPropagation(); archiveCard(colKey, cardIdx); }}
                                     >
-                                      <svg width="11" height="11" viewBox="0 0 8.25 8.60156" fill="none">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
-                                      </svg>
-                                      Arsipkan
+                                      <ArchiveSvg /> Arsipkan
                                     </button>
                                   </div>
                                 )}
@@ -321,7 +520,7 @@ export default function Seleksi({ navigate }) {
                                   </div>
                                 )}
                               </div>
-                              <button className="lw-board-card-detail-btn" onClick={() => navigate('seleksi-detail', { jabatan: card.posisi })}>Detail</button>
+                              <button className="lw-board-card-detail-btn" disabled={card.arsip} onClick={card.arsip ? undefined : () => navigate('seleksi-detail', { jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })} style={card.arsip ? { opacity: 0.4, cursor: 'not-allowed' } : {}}>Detail</button>
                             </div>
                           </div>
                         );
@@ -352,35 +551,54 @@ export default function Seleksi({ navigate }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, i) => {
-                const cfg = STATUS_CONFIG[row.status];
+              {isLoading ? (
+                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>Memuat data...</td></tr>
+              ) : pagedRows.length === 0 ? (
+                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>
+                  {filterArchiveOnly ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
+                </td></tr>
+              ) : pagedRows.map((row) => {
+                const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.rencana;
                 return (
-                  <tr key={i}>
-                    <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(i)} onChange={() => toggleRow(i)} /></td>
-                    <td className="lw-posisi clickable" onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>{row.posisi}</td>
+                  <tr key={row.id} className={row.arsip ? 'lw-row-archived' : ''}>
+                    <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} /></td>
+                    <td
+                      className={`lw-posisi${row.arsip ? '' : ' clickable'}`}
+                      onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                      style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
+                    >{row.posisi}</td>
                     <td>{row.dept}</td>
                     <td>{row.lokasi}</td>
                     <td>
-                      <div className="lw-status-wrapper" onClick={(e) => { e.stopPropagation(); setOpenStatusIdx(openStatusIdx === i ? null : i); }}>
-                        <div className={`lw-status-bubble ${row.status}`}>
+                      {row.arsip ? (
+                        <div className="lw-status-bubble rencana" style={{ opacity: 0.5, pointerEvents: 'none' }}>
                           <div className="lw-status-content">
                             <div className="lw-icon-wrapper"><img src={cfg.icon} /></div>
                             <span className="lw-status-text">{cfg.label}</span>
                           </div>
-                          <svg className="chevron-down" width="8" height="6" viewBox="0 0 10 6" fill="none">
-                            <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
                         </div>
-                        {openStatusIdx === i && (
-                          <div className="lw-status-dropdown active">
-                            {Object.entries(STATUS_CONFIG).map(([key, s]) => (
-                              <div key={key} className="lw-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(i, key); }}>
-                                <div className="lw-icon-wrapper"><img src={s.icon} /></div> {s.label}
-                              </div>
-                            ))}
+                      ) : (
+                        <div className="lw-status-wrapper" onClick={(e) => { e.stopPropagation(); setOpenStatusIdx(openStatusIdx === row.id ? null : row.id); }}>
+                          <div className={`lw-status-bubble ${row.status}`}>
+                            <div className="lw-status-content">
+                              <div className="lw-icon-wrapper"><img src={cfg.icon} /></div>
+                              <span className="lw-status-text">{cfg.label}</span>
+                            </div>
+                            <svg className="chevron-down" width="8" height="6" viewBox="0 0 10 6" fill="none">
+                              <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
                           </div>
-                        )}
-                      </div>
+                          {openStatusIdx === row.id && (
+                            <div className="lw-status-dropdown active">
+                              {Object.entries(STATUS_CONFIG).map(([key, s]) => (
+                                <div key={key} className="lw-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(row.id, key); }}>
+                                  <div className="lw-icon-wrapper"><img src={s.icon} /></div> {s.label}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td>{row.alur}</td>
                     <td><div className="lw-kandidat-badge">{row.kandidat}</div></td>
@@ -389,7 +607,15 @@ export default function Seleksi({ navigate }) {
                     <td>{row.tanggal}</td>
                     <td>
                       <div className="lw-actions">
-                        <button className="lw-btn-outline" onClick={() => setArchiveModal({ title: 'Arsipkan Posisi', body: 'Apakah Anda yakin ingin mengarsipkan posisi ini?', onConfirm: () => { setRows(prev => prev.filter((_, idx) => idx !== i)); setArchiveModal(null); } })}><img src="/assets/archive.svg" style={{ marginRight: 4.5 }} /> Arsipkan</button>
+                        {row.arsip ? (
+                          <button className="lw-btn-outline btn-show" onClick={() => setUnarchiveTarget(row)}>
+                            Tampilkan
+                          </button>
+                        ) : (
+                          <button className="lw-btn-outline btn-archive" onClick={() => handleRowArchive(row)}>
+                            <ArchiveSvg /> Arsipkan
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -399,16 +625,33 @@ export default function Seleksi({ navigate }) {
           </table>
         </div>
       )}
-
-      <Pagination />
+      {!isBoardView && (
+        <Pagination
+          page={page}
+          total={totalPages}
+          perPage={perPage}
+          onPageChange={(p) => setPage(Math.max(1, Math.min(p, totalPages)))}
+          onPerPageChange={(n) => { setPerPage(n); setPage(1); }}
+        />
+      )}
 
       {archiveModal && (
         <PopupKonfirmasi
           title={archiveModal.title}
           body={archiveModal.body}
           confirmLabel="Arsipkan"
-          onConfirm={() => { archiveModal.onConfirm(); showToast('Posisi berhasil diarsipkan', 'Data telah dipindahkan ke arsip'); }}
+          onConfirm={archiveModal.onConfirm}
           onClose={() => setArchiveModal(null)}
+        />
+      )}
+
+      {unarchiveTarget && (
+        <PopupKonfirmasi
+          title="Tampilkan Posisi"
+          body={`Tampilkan kembali posisi "${unarchiveTarget.posisi}"? Status akan diubah ke aktif.`}
+          confirmLabel="Tampilkan"
+          onConfirm={handleUnarchiveConfirm}
+          onClose={() => setUnarchiveTarget(null)}
         />
       )}
 

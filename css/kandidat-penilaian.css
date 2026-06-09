@@ -257,7 +257,7 @@
 
 .sc-criteria-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 12px 24px 14px;
   border-bottom: 0.8px solid #f0f2f6;
 }
@@ -265,7 +265,6 @@
 .sc-criteria-level-col {
   width: 125px;
   flex-shrink: 0;
-  padding-top: 2px;
 }
 
 .sc-level-badge {

@@ -1,49 +1,99 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import TabNav from '../../components/TabNav.jsx';
 import KandidatUnggahCV from '../kandidat/Kandidat-UnggahCV.jsx';
 import KandidatRiwayatUnggah from '../kandidat/Kandidat-RiwayatUnggah.jsx';
-import Toast from '../../components/Toast.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { useUpload } from '../../context/UploadContext.jsx';
+import { getKandidat } from '../../services/kandidatService.js';
+import { getSeleksiByJabatan } from '../../services/seleksiService.js';
+import { getScoringBySeleksi } from '../../services/scoringService.js';
 
 const AVATAR_COLORS = ['#f042a1', '#0977be', '#089f32', '#f8aa01', '#fb484b', '#8b5cf6', '#06b6d4'];
 
-const KANDIDAT_LIST = [
-  { id: 1, nama: 'Aula Maulidatul Mufidah', sub: 'Junior Human Resources at Prima Print (3 years)',   inisial: 'AM', color: 0 },
-  { id: 2, nama: 'Rofiq Gonzalez',          sub: 'Senior Frontend Engineer at Tech Global Corp (4 years)', inisial: 'RG', color: 1 },
-  { id: 3, nama: 'Dito Arkademi',           sub: 'Admin Manager at PT Arkademi (2 years)',            inisial: 'DA', color: 2 },
-  { id: 4, nama: 'Siti Fatimah',            sub: 'UX Designer at Design Studio Inc (3 years)',        inisial: 'SF', color: 3 },
-  { id: 5, nama: 'Budi Santoso',            sub: 'Backend Developer at Bank Central Asia (5 years)',  inisial: 'BS', color: 4 },
-  { id: 6, nama: 'Rina Wulandari',          sub: 'HR Specialist at PT Maju Jaya (2 years)',           inisial: 'RW', color: 5 },
-  { id: 7, nama: 'Ahmad Fauzi',             sub: 'Product Manager at Startup Nusantara (4 years)',    inisial: 'AF', color: 6 },
-];
+const getInisial = (nama) => {
+  const parts = (nama || '').trim().split(/\s+/);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return (parts[0]?.[0] || '?').toUpperCase();
+};
 
-function PilihKandidatTab({ jabatan, onTambah }) {
+function PilihKandidatTab({ seleksiId, companyId, jabatan }) {
+  const { enqueueScoringJob } = useUpload();
+  const [kandidatList, setKandidatList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [added, setAdded] = useState(new Set());
 
-  const handleTambah = (id) => {
-    setAdded(prev => new Set([...prev, id]));
-    onTambah?.();
+  useEffect(() => {
+    if (!companyId) return;
+    getKandidat(companyId)
+      .then(rows => setKandidatList(rows || []))
+      .catch(() => setKandidatList([]))
+      .finally(() => setIsLoading(false));
+  }, [companyId]);
+
+  // Pre-mark kandidat yang sudah ada scoring di posisi ini
+  useEffect(() => {
+    if (!seleksiId) return;
+    getScoringBySeleksi(seleksiId)
+      .then(rows => {
+        const ids = new Set((rows || []).map(s => s.kandidat?.id || s.kandidat_id).filter(Boolean));
+        setAdded(ids);
+      })
+      .catch(() => {});
+  }, [seleksiId]);
+
+  const handleTambah = (k) => {
+    setAdded(prev => new Set([...prev, k.id]));
+    if (seleksiId && k.id && companyId) {
+      enqueueScoringJob(k.id, seleksiId, jabatan, k.nama_lengkap || '', companyId);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="stk-pilih-content" style={{ padding: 40, color: '#888', textAlign: 'center', fontSize: 14 }}>
+        Memuat kandidat...
+      </div>
+    );
+  }
+
+  if (kandidatList.length === 0) {
+    return (
+      <div className="stk-pilih-content" style={{ padding: 40, color: '#888', textAlign: 'center', fontSize: 14 }}>
+        Belum ada kandidat di sistem. Unggah CV terlebih dahulu.
+      </div>
+    );
+  }
+
+  const availableList = kandidatList.filter(k => !added.has(k.id) && !k.arsip);
+
+  if (availableList.length === 0) {
+    return (
+      <div className="stk-pilih-content" style={{ padding: 40, color: '#888', textAlign: 'center', fontSize: 14 }}>
+        Semua kandidat sudah ditambahkan ke posisi ini.
+      </div>
+    );
+  }
 
   return (
     <div className="stk-pilih-content">
-      {KANDIDAT_LIST.map(k => (
+      {availableList.map((k, i) => (
         <div className="stk-kandidat-row" key={k.id}>
           <div className="stk-kandidat-info">
-            <div className="stk-avatar" style={{ background: AVATAR_COLORS[k.color] }}>
-              {k.inisial}
+            <div className="stk-avatar" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+              {getInisial(k.nama_lengkap)}
             </div>
             <div className="stk-kandidat-meta">
-              <span className="stk-kandidat-nama">{k.nama}</span>
-              <span className="stk-kandidat-sub">{k.sub}</span>
+              <span className="stk-kandidat-nama">{k.nama_lengkap || '-'}</span>
+              <span className="stk-kandidat-sub">
+                {k.jabatan_saat_ini
+                  ? `${k.jabatan_saat_ini}${k.perusahaan_saat_ini ? ` at ${k.perusahaan_saat_ini}` : ''}`
+                  : '-'}
+              </span>
             </div>
           </div>
-          <button
-            className={`stk-btn-tambahkan${added.has(k.id) ? ' stk-added' : ''}`}
-            onClick={() => handleTambah(k.id)}
-            disabled={added.has(k.id)}
-          >
-            {added.has(k.id) ? 'Ditambahkan' : 'Tambahkan'}
+          <button className="stk-btn-tambahkan" onClick={() => handleTambah(k)}>
+            Tambahkan
           </button>
         </div>
       ))}
@@ -52,16 +102,17 @@ function PilihKandidatTab({ jabatan, onTambah }) {
 }
 
 export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
-  const [activeTab,   setActiveTab]   = useState('pilih');
+  const { companyId } = useAuth();
+  const [seleksiId, setSeleksiId] = useState(null);
+  const [activeTab, setActiveTab] = useState('pilih');
   const [historyData, setHistoryData] = useState(null);
-  const [toast, setToast]             = useState(false);
-  const toastTimer                    = useRef(null);
 
-  const showToast = () => {
-    setToast(true);
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(false), 4000);
-  };
+  useEffect(() => {
+    if (!companyId || !jabatan) return;
+    getSeleksiByJabatan(companyId, jabatan)
+      .then(s => setSeleksiId(s?.id || null))
+      .catch(() => {});
+  }, [companyId, jabatan]);
 
   const handleViewRiwayat = (item) => {
     setHistoryData(item);
@@ -77,7 +128,7 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
     <div className="stk-view">
       <div className="stk-title-bar">
         <BackButton onClick={() => back ? back() : navigate('seleksi')} />
-        <h1 className="stk-title">Tambah Kandidat</h1>
+        <h1 className="stk-title">Tambah Kandidat{jabatan ? ` — ${jabatan}` : ''}</h1>
       </div>
 
       <TabNav
@@ -90,7 +141,13 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
         onChange={handleTabChange}
       />
 
-      {activeTab === 'pilih' && <PilihKandidatTab jabatan={jabatan} onTambah={showToast} />}
+      {activeTab === 'pilih' && (
+        <PilihKandidatTab
+          jabatan={jabatan}
+          seleksiId={seleksiId}
+          companyId={companyId}
+        />
+      )}
 
       {activeTab === 'unggah' && (
         <div className="stk-unggah-wrap">
@@ -103,14 +160,6 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
       )}
 
       {activeTab === 'riwayat' && <KandidatRiwayatUnggah onView={handleViewRiwayat} />}
-
-      {toast && (
-        <Toast
-          message="Kandidat berhasil ditambahkan ke posisi"
-          subMessage="Harap tunggu, proses penilaian sedang berlangsung"
-          onClose={() => setToast(false)}
-        />
-      )}
     </div>
   );
 }

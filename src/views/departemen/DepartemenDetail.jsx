@@ -31,7 +31,7 @@ export default function DepartemenDetail({ departemen = 'Human Resource', naviga
         {activeTab === 'ringkasan' ? (
           <DepartemenRingkasan departemen={departemen} />
         ) : (
-          <DepartemenSeleksi navigate={navigate} onBack={() => back ? back() : navigate('departemen')} />
+          <DepartemenSeleksi navigate={navigate} departemen={departemen} onBack={() => back ? back() : navigate('departemen')} />
         )}
       </div>
     </div>

@@ -121,6 +121,7 @@
   transition: background 0.15s;
 }
 
+
 .sd-title-menu-btn:hover {
   background: #f0f2f6;
 }
@@ -340,54 +341,9 @@
   padding: 16px 20px 12px 20px;
 }
 
-.sd-detail-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 32px;
-}
 
-.sd-detail-label {
-  flex: 1;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #323b4d;
-  min-width: 0;
-}
 
-.sd-detail-value {
-  width: 285px;
-  flex-shrink: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  color: #323b4d;
-  padding: 10px 12px;
-  border-radius: 7px;
-  line-height: 1.5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-.sd-detail-value.add-data {
-  color: #0977be;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  border-radius: 7px;
-  transition: background 0.15s;
-}
-
-.sd-detail-value.add-data:hover {
-  background: var(--color-primary-100);
-}
-
-.sd-detail-value.add-data svg {
-  flex-shrink: 0;
-}
 
 /* ─── Edit mode inputs ──────────────────────────────────────── */
 .sd-detail-input {
@@ -525,6 +481,36 @@
   color: #323b4d;
   font-size: 12px;
 }
+.sd-deskripsi-content--hoverable {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.sd-deskripsi-content--hoverable:hover {
+  background: #f4f6fa;
+}
+
+.sd-deskripsi-content p {
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.sd-deskripsi-content ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sd-deskripsi-content ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sd-deskripsi-content li {
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
 
 .sd-deskripsi-section-title {
   font-size: 16px;
@@ -641,6 +627,51 @@
   align-items: center;
 }
 
+/* ─── CTA Tambah Kriteria (view mode) ───────────────────────── */
+.sd-kriteria-add-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1.5px dashed #cbd0db;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555f71;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.sd-kriteria-add-new-btn:hover {
+  background: #f4f6fa;
+  border-color: #0977be;
+  color: #0977be;
+}
+
+.sd-kriteria-add-new-btn:active {
+  transform: scale(0.98);
+  background: #eef7fd;
+}
+
+/* Form item baru — sama style dengan edit item tapi ada border biru */
+.sd-kriteria-new-item {
+  border: 1.5px solid #89ccf6;
+  background: #f7fbfe;
+  border-radius: 10px;
+  animation: sd-slide-in 0.2s ease-out;
+  margin-bottom: 12px;
+}
+
+@keyframes sd-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .sd-kriteria-section-title {
   font-family: 'Inter', sans-serif;
   font-size: 16px;
@@ -678,8 +709,51 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 9px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin: 0 -10px;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.sd-kriteria-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 10px;
+  right: 10px;
   border-bottom: 1px solid #f0f2f6;
+}
+
+.sd-kriteria-item::before {
+  content: 'Klik untuk Edit';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0977be;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+  border-radius: 6px;
+}
+
+.sd-kriteria-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sd-kriteria-item:hover::before {
+  opacity: 1;
 }
 
 .sd-kriteria-list {
@@ -753,12 +827,18 @@
 
 /* ─── Date input native styling ────────────────────────────────── */
 .sd-detail-input--date {
-  padding-right: 8px;
+  padding-right: 36px;
+  position: relative;
   cursor: pointer;
 }
 
 .sd-detail-input--date::-webkit-calendar-picker-indicator {
-  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
   cursor: pointer;
 }
 
@@ -853,6 +933,26 @@
 
 .sd-deskripsi-editable * {
   user-select: text;
+}
+
+.sd-deskripsi-editable p {
+  margin: 0 0 16px 0;
+}
+
+.sd-deskripsi-editable ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sd-deskripsi-editable ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin: 0 0 16px 0;
+}
+
+.sd-deskripsi-editable li {
+  margin-bottom: 6px;
 }
 
 /* ─── Kriteria Edit Mode ────────────────────────────────────────── */

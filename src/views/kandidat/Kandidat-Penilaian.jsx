@@ -1,4 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { updateAlurProses, runRescore, markTidakSesuai } from '../../services/scoringService.js';
+import PopupTidakSesuai from '../../components/PopupTidakSesuai.jsx';
+import { getAlurSeleksi, seedDefaultAlur, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
+import { useAuth } from '../../context/AuthContext.jsx';
+import Toast from '../../components/Toast.jsx';
 
 const CRITERIA_DATA = {
   high: {
@@ -47,6 +52,35 @@ const AI_SUMMARY = {
   moderate: 'Candidate has 6 years of experience, meets some required criteria like using ATS and LinkedIn Recruiter, but lacks evidence of good communication and negotiation skills, with potential fit in professional network and technical terms.',
   low: 'Candidate does not sufficiently meet the key criteria for this role. Most required skills and experience are either absent or need significant development.',
 };
+
+const KATEGORI_TO_FIT = { 'Sangat Fit': 'high', 'Fit': 'high', 'Cukup Fit': 'moderate', 'Kurang Fit': 'low' };
+function scoreLevelFromValue(score) {
+  if (score >= 80) return 'high';
+  if (score >= 50) return 'moderate';
+  if (score >= 20) return 'low';
+  return 'none';
+}
+function mapRowToSkor(row) {
+  if (!row) return null;
+  const level = KATEGORI_TO_FIT[row.kategori_fit] || scoreLevelFromValue(row.total_score ?? 0);
+  const lookup = {};
+  (row.raw_kriteria || []).forEach(k => { if (k.tag) lookup[k.tag] = k.teks || ''; });
+  const toItem = k => ({
+    level: scoreLevelFromValue(k.score_evaluate),
+    name: k.tag, desc: k.evidence || '',
+    req: lookup[k.tag] || '',
+    bobot: k.kategori === 'Wajib' ? 'tinggi' : 'rendah',
+    score: k.score_evaluate ?? 0,
+    weight: k.weight ?? 0,
+  });
+  return {
+    level,
+    score: row.total_score ?? 0,
+    aiSummary: row.ai_summary || '',
+    criteriaData: (row.detail_kriteria || []).filter(k => k.kategori === 'Wajib').map(toItem),
+    prefData:     (row.detail_kriteria || []).filter(k => k.kategori !== 'Wajib').map(toItem),
+  };
+}
 
 const LEVEL_LABELS = { high: 'Tinggi', moderate: 'Sedang', none: 'Tidak Sesuai', low: 'Rendah' };
 const GAUGE_COLORS = { high: '#14b541', moderate: '#f29a01', low: '#fb484b' };
@@ -111,11 +145,51 @@ const Tip = ({ text, children }) => {
  *   onClose   — function
  *   onReject  — function
  */
-export default function KandidatPenilaian({ kandidat, onClose, onReject, embedded = false }) {
+export default function KandidatPenilaian({ kandidat, onClose, onReject, onRescored, onAlurChanged, embedded = false }) {
+  const { companyId } = useAuth();
   const [isClosing, setIsClosing] = useState(false);
   const [isAlurOpen, setIsAlurOpen] = useState(false);
-  const [selectedAlur, setSelectedAlur] = useState(kandidat.alur || 'Terseleksi');
+  const [selectedAlurLevel, setSelectedAlurLevel] = useState(kandidat.alur ?? 1);
+  const [alurList, setAlurList] = useState(DEFAULT_ALUR);
+  const [toast, setToast] = useState(null);
+  const [localSkor, setLocalSkor] = useState(kandidat.skor);
+  const [isRescoring, setIsRescoring] = useState(false);
+  const [showRejectPopup, setShowRejectPopup] = useState(false);
+  const [showScoreTooltip, setShowScoreTooltip] = useState(false);
+  const toastTimer = useRef(null);
   const dropdownRef = useRef(null);
+
+  const showToast = (message, subMessage) => {
+    setToast({ message, subMessage });
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleRescore = async () => {
+    const { scoringId, kandidatId, seleksiId } = kandidat;
+    if (!scoringId || !kandidatId || !seleksiId || !companyId) {
+      showToast('Tidak bisa nilai ulang', 'Data kandidat atau posisi tidak lengkap.');
+      return;
+    }
+    setIsRescoring(true);
+    try {
+      const row = await runRescore(scoringId, kandidatId, seleksiId, companyId);
+      const newSkor = mapRowToSkor(row);
+      setLocalSkor(newSkor);
+      showToast('Penilaian ulang selesai', 'Hasil penilaian AI telah diperbarui.');
+      if (onRescored) onRescored(row);
+    } catch (err) {
+      showToast('Gagal menilai ulang', err.message);
+    } finally {
+      setIsRescoring(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!companyId) return;
+    seedDefaultAlur(companyId);
+    getAlurSeleksi(companyId).then(setAlurList).catch(() => {});
+  }, [companyId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -127,35 +201,29 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const alurOptions = [
-    'Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara',
-    'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima',
-    'Onboarding', 'Lolos Masa Percobaan'
-  ];
-
   const handleClose = () => {
     if (isClosing) return;
     setIsClosing(true);
     setTimeout(() => onClose(), 300);
   };
 
-  const criteria = kandidat.skor?.criteriaData || CRITERIA_DATA[kandidat.skor?.level]?.criteriaData || (Array.isArray(CRITERIA_DATA[kandidat.skor?.level]) ? CRITERIA_DATA[kandidat.skor?.level] : []);
-  const prefs = kandidat.skor?.prefData || CRITERIA_DATA[kandidat.skor?.level]?.prefData || [];
+  const criteria = localSkor?.criteriaData || CRITERIA_DATA[localSkor?.level]?.criteriaData || (Array.isArray(CRITERIA_DATA[localSkor?.level]) ? CRITERIA_DATA[localSkor?.level] : []);
+  const prefs = localSkor?.prefData || CRITERIA_DATA[localSkor?.level]?.prefData || [];
   const allCriteria = [...criteria, ...prefs];
-  const aiSummaryText = kandidat.skor?.aiSummary || AI_SUMMARY[kandidat.skor?.level] || '';
+  const aiSummaryText = localSkor?.aiSummary || AI_SUMMARY[localSkor?.level] || '';
   const countByLevel = (lvl) => allCriteria.filter(c => c.level === lvl).length;
 
-  let gaugeColor = GAUGE_COLORS[kandidat.skor?.level];
+  let gaugeColor = GAUGE_COLORS[localSkor?.level];
   if (!gaugeColor) {
-    if (kandidat.skor?.score >= 80) gaugeColor = GAUGE_COLORS.high;
-    else if (kandidat.skor?.score >= 50) gaugeColor = GAUGE_COLORS.moderate;
+    if (localSkor?.score >= 80) gaugeColor = GAUGE_COLORS.high;
+    else if (localSkor?.score >= 50) gaugeColor = GAUGE_COLORS.moderate;
     else gaugeColor = GAUGE_COLORS.low;
   }
-  const levelText = kandidat.skor?.level ? { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah' }[kandidat.skor.level] : '';
+  const levelText = localSkor?.level ? { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah' }[localSkor.level] : '';
 
   const r = 33;
   const circumference = 2 * Math.PI * r;
-  const filled = (kandidat.skor.score / 100) * circumference;
+  const filled = ((localSkor?.score ?? 0) / 100) * circumference;
 
   const getLevelIcon = (lvl) => {
     switch (lvl) {
@@ -192,6 +260,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
   };
 
   return (
+    <>
     <div className={`sc-overlay${isClosing ? ' closing' : ''}${embedded ? ' embedded' : ''}`} onClick={!embedded ? handleClose : undefined}>
       <div className={`sc-panel${isClosing ? ' closing' : ''}`} onClick={e => e.stopPropagation()}>
 
@@ -203,7 +272,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
               <div style={{ fontSize: '11px', color: '#7e8799', fontWeight: 500 }}>Penilaian untuk posisi</div>
-              <div style={{ color: '#0977be', fontWeight: 700, fontSize: '18px', lineHeight: 1 }}>{kandidat.jabatan}</div>
+              <div style={{ color: '#0977be', fontWeight: 700, fontSize: '18px', lineHeight: 1 }}>{kandidat.jabatanDilamar || kandidat.jabatan}</div>
             </div>
           </div>
           <div className="sc-header-name">{kandidat.nama}</div>
@@ -212,7 +281,11 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
         {/* Score Summary */}
         <div className="sc-score-section">
           <div className="sc-score-left">
-            <div className="sc-gauge-wrapper">
+            <div
+              className="sc-gauge-wrapper"
+              onMouseEnter={() => setShowScoreTooltip(true)}
+              onMouseLeave={() => setShowScoreTooltip(false)}
+            >
               <svg width="86" height="86" viewBox="0 0 86 86" style={{ display: 'block' }}>
                 <circle cx="43" cy="43" r={r} fill="none" stroke="#f0f2f6" strokeWidth="9" />
                 <circle
@@ -225,8 +298,23 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
               </svg>
               <div className="sc-gauge-center">
                 <span className="sc-gauge-total-label">TOTAL SKOR</span>
-                <span className="sc-gauge-score" style={{ color: gaugeColor }}>{kandidat.skor.score}</span>
+                <span className="sc-gauge-score" style={{ color: gaugeColor }}>{localSkor.score}</span>
               </div>
+              {showScoreTooltip && (
+                <div style={{
+                  position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+                  background: '#fff', color: '#323b4d', borderRadius: 8, padding: '10px 14px',
+                  fontSize: 12, lineHeight: 1.7, whiteSpace: 'nowrap', zIndex: 999,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '1px solid #e2e5ec', pointerEvents: 'none',
+                }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Cara Perhitungan Total Skor</div>
+                  <div style={{ color: '#555f71' }}>Rata-rata tertimbang dari</div>
+                  <div style={{ color: '#555f71' }}>Kriteria <strong style={{ color: '#0977be' }}>Wajib</strong> saja</div>
+                  <div style={{ color: '#abb2c1', marginTop: 6, fontFamily: 'monospace', fontSize: 11 }}>
+                    Σ(skor × bobot) / Σ(bobot)
+                  </div>
+                </div>
+              )}
             </div>
             <div className="sc-chips">
               <span className="sc-chip high">
@@ -288,7 +376,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
           <div className="sc-criteria-list">
             {criteria.length > 0 && (
               <div style={{ padding: '8px 24px', fontSize: '12px', fontWeight: 600, color: '#323b4d', background: '#f8fafc', borderBottom: '1px solid #e2e5ec' }}>
-                Kriteria Utama (Requirements)
+                Kriteria Utama
               </div>
             )}
             {criteria.map((c, i) => (
@@ -328,7 +416,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
 
             {prefs.length > 0 && (
               <div style={{ padding: '8px 24px', fontSize: '12px', fontWeight: 600, color: '#323b4d', background: '#f8fafc', borderBottom: '1px solid #e2e5ec', borderTop: '1px solid #e2e5ec' }}>
-                Kriteria Tambahan (Preferences)
+                Nilai Tambah
               </div>
             )}
             {prefs.map((c, i) => (
@@ -372,9 +460,17 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
         <div className="sc-footer">
           <div className="sc-footer-actions">
             <Tip text="Nilai ulang dengan kriteria aktif saat ini. Disarankan dilakukan setelah mengubah kriteria. Sedikit variasi skor antar penilaian adalah normal.">
-              <button className="sc-btn-action primary">
-                <IconRefresh />
-                Penilaian Ulang
+              <button
+                className="sc-btn-action primary"
+                onClick={handleRescore}
+                disabled={isRescoring}
+                style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}
+              >
+                {isRescoring
+                  ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
+                  : <IconRefresh />
+                }
+                {isRescoring ? 'Menilai ulang...' : 'Penilaian Ulang'}
               </button>
             </Tip>
 
@@ -384,23 +480,31 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
                 onClick={() => setIsAlurOpen(!isAlurOpen)}
                 style={{ justifyContent: 'space-between', minWidth: '150px' }}
               >
-                <span>{selectedAlur}</span>
+                <span>{alurList.find(a => a.level === selectedAlurLevel)?.nama ?? '-'}</span>
                 <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
                   <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               {isAlurOpen && (
                 <div className="sc-alur-dropdown">
-                  {alurOptions.map(opt => (
+                  {alurList.filter(opt => opt.level !== 0).map(opt => (
                     <button
-                      key={opt}
-                      className={`sc-alur-option ${selectedAlur === opt ? 'active' : ''}`}
+                      key={opt.level}
+                      className={`sc-alur-option ${selectedAlurLevel === opt.level ? 'active' : ''}`}
                       onClick={() => {
-                        setSelectedAlur(opt);
+                        setSelectedAlurLevel(opt.level);
                         setIsAlurOpen(false);
+                        if (kandidat.scoringId) {
+                          updateAlurProses(kandidat.scoringId, opt.level)
+                            .then(() => {
+                              showToast('Alur berhasil diubah', `Dipindahkan ke ${opt.nama}`);
+                              if (onAlurChanged) onAlurChanged(kandidat.scoringId, opt.level);
+                            })
+                            .catch(err => showToast('Gagal memperbarui alur', err.message));
+                        }
                       }}
                     >
-                      {opt}
+                      {opt.nama}
                     </button>
                   ))}
                 </div>
@@ -409,14 +513,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
 
             <button
               className="sc-btn-action grey"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (isClosing) return;
-                setIsClosing(true);
-                setTimeout(() => {
-                  if (onReject) onReject();
-                }, 300);
-              }}
+              onClick={(e) => { e.stopPropagation(); setShowRejectPopup(true); }}
             >
               Tidak Sesuai
             </button>
@@ -425,5 +522,22 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, embedde
         </div>
       </div>
     </div>
+    {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
+    {showRejectPopup && (
+      <PopupTidakSesuai
+        targetText={kandidat.nama || 'Kandidat'}
+        onConfirm={async (reason, detail) => {
+          setShowRejectPopup(false);
+          if (kandidat.scoringId) {
+            try { await markTidakSesuai(kandidat.scoringId, reason, detail); } catch { /* best effort */ }
+          }
+          if (isClosing) return;
+          setIsClosing(true);
+          setTimeout(() => { if (onReject) onReject(reason, detail); }, 300);
+        }}
+        onClose={() => setShowRejectPopup(false)}
+      />
+    )}
+    </>
   );
 }
