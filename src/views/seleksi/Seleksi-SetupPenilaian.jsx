@@ -132,6 +132,7 @@ export default function SetupPenilaian({ navigate }) {
   const [departments, setDepartments] = useState([]);
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [newDeptName, setNewDeptName] = useState('');
+  const [newDeptDesc, setNewDeptDesc] = useState('');
   const [isCreatingDept, setIsCreatingDept] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -204,7 +205,7 @@ export default function SetupPenilaian({ navigate }) {
     if (!newDeptName.trim() || !companyId) return;
     setIsCreatingDept(true);
     try {
-      const newDept = await createDepartment(companyId, { name: newDeptName.trim() });
+      const newDept = await createDepartment(companyId, { name: newDeptName.trim(), description: newDeptDesc.trim() });
       setDepartments(prev => [newDept, ...prev]);
       setForm(prev => ({ ...prev, departemen: newDept.id }));
       setShowDeptModal(false);
@@ -639,28 +640,42 @@ export default function SetupPenilaian({ navigate }) {
       
       {/* Modal Departemen Baru */}
       {showDeptModal && (
-        <div className="cm-overlay" onClick={() => !isCreatingDept && setShowDeptModal(false)}>
-          <div className="cm-modal" onClick={e => e.stopPropagation()}>
-            <div className="cm-text">
-              <p className="cm-title">Buat Departemen Baru</p>
-              <p className="cm-body">Masukkan nama departemen baru yang akan ditambahkan.</p>
+        <div className="dept-modal-overlay" onClick={() => !isCreatingDept && setShowDeptModal(false)}>
+          <div className="dept-modal dept-modal-add" onClick={e => e.stopPropagation()}>
+            <p className="dept-modal-title">Tambah Departemen</p>
+            <div className="dept-modal-form">
+              <div className="dept-modal-field">
+                <div className="dept-modal-label-group">
+                  <p className="dept-modal-label">Nama Departemen <span style={{ color: '#ef4444' }}>*</span></p>
+                  <p className="dept-modal-hint">Pastikan jabatan telah sesuai. Contoh: Marketing, Accountant, dll</p>
+                </div>
+                <input
+                  className="dept-modal-input"
+                  placeholder="Isi Nama Departemen"
+                  value={newDeptName}
+                  onChange={e => setNewDeptName(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') submitNewDept();
+                    if (e.key === 'Escape') setShowDeptModal(false);
+                  }}
+                />
+              </div>
+              <div className="dept-modal-field">
+                <div className="dept-modal-label-group">
+                  <p className="dept-modal-label">Deskripsi <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></p>
+                </div>
+                <textarea
+                  className="dept-modal-textarea"
+                  placeholder="Masukan Deskripsi Singkat"
+                  value={newDeptDesc}
+                  onChange={e => setNewDeptDesc(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="sp-field" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-              <input
-                className="sp-input"
-                placeholder="Misal: Marketing, Tech, dll..."
-                value={newDeptName}
-                onChange={(e) => setNewDeptName(e.target.value)}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') submitNewDept();
-                  if (e.key === 'Escape') setShowDeptModal(false);
-                }}
-              />
-            </div>
-            <div className="cm-footer">
-              <button className="cm-btn-cancel" onClick={() => setShowDeptModal(false)} disabled={isCreatingDept}>Batal</button>
-              <button className="cm-btn-confirm" onClick={submitNewDept} disabled={!newDeptName.trim() || isCreatingDept}>
+            <div className="dept-modal-footer dept-modal-footer-end">
+              <button className="dept-modal-btn-cancel" onClick={() => setShowDeptModal(false)} disabled={isCreatingDept}>Batal</button>
+              <button className="dept-modal-btn-primary" onClick={submitNewDept} disabled={!newDeptName.trim() || isCreatingDept}>
                 {isCreatingDept ? 'Menyimpan...' : 'Simpan'}
               </button>
             </div>

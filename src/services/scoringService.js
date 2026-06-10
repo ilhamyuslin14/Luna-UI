@@ -26,7 +26,7 @@ export async function getScoringBySeleksi(seleksiId) {
   const { data, error } = await supabase
     .from('scoring')
     .select(`
-      id, kandidat_id, total_score, kategori_fit, alur_proses,
+      id, kandidat_id, total_score, kategori_fit, alur_proses, alasan_tidak_sesuai, alasan_tidak_sesuai_detail,
       ai_summary, detail_kriteria, raw_kriteria, created_at,
       kandidat:kandidat_id (
         id, nama_lengkap, jabatan_saat_ini, perusahaan_saat_ini,

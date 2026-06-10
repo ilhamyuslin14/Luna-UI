@@ -4,6 +4,7 @@ import Pagination from '../../components/Pagination.jsx';
 import BackButton from '../../components/BackButton.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import PopupTidakSesuai from '../../components/PopupTidakSesuai.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -70,6 +71,8 @@ function mapScoringRow(s) {
     pengalaman: s.kandidat?.pengalaman_tahun ? `${s.kandidat.pengalaman_tahun} Tahun` : '-',
     linkedin: s.kandidat?.linkedin_url || '-',
     alur: s.alur_proses ?? 1,
+    alasan: s.alasan_tidak_sesuai || '',
+    detail: s.alasan_tidak_sesuai_detail || '',
     skor: {
       level,
       label: LEVEL_LABEL[level] || '-',
@@ -111,7 +114,9 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selected, setSelected] = useState(new Set());
   const [showFilter, setShowFilter] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [activeSort, setActiveSort] = useState('skor_desc');
   const [showBulk, setShowBulk] = useState(false);
   const [viewMode, setViewMode] = useState('list');
   const [alurOpen, setAlurOpen] = useState(null);
@@ -119,7 +124,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
   const [draggedScoringId, setDraggedScoringId] = useState(null);
   const [dragOverCol, setDragOverCol] = useState(null);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(25);
   const [scorePanel, setScorePanel] = useState(null);
   const [menuOpen, setMenuOpen] = useState(null);
   const [dropModalOpen, setDropModalOpen] = useState(false);
@@ -163,7 +168,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
   const alurNama = (level) => alurList.find(a => a.level === level)?.nama ?? `Level ${level}`;
 
   const penilaianOpts = new Set(['Tinggi', 'Sedang', 'Rendah']);
-  const filteredData = activeFilters.size === 0 ? data : data.filter(k => {
+  let filteredData = activeFilters.size === 0 ? data : data.filter(k => {
     const penilaianFilters = [...activeFilters].filter(f => penilaianOpts.has(f));
     const alurFilters = [...activeFilters].filter(f => !penilaianOpts.has(f));
     if (penilaianFilters.length > 0) {
@@ -172,6 +177,16 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
     }
     if (alurFilters.length > 0 && !alurFilters.some(f => f === alurNama(k.alur))) return false;
     return true;
+  });
+
+  filteredData = [...filteredData].sort((a, b) => {
+    switch (activeSort) {
+      case 'skor_desc': return (b.skor.score ?? 0) - (a.skor.score ?? 0);
+      case 'skor_asc': return (a.skor.score ?? 0) - (b.skor.score ?? 0);
+      case 'nama_asc': return (a.nama_lengkap || '').localeCompare(b.nama_lengkap || '');
+      case 'nama_desc': return (b.nama_lengkap || '').localeCompare(a.nama_lengkap || '');
+      default: return 0;
+    }
   });
 
   // exclude "Tidak Sesuai" candidates from the list view — they only appear in the board's Tidak Sesuai column
@@ -214,6 +229,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
       className="sdk-root"
       onClick={(e) => {
         if (!e.target.closest('.filter-dropdown-container')) setShowFilter(false);
+        if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
         if (!e.target.closest('.sdk-alur-cell')) setAlurOpen(null);
         if (!e.target.closest('.bulk-aksi-container')) setShowBulk(false);
         if (!e.target.closest('.sdk-board-card-menu') && !e.target.closest('.sdk-card-dropdown')) setMenuOpen(null);
@@ -232,12 +248,25 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
             <CTABulkAksi
               count={selected.size}
               isOpen={showBulk}
-              onToggle={() => { setShowFilter(false); setShowBulk(v => !v); }}
+              onToggle={() => { setShowSortDropdown(false); setShowFilter(false); setShowBulk(v => !v); }}
               actions={[
                 { icon: <RejectSvg />, label: 'Tidak Sesuai', onClick: () => { setDropTarget('bulk'); setDropModalOpen(true); } },
               ]}
             />
           )}
+
+          <SortDropdown
+            options={[
+              { label: 'Skor Tertinggi', value: 'skor_desc' },
+              { label: 'Skor Terendah', value: 'skor_asc' },
+              { label: 'Nama (A-Z)', value: 'nama_asc' },
+              { label: 'Nama (Z-A)', value: 'nama_desc' }
+            ]}
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
+            isOpen={showSortDropdown}
+            onToggleOpen={() => { setShowBulk(false); setShowFilter(false); setShowSortDropdown(v => !v); }}
+          />
 
           <FilterDropdown
             groups={[
@@ -247,7 +276,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
             activeFilters={activeFilters}
             onToggle={toggleFilter}
             isOpen={showFilter}
-            onToggleOpen={() => { setShowBulk(false); setShowFilter(v => !v); }}
+            onToggleOpen={() => { setShowBulk(false); setShowSortDropdown(false); setShowFilter(v => !v); }}
           />
 
           <div className="sdk-view-toggle">
@@ -417,8 +446,15 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
                         <div
                           key={k.scoringId}
                           className={`sdk-board-card${draggedScoringId === k.scoringId ? ' dragging' : ''}`}
-                          draggable
-                          onDragStart={(e) => { e.stopPropagation(); setDraggedScoringId(k.scoringId); }}
+                          draggable={k.alur !== 0}
+                          onDragStart={(e) => { 
+                            if (k.alur === 0) {
+                              e.preventDefault();
+                              return;
+                            }
+                            e.stopPropagation(); 
+                            setDraggedScoringId(k.scoringId); 
+                          }}
                           onDragEnd={() => { setDraggedScoringId(null); setDragOverCol(null); }}
                           onClick={() => navigate('kandidat-detail', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}
                         >

@@ -13,6 +13,7 @@ import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 
 const STATUS_CONFIG = {
@@ -85,10 +86,12 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [activeSort, setActiveSort] = useState('nama_asc');
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(25);
 
   // archive filter logic (same pattern as Departemen)
   const filterArchiveOnly = activeFilters.has('Arsip') && activeFilters.size === 1;
@@ -144,6 +147,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
           upahMin: item.upah_min || '-',
           upahMaks: item.upah_maks || '-',
           tanggal: new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          rawDate: item.created_at,
           status: STATUS_NORMALIZE[item.status] || 'rencana',
           arsip: item.arsip || false,
         };
@@ -188,6 +192,16 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
       (r.dept || '').toLowerCase().includes(sq)
     );
   }
+
+  filteredRows = [...filteredRows].sort((a, b) => {
+    switch (activeSort) {
+      case 'nama_asc': return (a.posisi || '').localeCompare(b.posisi || '');
+      case 'nama_desc': return (b.posisi || '').localeCompare(a.posisi || '');
+      case 'date_desc': return new Date(b.rawDate || 0) - new Date(a.rawDate || 0);
+      case 'date_asc': return new Date(a.rawDate || 0) - new Date(b.rawDate || 0);
+      default: return 0;
+    }
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / perPage));
   const pagedRows = filteredRows.slice((page - 1) * perPage, page * perPage);
@@ -374,10 +388,22 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
           <CTABulkAksi
             count={selectedRows.size}
             isOpen={showBulkDropdown}
-            onToggle={() => { setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
+            onToggle={() => { setShowSortDropdown(false); setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
             actions={[{ icon: <ArchiveSvg />, label: 'Arsipkan', onClick: handleBulkArchive }]}
           />
         )}
+        <SortDropdown
+          options={[
+            { label: 'Nama (A-Z)', value: 'nama_asc' },
+            { label: 'Nama (Z-A)', value: 'nama_desc' },
+            { label: 'Terbaru', value: 'date_desc' },
+            { label: 'Terlama', value: 'date_asc' }
+          ]}
+          activeSort={activeSort}
+          onSortChange={setActiveSort}
+          isOpen={showSortDropdown}
+          onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(false); setShowSortDropdown(v => !v); }}
+        />
         <FilterDropdown
           groups={[
             { title: 'Arsip', options: ['Arsip'] },
@@ -386,7 +412,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
           activeFilters={activeFilters}
           onToggle={toggleFilter}
           isOpen={showFilterDropdown}
-          onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(v => !v); }}
+          onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
         />
         <div className="lw-view-toggle">
           <button className={`lw-toggle-item${boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(true)}>
@@ -403,6 +429,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
   return (
     <div className="lw-view" onClick={(e) => {
       if (!e.target.closest('.filter-dropdown-container')) setShowFilterDropdown(false);
+      if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
       if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
       if (!e.target.closest('.lw-status-wrapper')) setOpenStatusIdx(null);
       if (!e.target.closest('.lw-board-card-status-wrap') && !e.target.closest('.lw-status-dropdown')) setOpenCardStatus(null);
@@ -419,6 +446,16 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
           <div className="lw-board-scroll">
             {Object.entries(boardColumns).map(([colKey, col]) => {
               const collapsed = collapsedCols.has(colKey);
+              const sortedCards = [...col.cards].sort((a, b) => {
+                switch (activeSort) {
+                  case 'nama_asc': return (a.posisi || '').localeCompare(b.posisi || '');
+                  case 'nama_desc': return (b.posisi || '').localeCompare(a.posisi || '');
+                  case 'date_desc': return new Date(b.rawDate || 0) - new Date(a.rawDate || 0);
+                  case 'date_asc': return new Date(a.rawDate || 0) - new Date(b.rawDate || 0);
+                  default: return 0;
+                }
+              });
+              
               return (
                 <div
                   key={colKey}
@@ -439,7 +476,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
                   </div>
                   {!collapsed && (
                     <div className="lw-board-col-cards">
-                      {col.cards.map((card, cardIdx) => {
+                      {sortedCards.map((card, cardIdx) => {
                         const cardKey = `${colKey}-${cardIdx}`;
                         return (
                           <div

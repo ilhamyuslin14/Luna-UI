@@ -183,6 +183,15 @@ export function UploadProvider({ children }) {
     setScoringQueue([]);
   };
 
+  const retryGlobalFileById = (id) => {
+    const idx = statusesRef.current.findIndex(s => s.id === id);
+    if (idx !== -1) {
+      statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'waiting', progress: 0, failReason: null };
+      setGlobalFiles([...statusesRef.current]);
+      processNextGlobal();
+    }
+  };
+
   const value = {
     globalFiles,
     isUploading,
@@ -190,6 +199,7 @@ export function UploadProvider({ children }) {
     setIsWidgetMinimized,
     startGlobalUpload,
     clearGlobalUploads,
+    retryGlobalFileById,
     scoringQueue,
     enqueueScoringJob,
     clearScoringQueue,

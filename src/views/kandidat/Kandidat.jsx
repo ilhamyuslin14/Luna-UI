@@ -7,6 +7,7 @@ import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 
 const ArchiveSvg = () => (
@@ -14,6 +15,33 @@ const ArchiveSvg = () => (
     <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
   </svg>
 );
+
+const getPeriodeText = (k) => {
+  try {
+    let exps = [];
+    if (Array.isArray(k.pengalaman_kerja)) {
+      exps = k.pengalaman_kerja;
+    } else if (typeof k.pengalaman_kerja === 'string' && k.pengalaman_kerja.trim().startsWith('[')) {
+      exps = JSON.parse(k.pengalaman_kerja);
+    }
+    
+    if (exps && exps.length > 0) {
+      // Find the most recent or matching current job, or just first
+      const exp = exps[0];
+      const formatDate = (ds) => {
+        if (!ds || ds === 'Present') return ds === 'Present' ? 'Sekarang' : '';
+        const d = new Date(ds);
+        if (isNaN(d.getTime())) return ds;
+        return d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+      };
+      const start = formatDate(exp.start);
+      const end = formatDate(exp.end);
+      if (start && end) return `${start} – ${end}`;
+      if (start) return `${start} – Sekarang`;
+    }
+  } catch(e) {}
+  return k.periode || '-';
+};
 
 export default function Kandidat({ navigate, searchQuery = '' }) {
   const { companyId } = useAuth();
@@ -23,7 +51,9 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
   const [isLoading, setIsLoading]           = useState(true);
   const [selectedRows, setSelectedRows]     = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown]     = useState(false);
   const [activeFilters, setActiveFilters]   = useState(new Set());
+  const [activeSort, setActiveSort]         = useState('nama_asc');
   const [showBulkDropdown, setShowBulkDropdown]     = useState(false);
   const [archiveModal, setArchiveModal]     = useState(null);
   const [unarchiveModal, setUnarchiveModal] = useState(null);
@@ -34,7 +64,7 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
   const [toast, setToast]                   = useState(null);
   const toastTimer                          = useRef(null);
   const [page, setPage]                     = useState(1);
-  const [perPage, setPerPage]               = useState(10);
+  const [perPage, setPerPage]               = useState(25);
 
   useEffect(() => {
     if (!companyId) return;
@@ -102,8 +132,24 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
       );
     }
 
+    // Apply Sorting
+    result = [...result].sort((a, b) => {
+      switch (activeSort) {
+        case 'nama_asc':
+          return (a.nama_lengkap || '').localeCompare(b.nama_lengkap || '');
+        case 'nama_desc':
+          return (b.nama_lengkap || '').localeCompare(a.nama_lengkap || '');
+        case 'date_desc':
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        case 'date_asc':
+          return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        default:
+          return 0;
+      }
+    });
+
     return result;
-  }, [kandidatData, activeFilters, searchQuery]);
+  }, [kandidatData, activeFilters, searchQuery, activeSort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
   const pagedData  = filteredData.slice((page - 1) * perPage, page * perPage);
@@ -208,6 +254,18 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
               ]}
             />
           )}
+          <SortDropdown
+            options={[
+              { label: 'Nama (A-Z)', value: 'nama_asc' },
+              { label: 'Nama (Z-A)', value: 'nama_desc' },
+              { label: 'Terbaru', value: 'date_desc' },
+              { label: 'Terlama', value: 'date_asc' }
+            ]}
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
+            isOpen={showSortDropdown}
+            onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(false); setShowSortDropdown(v => !v); }}
+          />
           <FilterDropdown
             groups={[
               { title: 'Status', options: ['Arsip'] },
@@ -217,7 +275,7 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
             activeFilters={activeFilters}
             onToggle={toggleFilter}
             isOpen={showFilterDropdown}
-            onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(v => !v); }}
+            onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
           />
         </div>
       </div>
@@ -252,16 +310,22 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
                     onClick={k.arsip ? undefined : () => navigate('kandidat-detail', { kandidat: { ...k, nama: k.nama_lengkap } })}
                     style={k.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                   >{k.nama_lengkap || 'Belum ada nama'}</td>
-                  <td>
+                  <td style={{ maxWidth: 250 }}>
                     <div className="kan-jabatan-container">
-                      <div className="kan-jabatan">{k.jabatan_saat_ini || '-'}</div>
-                      <div className="kan-periode">{k.periode || '-'}</div>
+                      <div className="kan-jabatan" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.jabatan_saat_ini || '-'}</div>
+                      <div className="kan-periode" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{getPeriodeText(k)}</div>
                     </div>
                   </td>
-                  <td>{k.perusahaan_saat_ini || '-'}</td>
+                  <td style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.perusahaan_saat_ini || '-'}</td>
                   <td>{k.pengalaman_tahun ? `${k.pengalaman_tahun} Tahun` : '-'}</td>
                   <td>{k.domisili || '-'}</td>
-                  <td>{k.linkedin_url || '-'}</td>
+                  <td style={{ maxWidth: 180, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {k.linkedin_url ? (
+                      <a href={k.linkedin_url.startsWith('http') ? k.linkedin_url : `https://${k.linkedin_url}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0977be', textDecoration: 'none' }}>
+                        {k.linkedin_url}
+                      </a>
+                    ) : '-'}
+                  </td>
                   <td>
                     <div className="kan-actions">
                       {k.arsip ? (

@@ -3,6 +3,7 @@ import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getDepartments, createDepartment, archiveDepartment, unarchiveDepartment } from '../../services/departmentService.js';
@@ -27,10 +28,12 @@ export default function Departemen({ navigate, searchQuery = '' }) {
   const [showArchived, setShowArchived] = useState(false);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [activeSort, setActiveSort] = useState('nama_asc');
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(25);
 
   const toggleFilter = (s) => {
     setActiveFilters(prev => {
@@ -66,6 +69,16 @@ export default function Departemen({ navigate, searchQuery = '' }) {
       (d.name || '').toLowerCase().includes(sq)
     );
   }
+
+  filteredData = [...filteredData].sort((a, b) => {
+    switch (activeSort) {
+      case 'nama_asc': return (a.name || '').localeCompare(b.name || '');
+      case 'nama_desc': return (b.name || '').localeCompare(a.name || '');
+      case 'date_desc': return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      case 'date_asc': return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+      default: return 0;
+    }
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
   const pagedData  = filteredData.slice((page - 1) * perPage, page * perPage);
@@ -152,6 +165,7 @@ export default function Departemen({ navigate, searchQuery = '' }) {
   return (
     <div className="dept-view" onClick={(e) => {
       if (!e.target.closest('.filter-dropdown-container')) setShowFilterDropdown(false);
+      if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
       if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
     }}>
       <div className="dept-header-container">
@@ -174,18 +188,30 @@ export default function Departemen({ navigate, searchQuery = '' }) {
               <CTABulkAksi
                 count={selectedRows.size}
                 isOpen={showBulkDropdown}
-                onToggle={() => { setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
+                onToggle={() => { setShowSortDropdown(false); setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
                 actions={[
                   { icon: <ArchiveSvg />, label: 'Arsipkan', onClick: handleBulkArchive },
                 ]}
               />
             )}
+            <SortDropdown
+              options={[
+                { label: 'Nama (A-Z)', value: 'nama_asc' },
+                { label: 'Nama (Z-A)', value: 'nama_desc' },
+                { label: 'Terbaru', value: 'date_desc' },
+                { label: 'Terlama', value: 'date_asc' }
+              ]}
+              activeSort={activeSort}
+              onSortChange={setActiveSort}
+              isOpen={showSortDropdown}
+              onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(false); setShowSortDropdown(v => !v); }}
+            />
             <FilterDropdown
               groups={[{ title: 'Status', options: ['Arsip'] }]}
               activeFilters={activeFilters}
               onToggle={toggleFilter}
               isOpen={showFilterDropdown}
-              onToggleOpen={() => { setShowBulkDropdown(false); setShowFilterDropdown(v => !v); }}
+              onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
             />
           </div>
         </div>
@@ -266,14 +292,14 @@ export default function Departemen({ navigate, searchQuery = '' }) {
             <div className="dept-modal-form">
               <div className="dept-modal-field">
                 <div className="dept-modal-label-group">
-                  <p className="dept-modal-label">Nama Departemen</p>
+                  <p className="dept-modal-label">Nama Departemen <span style={{ color: '#ef4444' }}>*</span></p>
                   <p className="dept-modal-hint">Pastikan jabatan telah sesuai. Contoh: Marketing, Accountant, dll</p>
                 </div>
                 <input className="dept-modal-input" placeholder="Isi Nama Departemen" value={namaInput} onChange={e => setNamaInput(e.target.value)} />
               </div>
               <div className="dept-modal-field">
                 <div className="dept-modal-label-group">
-                  <p className="dept-modal-label">Deskripsi</p>
+                  <p className="dept-modal-label">Deskripsi <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></p>
                 </div>
                 <textarea className="dept-modal-textarea" placeholder="Masukan Deskripsi Singkat" value={deskripsiInput} onChange={e => setDeskripsiInput(e.target.value)} />
               </div>

@@ -459,32 +459,41 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
         {/* Footer */}
         <div className="sc-footer">
           <div className="sc-footer-actions">
-            <Tip text="Nilai ulang dengan kriteria aktif saat ini. Disarankan dilakukan setelah mengubah kriteria. Sedikit variasi skor antar penilaian adalah normal.">
-              <button
-                className="sc-btn-action primary"
-                onClick={handleRescore}
-                disabled={isRescoring}
-                style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}
-              >
-                {isRescoring
-                  ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
-                  : <IconRefresh />
-                }
-                {isRescoring ? 'Menilai ulang...' : 'Penilaian Ulang'}
-              </button>
-            </Tip>
+            {kandidat.alur !== 0 && (
+              <Tip text="Nilai ulang dengan kriteria aktif saat ini. Disarankan dilakukan setelah mengubah kriteria. Sedikit variasi skor antar penilaian adalah normal.">
+                <button
+                  className="sc-btn-action primary"
+                  onClick={handleRescore}
+                  disabled={isRescoring}
+                  style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}
+                >
+                  {isRescoring
+                    ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
+                    : <IconRefresh />
+                  }
+                  {isRescoring ? 'Menilai ulang...' : 'Penilaian Ulang'}
+                </button>
+              </Tip>
+            )}
 
             <div style={{ position: 'relative' }} ref={dropdownRef}>
-              <div
-                className={`sc-btn-action ${isAlurOpen ? 'active' : ''}`}
-                onClick={() => setIsAlurOpen(!isAlurOpen)}
-                style={{ justifyContent: 'space-between', minWidth: '150px' }}
-              >
-                <span>{alurList.find(a => a.level === selectedAlurLevel)?.nama ?? '-'}</span>
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                  <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
+              <Tip text="Alur Rekrutmen">
+                <div
+                  className={`sc-btn-action ${isAlurOpen ? 'active' : ''}`}
+                  onClick={() => { if (kandidat.alur !== 0) setIsAlurOpen(!isAlurOpen); }}
+                  style={{ 
+                    justifyContent: 'space-between', 
+                    minWidth: '150px', 
+                    opacity: kandidat.alur === 0 ? 0.6 : 1, 
+                    cursor: kandidat.alur === 0 ? 'not-allowed' : 'pointer' 
+                  }}
+                >
+                  <span>{kandidat.alur === 0 ? 'Tidak Sesuai' : (alurList.find(a => a.level === selectedAlurLevel)?.nama ?? '-')}</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                    <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </Tip>
               {isAlurOpen && (
                 <div className="sc-alur-dropdown">
                   {alurList.filter(opt => opt.level !== 0).map(opt => (
@@ -511,12 +520,23 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
               )}
             </div>
 
-            <button
-              className="sc-btn-action grey"
-              onClick={(e) => { e.stopPropagation(); setShowRejectPopup(true); }}
-            >
-              Tidak Sesuai
-            </button>
+            {kandidat.alur !== 0 && (
+              <Tip text="Keluarkan kandidat yang tidak cocok dari proses seleksi posisi ini.">
+                <button
+                  className="sc-btn-action grey"
+                  onClick={(e) => { e.stopPropagation(); setShowRejectPopup(true); }}
+                >
+                  Tidak Sesuai
+                </button>
+              </Tip>
+            )}
+
+            {kandidat.alur === 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fef2f2', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '6px', color: '#b91c1c', fontSize: '13px', fontWeight: 500 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {kandidat.alasan ? kandidat.alasan + (kandidat.detail ? ` - ${kandidat.detail}` : '') : 'Alasan tidak tersedia'}
+              </div>
+            )}
           </div>
           <button className="sc-btn-close" onClick={handleClose}>Tutup</button>
         </div>

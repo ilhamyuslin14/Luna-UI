@@ -1,4 +1,4 @@
-export default function Pagination({ page = 1, total = 3, perPage = 10, onPageChange, onPerPageChange }) {
+export default function Pagination({ page = 1, total = 3, perPage = 25, onPageChange, onPerPageChange }) {
   return (
     <div className="pg-pagination">
       <div className="pg-per-page">
@@ -8,10 +8,10 @@ export default function Pagination({ page = 1, total = 3, perPage = 10, onPageCh
           value={perPage}
           onChange={e => onPerPageChange?.(Number(e.target.value))}
         >
-          <option value={10}>10</option>
           <option value={25}>25</option>
           <option value={50}>50</option>
           <option value={100}>100</option>
+          <option value={200}>200</option>
         </select>
         <span>data</span>
       </div>

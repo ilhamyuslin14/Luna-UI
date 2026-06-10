@@ -65,7 +65,9 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan }) {
     );
   }
 
-  const availableList = kandidatList.filter(k => !added.has(k.id) && !k.arsip);
+  const availableList = kandidatList
+    .filter(k => !added.has(k.id) && !k.arsip)
+    .sort((a, b) => (a.nama_lengkap || '').localeCompare(b.nama_lengkap || ''));
 
   if (availableList.length === 0) {
     return (
@@ -80,7 +82,7 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan }) {
       {availableList.map((k, i) => (
         <div className="stk-kandidat-row" key={k.id}>
           <div className="stk-kandidat-info">
-            <div className="stk-avatar" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+            <div className="stk-avatar" style={{ background: '#0977be' }}>
               {getInisial(k.nama_lengkap)}
             </div>
             <div className="stk-kandidat-meta">

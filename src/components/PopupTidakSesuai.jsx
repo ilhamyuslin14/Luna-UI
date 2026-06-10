@@ -59,6 +59,17 @@ export default function PopupTidakSesuai({ targetText = 'Kandidat', onConfirm, o
               onChange={e => setDetails(e.target.value)}
             />
           </div>
+
+          <div style={{ marginTop: '16px', padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span style={{ fontSize: '13px', color: '#b91c1c', lineHeight: 1.4 }}>
+              <strong>Perhatian:</strong> Tindakan menandai kandidat sebagai <strong>Tidak Sesuai</strong> hanya berlaku untuk posisi ini. Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
+            </span>
+          </div>
         </div>
 
         <div className="pts-footer">

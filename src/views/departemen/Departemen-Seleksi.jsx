@@ -3,6 +3,7 @@ import BackButton from '../../components/BackButton.jsx';
 import Toast from '../../components/Toast.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import Pagination from '../../components/Pagination.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksi, updateSeleksiStatus, getKandidatCountBySeleksi, getMaxAlurBySeleksi, archiveSeleksi, unarchiveSeleksi } from '../../services/seleksiService.js';
@@ -44,13 +45,15 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [activeSort, setActiveSort] = useState('nama_asc');
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
   const [archiveModal, setArchiveModal] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(25);
   const [alurList, setAlurList] = useState(DEFAULT_ALUR);
 
   useEffect(() => {
@@ -89,7 +92,9 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             kandidat: kandCountMap[s.id] || 0,
             upahMin: fmtUpah(s.upah_min),
             upahMaks: fmtUpah(s.upah_maks),
+            upahMaks: fmtUpah(s.upah_maks),
             tanggal: fmtTanggal(s.created_at),
+            rawDate: s.created_at,
             arsip: s.arsip || false,
           };
         });
@@ -113,12 +118,22 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
     setPage(1);
   };
 
-  const filteredRows = activeFilters.size === 0
+  let filteredRows = activeFilters.size === 0
     ? rows
     : rows.filter(r => {
         const statusLabel = STATUS_CONFIG[r.status]?.label;
         return activeFilters.has(statusLabel);
       });
+
+  filteredRows = [...filteredRows].sort((a, b) => {
+    switch (activeSort) {
+      case 'nama_asc': return (a.posisi || '').localeCompare(b.posisi || '');
+      case 'nama_desc': return (b.posisi || '').localeCompare(a.posisi || '');
+      case 'date_desc': return new Date(b.rawDate || 0) - new Date(a.rawDate || 0);
+      case 'date_asc': return new Date(a.rawDate || 0) - new Date(b.rawDate || 0);
+      default: return 0;
+    }
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / perPage));
   const pagedRows = filteredRows.slice((page - 1) * perPage, page * perPage);
@@ -168,6 +183,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
       style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
       onClick={(e) => {
         if (!e.target.closest('.filter-dropdown-container')) setShowFilterDropdown(false);
+        if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
         if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
         if (!e.target.closest('.lw-status-wrapper')) setOpenStatusIdx(null);
       }}
@@ -184,7 +200,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             <CTABulkAksi
               count={selectedRows.size}
               isOpen={showBulkDropdown}
-              onToggle={(e) => { e?.stopPropagation(); setShowBulkDropdown(v => !v); }}
+              onToggle={(e) => { e?.stopPropagation(); setShowSortDropdown(false); setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
               actions={[
                 {
                   icon: <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>,
@@ -202,6 +218,18 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
               ]}
             />
           )}
+          <SortDropdown
+            options={[
+              { label: 'Nama (A-Z)', value: 'nama_asc' },
+              { label: 'Nama (Z-A)', value: 'nama_desc' },
+              { label: 'Terbaru', value: 'date_desc' },
+              { label: 'Terlama', value: 'date_asc' }
+            ]}
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
+            isOpen={showSortDropdown}
+            onToggleOpen={(e) => { e?.stopPropagation(); setShowBulkDropdown(false); setShowFilterDropdown(false); setShowSortDropdown(v => !v); }}
+          />
           <FilterDropdown
             groups={[
               { title: 'Status', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
@@ -209,7 +237,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             activeFilters={activeFilters}
             onToggle={toggleFilter}
             isOpen={showFilterDropdown}
-            onToggleOpen={(e) => { e?.stopPropagation(); setShowFilterDropdown(v => !v); }}
+            onToggleOpen={(e) => { e?.stopPropagation(); setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
           />
         </div>
       </div>

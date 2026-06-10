@@ -91,9 +91,17 @@ const FAIL_CHANCE = 0.2;
 const FAIL_REASONS = ['Gagal Parsing', 'CV Tidak Sesuai', 'Ukuran Terlalu Besar', 'Format Tidak Didukung', 'Koneksi Terputus'];
 const randomFailReason = () => FAIL_REASONS[Math.floor(Math.random() * FAIL_REASONS.length)];
 
+const isRetryableError = (msg) => {
+  if (!msg) return true;
+  if (/sudah pernah diunggah/i.test(msg)) return false;
+  if (/bukan cv|lowongan|brosur/i.test(msg)) return false;
+  if (/format/i.test(msg)) return false;
+  return true; // Asumsikan sisa error seperti Gagal Proses, Koneksi, Timeout dll adalah retryable
+};
+
 export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }) {
   const { companyId } = useAuth();
-  const { startGlobalUpload, globalFiles, clearGlobalUploads } = useUpload();
+  const { startGlobalUpload, globalFiles, clearGlobalUploads, retryGlobalFileById } = useUpload();
   const [phase, setPhase] = useState(() => globalFiles.length > 0 ? 'uploading' : 'drop');
   const [files, setFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -119,16 +127,28 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
 
   const handleFileChange = (e) => {
     if (e.target.files?.length > 0) {
-      setFiles(prev => [...prev, ...Array.from(e.target.files)]);
+      const newFiles = Array.from(e.target.files);
+      setFiles(prev => {
+        const existing = new Set(prev.map(f => `${f.name}-${f.size}`));
+        const unique = newFiles.filter(f => !existing.has(`${f.name}-${f.size}`));
+        return [...prev, ...unique];
+      });
       setPhase('files');
     }
+    // Reset value agar bisa memilih file yang sama lagi jika dihapus
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
     if (e.dataTransfer.files?.length > 0) {
-      setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
+      const newFiles = Array.from(e.dataTransfer.files);
+      setFiles(prev => {
+        const existing = new Set(prev.map(f => `${f.name}-${f.size}`));
+        const unique = newFiles.filter(f => !existing.has(`${f.name}-${f.size}`));
+        return [...prev, ...unique];
+      });
       setPhase('files');
     }
   };
@@ -337,7 +357,17 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
                     <div className={`kt-upload-row${idx === failedFiles.length - 1 ? ' last' : ''}`} key={fs.id || idx}>
                       <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{fs.name}</span></div>
                       <div className="kt-upload-row-right">
-                        <div className="kt-upload-slot" />
+                        <div className="kt-upload-slot">
+                          {isRetryableError(fs.failReason) && (
+                            <button
+                              title="Coba Lagi"
+                              onClick={() => retryGlobalFileById(fs.id)}
+                              style={{ background: '#f7f8fa', border: '1px solid #d4d9e6', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}
+                            >
+                              <IconRetry />
+                            </button>
+                          )}
+                        </div>
                         <ErrorLabel msg={fs.failReason} />
                       </div>
                     </div>

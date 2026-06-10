@@ -3,6 +3,7 @@ import KandidatPenilaian from './Kandidat-Penilaian.jsx';
 import Pagination from '../../components/Pagination.jsx';
 import BackButton from '../../components/BackButton.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
+import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getScoringByKandidat, updateAlurProses } from '../../services/scoringService.js';
@@ -67,6 +68,8 @@ function mapRow(s, alurList) {
     posisi: s.seleksi?.jabatan || '-',
     alur,
     alurNama,
+    alasan: s.alasan_tidak_sesuai || '',
+    detail: s.alasan_tidak_sesuai_detail || '',
     skor: s.total_score ?? 0,
     fit,
     skor_obj: {
@@ -91,11 +94,13 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
   const [alurList, setAlurList] = useState(DEFAULT_ALUR);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeFilters, setActiveFilters] = useState(new Set());
+  const [activeSort, setActiveSort] = useState('skor_desc');
   const [openAlurRow, setOpenAlurRow] = useState(null);
   const [scorePanel, setScorePanel] = useState(null);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(25);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
@@ -125,9 +130,19 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
   }, [kandidat, companyId]);
 
   const FIT_LEVEL_MAP = { Tinggi: 'high', Sedang: 'moderate', Rendah: 'low' };
-  const filteredRows = activeFilters.size === 0
+  let filteredRows = activeFilters.size === 0
     ? rows
     : rows.filter(r => [...activeFilters].some(f => FIT_LEVEL_MAP[f] === r.fit));
+
+  filteredRows = [...filteredRows].sort((a, b) => {
+    switch (activeSort) {
+      case 'skor_desc': return b.skor - a.skor;
+      case 'skor_asc': return a.skor - b.skor;
+      case 'posisi_asc': return (a.posisi || '').localeCompare(b.posisi || '');
+      case 'posisi_desc': return (b.posisi || '').localeCompare(a.posisi || '');
+      default: return 0;
+    }
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / perPage));
   const pagedRows = filteredRows.slice((page - 1) * perPage, page * perPage);
@@ -166,19 +181,34 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
   return (
     <div className="ks-view" onClick={e => {
       if (!e.target.closest('.filter-dropdown-container')) setShowFilter(false);
+      if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
       if (!e.target.closest('.ks-alur-wrap')) setOpenAlurRow(null);
     }}>
 
       {/* ── Action bar ── */}
       <div className="ks-action-bar">
         <BackButton onClick={() => back ? back() : navigate?.('kandidat')} />
-        <FilterDropdown
-          groups={[{ title: 'Penilaian', options: ['Tinggi', 'Sedang', 'Rendah'] }]}
-          activeFilters={activeFilters}
-          onToggle={toggleFilter}
-          isOpen={showFilter}
-          onToggleOpen={e => { e?.stopPropagation(); setShowFilter(v => !v); }}
-        />
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+          <SortDropdown
+            options={[
+              { label: 'Skor Tertinggi', value: 'skor_desc' },
+              { label: 'Skor Terendah', value: 'skor_asc' },
+              { label: 'Posisi (A-Z)', value: 'posisi_asc' },
+              { label: 'Posisi (Z-A)', value: 'posisi_desc' }
+            ]}
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
+            isOpen={showSortDropdown}
+            onToggleOpen={() => { setShowFilter(false); setShowSortDropdown(v => !v); }}
+          />
+          <FilterDropdown
+            groups={[{ title: 'Penilaian', options: ['Tinggi', 'Sedang', 'Rendah'] }]}
+            activeFilters={activeFilters}
+            onToggle={toggleFilter}
+            isOpen={showFilter}
+            onToggleOpen={e => { e?.stopPropagation(); setShowSortDropdown(false); setShowFilter(v => !v); }}
+          />
+        </div>
       </div>
 
       {/* ── Table ── */}

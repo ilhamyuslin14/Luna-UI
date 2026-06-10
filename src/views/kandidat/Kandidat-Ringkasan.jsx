@@ -131,6 +131,8 @@ function mapScoringToPanel(scoring, kandidatNama) {
       nama: kandidatNama,
       jabatan: scoring.seleksi?.jabatan || '-',
       jabatanDilamar: scoring.seleksi?.jabatan || '-',
+      alasan: scoring.alasan_tidak_sesuai || '',
+      detail: scoring.alasan_tidak_sesuai_detail || '',
       skor: {
         level: fit,
         score: scoring.total_score ?? 0,
@@ -645,6 +647,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                   key={field.key}
                   label={field.label}
                   value={detailData[field.key] ?? ''}
+                  displayValue={field.key === 'pengalaman' && detailData[field.key] ? `${detailData[field.key]} Tahun` : undefined}
                   type={field.type}
                   options={field.options}
                   onSave={async v => {
