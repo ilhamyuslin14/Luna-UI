@@ -60,6 +60,7 @@ export default function TourGuide({ navigate }) {
 
   const endTour = () => {
     setActive(false);
+    localStorage.removeItem('luna_trigger_tour');
     localStorage.setItem('luna_tour_completed', 'true');
   };
 
@@ -79,7 +80,7 @@ export default function TourGuide({ navigate }) {
 
   // Auto-start
   useEffect(() => {
-    if (localStorage.getItem('luna_tour_completed') !== 'true') {
+    if (localStorage.getItem('luna_trigger_tour') === 'true') {
       const t = setTimeout(() => { setStepIndex(0); setActive(true); }, 1200);
       return () => clearTimeout(t);
     }

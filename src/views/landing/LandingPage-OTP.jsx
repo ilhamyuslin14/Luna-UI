@@ -92,6 +92,7 @@ export default function LandingPageOTP({ navigate, phone = '' }) {
 
   const handleVerif = () => {
     if (otp.join('').length < 6) return;
+    localStorage.setItem('luna_trigger_tour', 'true');
     navigate?.('beranda');
   };
 

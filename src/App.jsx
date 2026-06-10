@@ -104,8 +104,8 @@ export default function App() {
     const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
-      // Not logged in -> redirect to login
-      navigate('landingpage-masuk');
+      // Not logged in -> redirect to landing page
+      navigate('landingpage');
     } else if (user && authMenus.includes(activeMenu)) {
       // Logged in -> redirect to beranda
       navigate('beranda');

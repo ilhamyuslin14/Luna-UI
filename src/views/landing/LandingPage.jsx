@@ -8,24 +8,26 @@ export default function LandingPage({ navigate }) {
     document.documentElement.style.scrollBehavior = 'smooth';
 
     const sections = ['fitur', 'keunggulan', 'harga'];
-    const observers = sections.map(id => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-40% 0px -40% 0px' }
+    );
+
+    sections.forEach(id => {
       const el = document.getElementById(id);
-      if (!el) return null;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
-        { threshold: 0.3 }
-      );
-      obs.observe(el);
-      return obs;
+      if (el) observer.observe(el);
     });
 
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.scrollBehavior = '';
-      observers.forEach((obs, i) => {
-        const el = document.getElementById(sections[i]);
-        if (obs && el) obs.unobserve(el);
-      });
+      observer.disconnect();
     };
   }, []);
   const [billingCycle, setBillingCycle] = useState('tahunan');
@@ -496,11 +498,19 @@ export default function LandingPage({ navigate }) {
           <div className="lp-footer-links">
             <div className="lp-footer-col">
               <p className="lp-footer-col-title">Produk</p>
-              <p className="lp-footer-col-links">Fitur Utama<br />Harga<br />Keamanan Data</p>
+              <div className="lp-footer-col-links">
+                <span onClick={() => document.getElementById('fitur')?.scrollIntoView({ behavior: 'smooth' })}>Fitur</span>
+                <span onClick={() => document.getElementById('keunggulan')?.scrollIntoView({ behavior: 'smooth' })}>Keunggulan</span>
+                <span onClick={() => document.getElementById('harga')?.scrollIntoView({ behavior: 'smooth' })}>Harga</span>
+              </div>
             </div>
             <div className="lp-footer-col">
               <p className="lp-footer-col-title">Perusahaan</p>
-              <p className="lp-footer-col-links">Tentang Kami<br />Hubungi Bantuan<br />Kebijakan Privasi</p>
+              <div className="lp-footer-col-links">
+                <span>Tentang Kami</span>
+                <span>Hubungi Bantuan</span>
+                <span>Kebijakan Privasi</span>
+              </div>
             </div>
           </div>
         </div>

@@ -551,7 +551,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 32px;
   height: 162px;
   padding: 0 145px;
   overflow: hidden;
@@ -1455,11 +1455,22 @@
 }
 
 .lp-footer-col-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   font-size: 14px;
   font-weight: 400;
   color: #555f71;
-  line-height: 22px;
   margin: 0;
+}
+
+.lp-footer-col-links span {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.lp-footer-col-links span:hover {
+  color: #171e2c;
 }
 
 .lp-footer-divider {
