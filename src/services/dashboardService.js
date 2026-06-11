@@ -174,7 +174,7 @@ export async function getRecentActivities(companyId) {
         type: 'kandidat',
         timestamp: new Date(k.created_at).getTime(),
         dateStr: k.created_at,
-        text: isPublic 
+        text: isPublic
           ? `Kandidat '${k.nama_lengkap}' mendaftar via laman karier.`
           : `Kandidat '${k.nama_lengkap}' ditambahkan ke dalam database.`,
         icon: '/assets/fi_16116710.svg',
@@ -192,7 +192,7 @@ export async function getRecentActivities(companyId) {
 
     // Map alur_proses to name
     const alurNames = [
-      'Tidak Sesuai', 'Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara', 
+      'Tidak Sesuai', 'Kandidat Baru', 'Terseleksi', 'Diajukan', 'Penjadwalan Wawancara',
       'Wawancara HR', 'Wawancara Akhir', 'Penawaran Kerja', 'Diterima', 'Onboarding', 'Lolos Masa Percobaan'
     ];
 
@@ -200,19 +200,12 @@ export async function getRecentActivities(companyId) {
       const namaKandidat = sc.kandidat?.nama_lengkap || 'Kandidat';
       const alurName = alurNames[sc.alur_proses] || 'Tahap Lanjutan';
       const namaPosisi = sc.seleksi?.jabatan || 'Posisi';
-      
-      let text = '';
-      let bg = '';
-      let icon = '';
 
+      let text = '';
       if (sc.alur_proses === 1) {
         text = `Kandidat '${namaKandidat}' dinilai & diproses untuk posisi '${namaPosisi}'.`;
-        bg = '#e1fce7';
-        icon = '/assets/fi1004765.svg';
       } else {
         text = `Kandidat '${namaKandidat}' diubah statusnya menjadi ${alurName} pada posisi '${namaPosisi}'.`;
-        bg = '#fff4e5';
-        icon = '/assets/fi3114812.svg';
       }
 
       activities.push({
@@ -220,8 +213,8 @@ export async function getRecentActivities(companyId) {
         timestamp: new Date(sc.updated_at).getTime(),
         dateStr: sc.updated_at,
         text,
-        icon,
-        bg
+        icon: '/assets/fi1004765.svg', // green icon
+        bg: '#e1fce7'
       });
     });
 

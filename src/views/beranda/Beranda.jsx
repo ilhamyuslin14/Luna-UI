@@ -52,9 +52,16 @@ export default function Beranda({ navigate }) {
             </div>
           </div>
           <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
-          <div className="db-stat-badge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            +{metrics.trends?.kandidat || 0} di bulan ini
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="db-stat-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              +{metrics.trends?.kandidat || 0} di bulan ini
+            </div>
+            {metrics.trends?.kandidatPublic > 0 && (
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
+                ({metrics.trends.kandidatPublic} via Karier)
+              </div>
+            )}
           </div>
         </div>
 
