@@ -30,7 +30,20 @@ import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
 import LandingPageLupaPassword from './views/landing/LandingPage-LupaPassword.jsx';
-import Sandbox from './views/sandbox/Sandbox.jsx';
+
+const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
+const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
+
+function SandboxWrapper({ navigate }) {
+  const [SandboxComponent, setSandboxComponent] = useState(null);
+  useEffect(() => {
+    if (loadSandbox) {
+      loadSandbox().then(mod => setSandboxComponent(() => mod.default));
+    }
+  }, []);
+  if (!SandboxComponent) return <div style={{ padding: 20 }}>Sandbox (Local Only) - Module not found</div>;
+  return <SandboxComponent navigate={navigate} />;
+}
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -75,7 +88,7 @@ export default function App() {
       setSelectedCycle(params.cycle || 'bulanan');
     }
     setActiveMenu(menu);
-    updateUrl(menu, { 
+    updateUrl(menu, {
       seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
       jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
       kandidat: menu === 'kandidat-detail' ? params.kandidat : selectedKandidat,
@@ -109,7 +122,7 @@ export default function App() {
 
   useEffect(() => {
     if (loading) return;
-    
+
     const publicMenus = ['landingpage', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'laman-karir', 'sandbox'];
     const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password'];
 
@@ -126,7 +139,7 @@ export default function App() {
     return (
       <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" style={{ animation: 'sb-spin 1s linear infinite' }}>
-          <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+          <path d="M21 12a9 9 0 1 1-6.22-8.56" />
         </svg>
       </div>
     );
@@ -185,7 +198,7 @@ export default function App() {
   };
 
   if (window.location.pathname === '/sandbox') {
-    return <Sandbox navigate={navigate} />;
+    return <SandboxWrapper navigate={navigate} />;
   }
 
   return (
