@@ -61,7 +61,6 @@ export default function UploadProgressWidget({ navigate }) {
     clearTimeout(autoCloseTimer.current);
     if (allDone && !dismissed && (hasUpload || hasScoring)) {
       autoCloseTimer.current = setTimeout(() => {
-        clearScoringQueue();
         setDismissed(true);
       }, 5000);
     }
@@ -90,7 +89,6 @@ export default function UploadProgressWidget({ navigate }) {
   const handleDismissScoring = (e) => {
     e.stopPropagation();
     clearTimeout(autoCloseTimer.current);
-    clearScoringQueue();
     setDismissed(true);
   };
 
@@ -132,7 +130,7 @@ export default function UploadProgressWidget({ navigate }) {
               <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Klik untuk lihat detail</div>
             </div>
             {canDismissUpload && (
-              <CloseBtn onClick={e => { e.stopPropagation(); clearTimeout(autoCloseTimer.current); clearScoringQueue(); setDismissed(true); }} />
+              <CloseBtn onClick={e => { e.stopPropagation(); clearTimeout(autoCloseTimer.current); setDismissed(true); }} />
             )}
           </div>
         </div>

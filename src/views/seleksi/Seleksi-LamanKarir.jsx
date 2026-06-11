@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSeleksiByKode } from '../../services/seleksiService.js';
-import { uploadAndExtractCV, updateKandidat } from '../../services/kandidatService.js';
+import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -171,6 +171,8 @@ export default function LamanKarir({ kode }) {
     setSubmitErrorMsg(null);
     setProgressText('Mempersiapkan berkas…');
 
+    const batchId = `pb-${Date.now()}`;
+
     try {
       const onProgress = (_progress, text) => setProgressText(text || '');
       const kandidat = await uploadAndExtractCV(seleksiData.company_id, cvFile, seleksiData.jabatan, onProgress, 'public');
@@ -184,15 +186,55 @@ export default function LamanKarir({ kode }) {
         await updateKandidat(kandidat.id, contactUpdates).catch(() => {});
       }
 
+      let logId = null;
+      try {
+        const log = await createActivityLog({
+          batch_id: batchId,
+          company_id: seleksiData.company_id,
+          nama_file: cvFile.name,
+          tipe_aktivitas: 'upload_and_scoring',
+          upload_status: 'berhasil',
+          scoring_status: 'menunggu',
+          kandidat_id: kandidat?.id || null,
+          source: 'Portal Karir',
+        });
+        logId = log?.id;
+      } catch (e) {}
+
       if (kandidat?.id && seleksiData?.id) {
-        runScoring(kandidat.id, seleksiData.id, seleksiData.company_id).catch(() => {});
+        runScoring(kandidat.id, seleksiData.id, seleksiData.company_id).then(() => {
+          if (logId) updateActivityLog(logId, { scoring_status: 'berhasil' }).catch(()=>{});
+        }).catch((err) => {
+          if (logId) updateActivityLog(logId, { scoring_status: 'gagal', scoring_fail_reason: err.message }).catch(()=>{});
+        });
       }
 
       setSubmitState('success');
     } catch (err) {
+      let logId = null;
+      try {
+        const log = await createActivityLog({
+          batch_id: batchId,
+          company_id: seleksiData.company_id,
+          nama_file: cvFile.name,
+          tipe_aktivitas: 'upload_and_scoring',
+          upload_status: 'gagal',
+          upload_fail_reason: err?.message || 'Gagal',
+          scoring_status: err?.existingKandidatId ? 'menunggu' : 'gagal',
+          kandidat_id: err?.existingKandidatId || null,
+          source: 'Portal Karir',
+        });
+        logId = log?.id;
+      } catch (e) {}
+
       if (err?.existingKandidatId && seleksiData?.id) {
-        runScoring(err.existingKandidatId, seleksiData.id, seleksiData.company_id).catch(() => {});
+        runScoring(err.existingKandidatId, seleksiData.id, seleksiData.company_id).then(() => {
+          if (logId) updateActivityLog(logId, { scoring_status: 'berhasil' }).catch(()=>{});
+        }).catch((scoreErr) => {
+          if (logId) updateActivityLog(logId, { scoring_status: 'gagal', scoring_fail_reason: scoreErr.message }).catch(()=>{});
+        });
       }
+
       if (/sudah pernah diunggah/i.test(err?.message)) {
         setSubmitState('duplicate');
       } else {

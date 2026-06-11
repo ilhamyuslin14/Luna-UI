@@ -67,6 +67,7 @@ function mapScoringRow(s) {
     nama: s.kandidat?.nama_lengkap || '-',
     jabatan: s.kandidat?.jabatan_saat_ini || '-',
     jabatanDilamar: s.seleksi?.jabatan || '-',
+    departemen: s.seleksi?.departments?.name || '',
     perusahaan: s.kandidat?.perusahaan_saat_ini || '-',
     pengalaman: s.kandidat?.pengalaman_tahun ? `${s.kandidat.pengalaman_tahun} Tahun` : '-',
     linkedin: s.kandidat?.linkedin_url || '-',
@@ -317,12 +318,12 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
                 ) : pagedData.map((k) => (
                   <tr key={k.scoringId}>
                     <td><Cb checked={selected.has(k.scoringId)} onChange={() => toggleRow(k.scoringId)} /></td>
-                    <td className="sdk-name" onClick={() => navigate('kandidat-detail', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
+                    <td className="sdk-name" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={() => navigate('kandidat-detail', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
                       {k.nama}
                     </td>
-                    <td>
+                    <td style={{ maxWidth: 250 }}>
                       <div className="sdk-jabatan-cell">
-                        <span className="sdk-jabatan">{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</span>
+                        <span className="sdk-jabatan" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</span>
                         <span className="sdk-pengalaman">{k.pengalaman}</span>
                       </div>
                     </td>
@@ -439,7 +440,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
                     }}
                   >
                     {colItems.length === 0 && !isLoading && (
-                      <div style={{ fontSize: 11, color: '#c4c9d4', textAlign: 'center', padding: '16px 8px' }}>Kosong</div>
+                      <div style={{ fontSize: 11, color: '#c4c9d4', textAlign: 'center', padding: '16px 8px' }}>Belum ada kandidat</div>
                     )}
                     {colItems.map((k) => {
                       return (

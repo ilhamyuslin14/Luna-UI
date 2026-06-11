@@ -115,11 +115,12 @@ function mapScoringToPanel(scoring, kandidatNama) {
 
   const rawKriteriaList = scoring.raw_kriteria || [];
   const criteriaData = rawKriteriaList.filter(k => k.kategori === 'Wajib').map(toItemFromRaw);
-  const prefData     = rawKriteriaList.filter(k => k.kategori !== 'Wajib').map(toItemFromRaw);
+  const prefData = rawKriteriaList.filter(k => k.kategori !== 'Wajib').map(toItemFromRaw);
 
   return {
     id: scoring.id,
     posisi: scoring.seleksi?.jabatan || '-',
+    departemen: scoring.seleksi?.departments?.name || '',
     fit,
     label,
     score: scoring.total_score ?? 0,
@@ -131,6 +132,7 @@ function mapScoringToPanel(scoring, kandidatNama) {
       nama: kandidatNama,
       jabatan: scoring.seleksi?.jabatan || '-',
       jabatanDilamar: scoring.seleksi?.jabatan || '-',
+      departemen: scoring.seleksi?.departments?.name || '',
       alasan: scoring.alasan_tidak_sesuai || '',
       detail: scoring.alasan_tidak_sesuai_detail || '',
       skor: {
@@ -619,9 +621,11 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
             {DETAIL_FIELDS.map(field => {
               if (field.type === 'readonly') {
                 return (
-                  <div className="kd-detail-row" key={field.key}>
-                    <span className="kd-detail-label">{field.label}</span>
-                    <span className="kd-detail-value">{detailData[field.key] ?? ''}</span>
+                  <div className="inline-edit-row" key={field.key}>
+                    <span className="inline-edit-label">{field.label}</span>
+                    <span className="inline-edit-value editable" style={{ width: '285px', cursor: 'default' }}>
+                      <span className="inline-edit-text">{detailData[field.key] ?? ''}</span>
+                    </span>
                   </div>
                 );
               }
@@ -722,6 +726,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
               </div>
             )}
 
+            {!addingSert && sertifikasiList.length > 0 && (
+              <button className="kd-add-entry-btn" onClick={() => setAddingSert(true)}>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                Tambah Sertifikasi
+              </button>
+            )}
+
             {sertifikasiList.map(sert => (
               <div key={sert.id}>
                 {editingSertId === sert.id ? (
@@ -773,15 +786,6 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                 )}
               </div>
             ))}
-
-            {!addingSert && sertifikasiList.length > 0 && (
-              <button className="kd-add-entry-btn" onClick={() => setAddingSert(true)}>
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Tambah Sertifikasi
-              </button>
-            )}
           </div>
         </div>
 
@@ -808,7 +812,14 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                 aiScores.map(item => (
                   <div className="kd-ai-row kd-ai-row--hoverable" key={item.id}>
                     <div className="kd-ai-row-left">
-                      <span className="kd-ai-posisi">{item.posisi}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="kd-ai-posisi">{item.posisi}</span>
+                        {item.departemen && (
+                          <span style={{ fontSize: '11px', color: '#7e8799', padding: '2px 8px', background: '#f1f4f8', borderRadius: '12px' }}>
+                            {item.departemen}
+                          </span>
+                        )}
+                      </div>
                       <span className={`kd-fit-badge ${item.fit}`} style={{ cursor: 'pointer' }} onClick={() => openPanel(item)}>
                         <span className="kd-fit-label">{item.label}</span>
                         <span className={`kd-fit-score ${item.fit}`}>{item.score}</span>
@@ -941,6 +952,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
               </div>
             )}
 
+            {!addingExp && pengalamanList.length > 0 && (
+              <button className="kd-add-entry-btn" onClick={() => setAddingExp(true)}>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                Tambah Pengalaman
+              </button>
+            )}
+
             {pengalamanList.map(exp => (
               <div key={exp.id}>
                 {editingExpId === exp.id ? (
@@ -993,14 +1013,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
               </div>
             ))}
 
-            {!addingExp && pengalamanList.length > 0 && (
-              <button className="kd-add-entry-btn" onClick={() => setAddingExp(true)}>
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Tambah Pengalaman
-              </button>
-            )}
+
           </div>
         </div>
 
@@ -1034,6 +1047,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                   <button className="sd-edit-save-btn" onClick={confirmEdu}>Simpan</button>
                 </div>
               </div>
+            )}
+
+            {!addingEdu && pendidikanList.length > 0 && (
+              <button className="kd-add-entry-btn" onClick={() => setAddingEdu(true)}>
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                Tambah Pendidikan
+              </button>
             )}
 
             {pendidikanList.map(edu => (
@@ -1078,23 +1100,16 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
               </div>
             ))}
 
-            {!addingEdu && pendidikanList.length > 0 && (
-              <button className="kd-add-entry-btn" onClick={() => setAddingEdu(true)}>
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Tambah Pendidikan
-              </button>
-            )}
+
           </div>
         </div>
 
       </div>
 
       {scorePanel && (
-        <KandidatPenilaian 
-          kandidat={scorePanel} 
-          onClose={() => setScorePanel(null)} 
+        <KandidatPenilaian
+          kandidat={scorePanel}
+          onClose={() => setScorePanel(null)}
           onRescored={() => {
             if (!kandidat.id) return;
             getScoringByKandidat(kandidat.id)

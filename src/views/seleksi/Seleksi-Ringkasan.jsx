@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect, memo } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getSeleksiByJabatan, updateSeleksi } from '../../services/seleksiService.js';
+import { getSeleksiById, updateSeleksi } from '../../services/seleksiService.js';
 import { getDepartments } from '../../services/departmentService.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import Toast from '../../components/Toast.jsx';
 import KriteriaPenilaian from '../../components/KriteriaPenilaian';
 import InlineEditRow from '../../components/InlineEditRow.jsx';
-import { generateKriteria } from '../../utils/generateKriteria';
 import { supabase } from '../../config/supabase.js';
 
 const EditIcon = () => (
@@ -101,6 +100,7 @@ const EditableContent = memo(
       contentEditable
       suppressContentEditableWarning
       className="sd-deskripsi-content sd-deskripsi-editable"
+      style={{ minHeight: '200px', maxHeight: '400px', overflowY: 'auto' }}
       dangerouslySetInnerHTML={{ __html: initialHtml }}
     />
   ),
@@ -185,9 +185,8 @@ const DESKRIPSI_HTML = `<h3 class="sd-deskripsi-section-title">Role Overview</h3
 <li><strong>Mindset:</strong> A strong hunter mentality with the ability to sell the company vision.</li>
 </ul>`;
 
-export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
+export default function SeleksiRingkasan({ seleksiId, jabatan = 'Project Manager' }) {
   const { companyId } = useAuth();
-  const [seleksiId, setSeleksiId] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [toast, setToast] = useState(null);
   
@@ -226,13 +225,12 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
   };
 
   useEffect(() => {
-    if (!companyId || !jabatan) return;
+    if (!seleksiId) return;
     
     getDepartments().then(setDepartments).catch(console.error);
     
-    getSeleksiByJabatan(companyId, jabatan).then(data => {
+    getSeleksiById(seleksiId).then(data => {
       if (data) {
-        setSeleksiId(data.id);
         const mapped = {
           kode: `SLS-${String(data.id || '').padStart(5, '0').substring(0, 5)}`,
           jabatan: data.jabatan || '',
@@ -269,7 +267,6 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
           if (data.kriteria[0] && data.kriteria[0]._isGenerating) {
             setKriteria([]);
             setIsGeneratingKriteria(true);
-            runAIGeneration(data.id, data.deskripsi);
           } else {
             setKriteria(data.kriteria);
           }
@@ -285,46 +282,27 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
     window.addEventListener('syncSeleksiStatus', handleSync);
 
     return () => window.removeEventListener('syncSeleksiStatus', handleSync);
-  }, [companyId, jabatan]);
+  }, [seleksiId]);
 
-  const runAIGeneration = async (id, deskripsiText) => {
-    try {
-      const { data: configData } = await supabase.from('sandbox_configs').select('api_key').order('updated_at', { ascending: false }).limit(1);
-      const { data: promptData } = await supabase.from('prompt_settings').select('*').eq('type', 'JD').limit(1);
-
-      let apiKey = configData?.[0]?.api_key;
-      let model = promptData?.[0]?.model;
-      let prompt = promptData?.[0]?.prompt;
-      let useFlexMode = promptData?.[0]?.use_flex || false;
-      let temperature = promptData?.[0]?.temperature ?? 0.2;
-
-      if (!apiKey || !model) {
-        showToast('AI Kriteria Gagal', 'API Key atau Model belum disetup.', 'error');
-        setIsGeneratingKriteria(false);
-        await updateSeleksi(id, { kriteria: [] });
-        return;
-      }
-
-      const { kriteria: result } = await generateKriteria({
-        deskripsi: deskripsiText,
-        apiKey,
-        model,
-        prompt,
-        useFlexMode,
-        temperature
-      });
-
-      setKriteria(result || []);
-      await updateSeleksi(id, { kriteria: result || [] });
-      showToast('Kriteria Selesai', 'Kriteria AI berhasil dirumuskan.', 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('AI Error', 'Gagal merumuskan kriteria otomatis.', 'error');
-      await updateSeleksi(id, { kriteria: [] });
-    } finally {
-      setIsGeneratingKriteria(false);
+  // Poll Supabase jika sedang generating kriteria
+  useEffect(() => {
+    if (isGeneratingKriteria && seleksiId) {
+      const interval = setInterval(() => {
+        getSeleksiById(seleksiId).then(data => {
+          if (data && data.kriteria && Array.isArray(data.kriteria)) {
+            if (!data.kriteria[0] || !data.kriteria[0]._isGenerating) {
+              setKriteria(data.kriteria);
+              setIsGeneratingKriteria(false);
+              if (data.kriteria.length > 0) {
+                showToast('Selesai', 'Kriteria AI berhasil dirumuskan.', 'success');
+              }
+            }
+          }
+        }).catch(console.error);
+      }, 3000);
+      return () => clearInterval(interval);
     }
-  };
+  }, [isGeneratingKriteria, seleksiId]);
 
   const handleCancel = () => {
     setFormData(originalData);
@@ -513,6 +491,8 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
                      // If status changes, sync it to Header
                      if (field.key === 'status') {
                        window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: valToSave }));
+                     } else {
+                       window.dispatchEvent(new CustomEvent('syncSeleksiData'));
                      }
                    }
                 };
@@ -650,8 +630,20 @@ export default function SeleksiRingkasan({ jabatan = 'Project Manager' }) {
           isGenerating={isGeneratingKriteria} 
           onRefresh={() => {
             if (seleksiId && deskripsiHtml) {
+              const plainText = deskripsiHtml.replace(/<[^>]*>/g, '').trim();
+              if (plainText.length < 300) {
+                showToast('Error AI', 'Deskripsi minimal 300 karakter untuk merumuskan kriteria otomatis.', 'error');
+                return;
+              }
               setIsGeneratingKriteria(true);
-              runAIGeneration(seleksiId, deskripsiHtml);
+              updateSeleksi(seleksiId, { kriteria: [{ _isGenerating: true }] }).catch(console.error);
+              supabase.functions.invoke('generate-kriteria', {
+                body: { seleksiId, deskripsi: deskripsiHtml }
+              }).catch(err => {
+                console.error(err);
+                showToast('AI Error', 'Gagal memanggil server.', 'error');
+                setIsGeneratingKriteria(false);
+              });
             } else {
               showToast('Gagal', 'Deskripsi pekerjaan masih kosong', 'error');
             }

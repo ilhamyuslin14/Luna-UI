@@ -37,7 +37,8 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background-color: #ec4899; /* Pink background */
+  background-color: #ec4899;
+  /* Pink background */
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -114,6 +115,7 @@
 .kd-title-actions {
   display: flex;
   align-items: center;
+  align-self: flex-end;
   gap: 8px;
 }
 

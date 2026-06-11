@@ -676,7 +676,7 @@ td.sdk-linkedin {
 .sdk-board-col.collapsed .sdk-board-col-header {
   height: 100%;
   flex-direction: column-reverse;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 14px 10px 20px;
   border-bottom: none;
   border-right: 1px solid #f0f2f6;

@@ -272,7 +272,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                   <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} disabled={row.arsip} /></td>
                   <td
                     className={`lw-posisi${row.arsip ? '' : ' clickable'}`}
-                    onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                    onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                     style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                   >{row.posisi}</td>
                   <td>{row.dept}</td>

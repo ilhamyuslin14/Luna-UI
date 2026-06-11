@@ -265,11 +265,6 @@ export default function DepartemenRingkasan({ departemen = 'Human Resource' }) {
             <span className="sd-card-title" style={{ textTransform: 'uppercase', letterSpacing: '0.65px', fontSize: '13px' }}>
               Deskripsi
             </span>
-            {!isEditingDesc && (
-              <button className="sd-edit-btn" onClick={() => setIsEditingDesc(true)}>
-                <EditIcon /> Edit
-              </button>
-            )}
           </div>
 
           {isEditingDesc ? (

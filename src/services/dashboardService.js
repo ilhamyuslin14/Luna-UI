@@ -181,10 +181,10 @@ export async function getRecentActivities(companyId) {
 
     // 4. Recent Bulk Uploads
     const { data: uploads } = await supabase
-      .from('upload_logs')
-      .select('batch_id, status, created_at')
+      .from('activity_logs')
+      .select('batch_id, upload_status, created_at')
       .eq('company_id', companyId)
-      .eq('status', 'success')
+      .eq('upload_status', 'berhasil')
       .order('created_at', { ascending: false })
       .limit(20); // fetch more to group by batch
 

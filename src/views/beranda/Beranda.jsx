@@ -157,7 +157,7 @@ export default function Beranda({ navigate }) {
                   const statusKey = (row.status || 'rencana').toLowerCase();
                   const cfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.rencana;
                   return (
-                    <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
+                    <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi })}>
                       <div>{row.posisi}</div>
                       <div>{row.dept}</div>
                       <div><span className="db-cv-badge">{row.kandidatCount} CV</span></div>

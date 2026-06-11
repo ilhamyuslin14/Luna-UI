@@ -5,7 +5,7 @@ import ToastProgress from '../../components/ToastProgress.jsx';
 import SeleksiKandidat from './Seleksi-Kandidat.jsx';
 import SeleksiRingkasan from './Seleksi-Ringkasan.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getSeleksiByJabatan, updateSeleksi } from '../../services/seleksiService.js';
+import { getSeleksiById, updateSeleksi } from '../../services/seleksiService.js';
 import { slugify } from '../../utils/slug.js';
 
 const STATUS_OPTS = [
@@ -51,11 +51,13 @@ const StatusIcon = ({ val, size = 13 }) => {
   return null;
 };
 
-export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
+export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId } = useAuth();
   
   const [recruitStatus, setRecruitStatus] = useState('rencana');
-  const [seleksiId, setSeleksiId] = useState(null);
+  const [jabatan, setJabatan] = useState(initialJabatan);
+  const [lokasi, setLokasi] = useState('');
+  const [departemen, setDepartemen] = useState('');
   const [seleksiKode, setSeleksiKode] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
@@ -71,11 +73,13 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
   const karilEnabled = recruitStatus === 'aktif' && pageCreated;
   const currentOpt = STATUS_OPTS.find(o => o.val === recruitStatus) || STATUS_OPTS[0];
 
-  useEffect(() => {
-    if (!companyId || !jabatan) return;
-    getSeleksiByJabatan(companyId, jabatan).then(data => {
+  const fetchSeleksiData = () => {
+    if (!seleksiId) return;
+    getSeleksiById(seleksiId).then(data => {
       if (data) {
-        setSeleksiId(data.id);
+        setJabatan(data.jabatan || initialJabatan);
+        setLokasi(data.lokasi || '');
+        setDepartemen(data.departments?.name || '');
         setSeleksiKode(data.kode || null);
         setCompanyName(data.companies?.name || null);
         if (data.status) {
@@ -87,7 +91,16 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
         }
       }
     });
-  }, [companyId, jabatan]);
+  };
+
+  useEffect(() => {
+    fetchSeleksiData();
+  }, [seleksiId]);
+
+  useEffect(() => {
+    window.addEventListener('syncSeleksiData', fetchSeleksiData);
+    return () => window.removeEventListener('syncSeleksiData', fetchSeleksiData);
+  }, [seleksiId]);
 
   // Listen to global status updates from Ringkasan
   useEffect(() => {
@@ -153,7 +166,8 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
     <div className="sd-view" onClick={() => setShowStatusDrop(false)}>
       {/* ── Title Bar ─────────────────────────────────── */}
       <div className="sd-title-bar">
-        <div className="sd-title-group">
+        <div className="sd-title-content" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          <div className="sd-title-group">
           <h1 className="sd-title">{jabatan}</h1>
 
           {/* Status badge + dropdown */}
@@ -189,9 +203,19 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
             )}
           </div>
         </div>
+        
+        {/* Lokasi & Departemen Meta */}
+        {(departemen && departemen !== '-' || lokasi && lokasi !== '-') && (
+          <div style={{ marginTop: '4px', fontSize: '11px', color: '#7e8799' }}>
+            {departemen && departemen !== '-' && <span>{departemen}</span>}
+            {departemen && departemen !== '-' && lokasi && lokasi !== '-' && <span style={{ margin: '0 6px', color: '#cbd0db' }}>|</span>}
+            {lokasi && lokasi !== '-' && <span style={{ fontWeight: 600, color: '#555f71' }}>{lokasi}</span>}
+          </div>
+        )}
+      </div>
 
         <div className="sd-title-actions">
-          <button className="sd-header-btn-primary" onClick={() => navigate('seleksi-tambah-kandidat')}>
+          <button className="sd-header-btn-primary" onClick={() => navigate('seleksi-tambah-kandidat', { seleksiId, jabatan })}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
@@ -276,7 +300,7 @@ export default function SeleksiDetail({ jabatan = 'Project Manager', navigate, b
             }}>
               <BackButton onClick={() => back ? back() : navigate('seleksi')} />
             </div>
-            <SeleksiRingkasan jabatan={jabatan} />
+            <SeleksiRingkasan seleksiId={seleksiId} jabatan={jabatan} />
           </>
         )}
       </div>

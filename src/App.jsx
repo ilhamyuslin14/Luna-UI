@@ -4,6 +4,7 @@ import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import TourGuide from './components/TourGuide.jsx';
 import UploadProgressWidget from './components/UploadProgressWidget.jsx';
+import GlobalAIPoller from './components/GlobalAIPoller.jsx';
 import Beranda from './views/beranda/Beranda.jsx';
 import Seleksi from './views/seleksi/Seleksi.jsx';
 import SeleksiDetail from './views/seleksi/SeleksiDetail.jsx';
@@ -35,6 +36,7 @@ export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda');
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
+  const [selectedSeleksiId, setSelectedSeleksiId] = useState(urlParams.get('seleksiId') || '');
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
   const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
@@ -47,6 +49,7 @@ export default function App() {
   const updateUrl = (menu, params) => {
     const newUrl = new URL(window.location);
     newUrl.searchParams.set('view', menu);
+    if (params.seleksiId) newUrl.searchParams.set('seleksiId', params.seleksiId); else newUrl.searchParams.delete('seleksiId');
     if (params.jabatan) newUrl.searchParams.set('jabatan', params.jabatan); else newUrl.searchParams.delete('jabatan');
     const kandidatId = params.kandidat?.id ?? (typeof params.kandidat === 'string' ? params.kandidat : null);
     if (kandidatId) newUrl.searchParams.set('kandidat', kandidatId); else newUrl.searchParams.delete('kandidat');
@@ -56,9 +59,10 @@ export default function App() {
   };
 
   const navigate = (menu, params = {}) => {
-    setHistoryStack(stack => [...stack, { menu: activeMenu, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, seleksiActiveTab }]);
-    if (menu === 'seleksi-detail') {
-      setSeleksiJabatan(params.jabatan || '');
+    setHistoryStack(stack => [...stack, { menu: activeMenu, seleksiId: selectedSeleksiId, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, seleksiActiveTab }]);
+    if (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') {
+      if (params.seleksiId) setSelectedSeleksiId(params.seleksiId);
+      if (params.jabatan) setSeleksiJabatan(params.jabatan);
       if (params.activeTab) setSeleksiActiveTab(params.activeTab);
     }
     if (menu === 'kandidat-detail') setSelectedKandidat(params.kandidat || null);
@@ -69,7 +73,8 @@ export default function App() {
     }
     setActiveMenu(menu);
     updateUrl(menu, { 
-      jabatan: menu === 'seleksi-detail' ? params.jabatan : seleksiJabatan,
+      seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
+      jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
       kandidat: menu === 'kandidat-detail' ? params.kandidat : selectedKandidat,
       departemen: menu === 'departemen-detail' ? params.departemen : selectedDepartemen,
       search: params.search
@@ -83,12 +88,13 @@ export default function App() {
     setHistoryStack(stack => stack.slice(0, -1));
     setActiveMenu(prev.menu);
     setSeleksiJabatan(prev.jabatan);
+    setSelectedSeleksiId(prev.seleksiId);
     setSelectedKandidat(prev.kandidat);
     setSelectedDepartemen(prev.departemen);
     setSeleksiActiveTab(prev.seleksiActiveTab);
     setActiveMenu(prev.menu);
     setSearchQuery(prev.search || '');
-    updateUrl(prev.menu, { jabatan: prev.jabatan, kandidat: prev.kandidat, departemen: prev.departemen, search: prev.search });
+    updateUrl(prev.menu, { seleksiId: prev.seleksiId, jabatan: prev.jabatan, kandidat: prev.kandidat, departemen: prev.departemen, search: prev.search });
   };
 
   window.switchMenu = navigate;
@@ -156,10 +162,10 @@ export default function App() {
       case 'departemen': return <Departemen navigate={navigate} searchQuery={searchQuery} />;
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
       case 'seleksi': return <Seleksi navigate={navigate} searchQuery={searchQuery} />;
-      case 'seleksi-detail': return <SeleksiDetail jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'seleksi-detail': return <SeleksiDetail seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} />;
-      case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} />;
+      case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} seleksiId={selectedSeleksiId} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;
       case 'pengaturan': return <KelolaPengguna navigate={navigate} />;
       case 'pengaturan-user': return <PengaturanUser navigate={navigate} />;
@@ -191,6 +197,7 @@ export default function App() {
       </main>
       <TourGuide navigate={navigate} />
       <UploadProgressWidget navigate={navigate} />
+      <GlobalAIPoller />
     </div>
   );
 }

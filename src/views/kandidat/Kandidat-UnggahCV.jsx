@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../../config/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useUpload } from '../../context/UploadContext';
@@ -67,6 +68,62 @@ function getErrorLabel(msg) {
   return { label: 'Gagal Proses', detail: msg };
 }
 
+const PortalTooltip = ({ content, children }) => {
+  const [show, setShow] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const wrapperRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.top - 8,
+        left: rect.left + (rect.width / 2) + 14 + 5, // 14px for arrow offset, 5px for half arrow width
+      });
+      setShow(true);
+    }
+  };
+
+  const handleScroll = useCallback(() => {
+    if (show) setShow(false);
+  }, [show]);
+
+  useEffect(() => {
+    if (show) {
+      window.addEventListener('scroll', handleScroll, true);
+      return () => window.removeEventListener('scroll', handleScroll, true);
+    }
+  }, [show, handleScroll]);
+
+  return (
+    <span 
+      className="kt-err-tip-wrap" 
+      ref={wrapperRef} 
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      {show && createPortal(
+        <div 
+          className="kt-err-tooltip" 
+          style={{ 
+            display: 'block', 
+            position: 'fixed',
+            top: coords.top, 
+            left: coords.left,
+            transform: 'translate(-100%, -100%)',
+            bottom: 'auto',
+            right: 'auto'
+          }}
+        >
+          {content}
+        </div>,
+        document.body
+      )}
+    </span>
+  );
+};
+
 const ErrorLabel = ({ msg }) => {
   const { label, detail } = getErrorLabel(msg);
   return (
@@ -74,10 +131,9 @@ const ErrorLabel = ({ msg }) => {
       <IconGagal />
       <span>{label}</span>
       {detail && (
-        <span className="kt-err-tip-wrap">
+        <PortalTooltip content={detail}>
           <IconInfoTip />
-          <div className="kt-err-tooltip">{detail}</div>
-        </span>
+        </PortalTooltip>
       )}
     </div>
   );
@@ -99,7 +155,7 @@ const isRetryableError = (msg) => {
   return true; // Asumsikan sisa error seperti Gagal Proses, Koneksi, Timeout dll adalah retryable
 };
 
-export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }) {
+export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, initialSeleksiId }) {
   const { companyId } = useAuth();
   const { startGlobalUpload, globalFiles, clearGlobalUploads, retryGlobalFileById } = useUpload();
   const [phase, setPhase] = useState(() => globalFiles.length > 0 ? 'uploading' : 'drop');
@@ -116,12 +172,16 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
       try {
         const data = await getSeleksi(companyId);
         setPosisiOptions(data || []);
+        if (initialSeleksiId && data) {
+          const match = data.find(d => d.id === initialSeleksiId);
+          if (match) setPosisi({ id: match.id, jabatan: match.jabatan });
+        }
       } catch (err) {
         console.error(err);
       }
     }
     loadPosisi();
-  }, [companyId]);
+  }, [companyId, initialSeleksiId]);
 
   // Menghapus useEffect historyLive karena riwayat kini sepenuhnya statis
 
@@ -168,25 +228,127 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
   };
 
   // Derived state dari Context untuk phase 'uploading'
+  const { scoringQueue } = useUpload();
   const ctxFiles = globalFiles;
-  const doneCount = ctxFiles.filter(s => s.status === 'berhasil' || s.status === 'gagal').length;
-  const total = ctxFiles.length;
+  console.log('DEBUG Kandidat-UnggahCV rendering. scoringQueue:', scoringQueue, 'ctxFiles:', ctxFiles);
+  
+  console.log("scoringQueue:", scoringQueue, "ctxFiles:", ctxFiles); const extendedFiles = ctxFiles.map(f => {
+    const isUploadAndScoring = !!f.posisi;
+    const scoringJob = isUploadAndScoring 
+      ? scoringQueue.find(sq => sq.namaFile === f.name)
+      : null;
+
+    let finalStatus = 'waiting';
+    let isFinished = false;
+    let isFailed = false;
+    let failReason = null;
+    let statusText = f.statusText || 'Proses Upload';
+
+    if (!isUploadAndScoring) {
+      isFinished = f.status === 'berhasil' || f.status === 'gagal';
+      finalStatus = f.status;
+      isFailed = f.status === 'gagal';
+      failReason = f.failReason;
+      statusText = finalStatus === 'berhasil' ? 'Unggah Berhasil' : statusText;
+    } else {
+      const uploadFinished = f.status === 'berhasil' || f.status === 'gagal';
+      if (!uploadFinished) {
+        finalStatus = f.status;
+      } else {
+        if (f.scoringEnqueued) {
+          if (scoringJob) {
+            if (scoringJob.status === 'done') {
+              isFinished = true;
+              finalStatus = 'berhasil';
+              statusText = 'Penilaian AI Berhasil';
+              f.progress = 100;
+            } else if (scoringJob.status === 'error') {
+              isFinished = true;
+              finalStatus = 'gagal';
+              isFailed = true;
+              failReason = f.status === 'gagal' ? `Unggah Gagal: ${f.failReason} & AI Gagal: ${scoringJob.error}` : `AI Gagal: ${scoringJob.error}`;
+            } else {
+              finalStatus = 'uploading';
+              statusText = 'Proses Penilaian AI...';
+              f.progress = 85;
+            }
+          } else {
+            finalStatus = 'uploading';
+            statusText = 'Menunggu AI...';
+            f.progress = 60;
+          }
+        } else {
+          isFinished = true;
+          finalStatus = f.status;
+          isFailed = f.status === 'gagal';
+          failReason = f.failReason;
+        }
+      }
+    }
+    return { ...f, finalStatus, isFinished, isFailed, failReason, statusText };
+  });
+
+  const total = extendedFiles.length;
+  const doneCount = extendedFiles.filter(s => s.isFinished).length;
   const allDone = total > 0 && doneCount === total;
   const overallPct = total > 0 ? (doneCount / total) * 100 : 0;
-  const normalFiles = ctxFiles.filter(s => s.status !== 'gagal');
-  const failedFiles = ctxFiles.filter(s => s.status === 'gagal');
+  const normalFiles = extendedFiles.filter(s => !s.isFailed);
+  const failedFiles = extendedFiles.filter(s => s.isFailed);
 
   // ── History static view (selesai, not live) ───────────────────
   if (historyData) {
-    const hNormal = historyData.files.filter(f => f.status !== 'gagal');
-    const hFailed = historyData.files.filter(f => f.status === 'gagal');
+    const extendedHistoryFiles = historyData.files.map(f => {
+      const isUploadOnly = f.tipe_aktivitas === 'upload_only';
+      const isScoringOnly = f.tipe_aktivitas === 'scoring_only';
+      
+      let finalStatus = 'waiting';
+      let isFailed = false;
+      let failReason = null;
+      let statusText = '';
+      
+      if (isUploadOnly) {
+        finalStatus = f.upload_status || 'waiting';
+        isFailed = finalStatus === 'gagal';
+        failReason = f.upload_fail_reason;
+        statusText = finalStatus === 'berhasil' ? 'Unggah Berhasil' : 'Menunggu';
+      } else if (isScoringOnly) {
+        finalStatus = f.scoring_status || 'waiting';
+        isFailed = finalStatus === 'gagal';
+        failReason = f.scoring_fail_reason;
+        statusText = finalStatus === 'berhasil' ? 'Penilaian AI Berhasil' : 'Menunggu';
+      } else {
+        const isUploadFailed = f.upload_status === 'gagal';
+        const isScoringBerhasil = f.scoring_status === 'berhasil';
+        const isScoringFailed = f.scoring_status === 'gagal';
+        
+        if (isScoringBerhasil) {
+          finalStatus = 'berhasil';
+          statusText = 'Penilaian AI Berhasil';
+        } else if (isScoringFailed) {
+          finalStatus = 'gagal';
+          isFailed = true;
+          failReason = isUploadFailed ? `Unggah Gagal: ${f.upload_fail_reason} & AI Gagal: ${f.scoring_fail_reason}` : `AI Gagal: ${f.scoring_fail_reason}`;
+        } else if (isUploadFailed && !f.scoring_status) {
+          finalStatus = 'gagal';
+          isFailed = true;
+          failReason = f.upload_fail_reason;
+        } else {
+          finalStatus = 'uploading';
+          statusText = 'Proses...';
+        }
+      }
+      return { ...f, finalStatus, isFailed, failReason, statusText, data: f.kandidat_id };
+    });
+
+    const hNormal = extendedHistoryFiles.filter(f => !f.isFailed);
+    const hFailed = extendedHistoryFiles.filter(f => f.isFailed);
     return (
       <div className="kt-content">
         <div className="kt-upload-card">
-          <p className="kt-upload-timestamp">Uploaded {historyData.tanggal}</p>
+          <p className="kt-upload-timestamp">Aktivitas pada {historyData.tanggal}</p>
           <div className="kt-overall-progress">
             <div className="kt-overall-label">
-              <span>Selesai</span>
+              <span>Berhasil</span>
               <span>({historyData.berhasil}/{historyData.total})</span>
             </div>
             <div className="kt-progress-track">
@@ -194,26 +356,28 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
             </div>
           </div>
           {hNormal.length > 0 && (
-            <div className="kt-upload-list-box">
+            <div className="kt-upload-list-box" style={{ maxHeight: '480px', overflowY: 'auto' }}>
               {hNormal.map((f, i) => (
                 <div className={`kt-upload-row${i === hNormal.length - 1 ? ' last' : ''}`} key={i}>
                   <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{f.name}</span></div>
-                  <div className="kt-upload-row-right">
+                  <div className="kt-upload-row-right" style={{ alignItems: 'center' }}>
                     <div className="kt-upload-slot">
-                      {f.status === 'berhasil' && (
+                      {f.kandidatId && (
                         <div
                           className="kt-detail-badge"
-                          style={{ cursor: f.kandidatId ? 'pointer' : 'default', opacity: f.kandidatId ? 1 : 0.5 }}
-                          onClick={() => f.kandidatId && navigate('kandidat-detail', { kandidat: f.kandidatId })}
+                          style={{ cursor: 'pointer', opacity: 1 }}
+                          onClick={() => navigate('kandidat-detail', { kandidat: f.kandidatId })}
                         >
                           Detail
                         </div>
                       )}
                     </div>
-                    <div className={`kt-status-label ${f.status}`}>
-                      {f.status === 'berhasil' && <><IconBerhasil /><span>Berhasil</span></>}
-                      {f.status === 'waiting' && <><IconWaiting /><span>Menunggu</span></>}
-                    </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end', marginLeft: '12px' }}>
+                        <div className={`kt-status-label ${f.finalStatus}`}>
+                          {f.finalStatus === 'berhasil' ? <IconBerhasil /> : <IconWaiting />}
+                          <span>{f.statusText}</span>
+                        </div>
+                      </div>
                   </div>
                 </div>
               ))}
@@ -222,14 +386,13 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
           {hFailed.length > 0 && (
             <div className="kt-gagal-section">
               <div className="kt-gagal-header">
-                <span className="kt-gagal-title">Gagal Upload</span>
+                <span className="kt-gagal-title">Terdapat Error</span>
               </div>
-              <div className="kt-upload-list-box">
+              <div className="kt-upload-list-box" style={{ maxHeight: '240px', overflowY: 'auto' }}>
                 {hFailed.map((f, i) => (
                   <div className={`kt-upload-row${i === hFailed.length - 1 ? ' last' : ''}`} key={i}>
                     <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{f.name}</span></div>
-                    <div className="kt-upload-row-right">
-                      <div className="kt-upload-slot" />
+                    <div className="kt-upload-row-right" style={{ flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
                       <ErrorLabel msg={f.failReason} />
                     </div>
                   </div>
@@ -304,9 +467,23 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
                 Tambah File Lainnya
               </button>
             </div>
-            <div className="kt-actions">
-              <button className="kt-btn-cancel" onClick={() => { setFiles([]); setPhase('drop'); }}>Batal</button>
-              <button className="kt-btn-upload" onClick={startUpload}>Unggah</button>
+            <div className="kt-actions" style={{ justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ 
+                fontSize: '12px', 
+                color: '#475569', 
+                fontWeight: 600, 
+                backgroundColor: '#f1f5f9', 
+                padding: '4px 12px', 
+                borderRadius: '16px',
+                display: 'inline-flex',
+                alignItems: 'center'
+              }}>
+                {files.length} Data
+              </div>
+              <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+                <button className="kt-btn-cancel" onClick={() => { setFiles([]); setPhase('drop'); }}>Batal</button>
+                <button className="kt-btn-upload" onClick={startUpload}>Unggah</button>
+              </div>
             </div>
           </div>
         )}
@@ -327,19 +504,19 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
             </div>
 
             {normalFiles.length > 0 && (
-              <div className="kt-upload-list-box">
+              <div className="kt-upload-list-box" style={{ maxHeight: '480px', overflowY: 'auto' }}>
                 {normalFiles.map((fs, idx) => (
                   <div className={`kt-upload-row${idx === normalFiles.length - 1 ? ' last' : ''}`} key={fs.id || idx}>
                     <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{fs.name}</span></div>
                     <div className="kt-upload-row-right">
                       <div className="kt-upload-slot">
-                        {fs.status === 'uploading' && <div className="kt-file-progress-track"><div className="kt-file-progress-fill" style={{ width: `${fs.progress}%` }} /></div>}
-                        {fs.status === 'berhasil' && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail', { kandidat: fs.data })}>Detail</div>}
+                        {fs.finalStatus === 'uploading' && <div className="kt-file-progress-track"><div className="kt-file-progress-fill" style={{ width: `${fs.progress}%` }} /></div>}
+                        {fs.finalStatus === 'berhasil' && fs.data && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail', { kandidat: fs.data })}>Detail</div>}
                       </div>
-                      <div className={`kt-status-label ${fs.status}`}>
-                        {fs.status === 'uploading' && <><IconUploading /><span>{fs.statusText || 'Proses Upload'}</span></>}
-                        {fs.status === 'waiting' && <><IconWaiting /><span>Menunggu</span></>}
-                        {fs.status === 'berhasil' && <><IconBerhasil /><span>Berhasil</span></>}
+                      <div className={`kt-status-label ${fs.finalStatus}`}>
+                        {fs.finalStatus === 'uploading' && <><IconUploading /><span>{fs.statusText}</span></>}
+                        {fs.finalStatus === 'waiting' && <><IconWaiting /><span>Menunggu</span></>}
+                        {fs.finalStatus === 'berhasil' && <><IconBerhasil /><span>{fs.statusText}</span></>}
                       </div>
                     </div>
                   </div>
@@ -352,23 +529,25 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore }
                 <div className="kt-gagal-header">
                   <span className="kt-gagal-title">Gagal Upload</span>
                 </div>
-                <div className="kt-upload-list-box">
+                <div className="kt-upload-list-box" style={{ maxHeight: '240px', overflowY: 'auto' }}>
                   {failedFiles.map((fs, idx) => (
                     <div className={`kt-upload-row${idx === failedFiles.length - 1 ? ' last' : ''}`} key={fs.id || idx}>
                       <div className="kt-file-left"><DocIcon /><span className="kt-file-name">{fs.name}</span></div>
                       <div className="kt-upload-row-right">
-                        <div className="kt-upload-slot">
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
                           {isRetryableError(fs.failReason) && (
                             <button
                               title="Coba Lagi"
                               onClick={() => retryGlobalFileById(fs.id)}
-                              style={{ background: '#f7f8fa', border: '1px solid #d4d9e6', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}
+                              style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '26px', height: '26px', color: '#64748b', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#64748b'; }}
                             >
                               <IconRetry />
                             </button>
                           )}
+                          <ErrorLabel msg={fs.failReason} />
                         </div>
-                        <ErrorLabel msg={fs.failReason} />
                       </div>
                     </div>
                   ))}

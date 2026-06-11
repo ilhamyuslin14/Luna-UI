@@ -58,6 +58,7 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
   const [archiveModal, setArchiveModal]     = useState(null);
   const [unarchiveModal, setUnarchiveModal] = useState(null);
   const [lowonganModal, setLowonganModal]   = useState(false);
+  const [lowonganSearchQuery, setLowonganSearchQuery] = useState('');
   const [seleksiList, setSeleksiList]       = useState([]);
   const [selectedSeleksi, setSelectedSeleksi] = useState(null);
   const [isLoadingSeleksi, setIsLoadingSeleksi] = useState(false);
@@ -199,17 +200,23 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
       .finally(() => setIsLoadingSeleksi(false));
   };
 
-  const handleTambahkanKeLowongan = () => {
-    if (!selectedSeleksi) return;
+  const handleTambahkanKeLowongan = (seleksi) => {
+    if (!seleksi) return;
     const ids = [...selectedRows];
     ids.forEach(kandidatId => {
       const k = kandidatData.find(c => c.id === kandidatId);
-      enqueueScoringJob(kandidatId, selectedSeleksi.id, selectedSeleksi.jabatan, k?.nama_lengkap || '', companyId);
+      enqueueScoringJob(kandidatId, seleksi.id, seleksi.jabatan, k?.nama_lengkap || '', companyId);
     });
     setLowonganModal(false);
     setSelectedRows(new Set());
-    showToast('Kandidat ditambahkan', `${ids.length} kandidat sedang dinilai untuk ${selectedSeleksi.jabatan}`);
+    setLowonganSearchQuery('');
+    showToast('Kandidat ditambahkan', `${ids.length} kandidat sedang dinilai untuk ${seleksi.jabatan}`);
   };
+
+  const filteredSeleksiList = seleksiList.filter(s => 
+    (s.jabatan || '').toLowerCase().includes(lowonganSearchQuery.toLowerCase()) ||
+    (s.departments?.name || s.departemen || '').toLowerCase().includes(lowonganSearchQuery.toLowerCase())
+  );
 
   return (
     <div className="kan-view" onClick={e => {
@@ -308,7 +315,7 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
                   <td
                     className={`kan-name${k.arsip ? '' : ' kan-name-link'}`}
                     onClick={k.arsip ? undefined : () => navigate('kandidat-detail', { kandidat: { ...k, nama: k.nama_lengkap } })}
-                    style={k.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
+                    style={{ maxWidth: 250, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', ...(k.arsip ? { cursor: 'default', opacity: 0.5 } : {}) }}
                   >{k.nama_lengkap || 'Belum ada nama'}</td>
                   <td style={{ maxWidth: 250 }}>
                     <div className="kan-jabatan-container">
@@ -318,7 +325,7 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
                   </td>
                   <td style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.perusahaan_saat_ini || '-'}</td>
                   <td>{k.pengalaman_tahun ? `${k.pengalaman_tahun} Tahun` : '-'}</td>
-                  <td>{k.domisili || '-'}</td>
+                  <td style={{ maxWidth: 190, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.domisili || '-'}</td>
                   <td style={{ maxWidth: 180, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {k.linkedin_url ? (
                       <a href={k.linkedin_url.startsWith('http') ? k.linkedin_url : `https://${k.linkedin_url}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0977be', textDecoration: 'none' }}>
@@ -391,47 +398,65 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
 
       {/* Tambahkan ke Lowongan modal */}
       {lowonganModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={() => setLowonganModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 420, maxHeight: '70vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
-            onClick={e => e.stopPropagation()}>
-            <div style={{ padding: '20px 20px 12px', borderBottom: '1px solid #e2e5ec' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#171e2c' }}>Tambahkan ke Lowongan</div>
-              <div style={{ fontSize: 12, color: '#7e8799', marginTop: 3 }}>Pilih posisi untuk {selectedRows.size} kandidat yang dipilih</div>
-            </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-              {isLoadingSeleksi ? (
-                <div style={{ padding: 24, textAlign: 'center', color: '#888', fontSize: 13 }}>Memuat daftar lowongan...</div>
-              ) : seleksiList.length === 0 ? (
-                <div style={{ padding: 24, textAlign: 'center', color: '#888', fontSize: 13 }}>Tidak ada lowongan aktif.</div>
-              ) : seleksiList.map(s => (
-                <div key={s.id}
-                  onClick={() => setSelectedSeleksi(s)}
-                  style={{
-                    padding: '10px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-                    background: selectedSeleksi?.id === s.id ? '#f0f6ff' : 'transparent',
-                    borderLeft: `3px solid ${selectedSeleksi?.id === s.id ? '#0977be' : 'transparent'}`,
-                    transition: 'background 0.1s',
-                  }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#171e2c' }}>{s.jabatan}</div>
-                    <div style={{ fontSize: 11, color: '#7e8799', marginTop: 1 }}>{s.status || 'Aktif'}</div>
+        <div className="kd-posisi-overlay" onClick={() => setLowonganModal(false)}>
+          <div className="kd-posisi-modal" onClick={e => e.stopPropagation()}>
+            <button className="kd-posisi-close" onClick={() => setLowonganModal(false)}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#555f71" strokeWidth="2" strokeLinecap="round">
+                <line x1="1" y1="1" x2="13" y2="13"/>
+                <line x1="13" y1="1" x2="1" y2="13"/>
+              </svg>
+            </button>
+
+            <div className="kd-posisi-body">
+              <h3 className="kd-posisi-title">Tambahkan ke Lowongan</h3>
+              <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4, marginBottom: 16 }}>Pilih posisi untuk {selectedRows.size} kandidat yang dipilih</p>
+
+              <div className="kd-posisi-search-wrap">
+                <input
+                  className="kd-posisi-search"
+                  type="text"
+                  placeholder="Cari nama posisi atau departemen..."
+                  value={lowonganSearchQuery}
+                  onChange={e => setLowonganSearchQuery(e.target.value)}
+                  autoFocus
+                />
+                <svg className="kd-posisi-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#abb2c1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </div>
+
+              <div className="kd-posisi-results">
+                {!isLoadingSeleksi && (
+                  <p className="kd-posisi-count">
+                    {filteredSeleksiList.length} {filteredSeleksiList.length === 1 ? 'result' : 'results'}
+                  </p>
+                )}
+
+                {isLoadingSeleksi ? (
+                  <div className="kd-posisi-empty">Memuat daftar lowongan...</div>
+                ) : seleksiList.length === 0 ? (
+                  <div className="kd-posisi-empty">Tidak ada lowongan aktif</div>
+                ) : filteredSeleksiList.length === 0 ? (
+                  <div className="kd-posisi-empty">Tidak ada posisi yang cocok</div>
+                ) : (
+                  <div className="kd-posisi-list">
+                    {filteredSeleksiList.map(s => (
+                      <div className="kd-posisi-item" key={s.id}>
+                        <div className="kd-posisi-item-info">
+                          <span className="kd-posisi-item-name">{s.jabatan}</span>
+                          <span className="kd-posisi-item-dept">{s.departments?.name || s.departemen || '-'}</span>
+                        </div>
+                        <button
+                          className="kd-posisi-tambah-btn"
+                          onClick={() => handleTambahkanKeLowongan(s)}
+                        >
+                          Tambahkan
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  {selectedSeleksi?.id === s.id && (
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <circle cx="7" cy="7" r="7" fill="#0977be" />
-                      <path d="M4 7L6.5 9.5L10 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e5ec', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setLowonganModal(false)} style={{ padding: '7px 16px', borderRadius: 7, border: '1px solid #d1d5db', background: '#fff', fontSize: 13, cursor: 'pointer', color: '#374151' }}>Batal</button>
-              <button onClick={handleTambahkanKeLowongan} disabled={!selectedSeleksi}
-                style={{ padding: '7px 16px', borderRadius: 7, border: 'none', background: selectedSeleksi ? '#0977be' : '#b0cfe8', color: '#fff', fontSize: 13, cursor: selectedSeleksi ? 'pointer' : 'not-allowed', fontWeight: 600 }}>
-                Tambahkan
-              </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

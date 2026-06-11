@@ -459,7 +459,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
               return (
                 <div
                   key={colKey}
-                  className="lw-board-col"
+                  className={`lw-board-column${collapsed ? ' collapsed' : ''}`}
                   style={{ width: collapsed ? '48px' : '280px', flexShrink: 0, transition: 'width 0.2s' }}
                 >
                   <div className="lw-board-col-header">
@@ -487,7 +487,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
                               <span
                                 className="lw-board-card-title"
                                 style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('seleksi-detail', { jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                                onClick={() => navigate('seleksi-detail', { seleksiId: card.id, jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                               >
                                 {card.posisi}
                               </span>
@@ -557,7 +557,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
                                   </div>
                                 )}
                               </div>
-                              <button className="lw-board-card-detail-btn" disabled={card.arsip} onClick={card.arsip ? undefined : () => navigate('seleksi-detail', { jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })} style={card.arsip ? { opacity: 0.4, cursor: 'not-allowed' } : {}}>Detail</button>
+                              <button className="lw-board-card-detail-btn" disabled={card.arsip} onClick={card.arsip ? undefined : () => navigate('seleksi-detail', { seleksiId: card.id, jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })} style={card.arsip ? { opacity: 0.4, cursor: 'not-allowed' } : {}}>Detail</button>
                             </div>
                           </div>
                         );
@@ -601,7 +601,7 @@ export default function Seleksi({ navigate, searchQuery = '' }) {
                     <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} /></td>
                     <td
                       className={`lw-posisi${row.arsip ? '' : ' clickable'}`}
-                      onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                      onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                       style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                     >{row.posisi}</td>
                     <td>{row.dept}</td>

@@ -66,6 +66,7 @@ function mapRow(s, alurList) {
     id: s.id,
     seleksiId: s.seleksi_id,
     posisi: s.seleksi?.jabatan || '-',
+    departemen: s.seleksi?.departments?.name || '-',
     alur,
     alurNama,
     alasan: s.alasan_tidak_sesuai || '',
@@ -174,6 +175,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
     seleksiId: row.seleksiId,
     nama: kandidat?.nama || kandidat?.nama_lengkap || row.posisi,
     jabatan: row.posisi,
+    departemen: row.departemen,
     alur: row.alur,
     skor: row.skor_obj,
   });
@@ -215,6 +217,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
       <div className="ks-table">
         <div className="ks-table-head">
           <div className="ks-col-posisi">Posisi</div>
+          <div className="ks-col-departemen">Departemen</div>
           <div className="ks-col-alur">Alur Seleksi</div>
           <div className="ks-col-skor">Penilaian</div>
           <div className="ks-col-action" />
@@ -231,7 +234,11 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
           return (
             <div className="ks-table-row" key={row.id}>
               <div className="ks-col-posisi">
-                <span className="ks-posisi-link" onClick={() => navigate?.('seleksi-detail', { jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
+                <span className="ks-posisi-link" onClick={() => navigate?.('seleksi-detail', { seleksiId: row.seleksi_id, jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
+              </div>
+
+              <div className="ks-col-departemen" style={{ fontSize: '12px', color: '#555f71' }}>
+                {row.departemen}
               </div>
 
               <div className="ks-col-alur">

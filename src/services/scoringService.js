@@ -32,7 +32,7 @@ export async function getScoringBySeleksi(seleksiId) {
         id, nama_lengkap, jabatan_saat_ini, perusahaan_saat_ini,
         pengalaman_tahun, linkedin_url, arsip
       ),
-      seleksi:seleksi_id(jabatan)
+      seleksi:seleksi_id(jabatan, departments:department_id(name))
     `)
     .eq('seleksi_id', seleksiId)
     .order('created_at', { ascending: false });
@@ -50,7 +50,7 @@ export async function getScoringByKandidat(kandidatId) {
   if (!kandidatId) return [];
   const { data, error } = await supabase
     .from('scoring')
-    .select('*, seleksi!inner(jabatan, arsip)')
+    .select('*, seleksi!inner(jabatan, arsip, departments:department_id(name))')
     .eq('kandidat_id', kandidatId)
     .neq('seleksi.arsip', true)
     .order('created_at', { ascending: false });
@@ -62,6 +62,24 @@ export async function getScoringByKandidat(kandidatId) {
 // role — supaya API key & prompt AI tidak pernah terkirim ke browser (penting
 // untuk alur publik Laman Karir yang diakses pengunjung anonim).
 export async function runScoring(kandidatId, seleksiId, companyId) {
+  // Pengecekan duplikat sebelum melakukan request ke AI untuk menghindari pemborosan token
+  const { data: existingScoring, error: existingError } = await supabase
+    .from('scoring')
+    .select('id')
+    .eq('kandidat_id', kandidatId)
+    .eq('seleksi_id', seleksiId)
+    .maybeSingle();
+
+  if (existingError) {
+    console.error('[runScoring] Gagal mengecek data scoring sebelumnya:', existingError);
+    throw new Error('Gagal memverifikasi data penilaian AI sebelumnya.');
+  }
+
+  if (existingScoring) {
+    console.log('[runScoring] Scoring sudah ada, mengembalikan ID yang ada tanpa menjalankan AI.');
+    return existingScoring;
+  }
+
   const { data, error } = await supabase.functions.invoke('run-scoring', {
     body: { kandidatId, seleksiId, companyId },
   });

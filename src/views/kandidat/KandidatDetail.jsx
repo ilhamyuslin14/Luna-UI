@@ -7,7 +7,7 @@ import KandidatRingkasan from './Kandidat-Ringkasan.jsx';
 import KandidatResume from './Kandidat-Resume.jsx';
 import KandidatSeleksi from './Kandidat-Seleksi.jsx';
 import ScoringProgressWidget from '../../components/ScoringProgressWidget.jsx';
-import { getKandidatById } from '../../services/kandidatService.js';
+import { getKandidatById, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { getSeleksi } from '../../services/seleksiService.js';
 import { runScoring, getScoringByKandidat } from '../../services/scoringService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -27,10 +27,23 @@ function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScori
       .then(data => {
         const done = {};
         (data || []).forEach(s => { done[s.seleksi_id] = 'done'; });
-        setPreChecked(done);
+        setPreChecked(prev => ({ ...prev, ...done }));
       })
       .catch(() => {});
   }, [kandidatId]);
+
+  // Sync successful jobs to preChecked so they don't reappear when scoringJobs is cleared
+  useEffect(() => {
+    let changed = false;
+    const newDone = { ...preChecked };
+    Object.entries(scoringJobs).forEach(([pid, job]) => {
+      if (job.status === 'done' && !newDone[pid]) {
+        newDone[pid] = 'done';
+        changed = true;
+      }
+    });
+    if (changed) setPreChecked(newDone);
+  }, [scoringJobs, preChecked]);
 
   const inputRef = useRef(null);
 
@@ -167,19 +180,38 @@ export default function KandidatDetail({ kandidat = {}, navigate, back }) {
     toastTimer.current = setTimeout(() => setToast(null), 4000);
   };
 
-  const handleStartScoring = (posisiId, posisiNama) => {
+  const handleStartScoring = async (posisiId, posisiNama) => {
     const kandidatId = resolvedData?.id;
     setScoringJobs(prev => ({ ...prev, [posisiId]: { nama: posisiNama, status: 'loading' } }));
+
+    let logId = null;
+    try {
+      const log = await createActivityLog({
+        batch_id: `BATCH-${Date.now()}`,
+        company_id: companyId,
+        nama_file: resolvedData?.nama ? `${resolvedData.nama} - Penilaian AI` : 'Penilaian AI',
+        tipe_aktivitas: 'scoring_only',
+        scoring_status: 'menunggu',
+        kandidat_id: kandidatId,
+        source: 'HR'
+      });
+      logId = log?.id;
+    } catch(e) {
+      console.error('Gagal membuat log scoring:', e);
+    }
+
     runScoring(kandidatId, posisiId, companyId)
       .then(() => {
         setScoringJobs(prev => ({ ...prev, [posisiId]: { ...prev[posisiId], status: 'done' } }));
         setScoringVersion(v => v + 1);
+        if (logId) updateActivityLog(logId, { scoring_status: 'berhasil' }).catch(()=>{});
       })
       .catch(err => {
         setScoringJobs(prev => ({
           ...prev,
           [posisiId]: { ...prev[posisiId], status: 'error', error: err.message || 'Gagal' },
         }));
+        if (logId) updateActivityLog(logId, { scoring_status: 'gagal', scoring_fail_reason: err.message }).catch(()=>{});
       });
   };
 

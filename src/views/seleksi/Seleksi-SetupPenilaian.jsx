@@ -5,6 +5,7 @@ import { getDepartments, createDepartment } from '../../services/departmentServi
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { ID_REGIONS } from '../../utils/idRegions.js';
 import Toast from '../../components/Toast.jsx';
+import { supabase } from '../../config/supabase.js';
 import mammoth from 'mammoth';
 import pdfToText from 'react-pdftotext';
 import { parseJobDescManual } from '../../utils/parseJobDescManual';
@@ -115,7 +116,7 @@ const EditableContent = React.memo(
       contentEditable
       suppressContentEditableWarning
       className="sp-editor-area"
-      style={{ minHeight: '200px', overflowY: 'auto' }}
+      style={{ minHeight: '200px', maxHeight: '400px', overflowY: 'auto' }}
       dangerouslySetInnerHTML={{ __html: initialHtml }}
     />
   ),
@@ -324,7 +325,10 @@ export default function SetupPenilaian({ navigate }) {
     }
     setIsSaving(true);
     try {
-      await createSeleksi(companyId, {
+      const plainText = htmlDeskripsi.replace(/<[^>]*>/g, '').trim();
+      const isSufficientDesc = plainText.length >= 300;
+
+      const dataBaru = await createSeleksi(companyId, {
         department_id: form.departemen,
         jabatan: form.jabatan,
         lokasi: form.lokasi,
@@ -340,9 +344,19 @@ export default function SetupPenilaian({ navigate }) {
         pengalaman: form.pengalaman,
         deskripsi: htmlDeskripsi,
         kode: `LUN-${Math.floor(Math.random() * 10000)}`,
-        kriteria: [{ _isGenerating: true }]
+        kriteria: isSufficientDesc ? [{ _isGenerating: true }] : []
       });
-      navigate('seleksi-detail', { jabatan: form.jabatan, activeTab: 'ringkasan' });
+
+      // Panggil serverless function untuk merumuskan kriteria secara asinkron (fire and forget)
+      if (isSufficientDesc) {
+        supabase.functions.invoke('generate-kriteria', {
+          body: { seleksiId: dataBaru.id, deskripsi: htmlDeskripsi }
+        }).catch(err => console.error('Gagal memanggil generate-kriteria:', err));
+      } else {
+        showToast('Info', 'Deskripsi kurang dari 300 karakter. Kriteria AI tidak dirumuskan.', 'warning');
+      }
+
+      navigate('seleksi-detail', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
       showToast('Gagal', 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
     } finally {

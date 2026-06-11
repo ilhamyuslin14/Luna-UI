@@ -1,11 +1,34 @@
-export default function Toast({ message, subMessage, onClose }) {
-  return (
-    <div className="toast">
-      <div className="toast-icon">
+export default function Toast({ message, subMessage, type = 'success', onClose }) {
+  const getIcon = () => {
+    if (type === 'error') {
+      return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="7.5" stroke="#14b541" strokeWidth="1" />
-          <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#14b541" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="8" cy="8" r="7.5" stroke="#ef4444" strokeWidth="1" />
+          <path d="M5 5L11 11M11 5L5 11" stroke="#ef4444" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
+      );
+    }
+    if (type === 'warning') {
+      return (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7.5" stroke="#f59e0b" strokeWidth="1" />
+          <path d="M8 4V8M8 11.5V12" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
+    }
+    // Default success
+    return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7.5" stroke="#14b541" strokeWidth="1" />
+        <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#14b541" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  };
+
+  return (
+    <div className={`toast toast-${type}`}>
+      <div className="toast-icon">
+        {getIcon()}
       </div>
       <div className="toast-text">
         <span className="toast-message">{message}</span>

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { supabase } from '../config/supabase.js';
-import { uploadAndExtractCV, saveUploadLog } from '../services/kandidatService.js';
+import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../services/kandidatService.js';
 import { runScoring } from '../services/scoringService.js';
+import { useAuth } from './AuthContext.jsx';
 
 const UploadContext = createContext();
 
@@ -10,6 +11,7 @@ export function useUpload() {
 }
 
 export function UploadProvider({ children }) {
+  const { user } = useAuth();
   const [globalFiles, setGlobalFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isWidgetMinimized, setIsWidgetMinimized] = useState(false);
@@ -33,7 +35,7 @@ export function UploadProvider({ children }) {
 
   /* ── Scoring queue ─────────────────────────────────────── */
 
-  const enqueueScoringJob = (kandidatId, seleksiId, seleksiNama, namaFile, companyId) => {
+  const enqueueScoringJob = async (kandidatId, seleksiId, seleksiNama, namaFile, companyId, existingLogId = null) => {
     const job = {
       id: `SC-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       kandidatId,
@@ -43,9 +45,36 @@ export function UploadProvider({ children }) {
       companyId,
       status: 'queued',
       error: null,
+      logId: existingLogId,
     };
     scoringQueueRef.current = [...scoringQueueRef.current, job];
     setScoringQueue([...scoringQueueRef.current]);
+
+    let logId = existingLogId;
+    if (!logId) {
+      try {
+        const log = await createActivityLog({
+          batch_id: `RE-${Date.now()}`,
+          company_id: companyId,
+          nama_file: namaFile,
+          tipe_aktivitas: 'scoring_only',
+          upload_status: null,
+          scoring_status: 'menunggu',
+          kandidat_id: kandidatId,
+          source: 'HR'
+        });
+        logId = log.id;
+        
+        // Update job with actual logId
+        const jobIdx = scoringQueueRef.current.findIndex(j => j.id === job.id);
+        if (jobIdx !== -1) {
+          scoringQueueRef.current[jobIdx].logId = logId;
+        }
+      } catch (e) { console.error(e); }
+    } else {
+      await updateActivityLog(logId, { scoring_status: 'menunggu' }).catch(()=>{});
+    }
+
     processNextScoring();
   };
 
@@ -63,15 +92,25 @@ export function UploadProvider({ children }) {
     scoringQueueRef.current[idx] = { ...job, status: 'processing' };
     setScoringQueue([...scoringQueueRef.current]);
 
+    if (job.logId) {
+      await updateActivityLog(job.logId, { scoring_status: 'proses' }).catch(()=>{});
+    }
+
     try {
       await runScoring(job.kandidatId, job.seleksiId, job.companyId);
       scoringQueueRef.current[idx] = { ...scoringQueueRef.current[idx], status: 'done' };
+      if (job.logId) {
+        await updateActivityLog(job.logId, { scoring_status: 'berhasil' }).catch(()=>{});
+      }
     } catch (err) {
       scoringQueueRef.current[idx] = {
         ...scoringQueueRef.current[idx],
         status: 'error',
         error: err.message || 'Gagal scoring',
       };
+      if (job.logId) {
+        await updateActivityLog(job.logId, { scoring_status: 'gagal', scoring_fail_reason: err.message }).catch(()=>{});
+      }
     } finally {
       activeScoringRef.current -= 1;
       setScoringQueue([...scoringQueueRef.current]);
@@ -115,8 +154,23 @@ export function UploadProvider({ children }) {
 
   const processGlobalFile = async (idx) => {
     const target = statusesRef.current[idx];
-    statusesRef.current[idx] = { ...target, status: 'uploading', progress: 10, statusText: 'Memulai...' };
+    statusesRef.current[idx] = { ...target, status: 'uploading', progress: 5, statusText: 'Memulai...' };
     setGlobalFiles([...statusesRef.current]);
+
+    let logId = null;
+    const tipe_aktivitas = target.posisi?.id ? 'upload_and_scoring' : 'upload_only';
+    try {
+      const log = await createActivityLog({
+        batch_id: target.batchId,
+        company_id: target.companyId,
+        nama_file: target.name,
+        tipe_aktivitas,
+        upload_status: 'proses',
+        scoring_status: target.posisi?.id ? 'menunggu' : null,
+        source: user?.id || 'HR'
+      });
+      logId = log.id;
+    } catch (e) { console.error('Failed to create initial log', e); }
 
     try {
       const onProgress = (prog, text) => {
@@ -124,23 +178,31 @@ export function UploadProvider({ children }) {
         setGlobalFiles([...statusesRef.current]);
       };
 
-      const data = await uploadAndExtractCV(target.companyId, target.file, target.posisi?.jabatan || null, onProgress);
+      const data = await uploadAndExtractCV(
+        target.companyId, 
+        target.file, 
+        target.posisi?.jabatan || null, 
+        onProgress, 
+        user?.id || 'HR',
+        target.posisi?.id ? true : false
+      );
 
-      statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', progress: 100, data };
-      setGlobalFiles([...statusesRef.current]);
+      if (logId) {
+        await updateActivityLog(logId, {
+          upload_status: 'berhasil',
+          kandidat_id: data?.id || null,
+        }).catch(()=>{});
+      }
 
       // Enqueue scoring jika posisi dipilih dan upload berhasil
       if (target.posisi?.id && data?.id) {
-        enqueueScoringJob(data.id, target.posisi.id, target.posisi.jabatan, target.name, target.companyId);
+        enqueueScoringJob(data.id, target.posisi.id, target.posisi.jabatan, target.name, target.companyId, logId);
+        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', scoringEnqueued: true, progress: 60 };
+        setGlobalFiles([...statusesRef.current]);
+      } else {
+        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', progress: 100, data };
+        setGlobalFiles([...statusesRef.current]);
       }
-
-      await saveUploadLog({
-        batch_id: target.batchId,
-        company_id: target.companyId,
-        nama_file: target.name,
-        status: 'berhasil',
-        kandidat_id: data?.id || null,
-      });
 
     } catch (error) {
       statusesRef.current[idx] = {
@@ -151,18 +213,20 @@ export function UploadProvider({ children }) {
       };
       setGlobalFiles([...statusesRef.current]);
 
-      // Duplikat + posisi dipilih → tetap enqueue scoring dengan kandidat yang sudah ada
-      if (error.existingKandidatId && target.posisi?.id) {
-        enqueueScoringJob(error.existingKandidatId, target.posisi.id, target.posisi.jabatan, target.name, target.companyId);
+      if (logId) {
+        await updateActivityLog(logId, {
+          upload_status: 'gagal',
+          upload_fail_reason: error.message || 'Gagal Ekstraksi',
+          kandidat_id: error.existingKandidatId || null,
+        }).catch(() => {});
       }
 
-      await saveUploadLog({
-        batch_id: target.batchId,
-        company_id: target.companyId,
-        nama_file: target.name,
-        status: 'gagal',
-        fail_reason: error.message || 'Gagal Ekstraksi',
-      }).catch(() => {});
+      // Duplikat + posisi dipilih → tetap enqueue scoring dengan kandidat yang sudah ada
+      if (error.existingKandidatId && target.posisi?.id) {
+        enqueueScoringJob(error.existingKandidatId, target.posisi.id, target.posisi.jabatan, target.name, target.companyId, logId);
+        statusesRef.current[idx] = { ...statusesRef.current[idx], scoringEnqueued: true, data: error.existingKandidatId };
+        setGlobalFiles([...statusesRef.current]);
+      }
 
     } finally {
       activeUploadsRef.current -= 1;

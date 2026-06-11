@@ -77,6 +77,7 @@ function mapRowToSkor(row) {
     level,
     score: row.total_score ?? 0,
     aiSummary: row.ai_summary || '',
+    departemen: row.seleksi?.departments?.name || '',
     criteriaData: (row.detail_kriteria || []).filter(k => k.kategori === 'Wajib').map(toItem),
     prefData:     (row.detail_kriteria || []).filter(k => k.kategori !== 'Wajib').map(toItem),
   };
@@ -273,6 +274,19 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
               <div style={{ fontSize: '11px', color: '#7e8799', fontWeight: 500 }}>Penilaian untuk posisi</div>
               <div style={{ color: '#0977be', fontWeight: 700, fontSize: '18px', lineHeight: 1 }}>{kandidat.jabatanDilamar || kandidat.jabatan}</div>
+              {kandidat.departemen && kandidat.departemen !== '-' && (
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: '#475569', 
+                  fontWeight: 600, 
+                  backgroundColor: '#f1f5f9', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px',
+                  marginTop: '4px'
+                }}>
+                  {kandidat.departemen}
+                </div>
+              )}
             </div>
           </div>
           <div className="sc-header-name">{kandidat.nama}</div>

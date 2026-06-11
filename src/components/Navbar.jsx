@@ -191,7 +191,7 @@ export default function Navbar({ navigate }) {
                   {activeTab === 'seleksi' && seleksiResults.map((s, i) => {
                     const st = STATUS_STYLE[s.status] || STATUS_STYLE.Rencana;
                     return (
-                      <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail', { jabatan: s.name }); close(); }}>
+                      <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail', { seleksiId: s.id, jabatan: s.name }); close(); }}>
                         <div className="srch-icon-circle srch-icon-blue">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>

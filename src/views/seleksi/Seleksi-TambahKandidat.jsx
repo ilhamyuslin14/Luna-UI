@@ -8,6 +8,7 @@ import { useUpload } from '../../context/UploadContext.jsx';
 import { getKandidat } from '../../services/kandidatService.js';
 import { getSeleksiByJabatan } from '../../services/seleksiService.js';
 import { getScoringBySeleksi } from '../../services/scoringService.js';
+import Toast from '../../components/Toast.jsx';
 
 const AVATAR_COLORS = ['#f042a1', '#0977be', '#089f32', '#f8aa01', '#fb484b', '#8b5cf6', '#06b6d4'];
 
@@ -17,7 +18,7 @@ const getInisial = (nama) => {
   return (parts[0]?.[0] || '?').toUpperCase();
 };
 
-function PilihKandidatTab({ seleksiId, companyId, jabatan }) {
+function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
   const { enqueueScoringJob } = useUpload();
   const [kandidatList, setKandidatList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -157,6 +158,7 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
             navigate={navigate}
             historyData={historyData}
             onUploadMore={historyData ? () => { setHistoryData(null); } : undefined}
+            initialSeleksiId={seleksiId}
           />
         </div>
       )}

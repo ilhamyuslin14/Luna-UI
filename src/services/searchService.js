@@ -87,6 +87,7 @@ export async function searchUniversal(companyId, query) {
     const cvCount = countPerSeleksi[s.id]?.size || 0;
     
     return {
+      id: s.id,
       name: s.jabatan,
       sub: `${deptName} · ${cvCount} CV masuk`,
       status: s.status || 'Rencana'

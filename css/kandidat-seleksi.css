@@ -57,7 +57,11 @@
 
 /* Column widths match design proportions */
 .ks-col-posisi {
-  flex: 0 0 50%;
+  flex: 0 0 30%;
+}
+
+.ks-col-departemen {
+  flex: 0 0 20%;
 }
 
 .ks-col-alur {

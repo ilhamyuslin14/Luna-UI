@@ -124,12 +124,12 @@ export default function Dashboard({ navigate }) {
                 <div>Status</div>
               </div>
               {[
-                { posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
-                { posisi: 'Product Marketing Manager', dept: 'Marketing' },
-                { posisi: 'VP of Finance', dept: 'Finance' },
-                { posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
+                { id: '1', posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
+                { id: '2', posisi: 'Product Marketing Manager', dept: 'Marketing' },
+                { id: '3', posisi: 'VP of Finance', dept: 'Finance' },
+                { id: '4', posisi: 'Senior Frontend Engineer', dept: 'Engineering' },
               ].map((row, i) => (
-                <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { jabatan: row.posisi })}>
+                <div className="db-row db-row--clickable" key={i} onClick={() => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi })}>
                   <div>{row.posisi}</div>
                   <div>{row.dept}</div>
                   <div><span className="db-cv-badge">12 CV</span></div>

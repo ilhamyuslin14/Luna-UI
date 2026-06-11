@@ -84,9 +84,10 @@ async function computeFileHash(file) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function uploadAndExtractCV(companyId, file, posisi, onProgress, sumber = 'hr_dashboard') {
+export async function uploadAndExtractCV(companyId, file, posisi, onProgress, sumber = 'hr_dashboard', isUploadAndScoring = false) {
   if (!companyId) throw new Error('Company ID diperlukan');
 
+  if (onProgress) onProgress(5, 'Memulai...');
   if (onProgress) onProgress(10, 'Mengekstrak Teks...');
   const fileHash = await computeFileHash(file);
   let rawText = '';
@@ -96,7 +97,9 @@ export async function uploadAndExtractCV(companyId, file, posisi, onProgress, su
     console.warn('Gagal ekstrak teks lokal, akan mencoba fallback OCR AI di server:', err);
   }
 
-  if (onProgress) onProgress(40, 'Mengunggah File...');
+  if (onProgress) {
+    onProgress(isUploadAndScoring ? 30 : 40, 'Mengunggah File...');
+  }
 
   // Upload ke Storage
   const fileExt = file.name.split('.').pop();
@@ -111,7 +114,9 @@ export async function uploadAndExtractCV(companyId, file, posisi, onProgress, su
 
   const cv_url = `${supabase.supabaseUrl}/storage/v1/object/public/cv_documents/${filePath}`;
 
-  if (onProgress) onProgress(60, 'Memproses dengan AI...');
+  if (onProgress) {
+    onProgress(isUploadAndScoring ? 40 : 60, 'Parsing Data...');
+  }
 
   // Cek duplikat, parsing AI, dan penyimpanan dijalankan di server (Edge
   // Function) dengan service role — supaya API key & prompt AI tidak pernah
@@ -133,14 +138,16 @@ export async function uploadAndExtractCV(companyId, file, posisi, onProgress, su
     throw new Error(data.message || 'Gagal memproses dokumen dengan AI.');
   }
 
-  if (onProgress) onProgress(95, 'Menyimpan Data...');
+  if (onProgress) {
+    onProgress(isUploadAndScoring ? 50 : 95, 'Menyimpan Data...');
+  }
 
   return data.kandidat;
 }
 
-export async function saveUploadLog(logData) {
+export async function createActivityLog(logData) {
   const { data, error } = await supabase
-    .from('upload_logs')
+    .from('activity_logs')
     .insert([logData])
     .select()
     .single();
@@ -148,14 +155,50 @@ export async function saveUploadLog(logData) {
   return data;
 }
 
-export async function getUploadLogsBatches(companyId) {
+export async function updateActivityLog(id, updateData) {
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getActivityLogs(companyId) {
   if (!companyId) return [];
   const { data, error } = await supabase
-    .from('upload_logs')
-    .select('batch_id, created_at, status, fail_reason, nama_file, kandidat_id')
+    .from('activity_logs')
+    .select('id, batch_id, created_at, tipe_aktivitas, upload_status, upload_fail_reason, scoring_status, scoring_fail_reason, source, nama_file, kandidat_id')
     .eq('company_id', companyId)
     .order('created_at', { ascending: false });
     
   if (error) throw error;
+
+  // Kumpulkan semua source yang berupa UUID
+  const uuidSources = [...new Set(data.map(d => d.source).filter(s => s && s.length === 36 && s.includes('-')))];
+
+  if (uuidSources.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, nama_lengkap')
+      .in('id', uuidSources);
+
+    if (profiles) {
+      const profileMap = {};
+      profiles.forEach(p => {
+        profileMap[p.id] = p.nama_lengkap;
+      });
+
+      // Ganti nilai source dengan nama lengkap
+      data.forEach(d => {
+        if (profileMap[d.source]) {
+          d.source = profileMap[d.source];
+        }
+      });
+    }
+  }
+
   return data;
 }
