@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useUpload } from '../../context/UploadContext.jsx';
-import { getKandidat, archiveKandidat, unarchiveKandidat } from '../../services/kandidatService.js';
+import { getKandidat, getDirekrutKandidat, archiveKandidat, unarchiveKandidat } from '../../services/kandidatService.js';
 import { getSeleksi } from '../../services/seleksiService.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
@@ -43,7 +43,7 @@ const getPeriodeText = (k) => {
   return k.periode || '-';
 };
 
-export default function Kandidat({ navigate, searchQuery = '' }) {
+export default function Kandidat({ navigate, searchQuery = '', filter = '' }) {
   const { companyId } = useAuth();
   const { enqueueScoringJob } = useUpload();
 
@@ -68,13 +68,24 @@ export default function Kandidat({ navigate, searchQuery = '' }) {
   const [perPage, setPerPage]               = useState(25);
 
   useEffect(() => {
-    if (!companyId) return;
-    setIsLoading(true);
-    getKandidat(companyId)
-      .then(data => setKandidatData(data || []))
-      .catch(() => showToast('Gagal memuat', 'Gagal memuat data kandidat'))
-      .finally(() => setIsLoading(false));
-  }, [companyId]);
+    let mounted = true;
+    const fetch = async () => {
+      setIsLoading(true);
+      try {
+        const data = filter === 'direkrut' 
+          ? await getDirekrutKandidat(companyId)
+          : await getKandidat(companyId);
+        if (!mounted) return;
+        setKandidatData(data || []);
+      } catch (err) {
+        if (mounted) console.error(err);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    fetch();
+    return () => { mounted = false; };
+  }, [companyId, filter]);
 
   useEffect(() => { setPage(1); }, [activeFilters]);
 

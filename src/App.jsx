@@ -39,6 +39,7 @@ export default function App() {
   const [selectedSeleksiId, setSelectedSeleksiId] = useState(urlParams.get('seleksiId') || '');
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
+  const [kandidatFilter, setKandidatFilter] = useState(urlParams.get('filter') || '');
   const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
   const [seleksiActiveTab, setSeleksiActiveTab] = useState('ringkasan');
   const [selectedPlan, setSelectedPlan] = useState('BASIC');
@@ -54,6 +55,7 @@ export default function App() {
     const kandidatId = params.kandidat?.id ?? (typeof params.kandidat === 'string' ? params.kandidat : null);
     if (kandidatId) newUrl.searchParams.set('kandidat', kandidatId); else newUrl.searchParams.delete('kandidat');
     if (params.departemen) newUrl.searchParams.set('departemen', params.departemen); else newUrl.searchParams.delete('departemen');
+    if (params.filter) newUrl.searchParams.set('filter', params.filter); else newUrl.searchParams.delete('filter');
     if (params.search) newUrl.searchParams.set('search', params.search); else newUrl.searchParams.delete('search');
     window.history.pushState({}, '', newUrl);
   };
@@ -67,6 +69,7 @@ export default function App() {
     }
     if (menu === 'kandidat-detail') setSelectedKandidat(params.kandidat || null);
     if (menu === 'departemen-detail') setSelectedDepartemen(params.departemen || null);
+    if (menu === 'kandidat') setKandidatFilter(params.filter || '');
     if (menu === 'ringkasan-pembayaran') {
       setSelectedPlan(params.plan || 'BASIC');
       setSelectedCycle(params.cycle || 'bulanan');
@@ -76,6 +79,7 @@ export default function App() {
       seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
       jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
       kandidat: menu === 'kandidat-detail' ? params.kandidat : selectedKandidat,
+      filter: menu === 'kandidat' ? params.filter : kandidatFilter,
       departemen: menu === 'departemen-detail' ? params.departemen : selectedDepartemen,
       search: params.search
     });
@@ -163,7 +167,7 @@ export default function App() {
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
       case 'seleksi': return <Seleksi navigate={navigate} searchQuery={searchQuery} />;
       case 'seleksi-detail': return <SeleksiDetail seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
-      case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} />;
+      case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} />;
       case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} seleksiId={selectedSeleksiId} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;

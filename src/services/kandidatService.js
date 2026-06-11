@@ -202,3 +202,25 @@ export async function getActivityLogs(companyId) {
 
   return data;
 }
+
+export async function getDirekrutKandidat(companyId) {
+  if (!companyId) return [];
+  const { data: scoringData, error } = await supabase
+    .from('scoring')
+    .select('kandidat_id, seleksi!inner(company_id)')
+    .eq('seleksi.company_id', companyId)
+    .gte('alur_proses', 8);
+
+  if (error || !scoringData) return [];
+  const kandidatIds = [...new Set(scoringData.map(s => s.kandidat_id))];
+  if (kandidatIds.length === 0) return [];
+
+  const { data, error: kError } = await supabase
+    .from('kandidat')
+    .select('*')
+    .in('id', kandidatIds)
+    .order('created_at', { ascending: false });
+
+  if (kError) throw kError;
+  return data || [];
+}

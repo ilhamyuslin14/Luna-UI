@@ -4,12 +4,31 @@ export async function getDashboardMetrics(companyId) {
   if (!companyId) return { totalKandidat: 0, lowonganAktif: 0, direkrut: 0, rataKecocokan: 0 };
 
   try {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const startOfMonthIso = startOfMonth.toISOString();
+
     // 1. Total Talenta (kandidat)
     const { count: totalKandidat } = await supabase
       .from('kandidat')
       .select('*', { count: 'exact', head: true })
       .eq('company_id', companyId)
       .eq('arsip', false);
+
+    const { count: kandidatBulanIni } = await supabase
+      .from('kandidat')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('arsip', false)
+      .gte('created_at', startOfMonthIso);
+
+    const { count: kandidatPublic } = await supabase
+      .from('kandidat')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('arsip', false)
+      .eq('sumber', 'public');
 
     // 2. Lowongan Aktif (seleksi)
     const { count: lowonganAktif } = await supabase
@@ -19,12 +38,26 @@ export async function getDashboardMetrics(companyId) {
       .eq('status', 'Aktif')
       .eq('arsip', false);
 
+    const { count: lowonganBulanIni } = await supabase
+      .from('seleksi')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('arsip', false)
+      .gte('created_at', startOfMonthIso);
+
     // 3. Karyawan Direkrut (scoring alur_proses >= 8)
     const { count: direkrut } = await supabase
       .from('scoring')
       .select('*, seleksi!inner(company_id)', { count: 'exact', head: true })
       .eq('seleksi.company_id', companyId)
       .gte('alur_proses', 8);
+
+    const { count: direkrutBulanIni } = await supabase
+      .from('scoring')
+      .select('*, seleksi!inner(company_id)', { count: 'exact', head: true })
+      .eq('seleksi.company_id', companyId)
+      .gte('alur_proses', 8)
+      .gte('updated_at', startOfMonthIso);
 
     // 4. Rata-rata Kecocokan AI (average of total_score)
     // We fetch all scores and calculate manually, or use an RPC if available.
@@ -49,7 +82,13 @@ export async function getDashboardMetrics(companyId) {
       totalKandidat: totalKandidat || 0,
       lowonganAktif: lowonganAktif || 0,
       direkrut: direkrut || 0,
-      rataKecocokan: rataKecocokan || 0
+      rataKecocokan: rataKecocokan || 0,
+      trends: {
+        kandidat: kandidatBulanIni || 0,
+        kandidatPublic: kandidatPublic || 0,
+        lowongan: lowonganBulanIni || 0,
+        direkrut: direkrutBulanIni || 0
+      }
     };
   } catch (err) {
     console.error('Error fetching dashboard metrics:', err);
@@ -163,10 +202,17 @@ export async function getRecentActivities(companyId) {
       const namaPosisi = sc.seleksi?.jabatan || 'Posisi';
       
       let text = '';
+      let bg = '';
+      let icon = '';
+
       if (sc.alur_proses === 1) {
         text = `Kandidat '${namaKandidat}' dinilai & diproses untuk posisi '${namaPosisi}'.`;
+        bg = '#e1fce7';
+        icon = '/assets/fi1004765.svg';
       } else {
         text = `Kandidat '${namaKandidat}' diubah statusnya menjadi ${alurName} pada posisi '${namaPosisi}'.`;
+        bg = '#fff4e5';
+        icon = '/assets/fi3114812.svg';
       }
 
       activities.push({
@@ -174,8 +220,8 @@ export async function getRecentActivities(companyId) {
         timestamp: new Date(sc.updated_at).getTime(),
         dateStr: sc.updated_at,
         text,
-        icon: '/assets/fi1004765.svg', // green icon
-        bg: '#e1fce7'
+        icon,
+        bg
       });
     });
 
@@ -239,5 +285,88 @@ export async function getRecentActivities(companyId) {
   } catch (err) {
     console.error('Error fetching recent activities:', err);
     return [];
+  }
+}
+
+export async function getAdvancedDashboardMetrics(companyId) {
+  if (!companyId) return null;
+  try {
+    // 1. Funnel & Kategori Fit (dari scoring)
+    const { data: scoringData } = await supabase
+      .from('scoring')
+      .select('alur_proses, kategori_fit, seleksi_id, seleksi!inner(company_id, jabatan)')
+      .eq('seleksi.company_id', companyId);
+
+    // 2. Demografi Talenta (dari kandidat)
+    const { data: kandidatData } = await supabase
+      .from('kandidat')
+      .select('gender, sumber')
+      .eq('company_id', companyId)
+      .eq('arsip', false);
+
+    const metrics = {
+      funnel: [
+        { name: 'Sourced (Baru)', value: 0 },
+        { name: 'Disaring AI', value: 0 },
+        { name: 'Wawancara', value: 0 },
+        { name: 'Penawaran', value: 0 },
+        { name: 'Direkrut', value: 0 }
+      ],
+      aiAcceptance: { sangatCocok: 0, cocok: 0, kurangCocok: 0 },
+      sumber: {},
+      gender: { 'Laki-laki': 0, 'Perempuan': 0, 'Tidak Diketahui': 0 },
+      topJobs: {}
+    };
+
+    if (scoringData) {
+      scoringData.forEach(s => {
+        // Funnel logic
+        const alur = s.alur_proses || 1;
+        if (alur >= 1) metrics.funnel[0].value++; // Sourced
+        if (alur >= 2) metrics.funnel[1].value++; // Disaring
+        if (alur >= 4 && alur <= 6) metrics.funnel[2].value++; // Wawancara
+        if (alur === 7) metrics.funnel[3].value++; // Penawaran
+        if (alur >= 8) metrics.funnel[4].value++; // Direkrut (8, 9, 10)
+
+        // AI Acceptance
+        if (s.kategori_fit === 'Sangat Cocok') metrics.aiAcceptance.sangatCocok++;
+        else if (s.kategori_fit === 'Cocok') metrics.aiAcceptance.cocok++;
+        else metrics.aiAcceptance.kurangCocok++;
+
+        // Top Jobs
+        const jabatan = s.seleksi?.jabatan || 'Unknown';
+        if (!metrics.topJobs[jabatan]) metrics.topJobs[jabatan] = 0;
+        metrics.topJobs[jabatan]++;
+      });
+    }
+
+    if (kandidatData) {
+      kandidatData.forEach(k => {
+        // Gender
+        if (k.gender === 'Laki-laki') metrics.gender['Laki-laki']++;
+        else if (k.gender === 'Perempuan') metrics.gender['Perempuan']++;
+        else metrics.gender['Tidak Diketahui']++;
+
+        // Sumber
+        const source = k.sumber === 'public' ? 'Portal Karier' : 'Upload Manual';
+        if (!metrics.sumber[source]) metrics.sumber[source] = 0;
+        metrics.sumber[source]++;
+      });
+    }
+
+    // Sort Top Jobs
+    metrics.topJobsArr = Object.entries(metrics.topJobs)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Format Sumber to array for PieChart
+    metrics.sumberArr = Object.entries(metrics.sumber)
+      .map(([name, value]) => ({ name, value }));
+
+    return metrics;
+  } catch (err) {
+    console.error('Error fetching advanced metrics:', err);
+    throw err;
   }
 }

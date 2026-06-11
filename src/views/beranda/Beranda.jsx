@@ -44,56 +44,58 @@ export default function Beranda({ navigate }) {
     <div className="db-view">
       {/* Stats Cards */}
       <div className="db-stats-grid">
-        <div className="db-stat-card">
+        <div className="db-stat-card db-stat-dark" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat')}>
           <div className="db-stat-card-header">
-            <div className="db-stat-icon-wrapper" style={{ background: '#eef7fd' }}>
-              <img src="/assets/group1.svg" alt="Talenta" />
-            </div>
-            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
-          </div>
-          <div className="db-stat-card-body">
             <div className="db-stat-label">Total Talenta</div>
-            <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
+            <div className="db-stat-arrow">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+          </div>
+          <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
+          <div className="db-stat-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            +{metrics.trends?.kandidat || 0} di bulan ini
           </div>
         </div>
 
-        <div className="db-stat-card">
+        <div className="db-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('seleksi')}>
           <div className="db-stat-card-header">
-            <div className="db-stat-icon-wrapper" style={{ background: '#ffedff' }}>
-              <img src="/assets/fi8799819.svg" alt="Jobs" />
+            <div className="db-stat-label">Posisi Aktif</div>
+            <div className="db-stat-arrow">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
-            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
           </div>
-          <div className="db-stat-card-body">
-            <div className="db-stat-label">Lowongan Aktif</div>
-            <div className="db-stat-value">{metrics.lowonganAktif.toLocaleString()}</div>
+          <div className="db-stat-value">{metrics.lowonganAktif.toLocaleString()}</div>
+          <div className="db-stat-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            +{metrics.trends?.lowongan || 0} di bulan ini
           </div>
         </div>
 
-        <div className="db-stat-card">
+        <div className="db-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat', { filter: 'direkrut' })}>
           <div className="db-stat-card-header">
-            <div className="db-stat-icon-wrapper" style={{ background: '#e1fce7' }}>
-              <img src="/assets/group4.svg" alt="Hired" />
-            </div>
-            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
-          </div>
-          <div className="db-stat-card-body">
             <div className="db-stat-label">Karyawan Direkrut</div>
-            <div className="db-stat-value">{metrics.direkrut.toLocaleString()}</div>
+            <div className="db-stat-arrow">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+          </div>
+          <div className="db-stat-value">{metrics.direkrut.toLocaleString()}</div>
+          <div className="db-stat-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            +{metrics.trends?.direkrut || 0} di bulan ini
           </div>
         </div>
 
         <div className="db-stat-card">
           <div className="db-stat-card-header">
-            <div className="db-stat-icon-wrapper" style={{ background: '#fff4dd' }}>
-              <img src="/assets/group1000006043.svg" alt="AI Match" />
-            </div>
-            <div className="db-stat-trend" style={{ visibility: 'hidden' }}>-</div>
+            <div className="db-stat-label">Rata-rata Penilaian</div>
           </div>
-          <div className="db-stat-card-body">
-            <div className="db-stat-label">Rata-rata Kecocokan AI</div>
-            <div className="db-stat-value">{metrics.rataKecocokan}%</div>
+          <div className="db-stat-value">{metrics.rataKecocokan}%</div>
+          <div className="db-stat-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Metrik Keseluruhan
           </div>
+          <div className="db-tooltip-content">Skor rata-rata berdasarkan penilaian AI terhadap seluruh kandidat.</div>
         </div>
       </div>
 
