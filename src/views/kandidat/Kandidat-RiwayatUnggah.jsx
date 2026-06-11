@@ -296,11 +296,12 @@ export default function KandidatRiwayatUnggah({ onView }) {
       </div>
 
       {/* Rows */}
-      {filteredBatches.length === 0 ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
-          Tidak ada data yang cocok dengan filter.
-        </div>
-      ) : filteredBatches.map((item, idx) => {
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {filteredBatches.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+            Tidak ada data yang cocok dengan filter.
+          </div>
+        ) : filteredBatches.map((item, idx) => {
         const { labelAktivitas, hasError, isProcessing, statusBerhasilText, finalStatusText } = getBatchStatusInfo(item);
 
         let berhasilStyle = {};
@@ -371,6 +372,7 @@ export default function KandidatRiwayatUnggah({ onView }) {
           </div>
         </div>
       )})}
+      </div>
     </div>
   );
 }
