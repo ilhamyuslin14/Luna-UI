@@ -202,10 +202,17 @@ export async function getRecentActivities(companyId) {
       const namaPosisi = sc.seleksi?.jabatan || 'Posisi';
 
       let text = '';
+      let bg = '';
+      let icon = '';
+
       if (sc.alur_proses === 1) {
         text = `Kandidat '${namaKandidat}' dinilai & diproses untuk posisi '${namaPosisi}'.`;
+        bg = '#e1fce7';
+        icon = '/assets/fi1004765.svg';
       } else {
         text = `Kandidat '${namaKandidat}' diubah statusnya menjadi ${alurName} pada posisi '${namaPosisi}'.`;
+        bg = '#fff4e5';
+        icon = '/assets/fi3114812.svg';
       }
 
       activities.push({
@@ -213,8 +220,8 @@ export async function getRecentActivities(companyId) {
         timestamp: new Date(sc.updated_at).getTime(),
         dateStr: sc.updated_at,
         text,
-        icon: '/assets/fi1004765.svg', // green icon
-        bg: '#e1fce7'
+        icon,
+        bg
       });
     });
 
