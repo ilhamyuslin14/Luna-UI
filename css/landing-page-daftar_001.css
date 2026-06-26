@@ -1,0 +1,27 @@
+/* ── Landing Page Daftar _001 ── */
+.lp-_001-container.lpm-page .lpm-left {
+  background: var(--luna-orange-500);
+}
+
+.lp-_001-container.lpm-page .lpm-left-title,
+.lp-_001-container.lpm-page .lpm-left-subtitle {
+  color: var(--luna-ink-000);
+}
+
+.lp-_001-container.lpm-page .lpm-submit {
+  background-color: var(--luna-orange-400);
+}
+
+.lp-_001-container.lpm-page .lpm-submit:hover:not(.lpm-disabled):not(.lpm-loading) {
+  background-color: var(--luna-orange-500);
+}
+
+.lp-_001-container.lpm-page .lpm-forgot,
+.lp-_001-container.lpm-page .lpm-register-link {
+  color: var(--luna-orange-400);
+}
+
+.lp-_001-container.lpm-page .lpm-input:focus {
+  border-color: var(--luna-orange-400);
+  box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.1);
+}

@@ -1,0 +1,136 @@
+/* ── Landing Page Masuk _001 (Revamp Redesign) ── */
+
+.lp-_001-container.lpm-page {
+  font-family: 'Inter Tight', sans-serif; /* Body font dari guidelines */
+}
+
+.lp-_001-container.lpm-page h1,
+.lp-_001-container.lpm-page h2,
+.lp-_001-container.lpm-page h3,
+.lp-_001-container.lpm-page .lpm-left-title,
+.lp-_001-container.lpm-page .lpm-title {
+  font-family: 'Plus Jakarta Sans', sans-serif; /* Heading font dari guidelines */
+  letter-spacing: -1.8%; /* H1 letter spacing dari guidelines */
+}
+
+/* Visual Panel (Right side now, swapped in DOM) */
+.lp-_001-container.lpm-page .lpm-left {
+  background: var(--luna-orange-500);
+  position: relative;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Text & Logo Container (Glass Frame) */
+.lp-_001-container.lpm-page .lpm-left-content {
+  padding: 0 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+.lp-_001-container.lpm-page .lpm-left-content:hover {
+  transform: scale(1.02);
+  /* Efek bayangan lebih dramatis saat membesar */
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Absolute position for the logo at top left */
+.lp-_001-container.lpm-page .lpm-left-logo {
+  position: absolute;
+  top: 70px;
+  left: 70px;
+}
+
+/* Text styles */
+.lp-_001-container.lpm-page .lpm-left-title {
+  color: #fff;
+  font-size: 46px;
+  margin-bottom: 24px;
+}
+
+.lp-_001-container.lpm-page .lpm-left-subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* CSS Patterns (Diagonal Pills) */
+.lp-_001-container.lpm-page .lpm-pattern {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+  border-radius: 150px;
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lp-_001-container.lpm-page .lpm-pattern-1 {
+  width: 220px;
+  height: 600px;
+  top: -100px;
+  left: 15%;
+}
+
+.lp-_001-container.lpm-page .lpm-pattern-2 {
+  width: 280px;
+  height: 800px;
+  top: -150px;
+  left: 40%;
+}
+
+.lp-_001-container.lpm-page .lpm-pattern-3 {
+  width: 220px;
+  height: 900px;
+  top: 50px;
+  left: 70%;
+}
+
+/* Form Panel (Left side now) */
+.lp-_001-container.lpm-page .lpm-input {
+  border-radius: 50px;
+  padding: 0 24px;
+}
+
+.lp-_001-container.lpm-page .lpm-submit {
+  border-radius: 50px;
+  background-color: var(--luna-orange-500);
+  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(255, 123, 0, 0.15);
+}
+
+.lp-_001-container.lpm-page .lpm-submit:hover:not(.lpm-disabled):not(.lpm-loading) {
+  background-color: var(--luna-orange-500);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 123, 0, 0.3);
+}
+
+.lp-_001-container.lpm-page .lpm-submit:active:not(.lpm-disabled):not(.lpm-loading) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 123, 0, 0.15);
+}
+
+/* State Disabled yang sangat jelas bedanya */
+.lp-_001-container.lpm-page .lpm-submit.lpm-disabled {
+  background-color: #F3F4F6;
+  color: #9CA3AF;
+  border: 1px solid #E5E7EB;
+  box-shadow: none;
+  transform: translateY(0);
+  cursor: not-allowed;
+}
+
+.lp-_001-container.lpm-page .lpm-forgot,
+.lp-_001-container.lpm-page .lpm-register-link {
+  color: var(--luna-orange-500);
+}
+
+.lp-_001-container.lpm-page .lpm-input:focus {
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(240, 111, 24, 0.15);
+}

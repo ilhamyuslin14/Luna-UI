@@ -1,0 +1,384 @@
+/* 
+  _001 Landing Page Style 
+  Untuk menghindari bentrok dengan halaman lain, pastikan untuk menggunakan prefix class yang spesifik untuk landing page baru ini (misal: .lp-_001- ) atau membatasi scope styling pada container utama.
+*/
+
+/* ─── COLOR VARIABLES ─── */
+:root {
+  /* Luna Orange */
+  --luna-orange-050: #FFF4DF;
+  --luna-orange-100: #FFCD90;
+  --luna-orange-200: #FFB76B;
+  --luna-orange-300: #FFA652;
+  --luna-orange-400: #FF8D21; /* Primer */
+  --luna-orange-500: #FF7B00;
+
+  /* Ink Scale (Netral Hangat) */
+  --luna-ink-000: #FFFFFF;
+  --luna-ink-050: #F7F7F6;
+  --luna-ink-100: #EFEEEC;
+  --luna-ink-200: #DCDAD5;
+  --luna-ink-300: #B8B5AE;
+  --luna-ink-400: #8A8780;
+  --luna-ink-500: #5E5C56;
+  --luna-ink-600: #3D3B36;
+  --luna-ink-700: #292823; /* Estimated for Body */
+  --luna-ink-800: #15140F;
+  --luna-ink-900: #0A0908;
+
+  /* Semantic */
+  --luna-semantic-success: #1F8A4E;
+  --luna-semantic-warning: #C97A0E;
+  --luna-semantic-error: #C9342B;
+  --luna-semantic-info: #1F6FB5;
+}
+
+/* ─── TYPOGRAPHY GUIDELINES ─── */
+.lp-_001-font-display {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 40px;
+  letter-spacing: -0.02em; /* -2.0% */
+}
+
+.lp-_001-font-h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 30px;
+  letter-spacing: -0.018em; /* -1.8% */
+}
+
+.lp-_001-font-h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 22px;
+  letter-spacing: -0.012em; /* -1.2% */
+}
+
+.lp-_001-font-h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  letter-spacing: -0.005em; /* -0.5% */
+}
+
+.lp-_001-font-body {
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+  letter-spacing: 0em;
+}
+
+.lp-_001-font-caption {
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 17px;
+  letter-spacing: 0em;
+}
+
+.lp-_001-font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0em;
+}
+
+/* ─── COMPONENT STYLES ─── */
+.lp-_001-container {
+  /* Default body font and color */
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--luna-ink-700);
+  background-color: var(--luna-ink-000);
+}
+
+/* Headings use Plus Jakarta Sans */
+.lp-_001-container h1,
+.lp-_001-container h2,
+.lp-_001-container h3,
+.lp-_001-container h4,
+.lp-_001-container .lp-hero-title,
+.lp-_001-container .lp-features-title,
+.lp-_001-container .lp-why-title,
+.lp-_001-container .lp-pricing-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.015em;
+  color: var(--luna-ink-900);
+}
+
+/* Specific Heading Overrides based on guidelines */
+.lp-_001-container .lp-hero-title {
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 40px;
+  letter-spacing: -0.02em; /* DISPLAY */
+}
+
+.lp-_001-container .lp-features-title,
+.lp-_001-container .lp-why-title,
+.lp-_001-container .lp-pricing-title {
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 30px;
+  letter-spacing: -0.018em; /* H1 */
+}
+
+.lp-_001-container .lp-plan-name,
+.lp-_001-container .lp-feature-name,
+.lp-_001-container .lp-why-point-title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 22px;
+  letter-spacing: -0.012em; /* H2 */
+}
+
+/* ─── COLOR OVERRIDES (COMPONENTS) ─── */
+
+/* Primary Buttons */
+.lp-_001-container .lp-header-cta,
+.lp-_001-container .lp-hero-btn-primary,
+.lp-_001-container .lp-plan-btn-solid {
+  background-color: var(--luna-orange-400);
+  color: var(--luna-ink-000);
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.lp-_001-container .lp-header-cta:hover,
+.lp-_001-container .lp-hero-btn-primary:hover,
+.lp-_001-container .lp-plan-btn-solid:hover {
+  background-color: var(--luna-orange-500);
+}
+
+/* Secondary Buttons */
+.lp-_001-container .lp-plan-btn-outline {
+  background-color: var(--luna-ink-000);
+  color: var(--luna-ink-900);
+  border: 1px solid var(--luna-ink-300);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.lp-_001-container .lp-plan-btn-outline:hover {
+  background-color: var(--luna-ink-050);
+  border-color: var(--luna-ink-400);
+}
+
+.lp-_001-container .lp-plan-btn-outline .lp-plan-btn-arrow img {
+  filter: brightness(0) invert(0.05); /* Shifts the blue icon to near black (Ink 900) */
+}
+
+/* Ghost Buttons */
+.lp-_001-container .lp-header-login {
+  background-color: transparent;
+  color: var(--luna-ink-900);
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.lp-_001-container .lp-header-login:hover {
+  color: var(--luna-orange-400);
+}
+
+/* Text Colors */
+.lp-_001-container .lp-hero-subtitle,
+.lp-_001-container .lp-features-subtitle,
+.lp-_001-container .lp-why-subtitle,
+.lp-_001-container .lp-pricing-subtitle,
+.lp-_001-container .lp-footer-desc,
+.lp-_001-container .lp-feature-desc,
+.lp-_001-container .lp-why-point-desc {
+  color: var(--luna-ink-500); /* Teks sekunder & helper */
+}
+
+/* Badges / Chips */
+.lp-_001-container .lp-hero-badge {
+  background-color: var(--luna-orange-050);
+  color: var(--luna-orange-500);
+  border: 1px solid var(--luna-orange-200);
+}
+
+.lp-_001-container .lp-why-point-icon img {
+  /* Override blue icons to match brand (shift blue to orange) */
+  filter: hue-rotate(-180deg) saturate(2) brightness(1.2);
+}
+
+/* ── CTA Section (Dark Mode) ── */
+.lp-_001-container .lp-cta {
+  background: linear-gradient(64.1deg, var(--luna-ink-900) 4.5%, var(--luna-ink-800) 96.1%);
+}
+
+
+
+/* Make patterns darker and transparent */
+.lp-_001-container .lp-cta-bg1,
+.lp-_001-container .lp-cta-bg2 {
+  opacity: 0.2;
+}
+
+.lp-_001-container .lp-cta-title {
+  color: var(--luna-ink-000);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 30px;
+  letter-spacing: -0.018em;
+}
+
+.lp-_001-container .lp-cta-subtitle {
+  color: var(--luna-ink-200);
+}
+
+.lp-_001-container .lp-cta-btn {
+  background-color: var(--luna-orange-400);
+  color: var(--luna-ink-000);
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.lp-_001-container .lp-cta-btn:hover {
+  background-color: var(--luna-orange-500);
+}
+.lp-_001-container .lp-hero-badge-dot {
+  /* Override blue dot to match brand (shift blue to orange) */
+  filter: hue-rotate(-180deg) saturate(2) brightness(1.2);
+}
+
+.lp-_001-container .lp-terpopuler-badge {
+  background: var(--luna-orange-400); /* use background instead of background-color to override the gradient */
+  color: var(--luna-ink-000);
+}
+
+.lp-_001-container .lp-plan-price-row {
+  justify-content: flex-start;
+}
+
+.lp-_001-container .lp-plan-name {
+  background: none;
+  -webkit-text-fill-color: var(--luna-orange-500);
+  color: var(--luna-orange-500);
+}
+
+/* ─── COMPREHENSIVE OVERRIDES (REPLACING OLD BRAND COLORS) ─── */
+
+/* Navigation Links */
+.lp-_001-container .lp-nav-link {
+  color: var(--luna-ink-700);
+}
+.lp-_001-container .lp-nav-link:hover,
+.lp-_001-container .lp-nav-link.lp-nav-active {
+  color: var(--luna-orange-400);
+}
+
+/* Dashboard Mockup Badges & Chips */
+.lp-_001-container .lp-score-high {
+  background: #E8F5E9;
+  border-color: #C8E6C9;
+}
+.lp-_001-container .lp-score-high .lp-score-label { color: var(--luna-semantic-success); }
+.lp-_001-container .lp-score-num-green { background-color: var(--luna-semantic-success); }
+
+.lp-_001-container .lp-score-moderate {
+  background: #FFF3E0;
+  border-color: #FFE0B2;
+}
+.lp-_001-container .lp-score-moderate .lp-score-label { color: var(--luna-semantic-warning); }
+.lp-_001-container .lp-score-num-yellow { background-color: var(--luna-semantic-warning); }
+
+.lp-_001-container .lp-score-low {
+  background: #FFEBEE;
+  border-color: #FFCDD2;
+}
+.lp-_001-container .lp-score-low .lp-score-label { color: var(--luna-semantic-error); }
+.lp-_001-container .lp-score-num-red { background-color: var(--luna-semantic-error); }
+
+/* Pricing Badges */
+.lp-_001-container .lp-plan-annual-badge {
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-500);
+}
+
+.lp-_001-container .lp-chip-green { background: #E8F5E9; color: var(--luna-semantic-success); }
+.lp-_001-container .lp-chip-yellow { background: #FFF3E0; color: var(--luna-semantic-warning); }
+.lp-_001-container .lp-chip-red { background: #FFEBEE; color: var(--luna-semantic-error); }
+
+
+
+/* Pricing Section */
+.lp-_001-container .lp-billing-toggle {
+  background-color: var(--luna-ink-050);
+  border: 1px solid var(--luna-ink-200);
+}
+.lp-_001-container .lp-billing-opt {
+  color: var(--luna-ink-600);
+}
+.lp-_001-container .lp-billing-opt.lp-billing-active {
+  background-color: var(--luna-orange-400);
+  color: var(--luna-ink-000);
+}
+
+.lp-_001-container .lp-plan-feat-blue {
+  color: var(--luna-orange-400);
+  font-weight: 600;
+}
+
+.lp-_001-container .lp-plan-card:hover {
+  box-shadow: 0 0 0 3px var(--luna-orange-300), 0 8px 20px rgba(10, 9, 8, 0.08);
+}
+
+.lp-_001-container .lp-plan-card-plus {
+  border-color: var(--luna-orange-400);
+  box-shadow: 0 12px 24px rgba(255, 141, 33, 0.15);
+}
+
+.lp-_001-container .lp-plan-card-plus:hover,
+.lp-_001-container .lp-pricing-cards .lp-plan-card-plus:hover {
+  border-color: var(--luna-orange-400) !important;
+  box-shadow: 0 12px 28px rgba(255, 141, 33, 0.25);
+}
+
+.lp-_001-container .lp-plan-price {
+  color: var(--luna-ink-900);
+}
+.lp-_001-container .lp-plan-price-period {
+  color: var(--luna-ink-500);
+}
+
+/* Footer & Links */
+.lp-_001-container .lp-footer-col-title {
+  color: var(--luna-ink-900);
+}
+.lp-_001-container .lp-footer-col-links span {
+  color: var(--luna-ink-600);
+}
+.lp-_001-container .lp-footer-col-links span:hover {
+  color: var(--luna-orange-400);
+}
+
+.lp-_001-container .lp-feature-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lp-_001-container .lp-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(10, 9, 8, 0.08); /* Soft shadow using ink color */
+}
+
+/* SVG icons tinting (override old blue SVGs if any) */
+.lp-_001-container .lp-plan-feat-icon[src*="blue"] {
+  filter: hue-rotate(-160deg) saturate(2); /* approximate orange */
+}
