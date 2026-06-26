@@ -146,18 +146,21 @@
 /* Primary Buttons */
 .lp-_001-container .lp-header-cta,
 .lp-_001-container .lp-hero-btn-primary,
-.lp-_001-container .lp-plan-btn-solid {
+.lp-_001-container .lp-plan-btn-solid,
+.lp-_001-container .lp-cta-btn {
   background-color: var(--luna-orange-400);
   color: var(--luna-ink-000);
   border: none;
   font-weight: 600;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .lp-_001-container .lp-header-cta:hover,
 .lp-_001-container .lp-hero-btn-primary:hover,
-.lp-_001-container .lp-plan-btn-solid:hover {
+.lp-_001-container .lp-plan-btn-solid:hover,
+.lp-_001-container .lp-cta-btn:hover {
   background-color: var(--luna-orange-500);
+  transform: scale(1.05);
 }
 
 /* Secondary Buttons */
@@ -166,12 +169,13 @@
   color: var(--luna-ink-900);
   border: 1px solid var(--luna-ink-300);
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .lp-_001-container .lp-plan-btn-outline:hover {
   background-color: var(--luna-ink-050);
   border-color: var(--luna-ink-400);
+  transform: scale(1.05);
 }
 
 .lp-_001-container .lp-plan-btn-outline .lp-plan-btn-arrow img {
@@ -242,17 +246,7 @@
   color: var(--luna-ink-200);
 }
 
-.lp-_001-container .lp-cta-btn {
-  background-color: var(--luna-orange-400);
-  color: var(--luna-ink-000);
-  border: none;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
-}
 
-.lp-_001-container .lp-cta-btn:hover {
-  background-color: var(--luna-orange-500);
-}
 .lp-_001-container .lp-hero-badge-dot {
   /* Override blue dot to match brand (shift blue to orange) */
   filter: hue-rotate(-180deg) saturate(2) brightness(1.2);
@@ -336,19 +330,24 @@
   font-weight: 600;
 }
 
+.lp-_001-container .lp-plan-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
 .lp-_001-container .lp-plan-card:hover {
-  box-shadow: 0 0 0 3px var(--luna-orange-300), 0 8px 20px rgba(10, 9, 8, 0.08);
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px var(--luna-orange-300), 0 16px 32px rgba(10, 9, 8, 0.12);
 }
 
 .lp-_001-container .lp-plan-card-plus {
   border-color: var(--luna-orange-400);
-  box-shadow: 0 12px 24px rgba(255, 141, 33, 0.15);
 }
 
 .lp-_001-container .lp-plan-card-plus:hover,
 .lp-_001-container .lp-pricing-cards .lp-plan-card-plus:hover {
   border-color: var(--luna-orange-400) !important;
-  box-shadow: 0 12px 28px rgba(255, 141, 33, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 16px 36px rgba(255, 141, 33, 0.3);
 }
 
 .lp-_001-container .lp-plan-price {
@@ -381,4 +380,12 @@
 /* SVG icons tinting (override old blue SVGs if any) */
 .lp-_001-container .lp-plan-feat-icon[src*="blue"] {
   filter: hue-rotate(-160deg) saturate(2); /* approximate orange */
+}
+
+/* Glassmorphism Navbar */
+.lp-_001-container .lp-header {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }

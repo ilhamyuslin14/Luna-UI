@@ -6,6 +6,7 @@ export default function LandingPage_001({ navigate }) {
   useEffect(() => {
     document.body.style.overflow = 'auto';
     document.documentElement.style.scrollBehavior = 'smooth';
+    document.documentElement.style.scrollPaddingTop = '50px'; // Offset for fixed navbar
 
     const sections = ['hero', 'fitur', 'keunggulan', 'harga'];
     const observer = new IntersectionObserver(
@@ -27,6 +28,7 @@ export default function LandingPage_001({ navigate }) {
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.scrollBehavior = '';
+      document.documentElement.style.scrollPaddingTop = '';
       observer.disconnect();
     };
   }, []);
@@ -38,7 +40,7 @@ export default function LandingPage_001({ navigate }) {
       {/* ── Header ── */}
       <header className="lp-header">
         <div className="lp-header-logo">
-          <img src="/assets/logos/luna-new-2.png" alt="LUNA" className="lp-header-logo-icon" style={{ height: '76px', width: 'auto' }} />
+          <img src="/assets/logos/luna-new-2.png" alt="LUNA" className="lp-header-logo-icon" style={{ height: '58px', width: 'auto' }} />
         </div>
         <nav className="lp-header-nav">
           <button className={`lp-nav-link${activeSection === 'fitur' ? ' lp-nav-active' : ''}`} onClick={() => document.getElementById('fitur')?.scrollIntoView({ behavior: 'smooth' })}>Fitur</button>
