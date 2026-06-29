@@ -489,8 +489,8 @@
   /* Trust Section Container */
   .lp-_001-container .lp-trust {
     height: auto;
-    padding: 24px 0; /* Lebih compact vertikal */
-    gap: 12px; /* Jarak antara teks dan slider lebih dekat */
+    padding: 16px 0; /* Sangat compact */
+    gap: 8px; /* Teks ke slider semakin dekat */
   }
   .lp-_001-container .lp-trust-label {
     font-size: 11px; /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
@@ -499,14 +499,14 @@
   /* Trust Logos (Auto-Scrolling Slider) */
   .lp-_001-container .lp-trust-logos {
     position: static;
-    margin-top: 12px; /* Jauh lebih compact dari sebelumnya 40px */
+    margin-top: 8px; /* Sangat rapat */
     display: flex;
     overflow-x: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 24px; /* Jarak antar logo lebih rapat */
+    gap: 20px; /* Logo berdekatan */
     padding: 0 20px; /* Hapus padding bottom 20px agar tidak terlalu tinggi */
     scrollbar-width: none; /* Hide scrollbar Firefox */
   }
@@ -514,7 +514,7 @@
     display: none; /* Hide scrollbar WebKit */
   }
   .lp-_001-container .lp-trust-logo {
-    height: 28px; /* Slightly bigger on mobile */
+    height: 18px; /* Ratio ukuran logo diperkecil jauh dari 28px */
     flex-shrink: 0;
   }
 
