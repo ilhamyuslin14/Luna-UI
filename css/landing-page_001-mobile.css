@@ -12,6 +12,15 @@
     font-size: 24px;
     line-height: 1.2;
   }
+  
+  .lp-_001-container .lp-features-subtitle {
+    font-size: 15px;
+  }
+
+  .lp-_001-container .lp-features {
+    padding: 60px 20px 40px;
+    gap: 32px;
+  }
 
   .lp-_001-container .lp-plan-name,
   .lp-_001-container .lp-feature-name,
@@ -286,10 +295,10 @@
   padding-bottom: 4px;
   text-align: center;
   white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px; /* Force 2 lines height */
   line-height: 1.3;
 }
 

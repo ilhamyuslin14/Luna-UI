@@ -51,6 +51,30 @@ export default function LandingPage_001({ navigate }) {
   const [billingCycle, setBillingCycle] = useState('tahunan');
 
   const [activeFeature, setActiveFeature] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const minSwipeDistance = 40;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+
+  const onTouchEndHandler = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }
+    if (isRightSwipe) {
+      setActiveFeature((prev) => (prev - 1 + features.length) % features.length);
+    }
+  };
 
   const features = [
     {
@@ -76,9 +100,9 @@ export default function LandingPage_001({ navigate }) {
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveFeature((prev) => (prev + 1) % features.length);
-    }, 4000); // 4 seconds delay as requested "agak lama"
+    }, 10000); // 10 seconds delay as requested, timer resets when activeFeature changes
     return () => clearInterval(timer);
-  }, [features.length]);
+  }, [activeFeature, features.length]);
 
   return (
     <div className="lp-page lp-_001-container">
@@ -262,7 +286,12 @@ export default function LandingPage_001({ navigate }) {
               </div>
             ))}
           </div>
-          <div className="lp-feature-card lp-slider-card">
+          <div 
+            className="lp-feature-card lp-slider-card"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEndHandler}
+          >
             <div className="lp-slider-card-header">
               <div className="lp-feature-icon-wrap" style={{ background: features[activeFeature].bg }}>
                 <img src={features[activeFeature].icon} alt="" />
