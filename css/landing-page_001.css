@@ -389,3 +389,155 @@
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
+
+/* ─── RESPONSIVE / MOBILE LAYOUT ─── */
+@media (max-width: 991px) {
+  .lp-_001-container .lp-hero {
+    padding: 100px 5% 60px 5%;
+  }
+  .lp-_001-container .lp-features,
+  .lp-_001-container .lp-why,
+  .lp-_001-container .lp-pricing,
+  .lp-_001-container .lp-cta-section {
+    padding: 60px 5%;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Typography Scaling */
+  .lp-_001-container .lp-hero-title {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+  .lp-_001-container .lp-features-title,
+  .lp-_001-container .lp-why-title,
+  .lp-_001-container .lp-pricing-title {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .lp-_001-container .lp-plan-name,
+  .lp-_001-container .lp-feature-name,
+  .lp-_001-container .lp-why-point-title {
+    font-size: 18px;
+  }
+
+  /* Header & Navbar */
+  .lp-_001-container .lp-header {
+    padding: 16px 20px;
+  }
+  .lp-_001-container .lp-header-nav,
+  .lp-_001-container .lp-header-login {
+    display: none; /* Hide navigation links and login text to save space */
+  }
+  .lp-_001-container .lp-header-logo-icon {
+    height: 40px !important; /* Smaller logo */
+  }
+  .lp-_001-container .lp-header-cta {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  /* Hero Section */
+  .lp-_001-container .lp-hero {
+    flex-direction: column;
+    padding-top: 120px;
+    text-align: center;
+  }
+  .lp-_001-container .lp-hero-left {
+    align-items: center;
+    max-width: 100%;
+  }
+  .lp-_001-container .lp-hero-ctas {
+    justify-content: center;
+    width: 100%;
+  }
+  .lp-_001-container .lp-hero-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  /* Hide heavy decorative assets */
+  .lp-_001-container .lp-hero-bg-wave,
+  .lp-_001-container .lp-hero-right {
+    display: none;
+  }
+
+  /* Trust Logos */
+  .lp-_001-container .lp-trust-logos {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  .lp-_001-container .lp-trust-logo {
+    height: 24px;
+  }
+
+  /* Features */
+  .lp-_001-container .lp-features-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .lp-_001-container .lp-feature-card {
+    width: 100%;
+  }
+
+  /* Keunggulan (Why Us) */
+  .lp-_001-container .lp-why-content {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .lp-_001-container .lp-why-left {
+    padding-right: 0;
+    max-width: 100%;
+  }
+  /* Hide the large illustration on mobile */
+  .lp-_001-container .lp-why-right {
+    display: none;
+  }
+
+  /* Pricing */
+  .lp-_001-container .lp-pricing-cards {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch; /* Make cards full width */
+  }
+  .lp-_001-container .lp-plan-card {
+    width: 100%;
+    transform: none !important;
+  }
+
+  /* CTA Section */
+  .lp-_001-container .lp-cta {
+    padding: 40px 20px;
+    border-radius: 20px;
+  }
+  .lp-_001-container .lp-cta-title {
+    font-size: 22px;
+  }
+  .lp-_001-container .lp-cta-btn {
+    width: 100%;
+  }
+
+  /* Footer */
+  .lp-_001-container .lp-footer-top {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .lp-_001-container .lp-footer-brand {
+    max-width: 100%;
+    text-align: center;
+  }
+  .lp-_001-container .lp-footer-logo {
+    justify-content: center;
+  }
+  .lp-_001-container .lp-footer-links {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 30px;
+  }
+  .lp-_001-container .lp-footer-bottom {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+}
