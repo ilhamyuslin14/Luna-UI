@@ -205,8 +205,8 @@
   .lp-_001-container .lp-why-photo-group {
     left: 50%;
     right: auto;
-    transform: translateX(-50%) scale(0.6);
-    opacity: 0.15;
+    transform: translateX(-50%) scale(1);
+    opacity: 0.05;
     z-index: 0;
     pointer-events: none;
     top: 50%;
@@ -229,7 +229,7 @@
   /* CTA Section */
   .lp-_001-container .lp-cta {
     padding: 40px 20px;
-    border-radius: 20px;
+    border-radius: 0;
   }
 
   .lp-_001-container .lp-cta-title {
