@@ -35,7 +35,19 @@ import LandingPageMasuk_001 from './views/landing/LandingPage-Masuk_001.jsx';
 import LandingPageDaftar_001 from './views/landing/LandingPage-Daftar_001.jsx';
 import LandingPageOTP_001 from './views/landing/LandingPage-OTP_001.jsx';
 import LandingPageLupaPassword_001 from './views/landing/LandingPage-LupaPassword_001.jsx';
-import Sandbox from './views/sandbox/Sandbox.jsx';
+const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
+const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
+
+function SandboxWrapper({ navigate }) {
+  const [SandboxComponent, setSandboxComponent] = useState(null);
+  useEffect(() => {
+    if (loadSandbox) {
+      loadSandbox().then(mod => setSandboxComponent(() => mod.default));
+    }
+  }, []);
+  if (!SandboxComponent) return <div style={{ padding: 20 }}>Sandbox (Local Only) - Module not found</div>;
+  return <SandboxComponent navigate={navigate} />;
+}
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -227,7 +239,7 @@ export default function App() {
   };
 
   if (window.location.pathname === '/sandbox') {
-    return <Sandbox navigate={navigate} />;
+    return <SandboxWrapper navigate={navigate} />;
   }
 
   return (
