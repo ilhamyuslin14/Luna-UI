@@ -447,7 +447,7 @@
 /* ─── RESPONSIVE / MOBILE LAYOUT ─── */
 @media (max-width: 991px) {
   .lp-_001-container .lp-hero {
-    padding: 100px 5% 60px 5%;
+    padding: 40px 5% 40px 5%;
   }
 
   .lp-_001-container .lp-features,

@@ -12,7 +12,7 @@
     font-size: 24px;
     line-height: 1.2;
   }
-  
+
   .lp-_001-container .lp-features-subtitle {
     font-size: 15px;
   }
@@ -52,8 +52,7 @@
   /* Hero Section */
   .lp-_001-container .lp-hero {
     flex-direction: column;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding: 40px 20px !important;
     text-align: center;
     min-height: auto;
     background-color: #ffffff;
@@ -63,14 +62,16 @@
     align-items: flex-start;
     text-align: left;
     max-width: 100%;
-    gap: 20px; /* Reduce gap from 40px to 20px for mobile */
+    gap: 20px;
+    /* Reduce gap from 40px to 20px for mobile */
   }
 
   .lp-_001-container .lp-hero-title {
     font-size: 42px;
     font-weight: 800;
     line-height: 1.15;
-    margin: 0; /* Remove extra margin, use gap */
+    margin: 0;
+    /* Remove extra margin, use gap */
   }
 
   .lp-_001-container .lp-hero-title-highlight {
@@ -81,7 +82,8 @@
   .lp-_001-container .lp-hero-subtitle {
     font-size: 15px;
     line-height: 1.6;
-    margin: 0; /* Remove extra margin, use gap */
+    margin: 0;
+    /* Remove extra margin, use gap */
     padding: 0;
   }
 
@@ -111,140 +113,143 @@
   }
 
   /* Trust Section Container */
-.lp-_001-container .lp-trust {
-  height: auto;
-  padding: 16px 0;
-  /* Sangat compact */
-  gap: 8px;
-  /* Teks ke slider semakin dekat */
-}
+  .lp-_001-container .lp-trust {
+    height: auto;
+    padding: 16px 0;
+    /* Sangat compact */
+    gap: 8px;
+    /* Teks ke slider semakin dekat */
+  }
 
-.lp-_001-container .lp-trust-label {
-  font-size: 11px;
-  /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
-}
+  .lp-_001-container .lp-trust-label {
+    font-size: 11px;
+    /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
+  }
 
-/* Trust Logos (Auto-Scrolling Slider) */
-.lp-_001-container .lp-trust-logos {
-  position: static;
-  margin-top: 8px;
-  /* Sangat rapat */
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: 20px;
-  /* Logo berdekatan */
-  padding: 0 20px;
-  /* Hapus padding bottom 20px agar tidak terlalu tinggi */
-  scrollbar-width: none;
-  /* Hide scrollbar Firefox */
-}
+  /* Trust Logos (Auto-Scrolling Slider) */
+  .lp-_001-container .lp-trust-logos {
+    position: static;
+    margin-top: 8px;
+    /* Sangat rapat */
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 20px;
+    /* Logo berdekatan */
+    padding: 0 20px;
+    /* Hapus padding bottom 20px agar tidak terlalu tinggi */
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+  }
 
-.lp-_001-container .lp-trust-logos::-webkit-scrollbar {
-  display: none;
-  /* Hide scrollbar WebKit */
-}
+  .lp-_001-container .lp-trust-logos::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar WebKit */
+  }
 
-.lp-_001-container .lp-trust-logo {
-  height: 18px;
-  /* Ratio ukuran logo diperkecil jauh dari 28px */
-  flex-shrink: 0;
-}
+  .lp-_001-container .lp-trust-logo {
+    height: 18px;
+    /* Ratio ukuran logo diperkecil jauh dari 28px */
+    flex-shrink: 0;
+  }
 
-/* Features */
-.lp-_001-container .lp-features-grid {
-  flex-direction: column;
-  gap: 20px;
-}
+  /* Features */
+  .lp-_001-container .lp-features-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
 
-.lp-_001-container .lp-feature-card {
-  width: 100%;
-  flex: none; /* override flex-basis 0 bug */
-  height: auto; /* adapt to content */
-  flex-direction: row; /* icon on left, text on right */
-  align-items: flex-start;
-  padding: 24px;
-  gap: 16px;
-}
+  .lp-_001-container .lp-feature-card {
+    width: 100%;
+    flex: none;
+    /* override flex-basis 0 bug */
+    height: auto;
+    /* adapt to content */
+    flex-direction: row;
+    /* icon on left, text on right */
+    align-items: flex-start;
+    padding: 24px;
+    gap: 16px;
+  }
 
-.lp-_001-container .lp-feature-icon-wrap {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-}
+  .lp-_001-container .lp-feature-icon-wrap {
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+  }
 
-.lp-_001-container .lp-feature-icon-wrap img {
-  width: 24px;
-  height: 24px;
-}
+  .lp-_001-container .lp-feature-icon-wrap img {
+    width: 24px;
+    height: 24px;
+  }
 
-/* Keunggulan (Why Us) */
-.lp-_001-container .lp-why-content {
-  flex-direction: column;
-  gap: 40px;
-}
+  /* Keunggulan (Why Us) */
+  .lp-_001-container .lp-why-content {
+    flex-direction: column;
+    gap: 40px;
+  }
 
-.lp-_001-container .lp-why-left {
-  padding-right: 0;
-  max-width: 100%;
-}
+  .lp-_001-container .lp-why-left {
+    padding-right: 0;
+    max-width: 100%;
+  }
 
-/* Hide the large illustration on mobile */
-.lp-_001-container .lp-why-right {
-  display: none;
-}
+  /* Hide the large illustration on mobile */
+  .lp-_001-container .lp-why-right {
+    display: none;
+  }
 
-/* Pricing */
-.lp-_001-container .lp-pricing-cards {
-  flex-direction: column;
-  gap: 24px;
-  align-items: stretch;
-  /* Make cards full width */
-}
+  /* Pricing */
+  .lp-_001-container .lp-pricing-cards {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+    /* Make cards full width */
+  }
 
-.lp-_001-container .lp-plan-card {
-  width: 100%;
-  transform: none !important;
-}
+  .lp-_001-container .lp-plan-card {
+    width: 100%;
+    transform: none !important;
+  }
 
-/* CTA Section */
-.lp-_001-container .lp-cta {
-  padding: 40px 20px;
-  border-radius: 20px;
-}
+  /* CTA Section */
+  .lp-_001-container .lp-cta {
+    padding: 40px 20px;
+    border-radius: 20px;
+  }
 
-.lp-_001-container .lp-cta-title {
-  font-size: 22px;
-}
+  .lp-_001-container .lp-cta-title {
+    font-size: 22px;
+  }
 
-.lp-_001-container .lp-cta-btn {
-  width: 100%;
-}
+  .lp-_001-container .lp-cta-btn {
+    width: 100%;
+  }
 
-/* Footer */
-.lp-_001-container .lp-footer-top {
-  flex-direction: column;
-  gap: 40px;
-}
+  /* Footer */
+  .lp-_001-container .lp-footer-top {
+    flex-direction: column;
+    gap: 40px;
+  }
 
-.lp-_001-container .lp-footer-brand {
-  max-width: 100%;
-  text-align: center;
-}
+  .lp-_001-container .lp-footer-brand {
+    max-width: 100%;
+    text-align: center;
+  }
 
-.lp-_001-container .lp-footer-logo {
-  justify-content: center;
-}
+  .lp-_001-container .lp-footer-logo {
+    justify-content: center;
+  }
 
-.lp-_001-container .lp-footer-links {
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 30px;
-}
+  .lp-_001-container .lp-footer-links {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 30px;
+  }
 
   .lp-_001-container .lp-footer-bottom {
     flex-direction: column;
@@ -252,10 +257,12 @@
     text-align: center;
   }
 }
+
 /* ── Slider Visibility ── */
 .lp-hide-on-mobile {
   display: none !important;
 }
+
 .lp-show-on-mobile {
   display: flex !important;
 }
@@ -297,7 +304,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px; /* Force 2 lines height */
+  min-height: 38px;
+  /* Force 2 lines height */
   line-height: 1.3;
 }
 
@@ -341,4 +349,3 @@
   width: 100%;
   margin: 0;
 }
-
