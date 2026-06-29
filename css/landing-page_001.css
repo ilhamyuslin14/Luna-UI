@@ -483,9 +483,20 @@
   }
 
   /* Hide heavy decorative assets */
-  .lp-_001-container .lp-hero-bg-wave,
-  .lp-_001-container .lp-hero-right {
+  .lp-_001-container .lp-hero-bg-wave {
     display: none;
+  }
+  /* Bring back the dashboard mockup and style it beautifully for mobile */
+  .lp-_001-container .lp-hero-right {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    width: 100%;
+    /* Scale down slightly so it fits mobile screens without horizontal scroll */
+    transform: scale(0.9);
+    transform-origin: top center;
+    /* Soft premium drop shadow */
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
   }
 
   /* Trust Section Container */
