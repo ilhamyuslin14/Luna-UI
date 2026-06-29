@@ -10,7 +10,8 @@
   --luna-orange-100: #FFCD90;
   --luna-orange-200: #FFB76B;
   --luna-orange-300: #FFA652;
-  --luna-orange-400: #FF8D21; /* Primer */
+  --luna-orange-400: #FF8D21;
+  /* Primer */
   --luna-orange-500: #FF7B00;
 
   /* Ink Scale (Netral Hangat) */
@@ -22,7 +23,8 @@
   --luna-ink-400: #8A8780;
   --luna-ink-500: #5E5C56;
   --luna-ink-600: #3D3B36;
-  --luna-ink-700: #292823; /* Estimated for Body */
+  --luna-ink-700: #292823;
+  /* Estimated for Body */
   --luna-ink-800: #15140F;
   --luna-ink-900: #0A0908;
 
@@ -39,7 +41,8 @@
   font-weight: 600;
   font-size: 40px;
   line-height: 40px;
-  letter-spacing: -0.02em; /* -2.0% */
+  letter-spacing: -0.02em;
+  /* -2.0% */
 }
 
 .lp-_001-font-h1 {
@@ -47,7 +50,8 @@
   font-weight: 600;
   font-size: 28px;
   line-height: 30px;
-  letter-spacing: -0.018em; /* -1.8% */
+  letter-spacing: -0.018em;
+  /* -1.8% */
 }
 
 .lp-_001-font-h2 {
@@ -55,7 +59,8 @@
   font-weight: 600;
   font-size: 20px;
   line-height: 22px;
-  letter-spacing: -0.012em; /* -1.2% */
+  letter-spacing: -0.012em;
+  /* -1.2% */
 }
 
 .lp-_001-font-h3 {
@@ -63,7 +68,8 @@
   font-weight: 600;
   font-size: 16px;
   line-height: 19px;
-  letter-spacing: -0.005em; /* -0.5% */
+  letter-spacing: -0.005em;
+  /* -0.5% */
 }
 
 .lp-_001-font-body {
@@ -120,7 +126,8 @@
   font-weight: 600;
   font-size: 40px;
   line-height: 40px;
-  letter-spacing: -0.02em; /* DISPLAY */
+  letter-spacing: -0.02em;
+  /* DISPLAY */
 }
 
 .lp-_001-container .lp-features-title,
@@ -129,7 +136,8 @@
   font-weight: 600;
   font-size: 28px;
   line-height: 30px;
-  letter-spacing: -0.018em; /* H1 */
+  letter-spacing: -0.018em;
+  /* H1 */
 }
 
 .lp-_001-container .lp-plan-name,
@@ -138,7 +146,8 @@
   font-weight: 600;
   font-size: 20px;
   line-height: 22px;
-  letter-spacing: -0.012em; /* H2 */
+  letter-spacing: -0.012em;
+  /* H2 */
 }
 
 /* ─── COLOR OVERRIDES (COMPONENTS) ─── */
@@ -179,7 +188,8 @@
 }
 
 .lp-_001-container .lp-plan-btn-outline .lp-plan-btn-arrow img {
-  filter: brightness(0) invert(0.05); /* Shifts the blue icon to near black (Ink 900) */
+  filter: brightness(0) invert(0.05);
+  /* Shifts the blue icon to near black (Ink 900) */
 }
 
 /* Ghost Buttons */
@@ -205,7 +215,8 @@
 .lp-_001-container .lp-footer-desc,
 .lp-_001-container .lp-feature-desc,
 .lp-_001-container .lp-why-point-desc {
-  color: var(--luna-ink-500); /* Teks sekunder & helper */
+  color: var(--luna-ink-500);
+  /* Teks sekunder & helper */
 }
 
 /* Badges / Chips */
@@ -253,7 +264,8 @@
 }
 
 .lp-_001-container .lp-terpopuler-badge {
-  background: var(--luna-orange-400); /* use background instead of background-color to override the gradient */
+  background: var(--luna-orange-400);
+  /* use background instead of background-color to override the gradient */
   color: var(--luna-ink-000);
 }
 
@@ -273,6 +285,7 @@
 .lp-_001-container .lp-nav-link {
   color: var(--luna-ink-700);
 }
+
 .lp-_001-container .lp-nav-link:hover,
 .lp-_001-container .lp-nav-link.lp-nav-active {
   color: var(--luna-orange-400);
@@ -283,22 +296,40 @@
   background: #E8F5E9;
   border-color: #C8E6C9;
 }
-.lp-_001-container .lp-score-high .lp-score-label { color: var(--luna-semantic-success); }
-.lp-_001-container .lp-score-num-green { background-color: var(--luna-semantic-success); }
+
+.lp-_001-container .lp-score-high .lp-score-label {
+  color: var(--luna-semantic-success);
+}
+
+.lp-_001-container .lp-score-num-green {
+  background-color: var(--luna-semantic-success);
+}
 
 .lp-_001-container .lp-score-moderate {
   background: #FFF3E0;
   border-color: #FFE0B2;
 }
-.lp-_001-container .lp-score-moderate .lp-score-label { color: var(--luna-semantic-warning); }
-.lp-_001-container .lp-score-num-yellow { background-color: var(--luna-semantic-warning); }
+
+.lp-_001-container .lp-score-moderate .lp-score-label {
+  color: var(--luna-semantic-warning);
+}
+
+.lp-_001-container .lp-score-num-yellow {
+  background-color: var(--luna-semantic-warning);
+}
 
 .lp-_001-container .lp-score-low {
   background: #FFEBEE;
   border-color: #FFCDD2;
 }
-.lp-_001-container .lp-score-low .lp-score-label { color: var(--luna-semantic-error); }
-.lp-_001-container .lp-score-num-red { background-color: var(--luna-semantic-error); }
+
+.lp-_001-container .lp-score-low .lp-score-label {
+  color: var(--luna-semantic-error);
+}
+
+.lp-_001-container .lp-score-num-red {
+  background-color: var(--luna-semantic-error);
+}
 
 /* Pricing Badges */
 .lp-_001-container .lp-plan-annual-badge {
@@ -306,9 +337,20 @@
   color: var(--luna-orange-500);
 }
 
-.lp-_001-container .lp-chip-green { background: #E8F5E9; color: var(--luna-semantic-success); }
-.lp-_001-container .lp-chip-yellow { background: #FFF3E0; color: var(--luna-semantic-warning); }
-.lp-_001-container .lp-chip-red { background: #FFEBEE; color: var(--luna-semantic-error); }
+.lp-_001-container .lp-chip-green {
+  background: #E8F5E9;
+  color: var(--luna-semantic-success);
+}
+
+.lp-_001-container .lp-chip-yellow {
+  background: #FFF3E0;
+  color: var(--luna-semantic-warning);
+}
+
+.lp-_001-container .lp-chip-red {
+  background: #FFEBEE;
+  color: var(--luna-semantic-error);
+}
 
 
 
@@ -317,9 +359,11 @@
   background-color: var(--luna-ink-050);
   border: 1px solid var(--luna-ink-200);
 }
+
 .lp-_001-container .lp-billing-opt {
   color: var(--luna-ink-600);
 }
+
 .lp-_001-container .lp-billing-opt.lp-billing-active {
   background-color: var(--luna-orange-400);
   color: var(--luna-ink-000);
@@ -353,6 +397,7 @@
 .lp-_001-container .lp-plan-price {
   color: var(--luna-ink-900);
 }
+
 .lp-_001-container .lp-plan-price-period {
   color: var(--luna-ink-500);
 }
@@ -361,9 +406,11 @@
 .lp-_001-container .lp-footer-col-title {
   color: var(--luna-ink-900);
 }
+
 .lp-_001-container .lp-footer-col-links span {
   color: var(--luna-ink-600);
 }
+
 .lp-_001-container .lp-footer-col-links span:hover {
   color: var(--luna-orange-400);
 }
@@ -374,12 +421,14 @@
 
 .lp-_001-container .lp-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(10, 9, 8, 0.08); /* Soft shadow using ink color */
+  box-shadow: 0 12px 24px rgba(10, 9, 8, 0.08);
+  /* Soft shadow using ink color */
 }
 
 /* SVG icons tinting (override old blue SVGs if any) */
 .lp-_001-container .lp-plan-feat-icon[src*="blue"] {
-  filter: hue-rotate(-160deg) saturate(2); /* approximate orange */
+  filter: hue-rotate(-160deg) saturate(2);
+  /* approximate orange */
 }
 
 /* Glassmorphism Navbar */
@@ -395,6 +444,7 @@
   .lp-_001-container .lp-hero {
     padding: 100px 5% 60px 5%;
   }
+
   .lp-_001-container .lp-features,
   .lp-_001-container .lp-why,
   .lp-_001-container .lp-pricing,
@@ -404,17 +454,20 @@
 }
 
 @media (max-width: 768px) {
+
   /* Typography Scaling */
   .lp-_001-container .lp-hero-title {
     font-size: 32px;
     line-height: 1.2;
   }
+
   .lp-_001-container .lp-features-title,
   .lp-_001-container .lp-why-title,
   .lp-_001-container .lp-pricing-title {
     font-size: 24px;
     line-height: 1.2;
   }
+
   .lp-_001-container .lp-plan-name,
   .lp-_001-container .lp-feature-name,
   .lp-_001-container .lp-why-point-title {
@@ -425,13 +478,18 @@
   .lp-_001-container .lp-header {
     padding: 16px 20px;
   }
+
   .lp-_001-container .lp-header-nav,
   .lp-_001-container .lp-header-login {
-    display: none; /* Hide navigation links and login text to save space */
+    display: none;
+    /* Hide navigation links and login text to save space */
   }
+
   .lp-_001-container .lp-header-logo-icon {
-    height: 40px !important; /* Smaller logo */
+    height: 40px !important;
+    /* Smaller logo */
   }
+
   .lp-_001-container .lp-header-cta {
     padding: 8px 16px;
     font-size: 12px;
@@ -440,101 +498,132 @@
   /* Hero Section */
   .lp-_001-container .lp-hero {
     position: relative;
-    overflow: hidden; /* Prevent watermark from overflowing */
+    overflow: hidden;
+    /* Prevent watermark from overflowing */
     flex-direction: column;
     padding-top: 100px;
     padding-bottom: 80px;
-    text-align: center;
+    text-align: left;
     min-height: auto;
     background-color: #ffffff;
     /* Dotted Grid Pattern (Flat Tech Style) */
     background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
     background-size: 20px 20px;
   }
+
   .lp-_001-container .lp-hero-left {
     position: relative;
-    z-index: 10; /* Put text above the watermark */
-    align-items: center;
+    z-index: 10;
+    /* Put text above the watermark */
+    align-items: flex-start;
+    text-align: left;
     max-width: 100%;
   }
+
   .lp-_001-container .lp-hero-title {
     font-size: 32px;
     line-height: 1.2;
-    margin-bottom: 20px; /* Jarak dengan subtitle */
+    margin-bottom: 20px;
+    /* Jarak dengan subtitle */
   }
+
   .lp-_001-container .lp-hero-subtitle {
     font-size: 15px;
     line-height: 1.6;
-    margin-bottom: 32px; /* Jarak dengan tombol */
+    margin-bottom: 32px;
+    /* Jarak dengan tombol */
     padding: 0 10px;
   }
-  
+
   /* CTA Buttons (Stacked) */
   .lp-_001-container .lp-hero-ctas {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
     width: 100%;
   }
+
   .lp-_001-container .lp-hero-btn-primary {
     width: 100%;
     max-width: 340px;
     padding: 16px 24px;
     justify-content: center;
   }
+
   .lp-_001-container .lp-hero-nocc {
-    margin: 0 auto;
+    margin: 0;
   }
 
   /* Hide heavy decorative assets */
   .lp-_001-container .lp-hero-bg-wave {
     display: none;
   }
+
   /* Dashboard mockup as a watermark background */
   .lp-_001-container .lp-hero-right {
-    display: block; /* Kembalikan display bawaan */
+    display: block;
+    /* Kembalikan display bawaan */
     position: absolute;
-    top: 25%; /* Turunkan sedikit dari atas */
+    top: 25%;
+    /* Turunkan sedikit dari atas */
     left: 50%;
-    width: 448px; /* Wajib pakai fixed width bawaan desktop agar layout dalamnya tidak hancur */
+    width: 448px;
+    /* Wajib pakai fixed width bawaan desktop agar layout dalamnya tidak hancur */
     height: 318px;
-    transform: translateX(-50%) scale(0.8); /* Perbesar/perkecil murni secara visual saja */
+    transform: translateX(-50%) scale(0.8);
+    /* Perbesar/perkecil murni secara visual saja */
     transform-origin: top center;
-    opacity: 0.15; /* Transparansi tipis (watermark) */
-    z-index: 0; /* Berada di paling belakang */
-    pointer-events: none; /* Agar tidak menghalangi tombol ditekan */
-    filter: none; /* Hilangkan shadow karena ini watermark */
+    opacity: 1;
+    /* Transparansi tipis (watermark) */
+    z-index: 0;
+    /* Berada di paling belakang */
+    pointer-events: none;
+    /* Agar tidak menghalangi tombol ditekan */
+    filter: none;
+    /* Hilangkan shadow karena ini watermark */
   }
 
   /* Trust Section Container */
   .lp-_001-container .lp-trust {
     height: auto;
-    padding: 16px 0; /* Sangat compact */
-    gap: 8px; /* Teks ke slider semakin dekat */
+    padding: 16px 0;
+    /* Sangat compact */
+    gap: 8px;
+    /* Teks ke slider semakin dekat */
   }
+
   .lp-_001-container .lp-trust-label {
-    font-size: 11px; /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
+    font-size: 11px;
+    /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
   }
 
   /* Trust Logos (Auto-Scrolling Slider) */
   .lp-_001-container .lp-trust-logos {
     position: static;
-    margin-top: 8px; /* Sangat rapat */
+    margin-top: 8px;
+    /* Sangat rapat */
     display: flex;
     overflow-x: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 20px; /* Logo berdekatan */
-    padding: 0 20px; /* Hapus padding bottom 20px agar tidak terlalu tinggi */
-    scrollbar-width: none; /* Hide scrollbar Firefox */
+    gap: 20px;
+    /* Logo berdekatan */
+    padding: 0 20px;
+    /* Hapus padding bottom 20px agar tidak terlalu tinggi */
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
   }
+
   .lp-_001-container .lp-trust-logos::-webkit-scrollbar {
-    display: none; /* Hide scrollbar WebKit */
+    display: none;
+    /* Hide scrollbar WebKit */
   }
+
   .lp-_001-container .lp-trust-logo {
-    height: 18px; /* Ratio ukuran logo diperkecil jauh dari 28px */
+    height: 18px;
+    /* Ratio ukuran logo diperkecil jauh dari 28px */
     flex-shrink: 0;
   }
 
@@ -543,6 +632,7 @@
     flex-direction: column;
     gap: 20px;
   }
+
   .lp-_001-container .lp-feature-card {
     width: 100%;
   }
@@ -552,10 +642,12 @@
     flex-direction: column;
     gap: 40px;
   }
+
   .lp-_001-container .lp-why-left {
     padding-right: 0;
     max-width: 100%;
   }
+
   /* Hide the large illustration on mobile */
   .lp-_001-container .lp-why-right {
     display: none;
@@ -565,8 +657,10 @@
   .lp-_001-container .lp-pricing-cards {
     flex-direction: column;
     gap: 24px;
-    align-items: stretch; /* Make cards full width */
+    align-items: stretch;
+    /* Make cards full width */
   }
+
   .lp-_001-container .lp-plan-card {
     width: 100%;
     transform: none !important;
@@ -577,9 +671,11 @@
     padding: 40px 20px;
     border-radius: 20px;
   }
+
   .lp-_001-container .lp-cta-title {
     font-size: 22px;
   }
+
   .lp-_001-container .lp-cta-btn {
     width: 100%;
   }
@@ -589,19 +685,23 @@
     flex-direction: column;
     gap: 40px;
   }
+
   .lp-_001-container .lp-footer-brand {
     max-width: 100%;
     text-align: center;
   }
+
   .lp-_001-container .lp-footer-logo {
     justify-content: center;
   }
+
   .lp-_001-container .lp-footer-links {
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: 30px;
   }
+
   .lp-_001-container .lp-footer-bottom {
     flex-direction: column;
     gap: 20px;
