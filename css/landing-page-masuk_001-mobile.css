@@ -138,7 +138,9 @@
     background: transparent !important;
   }
 
-  .lp-_001-container.lpm-page .lpm-form > div {
+  .lp-_001-container.lpm-page .lpm-form > div,
+  .lp-_001-container.lpm-page .lpm-field {
+    background: transparent !important;
     margin-bottom: 12px !important;
   }
 
