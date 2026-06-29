@@ -3,11 +3,18 @@
   .lp-_001-container.lpm-page {
     display: flex !important;
     justify-content: center !important;
-    align-items: flex-start !important;
+    align-items: center !important;
     min-height: 100vh !important;
     background-color: var(--luna-orange-500) !important;
-    padding: 40px 12px !important;
+    padding: 12px !important;
     box-sizing: border-box;
+    transition: align-items 0.3s ease;
+  }
+
+  /* Saat keyboard muncul (input sedang diketik), form otomatis naik ke atas */
+  .lp-_001-container.lpm-page:has(input:focus) {
+    align-items: flex-start !important;
+    padding: 40px 12px !important;
   }
 
   /* ── 2. Background Panel (Left side in desktop) ── */
@@ -55,6 +62,7 @@
     width: 100% !important;
     max-width: 460px !important;
     min-height: auto !important;
+    margin: auto !important;
     padding: 40px 20px !important;
     background: rgba(255, 255, 255, 0.97) !important;
     backdrop-filter: blur(16px) !important;
@@ -65,6 +73,7 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
+    overflow: visible !important;
   }
 
   /* ── 5. Logo Positioning ── */
