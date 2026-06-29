@@ -230,19 +230,12 @@ export default function LandingPageDaftar_001({ navigate }) {
               <PasswordStrengthBar password={password} />
             </div>
 
-            {/* Login link */}
-            <p className="lpm-register" style={{ textAlign: 'center', marginBottom: '16px', marginTop: '8px' }}>
-              Sudah punya akun?{' '}
-              <button type="button" className="lpm-register-link" onClick={() => navigate?.('landingpage-masuk_001')}>
-                Masuk di sini
-              </button>
-            </p>
-
             {/* Submit */}
             <button
               type="submit"
               className={`lpm-submit${loading ? ' lpm-loading' : ''}${!isValid && !loading ? ' lpm-disabled' : ''}`}
               disabled={!isValid || loading}
+              style={{ marginTop: '8px' }}
             >
               {loading ? (
                 <>
@@ -253,6 +246,14 @@ export default function LandingPageDaftar_001({ navigate }) {
                 </>
               ) : 'Buat Akun'}
             </button>
+
+            {/* Login link */}
+            <p className="lpm-register" style={{ textAlign: 'center', marginTop: '16px' }}>
+              Sudah punya akun?{' '}
+              <button type="button" className="lpm-register-link" onClick={() => navigate?.('landingpage-masuk_001')}>
+                Masuk di sini
+              </button>
+            </p>
           </form>
         </div>
       </div>
