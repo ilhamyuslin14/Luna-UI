@@ -227,9 +227,9 @@ export default function LandingPage_001({ navigate }) {
       <section className="lp-features" id="fitur">
         <div className="lp-features-heading">
           {/* <img src="/assets/logos/logo-icon.png" alt="" className="lp-features-sparkle" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} /> */}
-          <h2 className="lp-features-title">Pilar Operasional LUNA V3</h2>
+          <h2 className="lp-features-title">Tentang LUNA V3</h2>
           <p className="lp-features-subtitle">
-            Dari tumpukan CV menjadi kandidat terpilih dalam hitungan menit.
+            Otomatisasi rekrutmen dari CV hingga Hired.
           </p>
         </div>
         {/* ── DESKTOP GRID (Hidden on Mobile) ── */}
@@ -251,7 +251,7 @@ export default function LandingPage_001({ navigate }) {
         <div className="lp-features-slider lp-show-on-mobile">
           <div className="lp-slider-nav">
             {features.map((f, i) => (
-              <span key={i} className="lp-slider-tab-wrap">
+              <div key={i} className="lp-slider-tab-container">
                 <div 
                   className={`lp-slider-tab ${activeFeature === i ? 'lp-slider-tab-active' : ''}`} 
                   onClick={() => setActiveFeature(i)}
@@ -259,17 +259,17 @@ export default function LandingPage_001({ navigate }) {
                   {f.title}
                 </div>
                 {i < features.length - 1 && <span className="lp-slider-separator">|</span>}
-              </span>
+              </div>
             ))}
           </div>
           <div className="lp-feature-card lp-slider-card">
-            <div className="lp-feature-icon-wrap" style={{ background: features[activeFeature].bg }}>
-              <img src={features[activeFeature].icon} alt="" />
-            </div>
-            <div className="lp-feature-text">
+            <div className="lp-slider-card-header">
+              <div className="lp-feature-icon-wrap" style={{ background: features[activeFeature].bg }}>
+                <img src={features[activeFeature].icon} alt="" />
+              </div>
               <h3 className="lp-feature-name">{features[activeFeature].title}</h3>
-              <p className="lp-feature-desc">{features[activeFeature].desc}</p>
             </div>
+            <p className="lp-feature-desc">{features[activeFeature].desc}</p>
           </div>
         </div>
       </section>
