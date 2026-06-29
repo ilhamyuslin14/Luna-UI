@@ -448,6 +448,7 @@
 @media (max-width: 991px) {
   .lp-_001-container .lp-hero {
     padding: 40px 5% 40px 5%;
+    height: auto;
   }
 
   .lp-_001-container .lp-features,
