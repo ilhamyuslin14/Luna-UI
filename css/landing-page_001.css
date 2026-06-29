@@ -123,7 +123,7 @@
 
 /* Specific Heading Overrides based on guidelines */
 .lp-_001-container .lp-hero-title {
-  font-weight: 800; /* Dibuat Extra Bold */
+  font-weight: 600;
   font-size: 40px;
   line-height: 40px;
   letter-spacing: -0.02em;
@@ -131,8 +131,8 @@
 }
 
 .lp-_001-container .lp-hero-title-highlight {
-  color: var(--luna-orange-400);
-  font-weight: 800; /* Pastikan highlight juga sangat tebal */
+  color: inherit;
+  font-weight: inherit;
 }
 
 .lp-_001-container .lp-features-title,
@@ -518,9 +518,15 @@
 
   .lp-_001-container .lp-hero-title {
     font-size: 42px;
+    font-weight: 800;
     line-height: 1.15;
     margin-bottom: 20px;
     /* Jarak dengan subtitle */
+  }
+
+  .lp-_001-container .lp-hero-title-highlight {
+    color: var(--luna-orange-400);
+    font-weight: 800;
   }
 
   .lp-_001-container .lp-hero-subtitle {
