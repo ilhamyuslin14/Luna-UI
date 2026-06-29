@@ -26,24 +26,16 @@ import RiwayatTransaksi from './views/kelola-pengguna/KelolaPengguna-RiwayatTran
 import MenungguPembayaran from './views/kelola-pengguna/KelolaPengguna-MenungguPembayaran.jsx';
 import PembayaranBerhasil from './views/kelola-pengguna/KelolaPengguna-PembayaranBerhasil.jsx';
 import LandingPage from './views/landing/LandingPage.jsx';
+import LandingPage_001 from './views/landing/LandingPage_001.jsx';
 import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
 import LandingPageLupaPassword from './views/landing/LandingPage-LupaPassword.jsx';
-
-const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
-const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
-
-function SandboxWrapper({ navigate }) {
-  const [SandboxComponent, setSandboxComponent] = useState(null);
-  useEffect(() => {
-    if (loadSandbox) {
-      loadSandbox().then(mod => setSandboxComponent(() => mod.default));
-    }
-  }, []);
-  if (!SandboxComponent) return <div style={{ padding: 20 }}>Sandbox (Local Only) - Module not found</div>;
-  return <SandboxComponent navigate={navigate} />;
-}
+import LandingPageMasuk_001 from './views/landing/LandingPage-Masuk_001.jsx';
+import LandingPageDaftar_001 from './views/landing/LandingPage-Daftar_001.jsx';
+import LandingPageOTP_001 from './views/landing/LandingPage-OTP_001.jsx';
+import LandingPageLupaPassword_001 from './views/landing/LandingPage-LupaPassword_001.jsx';
+import Sandbox from './views/sandbox/Sandbox.jsx';
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -123,8 +115,8 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'laman-karir', 'sandbox'];
-    const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
+    const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
       // Not logged in -> redirect to landing page
@@ -134,6 +126,23 @@ export default function App() {
       navigate('beranda');
     }
   }, [user, loading, activeMenu]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      setActiveMenu(params.get('view') || 'beranda');
+      setSeleksiJabatan(params.get('jabatan') || '');
+      setSelectedSeleksiId(params.get('seleksiId') || '');
+      setLamanKarirKode(params.get('kode') || '');
+      setSelectedKandidat(params.get('kandidat') || null);
+      setKandidatFilter(params.get('filter') || '');
+      setSelectedDepartemen(params.get('departemen') || null);
+      setSearchQuery(params.get('search') || '');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   if (loading) {
     return (
@@ -153,6 +162,10 @@ export default function App() {
     return <LandingPage navigate={navigate} />;
   }
 
+  if (activeMenu === 'landingpage_001') {
+    return <LandingPage_001 navigate={navigate} />;
+  }
+
   if (activeMenu === 'landingpage-masuk') {
     return <LandingPageMasuk navigate={navigate} />;
   }
@@ -167,6 +180,22 @@ export default function App() {
 
   if (activeMenu === 'landingpage-lupa-password') {
     return <LandingPageLupaPassword navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-masuk_001') {
+    return <LandingPageMasuk_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-daftar_001') {
+    return <LandingPageDaftar_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-otp_001') {
+    return <LandingPageOTP_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-lupa-password_001') {
+    return <LandingPageLupaPassword_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'ringkasan-pembayaran') {
@@ -198,7 +227,7 @@ export default function App() {
   };
 
   if (window.location.pathname === '/sandbox') {
-    return <SandboxWrapper navigate={navigate} />;
+    return <Sandbox navigate={navigate} />;
   }
 
   return (
