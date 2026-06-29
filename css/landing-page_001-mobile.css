@@ -63,14 +63,14 @@
     align-items: flex-start;
     text-align: left;
     max-width: 100%;
+    gap: 20px; /* Reduce gap from 40px to 20px for mobile */
   }
 
   .lp-_001-container .lp-hero-title {
     font-size: 42px;
     font-weight: 800;
     line-height: 1.15;
-    margin-bottom: 20px;
-    /* Jarak dengan subtitle */
+    margin: 0; /* Remove extra margin, use gap */
   }
 
   .lp-_001-container .lp-hero-title-highlight {
@@ -81,8 +81,7 @@
   .lp-_001-container .lp-hero-subtitle {
     font-size: 15px;
     line-height: 1.6;
-    margin-bottom: 32px;
-    /* Jarak dengan tombol */
+    margin: 0; /* Remove extra margin, use gap */
     padding: 0;
   }
 
