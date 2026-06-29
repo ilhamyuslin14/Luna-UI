@@ -76,6 +76,14 @@
     overflow: visible !important;
   }
 
+  /* Fix OTP fixed width forcing overflow */
+  .lp-_001-container.lpm-page .lpotp-card,
+  .lp-_001-container.lpm-page .lpotp-card-400,
+  .lp-_001-container.lpm-page .lpotp-card-330 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   /* ── 5. Logo Positioning ── */
   .lp-_001-container.lpm-page .lpm-right-logo {
     position: static !important;
