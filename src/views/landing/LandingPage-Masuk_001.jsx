@@ -99,7 +99,7 @@ export default function LandingPageMasuk_001({ navigate }) {
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <img src="/assets/logos/luna-new-1.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
+          <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
         </div>
 
         <div className="lpm-form-wrap" style={{ width: '100%' }}>
