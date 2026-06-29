@@ -214,6 +214,14 @@
   }
 
   /* Pricing */
+  .lp-_001-container .lp-pricing-top {
+    white-space: normal;
+  }
+
+  .lp-_001-container .lp-pricing-subtitle {
+    font-size: 15px;
+  }
+
   .lp-_001-container .lp-pricing-cards {
     flex-direction: column;
     gap: 24px;
