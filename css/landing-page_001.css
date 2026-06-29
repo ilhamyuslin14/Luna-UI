@@ -492,13 +492,15 @@
   }
   /* Dashboard mockup as a watermark background */
   .lp-_001-container .lp-hero-right {
-    display: flex;
+    display: block; /* Kembalikan display bawaan */
     position: absolute;
-    top: 50%;
+    top: 25%; /* Turunkan sedikit dari atas */
     left: 50%;
-    width: 140%; /* Perbesar agar menutupi background */
-    transform: translate(-50%, -50%);
-    opacity: 0.15; /* Transparansi super tipis (watermark) */
+    width: 448px; /* Wajib pakai fixed width bawaan desktop agar layout dalamnya tidak hancur */
+    height: 318px;
+    transform: translateX(-50%) scale(0.8); /* Perbesar/perkecil murni secara visual saja */
+    transform-origin: top center;
+    opacity: 0.15; /* Transparansi tipis (watermark) */
     z-index: 0; /* Berada di paling belakang */
     pointer-events: none; /* Agar tidak menghalangi tombol ditekan */
     filter: none; /* Hilangkan shadow karena ini watermark */
