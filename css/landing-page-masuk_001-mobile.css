@@ -63,8 +63,10 @@
     max-width: 460px !important;
     min-height: auto !important;
     margin: auto !important;
-    padding: 40px 20px !important;
-    background: #fff !important;
+    padding: 32px 20px !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
     border-radius: 24px !important;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
     display: flex !important;
@@ -108,12 +110,12 @@
   /* ── 6. Form Adjustments ── */
   .lp-_001-container.lpm-page .lpm-heading {
     text-align: center !important;
-    margin-bottom: 24px !important;
+    margin-bottom: 20px !important;
   }
 
   .lp-_001-container.lpm-page .lpm-title {
-    font-size: 28px !important;
-    margin-bottom: 8px !important;
+    font-size: 26px !important;
+    margin-bottom: 4px !important;
   }
 
   .lp-_001-container.lpm-page .lpm-subtitle {
@@ -125,8 +127,19 @@
   }
 
   .lp-_001-container.lpm-page .lpm-input {
-    height: 52px !important;
-    font-size: 16px !important;
+    height: 48px !important;
+    font-size: 15px !important;
+    background: transparent !important;
+  }
+
+  /* Make OTP inputs transparent to match translucent card */
+  .lp-_001-container.lpm-page .lpotp-phone-input-wrap,
+  .lp-_001-container.lpm-page .lpotp-box {
+    background: transparent !important;
+  }
+
+  .lp-_001-container.lpm-page .lpm-form > div {
+    margin-bottom: 12px !important;
   }
 
   .lp-_001-container.lpm-page .lpm-label {
