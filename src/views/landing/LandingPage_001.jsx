@@ -180,7 +180,7 @@ export default function LandingPage_001({ navigate }) {
 
       {/* ── Trust Bar ── */}
       <section className="lp-trust">
-        <p className="lp-trust-label">Dipercaya oleh tim rekrutmen inovatif</p>
+        <p className="lp-trust-label">Dipercaya oleh</p>
         <div className="lp-trust-logos" ref={logosRef}>
           <img src="/assets/landing/lp-logo-detikcom.png" alt="Detikcom" className="lp-trust-logo" />
           <img src="/assets/landing/lp-logo-e27.png" alt="e27" className="lp-trust-logo" />

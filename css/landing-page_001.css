@@ -486,6 +486,13 @@
     display: none;
   }
 
+  /* Trust Section Container */
+  .lp-_001-container .lp-trust {
+    height: auto;
+    padding: 40px 0; /* Remove 145px horizontal padding that crushes the layout on mobile */
+    gap: 24px;
+  }
+
   /* Trust Logos (Auto-Scrolling Slider) */
   .lp-_001-container .lp-trust-logos {
     position: static;
