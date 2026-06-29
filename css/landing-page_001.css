@@ -439,6 +439,8 @@
 
   /* Hero Section */
   .lp-_001-container .lp-hero {
+    position: relative;
+    overflow: hidden; /* Prevent watermark from overflowing */
     flex-direction: column;
     padding-top: 100px;
     padding-bottom: 80px;
@@ -450,6 +452,8 @@
     background-size: 20px 20px;
   }
   .lp-_001-container .lp-hero-left {
+    position: relative;
+    z-index: 10; /* Put text above the watermark */
     align-items: center;
     max-width: 100%;
   }
@@ -486,17 +490,18 @@
   .lp-_001-container .lp-hero-bg-wave {
     display: none;
   }
-  /* Bring back the dashboard mockup and style it beautifully for mobile */
+  /* Dashboard mockup as a watermark background */
   .lp-_001-container .lp-hero-right {
     display: flex;
-    justify-content: center;
-    margin-top: 40px;
-    width: 100%;
-    /* Scale down slightly so it fits mobile screens without horizontal scroll */
-    transform: scale(0.9);
-    transform-origin: top center;
-    /* Soft premium drop shadow */
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%; /* Perbesar agar menutupi background */
+    transform: translate(-50%, -50%);
+    opacity: 0.15; /* Transparansi super tipis (watermark) */
+    z-index: 0; /* Berada di paling belakang */
+    pointer-events: none; /* Agar tidak menghalangi tombol ditekan */
+    filter: none; /* Hilangkan shadow karena ini watermark */
   }
 
   /* Trust Section Container */
