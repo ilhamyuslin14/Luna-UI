@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 769 810" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 1000006634" clip-path="url(#clip0_0_84)">
+<rect width="769" height="810" fill="url(#paint0_linear_0_84)"/>
+<path id="Ellipse 45" d="M652 212C652 491.456 401.951 718 93.5 718C-214.951 718 -465 491.456 -465 212C-465 -67.4561 -214.951 -294 93.5 -294C401.951 -294 652 -67.4561 652 212Z" fill="url(#paint1_linear_0_84)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_84" x1="674.892" y1="753.5" x2="9.07865" y2="-253.333" gradientUnits="userSpaceOnUse">
+<stop stop-color="#B35A00"/>
+<stop offset="1" stop-color="#FF8D21"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_84" x1="975" y1="520" x2="729.02" y2="-468.761" gradientUnits="userSpaceOnUse">
+<stop stop-color="#C26100"/>
+<stop offset="1" stop-color="#FF8D21" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="clip0_0_84">
+<rect width="769" height="810" fill="white"/>
+</clipPath>
+</defs>
+</svg>
