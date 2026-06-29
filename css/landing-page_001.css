@@ -440,7 +440,7 @@
   /* Hero Section */
   .lp-_001-container .lp-hero {
     flex-direction: column;
-    padding-top: 80px; /* Dikurangi dari 120px agar teks naik */
+    padding-top: 100px; /* Diturunkan sedikit dari 80px menjadi 100px */
     padding-bottom: 80px; /* Jarak aman bawah */
     text-align: center;
     min-height: auto;
