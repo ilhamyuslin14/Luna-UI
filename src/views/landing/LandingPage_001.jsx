@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function LandingPage_001({ navigate }) {
   const [activeSection, setActiveSection] = useState('');
@@ -31,6 +31,22 @@ export default function LandingPage_001({ navigate }) {
       document.documentElement.style.scrollPaddingTop = '';
       observer.disconnect();
     };
+  }, []);
+
+  // Auto-scroll logic for trust logos
+  const logosRef = useRef(null);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (logosRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = logosRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          logosRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          logosRef.current.scrollBy({ left: 150, behavior: 'smooth' });
+        }
+      }
+    }, 2500);
+    return () => clearInterval(interval);
   }, []);
   const [billingCycle, setBillingCycle] = useState('tahunan');
 
@@ -165,7 +181,7 @@ export default function LandingPage_001({ navigate }) {
       {/* ── Trust Bar ── */}
       <section className="lp-trust">
         <p className="lp-trust-label">Dipercaya oleh tim rekrutmen inovatif</p>
-        <div className="lp-trust-logos">
+        <div className="lp-trust-logos" ref={logosRef}>
           <img src="/assets/landing/lp-logo-detikcom.png" alt="Detikcom" className="lp-trust-logo" />
           <img src="/assets/landing/lp-logo-e27.png" alt="e27" className="lp-trust-logo" />
           <img src="/assets/landing/lp-logo-theken.svg" alt="The Ken" className="lp-trust-logo" />
@@ -488,7 +504,7 @@ export default function LandingPage_001({ navigate }) {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-footer-logo">
-              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: '76px', width: 'auto' }} />
+              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: '46px', width: 'auto' }} />
             </div>
             <p className="lp-footer-desc">End-to-End Recruitment Operating System bertenaga AI. Fokus pada manusia, biarkan AI menangani administrasinya.</p>
           </div>
