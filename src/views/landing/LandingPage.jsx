@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+
 export default function LandingPage({ navigate }) {
   const [activeSection, setActiveSection] = useState('');
 

@@ -121,16 +121,16 @@
   align-items: center;
   gap: 10px;
   border: 1px solid #d4d9e6;
-  border-radius: 7px;
-  padding: 0 12px;
-  height: 38px;
+  border-radius: 50px;
+  padding: 0 24px;
+  min-height: 44px;
   background: #fff;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .lpotp-phone-input-wrap:focus-within {
-  border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(240, 111, 24, 0.15);
 }
 
 .lpotp-prefix {
@@ -256,33 +256,34 @@
 /* OTP boxes */
 .lpotp-boxes {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 12px;
 }
 
 .lpotp-box {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border: 1.8px solid #e2e5ec;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   color: #323b4d;
   text-align: center;
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s, box-shadow 0.15s;
-  caret-color: #0977be;
+  caret-color: var(--luna-orange-500);
   line-height: 1.4;
 }
 
 .lpotp-box:focus {
-  border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9,119,190,0.1);
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(240, 111, 24, 0.15);
 }
 
 .lpotp-box-filled {
-  border-color: #0977be;
+  border-color: var(--luna-orange-500);
   color: #171e2c;
   font-weight: 600;
 }
@@ -344,4 +345,118 @@
   cursor: not-allowed;
 }
 
+/* Country Dropdown Styles */
+.lpotp-country-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+}
 
+.lpotp-flag-icon {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid #e2e5ec;
+}
+
+.lpotp-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  width: 280px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid #e2e5ec;
+  z-index: 50;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lpotp-dropdown-search-wrap {
+  padding: 12px;
+  border-bottom: 1px solid #e2e5ec;
+  background: #f8fafc;
+}
+
+.lpotp-dropdown-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d4d9e6;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+.lpotp-dropdown-search:focus {
+  border-color: var(--luna-orange-500);
+}
+
+.lpotp-dropdown-list {
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: transform;
+}
+
+.lpotp-dropdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+.lpotp-dropdown-list::-webkit-scrollbar-thumb {
+  background: #cbd0db;
+  border-radius: 10px;
+}
+
+.lpotp-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lpotp-dropdown-item:hover {
+  background: #f4fafe;
+}
+
+.lpotp-dropdown-item-active {
+  background: rgba(240, 111, 24, 0.08);
+}
+
+.lpotp-dropdown-item-name {
+  flex: 1;
+  font-size: 13px;
+  color: #171e2c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lpotp-dropdown-item-idd {
+  font-size: 12px;
+  color: #555f71;
+  font-weight: 500;
+}
+
+/* Modern Spinner for Mengirim State */
+.luna-modern-spinner {
+  width: 56px;
+  height: 56px;
+  border: 4px solid rgba(240, 111, 24, 0.15); /* Light Luna Orange */
+  border-top-color: var(--luna-orange-500);
+  border-radius: 50%;
+  animation: lpotp-spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  margin: 0 auto;
+}

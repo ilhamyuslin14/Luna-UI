@@ -52,31 +52,23 @@ export default function SortDropdown({ options, activeSort, onSortChange, isOpen
       {isOpen && (
         <div className="filter-dropdown" onClick={e => e.stopPropagation()} style={{ right: 0, left: 'auto', minWidth: 200, padding: 0 }}>
           <div className="filter-dropdown-group-wrap" style={{ display: 'block' }}>
-            <div className="filter-dropdown-col" style={{ width: '100%', padding: '12px 0' }}>
-              <span className="filter-dropdown-col-title" style={{ padding: '0 16px', marginBottom: 8, display: 'block' }}>URUTKAN BERDASARKAN</span>
+            <div className="filter-dropdown-col" style={{ width: '100%', padding: '12px 16px' }}>
+              <span className="filter-dropdown-col-title" style={{ display: 'block', marginBottom: 12 }}>URUTKAN BERDASARKAN</span>
               {options.map((opt, oi) => (
                 <div key={opt.value}>
-                  <div 
-                    className="filter-dropdown-item" 
-                    style={{ 
-                      padding: '8px 16px',
-                      cursor: 'pointer',
-                      background: activeSort === opt.value ? '#f0f7ff' : 'transparent',
-                      color: activeSort === opt.value ? '#0977be' : '#333',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      fontWeight: activeSort === opt.value ? 600 : 400
-                    }}
-                    onClick={() => {
-                      onSortChange(opt.value);
-                      onToggleOpen();
-                    }}
-                  >
+                  <label className="filter-dropdown-item" style={{ marginBottom: oi < options.length - 1 ? 8 : 0 }}>
+                    <input
+                      type="checkbox"
+                      className="filter-dropdown-checkbox"
+                      checked={activeSort === opt.value}
+                      onChange={() => {
+                        onSortChange(opt.value);
+                        onToggleOpen();
+                      }}
+                    />
                     <span>{opt.label}</span>
-                    {activeSort === opt.value && <CheckSvg />}
-                  </div>
-                  {oi < options.length - 1 && <div className="filter-dropdown-divider-h" style={{ margin: '4px 0' }} />}
+                  </label>
+                  {oi < options.length - 1 && <div className="filter-dropdown-divider-h" style={{ margin: '8px -16px' }} />}
                 </div>
               ))}
             </div>

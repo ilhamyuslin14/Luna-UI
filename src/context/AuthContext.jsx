@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
       .from('company_users')
       .select('company_id, role, companies(name, industri, ukuran, lokasi)')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
     if (data && !error) {
       setCompanyId(data.company_id);
