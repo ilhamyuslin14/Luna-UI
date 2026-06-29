@@ -145,12 +145,6 @@ export default function LandingPageDaftar_001({ navigate }) {
           <div className="lpm-heading">
             <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
             <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
-            <p className="lpm-register" style={{ marginTop: '12px', textAlign: 'left' }}>
-              Sudah punya akun?{' '}
-              <button type="button" className="lpm-register-link" onClick={() => navigate?.('landingpage-masuk_001')}>
-                Masuk di sini
-              </button>
-            </p>
           </div>
 
           {errorMsg && (
@@ -235,6 +229,14 @@ export default function LandingPageDaftar_001({ navigate }) {
               </div>
               <PasswordStrengthBar password={password} />
             </div>
+
+            {/* Login link */}
+            <p className="lpm-register" style={{ textAlign: 'center', marginBottom: '16px', marginTop: '8px' }}>
+              Sudah punya akun?{' '}
+              <button type="button" className="lpm-register-link" onClick={() => navigate?.('landingpage-masuk_001')}>
+                Masuk di sini
+              </button>
+            </p>
 
             {/* Submit */}
             <button
