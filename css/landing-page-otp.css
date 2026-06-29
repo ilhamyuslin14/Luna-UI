@@ -134,7 +134,7 @@
 }
 
 .lpotp-prefix {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 400;
   color: #323b4d;
   flex-shrink: 0;
@@ -152,7 +152,7 @@
   flex: 1;
   border: none;
   outline: none;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 400;
   color: #323b4d;
   font-family: inherit;

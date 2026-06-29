@@ -3,10 +3,10 @@
   .lp-_001-container.lpm-page {
     display: flex !important;
     justify-content: center !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     min-height: 100vh !important;
     background-color: var(--luna-orange-500) !important;
-    padding: 12px !important;
+    padding: 40px 12px !important;
     box-sizing: border-box;
   }
 
