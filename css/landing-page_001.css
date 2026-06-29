@@ -497,26 +497,16 @@
 
   /* Hero Section */
   .lp-_001-container .lp-hero {
-    position: relative;
-    overflow: hidden;
-    /* Prevent watermark from overflowing */
     flex-direction: column;
     padding-top: 100px;
     padding-bottom: 80px;
-    text-align: left;
+    text-align: center;
     min-height: auto;
     background-color: #ffffff;
-    /* Dotted Grid Pattern (Flat Tech Style) */
-    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-    background-size: 20px 20px;
   }
 
   .lp-_001-container .lp-hero-left {
-    position: relative;
-    z-index: 10;
-    /* Put text above the watermark */
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
     max-width: 100%;
   }
 
@@ -538,7 +528,7 @@
   /* CTA Buttons (Stacked) */
   .lp-_001-container .lp-hero-ctas {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
     width: 100%;
   }
@@ -551,160 +541,139 @@
   }
 
   .lp-_001-container .lp-hero-nocc {
-    margin: 0;
+    margin: 0 auto;
   }
 
   /* Hide heavy decorative assets */
-  .lp-_001-container .lp-hero-bg-wave {
-    display: none;
-  }
-
-  /* Dashboard mockup as a watermark background */
+  .lp-_001-container .lp-hero-bg-wave,
   .lp-_001-container .lp-hero-right {
-    display: block;
-    /* Kembalikan display bawaan */
-    position: absolute;
-    top: 25%;
-    /* Turunkan sedikit dari atas */
-    left: 50%;
-    width: 448px;
-    /* Wajib pakai fixed width bawaan desktop agar layout dalamnya tidak hancur */
-    height: 318px;
-    transform: translateX(-50%) scale(0.8);
-    /* Perbesar/perkecil murni secara visual saja */
-    transform-origin: top center;
-    opacity: 1;
-    /* Transparansi tipis (watermark) */
-    z-index: 0;
-    /* Berada di paling belakang */
-    pointer-events: none;
-    /* Agar tidak menghalangi tombol ditekan */
-    filter: none;
-    /* Hilangkan shadow karena ini watermark */
-  }
-
-  /* Trust Section Container */
-  .lp-_001-container .lp-trust {
-    height: auto;
-    padding: 16px 0;
-    /* Sangat compact */
-    gap: 8px;
-    /* Teks ke slider semakin dekat */
-  }
-
-  .lp-_001-container .lp-trust-label {
-    font-size: 11px;
-    /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
-  }
-
-  /* Trust Logos (Auto-Scrolling Slider) */
-  .lp-_001-container .lp-trust-logos {
-    position: static;
-    margin-top: 8px;
-    /* Sangat rapat */
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    gap: 20px;
-    /* Logo berdekatan */
-    padding: 0 20px;
-    /* Hapus padding bottom 20px agar tidak terlalu tinggi */
-    scrollbar-width: none;
-    /* Hide scrollbar Firefox */
-  }
-
-  .lp-_001-container .lp-trust-logos::-webkit-scrollbar {
-    display: none;
-    /* Hide scrollbar WebKit */
-  }
-
-  .lp-_001-container .lp-trust-logo {
-    height: 18px;
-    /* Ratio ukuran logo diperkecil jauh dari 28px */
-    flex-shrink: 0;
-  }
-
-  /* Features */
-  .lp-_001-container .lp-features-grid {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .lp-_001-container .lp-feature-card {
-    width: 100%;
-  }
-
-  /* Keunggulan (Why Us) */
-  .lp-_001-container .lp-why-content {
-    flex-direction: column;
-    gap: 40px;
-  }
-
-  .lp-_001-container .lp-why-left {
-    padding-right: 0;
-    max-width: 100%;
-  }
-
-  /* Hide the large illustration on mobile */
-  .lp-_001-container .lp-why-right {
     display: none;
   }
 
-  /* Pricing */
-  .lp-_001-container .lp-pricing-cards {
-    flex-direction: column;
-    gap: 24px;
-    align-items: stretch;
-    /* Make cards full width */
-  }
+}
 
-  .lp-_001-container .lp-plan-card {
-    width: 100%;
-    transform: none !important;
-  }
+/* Trust Section Container */
+.lp-_001-container .lp-trust {
+  height: auto;
+  padding: 16px 0;
+  /* Sangat compact */
+  gap: 8px;
+  /* Teks ke slider semakin dekat */
+}
 
-  /* CTA Section */
-  .lp-_001-container .lp-cta {
-    padding: 40px 20px;
-    border-radius: 20px;
-  }
+.lp-_001-container .lp-trust-label {
+  font-size: 11px;
+  /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
+}
 
-  .lp-_001-container .lp-cta-title {
-    font-size: 22px;
-  }
+/* Trust Logos (Auto-Scrolling Slider) */
+.lp-_001-container .lp-trust-logos {
+  position: static;
+  margin-top: 8px;
+  /* Sangat rapat */
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 20px;
+  /* Logo berdekatan */
+  padding: 0 20px;
+  /* Hapus padding bottom 20px agar tidak terlalu tinggi */
+  scrollbar-width: none;
+  /* Hide scrollbar Firefox */
+}
 
-  .lp-_001-container .lp-cta-btn {
-    width: 100%;
-  }
+.lp-_001-container .lp-trust-logos::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar WebKit */
+}
 
-  /* Footer */
-  .lp-_001-container .lp-footer-top {
-    flex-direction: column;
-    gap: 40px;
-  }
+.lp-_001-container .lp-trust-logo {
+  height: 18px;
+  /* Ratio ukuran logo diperkecil jauh dari 28px */
+  flex-shrink: 0;
+}
 
-  .lp-_001-container .lp-footer-brand {
-    max-width: 100%;
-    text-align: center;
-  }
+/* Features */
+.lp-_001-container .lp-features-grid {
+  flex-direction: column;
+  gap: 20px;
+}
 
-  .lp-_001-container .lp-footer-logo {
-    justify-content: center;
-  }
+.lp-_001-container .lp-feature-card {
+  width: 100%;
+}
 
-  .lp-_001-container .lp-footer-links {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 30px;
-  }
+/* Keunggulan (Why Us) */
+.lp-_001-container .lp-why-content {
+  flex-direction: column;
+  gap: 40px;
+}
 
-  .lp-_001-container .lp-footer-bottom {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
+.lp-_001-container .lp-why-left {
+  padding-right: 0;
+  max-width: 100%;
+}
+
+/* Hide the large illustration on mobile */
+.lp-_001-container .lp-why-right {
+  display: none;
+}
+
+/* Pricing */
+.lp-_001-container .lp-pricing-cards {
+  flex-direction: column;
+  gap: 24px;
+  align-items: stretch;
+  /* Make cards full width */
+}
+
+.lp-_001-container .lp-plan-card {
+  width: 100%;
+  transform: none !important;
+}
+
+/* CTA Section */
+.lp-_001-container .lp-cta {
+  padding: 40px 20px;
+  border-radius: 20px;
+}
+
+.lp-_001-container .lp-cta-title {
+  font-size: 22px;
+}
+
+.lp-_001-container .lp-cta-btn {
+  width: 100%;
+}
+
+/* Footer */
+.lp-_001-container .lp-footer-top {
+  flex-direction: column;
+  gap: 40px;
+}
+
+.lp-_001-container .lp-footer-brand {
+  max-width: 100%;
+  text-align: center;
+}
+
+.lp-_001-container .lp-footer-logo {
+  justify-content: center;
+}
+
+.lp-_001-container .lp-footer-links {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 30px;
+}
+
+.lp-_001-container .lp-footer-bottom {
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
 }
