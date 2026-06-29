@@ -489,22 +489,22 @@
   /* Trust Section Container */
   .lp-_001-container .lp-trust {
     height: auto;
-    padding: 40px 0; /* Remove 145px horizontal padding that crushes the layout on mobile */
-    gap: 24px;
+    padding: 24px 0; /* Lebih compact vertikal */
+    gap: 12px; /* Jarak antara teks dan slider lebih dekat */
   }
 
   /* Trust Logos (Auto-Scrolling Slider) */
   .lp-_001-container .lp-trust-logos {
     position: static;
-    margin-top: 40px;
+    margin-top: 12px; /* Jauh lebih compact dari sebelumnya 40px */
     display: flex;
     overflow-x: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 32px;
-    padding: 0 20px 20px 20px; /* Padding for scroll edge */
+    gap: 24px; /* Jarak antar logo lebih rapat */
+    padding: 0 20px; /* Hapus padding bottom 20px agar tidak terlalu tinggi */
     scrollbar-width: none; /* Hide scrollbar Firefox */
   }
   .lp-_001-container .lp-trust-logos::-webkit-scrollbar {
