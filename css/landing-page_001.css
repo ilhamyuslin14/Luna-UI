@@ -132,10 +132,10 @@
 
 .lp-_001-container .lp-hero-title-highlight {
   display: inline-block;
-  background-color: var(--luna-orange-400);
+  background-color: var(--luna-ink-900); /* Warna gelap banget */
   color: var(--luna-ink-000);
   padding: 4px 16px;
-  border-radius: 12px;
+  border-radius: 0; /* Dibuat kotak tajam */
   margin-top: 10px;
 }
 
