@@ -130,6 +130,15 @@
   /* DISPLAY */
 }
 
+.lp-_001-container .lp-hero-title-highlight {
+  display: inline-block;
+  background-color: var(--luna-orange-400);
+  color: var(--luna-ink-000);
+  padding: 4px 16px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
 .lp-_001-container .lp-features-title,
 .lp-_001-container .lp-why-title,
 .lp-_001-container .lp-pricing-title {

@@ -76,7 +76,8 @@ export default function LandingPage_001({ navigate }) {
         <div className="lp-hero-left">
 
           <h1 className="lp-hero-title">
-            Berhenti Membaca<br />Ratusan CV.
+            Berhenti Membaca<br />
+            <span className="lp-hero-title-highlight">Ratusan CV.</span>
           </h1>
           <p className="lp-hero-subtitle">
             Biarkan AI temukan kandidat terbaik Anda dalam hitungan detik. LUNA V3 mengotomatiskan screening, memberikan scoring akurat, dan merapikan pipeline rekrutmen Anda.
