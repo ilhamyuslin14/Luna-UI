@@ -232,6 +232,22 @@
     border-radius: 0;
   }
 
+  .lp-_001-container .lp-cta-bg1 {
+    left: auto;
+    right: -100px;
+    top: -50px;
+    width: 400px;
+    height: auto;
+  }
+
+  .lp-_001-container .lp-cta-bg2 {
+    left: -150px;
+    top: auto;
+    bottom: -50px;
+    width: 400px;
+    height: auto;
+  }
+
   .lp-_001-container .lp-cta-title {
     font-size: 22px;
   }
