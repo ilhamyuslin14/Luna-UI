@@ -262,22 +262,30 @@
   .lp-_001-container .lp-footer-top {
     flex-direction: column;
     gap: 40px;
+    align-items: flex-start;
   }
 
   .lp-_001-container .lp-footer-brand {
     max-width: 100%;
-    text-align: center;
+    text-align: left;
   }
 
   .lp-_001-container .lp-footer-logo {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .lp-_001-container .lp-footer-links {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 30px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    text-align: left;
+    gap: 40px;
+    width: 100%;
+  }
+
+  .lp-_001-container .lp-footer-col {
+    flex: 1;
+    min-width: 120px;
   }
 
   .lp-_001-container .lp-footer-bottom {
