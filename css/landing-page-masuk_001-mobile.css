@@ -84,6 +84,15 @@
     max-width: 100% !important;
   }
 
+  /* Fix OTP 6-boxes cut off on very small screens */
+  .lp-_001-container.lpm-page .lpotp-boxes {
+    gap: 4px !important;
+  }
+  .lp-_001-container.lpm-page .lpotp-box {
+    width: 40px !important;
+    height: 48px !important;
+  }
+
   /* ── 5. Logo Positioning ── */
   .lp-_001-container.lpm-page .lpm-right-logo {
     position: static !important;
