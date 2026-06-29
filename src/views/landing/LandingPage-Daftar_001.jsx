@@ -98,7 +98,7 @@ export default function LandingPageDaftar_001({ navigate }) {
           padding: '72px 56px 110px 56px',
           width: '85%',
           maxWidth: '680px',
-          background: 'rgba(66, 66, 66, 0.15)',
+          background: 'rgba(10, 9, 8, 0.1)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.25)',
