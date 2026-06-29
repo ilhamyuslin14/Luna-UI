@@ -53,6 +53,7 @@
   .lp-_001-container .lp-hero {
     flex-direction: column;
     padding: 40px 20px !important;
+    margin: 5px 0;
     text-align: center;
     height: auto;
     min-height: auto;
