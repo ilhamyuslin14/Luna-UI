@@ -40,7 +40,7 @@ export default function LandingPage_001({ navigate }) {
       {/* ── Header ── */}
       <header className="lp-header">
         <div className="lp-header-logo">
-          <img src="/assets/logos/luna-new-2.png" alt="LUNA" className="lp-header-logo-icon" style={{ height: '58px', width: 'auto' }} />
+          <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lp-header-logo-icon" style={{ height: '58px', width: 'auto' }} />
         </div>
         <nav className="lp-header-nav">
           <button className={`lp-nav-link${activeSection === 'fitur' ? ' lp-nav-active' : ''}`} onClick={() => document.getElementById('fitur')?.scrollIntoView({ behavior: 'smooth' })}>Fitur</button>
@@ -58,10 +58,7 @@ export default function LandingPage_001({ navigate }) {
         <img src="/assets/landing/lp-hero-bg-wave.svg" alt="" className="lp-hero-bg-wave" />
 
         <div className="lp-hero-left">
-          <div className="lp-hero-badge">
-            <img src="/assets/landing/lp-dot-blue.svg" alt="" className="lp-hero-badge-dot" />
-            <span>LUNA V3 Kini Tersedia</span>
-          </div>
+
           <h1 className="lp-hero-title">
             Berhenti Membaca<br />Ratusan CV.
           </h1>
@@ -491,7 +488,7 @@ export default function LandingPage_001({ navigate }) {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-footer-logo">
-              <img src="/assets/logos/luna-new-2.png" alt="LUNA" style={{ height: '76px', width: 'auto' }} />
+              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: '76px', width: 'auto' }} />
             </div>
             <p className="lp-footer-desc">End-to-End Recruitment Operating System bertenaga AI. Fokus pada manusia, biarkan AI menangani administrasinya.</p>
           </div>
