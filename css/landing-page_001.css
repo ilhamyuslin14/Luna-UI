@@ -492,6 +492,9 @@
     padding: 24px 0; /* Lebih compact vertikal */
     gap: 12px; /* Jarak antara teks dan slider lebih dekat */
   }
+  .lp-_001-container .lp-trust-label {
+    font-size: 11px; /* Samakan ukurannya dengan badge Tanpa Kartu Kredit */
+  }
 
   /* Trust Logos (Auto-Scrolling Slider) */
   .lp-_001-container .lp-trust-logos {
