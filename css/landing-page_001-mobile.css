@@ -18,7 +18,7 @@
   }
 
   .lp-_001-container .lp-features {
-    padding: 30px 20px 40px;
+    padding: 40px 20px 40px;
     gap: 32px;
   }
 
@@ -197,11 +197,20 @@
   .lp-_001-container .lp-why-left {
     padding-right: 0;
     max-width: 100%;
+    position: relative;
+    z-index: 1;
   }
 
-  /* Hide the large illustration on mobile */
-  .lp-_001-container .lp-why-right {
-    display: none;
+  /* Make the large illustration a watermark on mobile */
+  .lp-_001-container .lp-why-photo-group {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) scale(0.6);
+    opacity: 0.15;
+    z-index: 0;
+    pointer-events: none;
+    top: 50%;
+    margin-top: -250px;
   }
 
   /* Pricing */
