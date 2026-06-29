@@ -123,7 +123,7 @@
 
 /* Specific Heading Overrides based on guidelines */
 .lp-_001-container .lp-hero-title {
-  font-weight: 600;
+  font-weight: 800; /* Dibuat Extra Bold */
   font-size: 40px;
   line-height: 40px;
   letter-spacing: -0.02em;
@@ -132,6 +132,7 @@
 
 .lp-_001-container .lp-hero-title-highlight {
   color: var(--luna-orange-400);
+  font-weight: 800; /* Pastikan highlight juga sangat tebal */
 }
 
 .lp-_001-container .lp-features-title,
