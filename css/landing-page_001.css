@@ -506,13 +506,14 @@
   }
 
   .lp-_001-container .lp-hero-left {
-    align-items: center;
+    align-items: flex-start;
+    text-align: left;
     max-width: 100%;
   }
 
   .lp-_001-container .lp-hero-title {
-    font-size: 32px;
-    line-height: 1.2;
+    font-size: 42px;
+    line-height: 1.15;
     margin-bottom: 20px;
     /* Jarak dengan subtitle */
   }
@@ -522,13 +523,13 @@
     line-height: 1.6;
     margin-bottom: 32px;
     /* Jarak dengan tombol */
-    padding: 0 10px;
+    padding: 0;
   }
 
   /* CTA Buttons (Stacked) */
   .lp-_001-container .lp-hero-ctas {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
     width: 100%;
   }
@@ -541,7 +542,7 @@
   }
 
   .lp-_001-container .lp-hero-nocc {
-    margin: 0 auto;
+    margin: 0;
   }
 
   /* Hide heavy decorative assets */
