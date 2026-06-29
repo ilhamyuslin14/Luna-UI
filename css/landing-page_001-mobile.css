@@ -52,8 +52,8 @@
   /* Hero Section */
   .lp-_001-container .lp-hero {
     flex-direction: column;
-    padding-top: 100px;
-    padding-bottom: 80px;
+    padding-top: 40px;
+    padding-bottom: 40px;
     text-align: center;
     min-height: auto;
     background-color: #ffffff;
