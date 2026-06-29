@@ -457,3 +457,9 @@
     padding: 60px 5%;
   }
 }
+
+/* ── Visibility Helpers ── */
+.lp-show-on-mobile {
+  display: none !important;
+}
+

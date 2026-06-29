@@ -50,6 +50,36 @@ export default function LandingPage_001({ navigate }) {
   }, []);
   const [billingCycle, setBillingCycle] = useState('tahunan');
 
+  const [activeFeature, setActiveFeature] = useState(0);
+
+  const features = [
+    {
+      title: "Unggah CV Massal",
+      icon: "/assets/landing/lp-icon-upload.svg",
+      bg: "#eef7fd",
+      desc: "Tarik dan lepas puluhan CV sekaligus dalam format PDF atau DOCX. Sistem mengekstrak data dalam sekejap tanpa data-entry manual."
+    },
+    {
+      title: "AI Matching & Scoring",
+      icon: "/assets/landing/lp-icon-brain.svg",
+      bg: "#f4f3fe",
+      desc: "AI membaca Kriteria Penilaian yang telah dibuat dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan bebas bias secara akurat."
+    },
+    {
+      title: "Pipeline Management",
+      icon: "/assets/landing/lp-icon-pipeline.svg",
+      bg: "#ecfcf8",
+      desc: "Pantau pergerakan kandidat dari Screening hingga Hired menggunakan Kanban board intuitif dengan fitur drag-and-drop."
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 4000); // 4 seconds delay as requested "agak lama"
+    return () => clearInterval(timer);
+  }, [features.length]);
+
   return (
     <div className="lp-page lp-_001-container">
 
@@ -202,32 +232,43 @@ export default function LandingPage_001({ navigate }) {
             Dari tumpukan CV menjadi kandidat terpilih dalam hitungan menit.
           </p>
         </div>
-        <div className="lp-features-grid">
-          <div className="lp-feature-card">
-            <div className="lp-feature-icon-wrap" style={{ background: '#eef7fd' }}>
-              <img src="/assets/landing/lp-icon-upload.svg" alt="" />
+        {/* ── DESKTOP GRID (Hidden on Mobile) ── */}
+        <div className="lp-features-grid lp-hide-on-mobile">
+          {features.map((f, i) => (
+            <div className="lp-feature-card" key={i}>
+              <div className="lp-feature-icon-wrap" style={{ background: f.bg }}>
+                <img src={f.icon} alt="" />
+              </div>
+              <div className="lp-feature-text">
+                <h3 className="lp-feature-name">{f.title}</h3>
+                <p className="lp-feature-desc">{f.desc}</p>
+              </div>
             </div>
-            <div className="lp-feature-text">
-              <h3 className="lp-feature-name">Unggah CV Massal</h3>
-              <p className="lp-feature-desc">Upload puluhan PDF/DOCX sekaligus. Data otomatis terekstrak tanpa entry manual.</p>
-            </div>
+          ))}
+        </div>
+
+        {/* ── MOBILE SLIDER (Hidden on Desktop) ── */}
+        <div className="lp-features-slider lp-show-on-mobile">
+          <div className="lp-slider-nav">
+            {features.map((f, i) => (
+              <span key={i} className="lp-slider-tab-wrap">
+                <div 
+                  className={`lp-slider-tab ${activeFeature === i ? 'lp-slider-tab-active' : ''}`} 
+                  onClick={() => setActiveFeature(i)}
+                >
+                  {f.title}
+                </div>
+                {i < features.length - 1 && <span className="lp-slider-separator">|</span>}
+              </span>
+            ))}
           </div>
-          <div className="lp-feature-card">
-            <div className="lp-feature-icon-wrap" style={{ background: '#f4f3fe' }}>
-              <img src="/assets/landing/lp-icon-brain.svg" alt="" />
+          <div className="lp-feature-card lp-slider-card">
+            <div className="lp-feature-icon-wrap" style={{ background: features[activeFeature].bg }}>
+              <img src={features[activeFeature].icon} alt="" />
             </div>
             <div className="lp-feature-text">
-              <h3 className="lp-feature-name">AI Matching &amp; Scoring</h3>
-              <p className="lp-feature-desc">Dapatkan skor kandidat yang instan, akurat, dan bebas bias berdasarkan Kriteria Penilaian Anda.</p>
-            </div>
-          </div>
-          <div className="lp-feature-card">
-            <div className="lp-feature-icon-wrap" style={{ background: '#ecfcf8' }}>
-              <img src="/assets/landing/lp-icon-pipeline.svg" alt="" />
-            </div>
-            <div className="lp-feature-text">
-              <h3 className="lp-feature-name">Pipeline Management</h3>
-              <p className="lp-feature-desc">Pantau rekrutmen dengan visualisasi Kanban board (drag-and-drop) yang intuitif.</p>
+              <h3 className="lp-feature-name">{features[activeFeature].title}</h3>
+              <p className="lp-feature-desc">{features[activeFeature].desc}</p>
             </div>
           </div>
         </div>
