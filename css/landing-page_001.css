@@ -562,9 +562,7 @@
     display: none;
   }
 
-}
-
-/* Trust Section Container */
+  /* Trust Section Container */
 .lp-_001-container .lp-trust {
   height: auto;
   padding: 16px 0;
@@ -683,8 +681,9 @@
   gap: 30px;
 }
 
-.lp-_001-container .lp-footer-bottom {
-  flex-direction: column;
-  gap: 20px;
-  text-align: center;
+  .lp-_001-container .lp-footer-bottom {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
 }
