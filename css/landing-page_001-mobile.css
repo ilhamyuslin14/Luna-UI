@@ -251,6 +251,7 @@
 
   .lp-_001-container .lp-cta-title {
     font-size: 22px;
+    white-space: normal;
   }
 
   .lp-_001-container .lp-cta-btn {
