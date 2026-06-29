@@ -86,18 +86,7 @@ export default function LandingPageMasuk_001({ navigate }) {
           position: 'absolute',
           top: '40px',
           right: '40px',
-          zIndex: 10,
-          background: 'rgba(255, 123, 0, 0.75)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: 'none',
-          borderRadius: '10px',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
-          height: '36px',
-          padding: '0 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+          zIndex: 10
         }}>
           <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
         </div>
