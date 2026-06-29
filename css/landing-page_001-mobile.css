@@ -154,6 +154,23 @@
 
 .lp-_001-container .lp-feature-card {
   width: 100%;
+  flex: none; /* override flex-basis 0 bug */
+  height: auto; /* adapt to content */
+  flex-direction: row; /* icon on left, text on right */
+  align-items: flex-start;
+  padding: 24px;
+  gap: 16px;
+}
+
+.lp-_001-container .lp-feature-icon-wrap {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+}
+
+.lp-_001-container .lp-feature-icon-wrap img {
+  width: 24px;
+  height: 24px;
 }
 
 /* Keunggulan (Why Us) */
