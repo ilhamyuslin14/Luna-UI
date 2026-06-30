@@ -464,3 +464,13 @@
   display: none !important;
 }
 
+
+.lp-hide-on-mobile {
+  display: flex !important;
+}
+
+@media (max-width: 768px) {
+  .lp-hide-on-mobile {
+    display: none !important;
+  }
+}
