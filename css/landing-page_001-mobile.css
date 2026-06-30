@@ -53,14 +53,14 @@
   .lp-_001-container .lp-hero {
     display: flex;
     flex-direction: column;
-    padding: 24px 20px 40px 20px !important;
+    padding: 16px 20px 32px 20px !important;
     margin: 0;
     text-align: center;
     height: auto;
-    min-height: calc(100vh - 64px);
-    justify-content: space-between;
+    min-height: auto;
     align-items: center;
     background-color: #ffffff;
+    gap: 24px;
   }
 
   .lp-_001-container .lp-hero-left {
@@ -119,9 +119,10 @@
   .lp-_001-container .lp-hero-right {
     display: flex !important;
     transform: scale(0.65);
-    margin: -40px 0;
+    margin: -60px 0 -40px 0;
     width: 100%;
     justify-content: center;
+    order: -1;
   }
 
   /* Trust Section Container */
