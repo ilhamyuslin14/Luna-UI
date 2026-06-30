@@ -176,4 +176,11 @@
     margin-top: 8px !important;
     font-size: 13px !important;
   }
+
+  .lp-_001-container.lpm-page .lpm-hide-on-mobile {
+    display: none !important;
+  }
+  .lp-_001-container.lpm-page .lpm-show-on-mobile {
+    display: block !important;
+  }
 }

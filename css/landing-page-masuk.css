@@ -258,3 +258,7 @@
 
 .lpm-register-link:hover { text-decoration: underline; }
 
+
+.lpm-show-on-mobile {
+  display: none !important;
+}
