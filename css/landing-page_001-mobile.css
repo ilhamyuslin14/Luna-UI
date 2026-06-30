@@ -118,8 +118,8 @@
 
   .lp-_001-container .lp-hero-right {
     display: flex !important;
-    transform: scale(0.65);
-    margin: -60px 0 -40px 0;
+    transform: scale(0.8);
+    margin: -30px 0 -10px 0;
     width: 100%;
     justify-content: center;
     order: -1;
