@@ -104,7 +104,7 @@
   }
 
   .lp-_001-container.lpm-page .lpm-right-logo img {
-    width: 40px !important;
+    width: 48px !important;
     height: auto !important;
   }
 
@@ -116,6 +116,13 @@
     flex-direction: row !important;
     align-items: flex-start !important;
     gap: 16px !important;
+  }
+
+  .lp-_001-container.lpm-page .lpm-heading-text {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
   }
 
   .lp-_001-container.lpm-page .lpm-title {
