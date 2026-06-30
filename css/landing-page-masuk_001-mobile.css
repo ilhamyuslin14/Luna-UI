@@ -108,13 +108,12 @@
     height: auto !important;
   }
 
-  /* ── 6. Form Adjustments ── */
   .lp-_001-container.lpm-page .lpm-heading {
     text-align: left !important;
     margin-bottom: 24px !important;
     display: flex !important;
     flex-direction: row !important;
-    align-items: flex-start !important;
+    align-items: center !important;
     gap: 16px !important;
   }
 
