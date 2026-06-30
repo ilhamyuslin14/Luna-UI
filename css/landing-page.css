@@ -583,6 +583,8 @@
 .lp-trust-logo[src*="lp-logo-theken.svg"],
 .lp-trust-logo[src*="lp-logo-sindo.png"] {
   height: 18px;
+  width: auto;
+  max-width: 120px;
 }
 
 /* ── Features ──────────────────────────────────── */

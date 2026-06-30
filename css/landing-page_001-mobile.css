@@ -161,6 +161,8 @@
   .lp-_001-container .lp-trust-logo[src*="lp-logo-theken.svg"],
   .lp-_001-container .lp-trust-logo[src*="lp-logo-sindo.png"] {
     height: 12px;
+    width: auto;
+    max-width: 80px;
   }
 
   /* Features */
