@@ -59,8 +59,8 @@
   .lp-_001-container.lpm-page .lpm-right {
     position: relative !important;
     z-index: 10 !important;
-    width: 100% !important;
-    max-width: 460px !important;
+    width: 92% !important;
+    max-width: 380px !important;
     min-height: auto !important;
     margin: auto !important;
     padding: 32px 20px !important;
