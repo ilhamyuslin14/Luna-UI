@@ -129,22 +129,22 @@ export default function LandingPageDaftar_001({ navigate }) {
       {/* ── Form Panel (now physically on the right in DOM) ── */}
       <div className="lpm-right" style={{ width: '46.6%', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 clamp(40px, 10%, 150px)', background: '#fff', position: 'relative', zIndex: 10, boxShadow: '-8px 0 16px rgba(0, 0, 0, 0.15)' }}>
 
-        {/* Logo LUNA di pojok kanan atas form panel */}
-        <div className="lpm-right-logo" style={{
-          position: 'absolute',
-          top: '40px',
-          right: '40px',
-          zIndex: 10
-        }}>
-          <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
-        </div>
-
         <div className="lpm-form-wrap" style={{ width: '100%' }}>
 
           {/* Heading */}
           <div className="lpm-heading">
-            <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
-            <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
+            <div className="lpm-right-logo" style={{
+              position: 'absolute',
+              top: '40px',
+              right: '40px',
+              zIndex: 10
+            }}>
+              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
+            </div>
+            <div className="lpm-heading-text">
+              <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
+              <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
+            </div>
           </div>
 
           {errorMsg && (

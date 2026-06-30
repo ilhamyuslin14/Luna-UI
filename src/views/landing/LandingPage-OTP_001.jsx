@@ -207,25 +207,25 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
           <img src="/assets/logos/luna-new-orange.png" alt="" style={{ width: '100%', height: 'auto', filter: 'brightness(0)' }} />
         </div> */}
 
-        {/* Logo LUNA di pojok kanan atas form panel */}
-        <div className="lpm-right-logo" style={{
-          position: 'absolute',
-          top: '40px',
-          right: '40px',
-          zIndex: 10
-        }}>
-          <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
-        </div>
-
         <div className="lpm-form-wrap" style={{ width: '100%' }}>
 
           {/* ── Step 1: Input Nomor ── */}
           {step === 'nomor' && (
             <div className="lpotp-card lpotp-card-400" style={{ boxShadow: 'none', border: 'none', padding: '0', margin: '0 auto', background: 'transparent', overflow: 'visible' }}>
               <div className="lpotp-head" style={{ borderBottom: 'none', paddingBottom: '0', marginBottom: '32px' }}>
-                <div className="lpotp-title-block">
-                  <h2 className="lpm-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Verifikasi WhatsApp</h2>
-                  <p className="lpm-subtitle">Kami akan mengirim kode verifikasi ke nomor Anda untuk mengamankan akun.</p>
+                <div className="lpotp-title-block lpm-heading">
+                  <div className="lpm-right-logo" style={{
+                    position: 'absolute',
+                    top: '40px',
+                    right: '40px',
+                    zIndex: 10
+                  }}>
+                    <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
+                  </div>
+                  <div className="lpm-heading-text">
+                    <h2 className="lpm-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Verifikasi WhatsApp</h2>
+                    <p className="lpm-subtitle">Kami akan mengirim kode verifikasi ke nomor Anda untuk mengamankan akun.</p>
+                  </div>
                 </div>
               </div>
 
@@ -330,14 +330,24 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
           {step === 'otp' && (
             <div className="lpotp-card lpotp-card-400" style={{ boxShadow: 'none', border: 'none', padding: '0', margin: '0 auto', background: 'transparent' }}>
               <div className="lpotp-head" style={{ borderBottom: 'none', paddingBottom: '0', marginBottom: '16px' }}>
-                <div className="lpotp-title-block">
-                  <h2 className="lpm-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Cek WhatsApp Anda</h2>
-                  <p className="lpm-subtitle">
-                    Kami telah mengirimkan 6 digit kode via WhatsApp ke <strong style={{ color: '#111827' }}>{displayNomor}</strong>{' '}
-                    <button type="button" className="lpm-register-link" onClick={() => { setStep('nomor'); setOtp(Array(6).fill('')); }} style={{ fontSize: '14px', marginLeft: '4px' }}>
-                      Ubah Nomor
-                    </button>
-                  </p>
+                <div className="lpotp-title-block lpm-heading">
+                  <div className="lpm-right-logo" style={{
+                    position: 'absolute',
+                    top: '40px',
+                    right: '40px',
+                    zIndex: 10
+                  }}>
+                    <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
+                  </div>
+                  <div className="lpm-heading-text">
+                    <h2 className="lpm-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Cek WhatsApp Anda</h2>
+                    <p className="lpm-subtitle">
+                      Kami telah mengirimkan 6 digit kode via WhatsApp ke <strong style={{ color: '#111827' }}>{displayNomor}</strong>{' '}
+                      <button type="button" className="lpm-register-link" onClick={() => { setStep('nomor'); setOtp(Array(6).fill('')); }} style={{ fontSize: '14px', marginLeft: '4px' }}>
+                        Ubah Nomor
+                      </button>
+                    </p>
+                  </div>
                 </div>
               </div>
 
