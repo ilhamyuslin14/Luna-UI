@@ -136,7 +136,7 @@ export default function LandingPage_001({ navigate }) {
           <p className="lp-hero-subtitle">
             Biarkan AI temukan kandidat terbaik Anda dalam hitungan detik. LUNA V3 mengotomatiskan screening, memberikan scoring akurat, dan merapikan pipeline rekrutmen Anda.
           </p>
-          <div className="lp-hero-ctas">
+          <div className="lp-hero-ctas lp-hide-on-mobile">
             <button className="lp-hero-btn-primary" onClick={() => navigate?.('landingpage-daftar_001')}>
               Mulai Coba Gratis 14 Hari
               <img src="/assets/landing/lp-arrow-right.svg" alt="" className="lp-hero-btn-arrow" />
@@ -229,6 +229,17 @@ export default function LandingPage_001({ navigate }) {
               <img src="/assets/landing/lp-ai-icon.svg" alt="" />
               See AI Match Overview
             </button>
+          </div>
+        </div>
+
+        <div className="lp-hero-ctas lp-show-on-mobile">
+          <button className="lp-hero-btn-primary" onClick={() => navigate?.('landingpage-daftar_001')} style={{ width: '100%', justifyContent: 'center' }}>
+            Mulai Coba Gratis 14 Hari
+            <img src="/assets/landing/lp-arrow-right.svg" alt="" className="lp-hero-btn-arrow" />
+          </button>
+          <div className="lp-hero-nocc">
+            <img src="/assets/landing/lp-icon-no-cc.svg" alt="" />
+            <span>Tanpa Kartu Kredit</span>
           </div>
         </div>
       </section>

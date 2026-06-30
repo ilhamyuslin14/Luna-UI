@@ -51,12 +51,15 @@
 
   /* Hero Section */
   .lp-_001-container .lp-hero {
+    display: flex;
     flex-direction: column;
-    padding: 40px 20px !important;
-    margin: 5px 0;
+    padding: 24px 20px 40px 20px !important;
+    margin: 0;
     text-align: center;
     height: auto;
-    min-height: auto;
+    min-height: calc(100vh - 64px);
+    justify-content: space-between;
+    align-items: center;
     background-color: #ffffff;
   }
 
@@ -109,9 +112,16 @@
   }
 
   /* Hide heavy decorative assets */
-  .lp-_001-container .lp-hero-bg-wave,
-  .lp-_001-container .lp-hero-right {
+  .lp-_001-container .lp-hero-bg-wave {
     display: none;
+  }
+
+  .lp-_001-container .lp-hero-right {
+    display: flex !important;
+    transform: scale(0.65);
+    margin: -40px 0;
+    width: 100%;
+    justify-content: center;
   }
 
   /* Trust Section Container */
