@@ -78,7 +78,7 @@ export default function LandingPage_001({ navigate }) {
 
   const features = [
     {
-      title: "Unggah CV Massal",
+      title: "Upload CV Massal",
       icon: "/assets/landing/lp-icon-upload.svg",
       bg: "#eef7fd",
       desc: "Tarik dan lepas puluhan CV sekaligus dalam format PDF atau DOCX. Sistem mengekstrak data dalam sekejap tanpa data-entry manual."
@@ -87,7 +87,7 @@ export default function LandingPage_001({ navigate }) {
       title: "AI Matching & Scoring",
       icon: "/assets/landing/lp-icon-brain.svg",
       bg: "#f4f3fe",
-      desc: "AI membaca Kriteria Penilaian yang telah dibuat dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan bebas bias secara akurat."
+      desc: "AI membaca Job Description dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan bebas bias secara akurat."
     },
     {
       title: "Pipeline Management",
@@ -251,9 +251,9 @@ export default function LandingPage_001({ navigate }) {
       <section className="lp-features" id="fitur">
         <div className="lp-features-heading">
           {/* <img src="/assets/logos/logo-icon.png" alt="" className="lp-features-sparkle" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} /> */}
-          <h2 className="lp-features-title">Tentang LUNA V3</h2>
+          <h2 className="lp-features-title">Pilar Operasional LUNA V3</h2>
           <p className="lp-features-subtitle">
-            Otomatisasi rekrutmen dari CV hingga Hired.
+            Otomatisasi seluruh alur rekrutmen Anda. Dari tumpukan CV menjadi daftar kandidat terpilih dalam hitungan menit.
           </p>
         </div>
         {/* ── DESKTOP GRID (Hidden on Mobile) ── */}
@@ -317,8 +317,8 @@ export default function LandingPage_001({ navigate }) {
           {/* Left text — flows normally (relative) */}
           <div className="lp-why-left">
             <div className="lp-why-heading">
-              <h2 className="lp-why-title">Mengapa Kami Berbeda?</h2>
-              <p className="lp-why-subtitle">Bukan sekadar pelengkap HRIS, LUNA adalah mesin utama akuisisi talenta Anda.</p>
+              <h2 className="lp-why-title">Mengapa LUNA V3 Berbeda?</h2>
+              <p className="lp-why-subtitle">Kami bukan sekadar fitur tambahan di aplikasi HRIS Anda. LUNA dirancang khusus sebagai mesin utama akuisisi talenta perusahaan Anda.</p>
             </div>
             <div className="lp-why-points">
               <div className="lp-why-point">
@@ -327,7 +327,7 @@ export default function LandingPage_001({ navigate }) {
                 </div>
                 <div className="lp-why-point-text">
                   <h4 className="lp-why-point-title">Candidate Warehouse</h4>
-                  <p className="lp-why-point-desc">Bangun Talent Pool permanen. Data pelamar tersimpan aman dan siap dihubungi kapan pun.</p>
+                  <p className="lp-why-point-desc">Jangan biarkan data pelamar menguap. LUNA menyimpan seluruh data kandidat menjadi Talent Pool permanen perusahaan Anda, siap dihubungi kapan pun.</p>
                 </div>
               </div>
               <div className="lp-why-point">
@@ -336,7 +336,7 @@ export default function LandingPage_001({ navigate }) {
                 </div>
                 <div className="lp-why-point-text">
                   <h4 className="lp-why-point-title">Dedicated Recruitment OS</h4>
-                  <p className="lp-why-point-desc">Sistem end-to-end yang fokus 100% untuk alur kerja rekruter, bukan aplikasi absensi biasa.</p>
+                  <p className="lp-why-point-desc">Fokus 100% pada akuisisi talenta. Kami membangun sistem end-to-end yang mengerti alur kerja rekruter, bukan sistem absensi yang dijejali fitur ala kadarnya.</p>
                 </div>
               </div>
               <div className="lp-why-point">
@@ -345,7 +345,7 @@ export default function LandingPage_001({ navigate }) {
                 </div>
                 <div className="lp-why-point-text">
                   <h4 className="lp-why-point-title">Dual-Flow AI Scoring</h4>
-                  <p className="lp-why-point-desc">Kumpulkan CV via upload massal atau Laman Karir bawaan. Semua otomatis masuk dashboard &amp; dinilai AI.</p>
+                  <p className="lp-why-point-desc">Kumpulkan kandidat melalui dua cara: HR mengunggah CV secara massal, atau aktifkan Laman Karir bawaan agar kandidat melamar langsung layaknya di job portal sendiri. Semua data otomatis masuk dashboard dan dinilai oleh AI.</p>
                 </div>
               </div>
             </div>
@@ -395,8 +395,8 @@ export default function LandingPage_001({ navigate }) {
         {/* Heading block — 1048px centered, gap-24 */}
         <div className="lp-pricing-head">
           <div className="lp-pricing-texts">
-            <h2 className="lp-pricing-title">Biaya Transparan &amp; Fleksibel</h2>
-            <p className="lp-pricing-subtitle">Infrastruktur AI fleksibel sesuai kebutuhan rekrutmen Anda.</p>
+            <h2 className="lp-pricing-title">Skalakan Rekrutmen Tanpa Biaya Tersembunyi</h2>
+            <p className="lp-pricing-subtitle">Pilih infrastruktur AI yang paling sesuai dengan volume hiring perusahaan Anda.</p>
           </div>
           {/* Toggle */}
           <div className="lp-billing-toggle">
@@ -422,7 +422,7 @@ export default function LandingPage_001({ navigate }) {
               <div className="lp-plan-header">
                 <div className="lp-plan-name-block">
                   <h3 className="lp-plan-name">BASIC</h3>
-                  <p className="lp-plan-tagline">AI hiring untuk tim yang sedang berkembang.</p>
+                  <p className="lp-plan-tagline">Standardisasi proses hiring dengan AI untuk startup &amp; tim menengah.</p>
                 </div>
                 <div className="lp-plan-price-block">
                   {billingCycle === 'bulanan' ? (
@@ -575,7 +575,7 @@ export default function LandingPage_001({ navigate }) {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-footer-logo">
-              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: '46px', width: 'auto' }} />
+              <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: '76px', width: 'auto' }} />
             </div>
             <p className="lp-footer-desc">End-to-End Recruitment Operating System bertenaga AI. Fokus pada manusia, biarkan AI menangani administrasinya.</p>
           </div>
