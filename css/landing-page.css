@@ -580,6 +580,11 @@
   filter: grayscale(20%);
 }
 
+.lp-trust-logo[src*="lp-logo-theken.svg"],
+.lp-trust-logo[src*="lp-logo-sindo.png"] {
+  height: 18px;
+}
+
 /* ── Features ──────────────────────────────────── */
 .lp-features {
   background: #fff;

@@ -158,6 +158,11 @@
     flex-shrink: 0;
   }
 
+  .lp-_001-container .lp-trust-logo[src*="lp-logo-theken.svg"],
+  .lp-_001-container .lp-trust-logo[src*="lp-logo-sindo.png"] {
+    height: 12px;
+  }
+
   /* Features */
   .lp-_001-container .lp-features-grid {
     flex-direction: column;
