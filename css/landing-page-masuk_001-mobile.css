@@ -117,6 +117,10 @@
     gap: 16px !important;
   }
 
+  .lp-_001-container.lpm-page .lpotp-head {
+    margin-bottom: 0 !important;
+  }
+
   .lp-_001-container.lpm-page .lpm-heading-text {
     display: flex !important;
     flex-direction: column !important;
