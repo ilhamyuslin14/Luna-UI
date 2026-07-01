@@ -91,7 +91,9 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
               <span className="stk-kandidat-sub">
                 {k.jabatan_saat_ini
                   ? `${k.jabatan_saat_ini}${k.perusahaan_saat_ini ? ` at ${k.perusahaan_saat_ini}` : ''}`
-                  : '-'}
+                  : 'Belum ada data jabatan'}
+                <span style={{ margin: '0 6px', color: '#cbd0db' }}>•</span>
+                {k.pengalaman_tahun ? `${k.pengalaman_tahun} Tahun Pengalaman` : '0 Tahun Pengalaman'}
               </span>
             </div>
           </div>
