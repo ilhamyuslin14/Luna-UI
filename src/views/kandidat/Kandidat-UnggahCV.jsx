@@ -61,10 +61,12 @@ const IconInfoTip = () => (
 
 function getErrorLabel(msg) {
   if (!msg) return { label: 'Gagal Upload', detail: '' };
-  if (/sudah pernah diunggah/i.test(msg))         return { label: 'File Duplikat',       detail: msg };
+  if (/sudah pernah diunggah/i.test(msg))          return { label: 'File Duplikat',       detail: msg };
   if (/bukan cv|lowongan|brosur/i.test(msg))       return { label: 'Bukan CV',            detail: msg };
   if (/konfigurasi ai/i.test(msg))                 return { label: 'Konfigurasi Error',   detail: msg };
   if (/format file/i.test(msg))                    return { label: 'Format Salah',        detail: msg };
+  if (/Ekstrak CV Sibuk/i.test(msg))               return { label: 'Gagal Ekstrak',       detail: msg };
+  if (/AI Scoring Sibuk/i.test(msg))               return { label: 'Gagal Scoring',       detail: msg };
   return { label: 'Gagal Proses', detail: msg };
 }
 
