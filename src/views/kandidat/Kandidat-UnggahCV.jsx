@@ -462,23 +462,54 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                   </button>
                 </div>
               ))}
-              <button className="kt-add-more" onClick={() => inputRef.current?.click()}>
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><line x1="6.5" y1="1" x2="6.5" y2="12" stroke="#0977be" strokeWidth="1.5" strokeLinecap="round" /><line x1="1" y1="6.5" x2="12" y2="6.5" stroke="#0977be" strokeWidth="1.5" strokeLinecap="round" /></svg>
-                Tambah File Lainnya
-              </button>
             </div>
-            <div className="kt-actions" style={{ justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ 
-                fontSize: '12px', 
-                color: '#475569', 
-                fontWeight: 600, 
-                backgroundColor: '#f1f5f9', 
-                padding: '4px 12px', 
-                borderRadius: '16px',
-                display: 'inline-flex',
-                alignItems: 'center'
-              }}>
-                {files.length} Data
+            <div className="kt-actions" style={{ justifyContent: 'space-between', width: '100%', marginTop: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <button 
+                  onClick={() => inputRef.current?.click()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#0977be',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#07619c'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#0977be'}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  Tambah File Lainnya
+                </button>
+
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: '#475569', 
+                  fontWeight: 600, 
+                  backgroundColor: '#f8fafc', 
+                  border: '1px solid #e2e8f0',
+                  padding: '4px 12px', 
+                  borderRadius: '20px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                  {files.length} Data
+                </div>
               </div>
               <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
                 <button className="kt-btn-cancel" onClick={() => { setFiles([]); setPhase('drop'); }}>Batal</button>
