@@ -69,8 +69,8 @@ export default function KriteriaPenilaian({ kriteria, onChange, isGenerating = f
 
   const addItem = () =>
     setDraft(prev => [
-      ...prev,
       { id: prev.length ? Math.max(...prev.map(k => k.id)) + 1 : 1, kategori: 'Wajib', teks: '', bobot: 'sedang', point: 100 },
+      ...prev,
     ]);
 
   const deleteItem = (id) => setDraft(prev => prev.filter(k => k.id !== id));
