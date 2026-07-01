@@ -89,7 +89,7 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
   const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : 'Evaluate candidate based on requirements.'
   const modelId = model.startsWith('models/') ? model : `models/${model}`
 
-  const payload = {
+  let currentPayload = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: [{ parts: [{ text: `Kriteria Penilaian:\n${plainKriteria}\n\nData CV Kandidat:\n${plainCv}` }] }],
     ...(useFlexMode && { service_tier: 'flex' }),
@@ -113,7 +113,7 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(currentPayload),
       }
     )
 
@@ -124,6 +124,13 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
     } else {
       if ((response.status === 429 || response.status === 503) && attempts < maxAttempts) {
         console.warn(`[Gemini API Scoring] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 3 detik... (Percobaan ${attempts})`);
+        
+        // Fallback: Matikan mode flex untuk percobaan selanjutnya agar masuk ke tier standar (on-demand)
+        if (currentPayload.service_tier === 'flex') {
+          delete currentPayload.service_tier;
+          console.warn(`[Gemini API Scoring] Mematikan mode Flex untuk percobaan selanjutnya.`);
+        }
+
         await new Promise(resolve => setTimeout(resolve, 3000));
       } else {
         let errMsg = data.error?.message || `Gemini API error (HTTP ${response.status})`
