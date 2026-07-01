@@ -221,51 +221,64 @@ export default function KriteriaPenilaian({ kriteria, onChange, isGenerating = f
             </svg>
             Tambah Kriteria
           </button>
-          <div className="sd-kriteria-edit-list">
-            {draft.map(k => (
-              <div className="sd-kriteria-edit-item" key={k.id}>
-                <div className="sd-kriteria-edit-main">
-                  <div className="sd-kriteria-edit-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="sd-kriteria-edit-label">Tag :</span>
-                      <input
-                        className="sd-kriteria-text-input"
-                        style={{ width: '160px', flex: 'none', height: '24px', fontSize: '10px', padding: '0 8px' }}
-                        value={k.tag || ''}
-                        onChange={e => updateItem(k.id, 'tag', e.target.value)}
-                        placeholder="Misal: Komunikasi"
-                      />
-                    </div>
-                    <div className="sd-kriteria-edit-label-group">
-                      <span className="sd-kriteria-edit-label">Bobot Penilaian</span>
-                      <BobotSelect value={k.bobot} onChange={val => updateItem(k.id, 'bobot', val)} />
-                    </div>
+          <div className="sd-kriteria-sections" style={{ marginTop: '16px' }}>
+            {['Wajib', 'Nilai Tambah'].map(kat => {
+              const items = draft.filter(k => k.kategori === kat);
+              if (!items.length) return null;
+              return (
+                <div className="sd-kriteria-section" key={kat}>
+                  <div className="sd-kriteria-header">
+                    <h3 className={`sd-kriteria-section-title ${kat === 'Wajib' ? 'primary' : 'neutral'}`}>{kat}</h3>
                   </div>
-                  <div className="sd-kriteria-edit-fields">
-                    <div className={`sd-kriteria-kategori-wrap ${k.kategori === 'Wajib' ? 'wajib' : 'tambahan'}`}>
-                      <select
-                        className="sd-kriteria-kategori-select"
-                        value={k.kategori}
-                        onChange={e => updateItem(k.id, 'kategori', e.target.value)}
-                      >
-                        <option value="Wajib">Wajib</option>
-                        <option value="Nilai Tambah">Nilai Tambah</option>
-                      </select>
-                      <ChevronDown />
-                    </div>
-                    <input
-                      className="sd-kriteria-text-input"
-                      value={k.teks}
-                      onChange={e => updateItem(k.id, 'teks', e.target.value)}
-                      placeholder="Masukkan kriteria..."
-                    />
+                  <div className="sd-kriteria-edit-list">
+                    {items.map(k => (
+                      <div className="sd-kriteria-edit-item" key={k.id}>
+                        <div className="sd-kriteria-edit-main">
+                          <div className="sd-kriteria-edit-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className="sd-kriteria-edit-label">Tag :</span>
+                              <input
+                                className="sd-kriteria-text-input"
+                                style={{ width: '160px', flex: 'none', height: '24px', fontSize: '10px', padding: '0 8px' }}
+                                value={k.tag || ''}
+                                onChange={e => updateItem(k.id, 'tag', e.target.value)}
+                                placeholder="Misal: Komunikasi"
+                              />
+                            </div>
+                            <div className="sd-kriteria-edit-label-group">
+                              <span className="sd-kriteria-edit-label">Bobot Penilaian</span>
+                              <BobotSelect value={k.bobot} onChange={val => updateItem(k.id, 'bobot', val)} />
+                            </div>
+                          </div>
+                          <div className="sd-kriteria-edit-fields">
+                            <div className={`sd-kriteria-kategori-wrap ${k.kategori === 'Wajib' ? 'wajib' : 'tambahan'}`}>
+                              <select
+                                className="sd-kriteria-kategori-select"
+                                value={k.kategori}
+                                onChange={e => updateItem(k.id, 'kategori', e.target.value)}
+                              >
+                                <option value="Wajib">Wajib</option>
+                                <option value="Nilai Tambah">Nilai Tambah</option>
+                              </select>
+                              <ChevronDown />
+                            </div>
+                            <input
+                              className="sd-kriteria-text-input"
+                              value={k.teks}
+                              onChange={e => updateItem(k.id, 'teks', e.target.value)}
+                              placeholder="Masukkan kriteria..."
+                            />
+                          </div>
+                        </div>
+                        <button className="sd-kriteria-delete-btn" onClick={() => deleteItem(k.id)}>
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <button className="sd-kriteria-delete-btn" onClick={() => deleteItem(k.id)}>
-                  <TrashIcon />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="sd-kriteria-edit-footer">
             <div className="sd-kriteria-footer-right" style={{ marginLeft: 'auto' }}>
