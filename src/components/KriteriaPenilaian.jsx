@@ -199,6 +199,28 @@ export default function KriteriaPenilaian({ kriteria, onChange, isGenerating = f
 
       {isEditing ? (
         <div className="sd-kriteria-content">
+          <div className="sd-ai-badge">
+            <div className="sd-ai-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M6.5 0L7.64 4.86L13 6.5L7.64 8.14L6.5 13L5.36 8.14L0 6.5L5.36 4.86L6.5 0Z" fill="#0977be" />
+                <path d="M2 0.5L2.45 2.05L4 2.5L2.45 2.95L2 4.5L1.55 2.95L0 2.5L1.55 2.05L2 0.5Z" fill="#0977be" opacity="0.6" />
+              </svg>
+            </div>
+            <div className="sd-ai-text-group">
+              <p className="sd-ai-title">Kriteria Berbasis AI</p>
+              <p className="sd-ai-desc">
+                Untuk membantu akurasi AI telah merangkum kriteria berdasarkan data Job Description.<br />
+                Sesuaikan kriteria jika diperlukan.
+              </p>
+            </div>
+          </div>
+          <button className="sd-kriteria-add-new-btn" onClick={addItem}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            Tambah Kriteria
+          </button>
           <div className="sd-kriteria-edit-list">
             {draft.map(k => (
               <div className="sd-kriteria-edit-item" key={k.id}>
@@ -246,14 +268,7 @@ export default function KriteriaPenilaian({ kriteria, onChange, isGenerating = f
             ))}
           </div>
           <div className="sd-kriteria-edit-footer">
-            <button className="sd-kriteria-add-btn" onClick={addItem}>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              Add Criteria
-            </button>
-            <div className="sd-kriteria-footer-right">
+            <div className="sd-kriteria-footer-right" style={{ marginLeft: 'auto' }}>
               <button className="sd-kriteria-cancel-btn" onClick={cancel}>Batal</button>
               <button className="sd-edit-save-btn" onClick={save}>Simpan</button>
             </div>
