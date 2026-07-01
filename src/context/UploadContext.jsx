@@ -103,13 +103,17 @@ export function UploadProvider({ children }) {
         await updateActivityLog(job.logId, { scoring_status: 'berhasil' }).catch(()=>{});
       }
     } catch (err) {
+      let finalErrMsg = err.message || 'Gagal scoring';
+      if (finalErrMsg.includes('High Demand')) {
+        finalErrMsg = 'AI Scoring Sibuk: ' + finalErrMsg;
+      }
       scoringQueueRef.current[idx] = {
         ...scoringQueueRef.current[idx],
         status: 'error',
-        error: err.message || 'Gagal scoring',
+        error: finalErrMsg,
       };
       if (job.logId) {
-        await updateActivityLog(job.logId, { scoring_status: 'gagal', scoring_fail_reason: err.message }).catch(()=>{});
+        await updateActivityLog(job.logId, { scoring_status: 'gagal', scoring_fail_reason: finalErrMsg }).catch(()=>{});
       }
     } finally {
       activeScoringRef.current -= 1;
@@ -206,10 +210,14 @@ export function UploadProvider({ children }) {
       }
 
     } catch (error) {
+      let finalErrMsg = error.message || 'Gagal Ekstraksi';
+      if (finalErrMsg.includes('High Demand')) {
+        finalErrMsg = 'Ekstrak CV Sibuk: ' + finalErrMsg;
+      }
       statusesRef.current[idx] = {
         ...statusesRef.current[idx],
         status: 'gagal',
-        failReason: error.message || 'Gagal Ekstraksi',
+        failReason: finalErrMsg,
         progress: 100,
       };
       setGlobalFiles([...statusesRef.current]);
@@ -217,7 +225,7 @@ export function UploadProvider({ children }) {
       if (logId) {
         await updateActivityLog(logId, {
           upload_status: 'gagal',
-          upload_fail_reason: error.message || 'Gagal Ekstraksi',
+          upload_fail_reason: finalErrMsg,
           kandidat_id: error.existingKandidatId || null,
         }).catch(() => {});
       }
