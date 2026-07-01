@@ -89,7 +89,7 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
   const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : 'Evaluate candidate based on requirements.'
   const modelId = model.startsWith('models/') ? model : `models/${model}`
 
-  let currentPayload = {
+  const payload = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: [{ parts: [{ text: `Kriteria Penilaian:\n${plainKriteria}\n\nData CV Kandidat:\n${plainCv}` }] }],
     ...(useFlexMode && { service_tier: 'flex' }),
@@ -113,7 +113,7 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentPayload),
+        body: JSON.stringify(payload),
       }
     )
 
