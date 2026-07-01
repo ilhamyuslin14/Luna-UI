@@ -348,8 +348,15 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
           <p className="kt-upload-timestamp">Aktivitas pada {historyData.tanggal}</p>
           <div className="kt-overall-progress">
             <div className="kt-overall-label">
-              <span>Berhasil</span>
-              <span>({historyData.berhasil}/{historyData.total})</span>
+              <span>
+                Selesai
+                {historyData.total - historyData.berhasil > 0 && (
+                  <span style={{ fontSize: '13px', color: '#64748b', marginLeft: '8px', fontWeight: 'normal' }}>
+                    ({historyData.berhasil} Berhasil, {historyData.total - historyData.berhasil} Gagal)
+                  </span>
+                )}
+              </span>
+              <span>({historyData.total}/{historyData.total})</span>
             </div>
             <div className="kt-progress-track">
               <div className="kt-progress-fill" style={{ width: `${(historyData.berhasil / historyData.total) * 100}%` }} />
@@ -526,7 +533,14 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
             </p>
             <div className="kt-overall-progress">
               <div className="kt-overall-label">
-                <span>{allDone ? 'Selesai' : 'Uploading...'}</span>
+                <span>
+                  {allDone ? 'Selesai' : 'Uploading...'}
+                  {allDone && failedFiles.length > 0 && (
+                    <span style={{ fontSize: '13px', color: '#64748b', marginLeft: '8px', fontWeight: 'normal' }}>
+                      ({normalFiles.length} Berhasil, {failedFiles.length} Gagal)
+                    </span>
+                  )}
+                </span>
                 <span>({doneCount}/{total})</span>
               </div>
               <div className="kt-progress-track">
