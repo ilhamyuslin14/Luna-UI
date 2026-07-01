@@ -558,7 +558,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
             {failedFiles.length > 0 && (
               <div className="kt-gagal-section">
                 <div className="kt-gagal-header">
-                  <span className="kt-gagal-title">Gagal Upload</span>
+                  <span className="kt-gagal-title">Terdapat Error</span>
                 </div>
                 <div className="kt-upload-list-box" style={{ maxHeight: '240px', overflowY: 'auto' }}>
                   {failedFiles.map((fs, idx) => (

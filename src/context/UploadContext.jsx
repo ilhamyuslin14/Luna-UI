@@ -170,6 +170,7 @@ export function UploadProvider({ children }) {
         source: user?.id || 'HR'
       });
       logId = log.id;
+      statusesRef.current[idx] = { ...statusesRef.current[idx], logId };
     } catch (e) { console.error('Failed to create initial log', e); }
 
     try {
@@ -197,10 +198,10 @@ export function UploadProvider({ children }) {
       // Enqueue scoring jika posisi dipilih dan upload berhasil
       if (target.posisi?.id && data?.id) {
         enqueueScoringJob(data.id, target.posisi.id, target.posisi.jabatan, target.name, target.companyId, logId);
-        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', scoringEnqueued: true, progress: 60 };
+        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', scoringEnqueued: true, progress: 60, data: data.id };
         setGlobalFiles([...statusesRef.current]);
       } else {
-        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', progress: 100, data };
+        statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'berhasil', progress: 100, data: data?.id || data };
         setGlobalFiles([...statusesRef.current]);
       }
 
@@ -250,6 +251,17 @@ export function UploadProvider({ children }) {
   const retryGlobalFileById = (id) => {
     const idx = statusesRef.current.findIndex(s => s.id === id);
     if (idx !== -1) {
+      const fileStatus = statusesRef.current[idx];
+      
+      // Jika upload sudah berhasil (termasuk kasus duplikat) tapi scoring gagal, retry scoring saja
+      if ((fileStatus.status === 'berhasil' || fileStatus.scoringEnqueued) && fileStatus.data && fileStatus.posisi?.id) {
+        enqueueScoringJob(fileStatus.data, fileStatus.posisi.id, fileStatus.posisi.jabatan, fileStatus.name, fileStatus.companyId, fileStatus.logId);
+        // Hapus antrean error lama untuk UI
+        scoringQueueRef.current = scoringQueueRef.current.filter(j => j.namaFile !== fileStatus.name || j.status !== 'error');
+        setScoringQueue([...scoringQueueRef.current]);
+        return;
+      }
+
       statusesRef.current[idx] = { ...statusesRef.current[idx], status: 'waiting', progress: 0, failReason: null };
       setGlobalFiles([...statusesRef.current]);
       processNextGlobal();
