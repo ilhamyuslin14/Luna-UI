@@ -104,7 +104,7 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
   let response;
   let data;
   let attempts = 0;
-  const maxAttempts = 2; // 1 initial + 1 retry
+  const maxAttempts = 10; // 1 initial + 9 retry
 
   while (attempts < maxAttempts) {
     attempts++;
@@ -123,8 +123,8 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
       break; // Berhasil
     } else {
       if ((response.status === 429 || response.status === 503) && attempts < maxAttempts) {
-        console.warn(`[Gemini API Scoring] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 3 detik... (Percobaan ${attempts})`);
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        console.warn(`[Gemini API Scoring] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 2.5 detik... (Percobaan ${attempts})`);
+        await new Promise(resolve => setTimeout(resolve, 2500));
       } else {
         let errMsg = data.error?.message || `Gemini API error (HTTP ${response.status})`
         if (response.status === 429 || response.status === 503) {

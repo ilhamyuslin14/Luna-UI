@@ -561,7 +561,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                         {fs.finalStatus === 'berhasil' && fs.data && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail', { kandidat: fs.data })}>Detail</div>}
                       </div>
                       <div className={`kt-status-label ${fs.finalStatus}`}>
-                        {fs.finalStatus === 'uploading' && <><IconUploading /><span>{fs.statusText}</span></>}
+                        {fs.finalStatus === 'uploading' && <><IconUploading /><span>{fs.statusText} {fs.attempt > 1 ? `(Percobaan ke-${fs.attempt})` : ''}</span></>}
                         {fs.finalStatus === 'waiting' && <><IconWaiting /><span>Menunggu</span></>}
                         {fs.finalStatus === 'berhasil' && <><IconBerhasil /><span>{fs.statusText}</span></>}
                       </div>

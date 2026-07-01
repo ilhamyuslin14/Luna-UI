@@ -177,7 +177,7 @@ async function callGeminiForParsing({ cvText, fileBase64, fileMimeType, apiKey, 
   let response;
   let data;
   let attempts = 0;
-  const maxAttempts = 2; // 1 initial + 1 retry
+  const maxAttempts = 10; // 1 initial + 9 retries
 
   while (attempts < maxAttempts) {
     attempts++;
@@ -197,8 +197,8 @@ async function callGeminiForParsing({ cvText, fileBase64, fileMimeType, apiKey, 
     } else {
       // Jika error karena High Demand (429) atau Server Sibuk (503) dan masih ada kuota retry
       if ((response.status === 429 || response.status === 503) && attempts < maxAttempts) {
-        console.warn(`[Gemini API] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 3 detik... (Percobaan ${attempts})`);
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Jeda 3 detik sebelum retry
+        console.warn(`[Gemini API] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 2.5 detik... (Percobaan ${attempts})`);
+        await new Promise(resolve => setTimeout(resolve, 2500)); // Jeda 2.5 detik sebelum retry
       } else {
         // Jika error lain atau sudah melewati batas retry
         let errMsg = data.error?.message || `Gemini API error (HTTP ${response.status})`

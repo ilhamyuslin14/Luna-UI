@@ -89,14 +89,25 @@ export function UploadProvider({ children }) {
 
   const processScoringJob = async (idx) => {
     const job = scoringQueueRef.current[idx];
-    scoringQueueRef.current[idx] = { ...job, status: 'processing' };
+    
+    scoringQueueRef.current[idx] = { ...job, status: 'scoring', attempt: 1 };
     setScoringQueue([...scoringQueueRef.current]);
 
     if (job.logId) {
       await updateActivityLog(job.logId, { scoring_status: 'proses' }).catch(()=>{});
     }
 
+    let intervalId = null;
     try {
+      let fakeAttempt = 1;
+      intervalId = setInterval(() => {
+        fakeAttempt++;
+        if (fakeAttempt <= 10) {
+          scoringQueueRef.current[idx] = { ...scoringQueueRef.current[idx], attempt: fakeAttempt };
+          setScoringQueue([...scoringQueueRef.current]);
+        }
+      }, 2500);
+
       await runScoring(job.kandidatId, job.seleksiId, job.companyId);
       scoringQueueRef.current[idx] = { ...scoringQueueRef.current[idx], status: 'done' };
       if (job.logId) {
@@ -116,6 +127,7 @@ export function UploadProvider({ children }) {
         await updateActivityLog(job.logId, { scoring_status: 'gagal', scoring_fail_reason: finalErrMsg }).catch(()=>{});
       }
     } finally {
+      if (intervalId) clearInterval(intervalId);
       activeScoringRef.current -= 1;
       setScoringQueue([...scoringQueueRef.current]);
       setTimeout(processNextScoring, 250);
@@ -158,7 +170,7 @@ export function UploadProvider({ children }) {
 
   const processGlobalFile = async (idx) => {
     const target = statusesRef.current[idx];
-    statusesRef.current[idx] = { ...target, status: 'uploading', progress: 5, statusText: 'Memulai...' };
+    statusesRef.current[idx] = { ...target, status: 'uploading', progress: 5, statusText: 'Memulai...', attempt: 1 };
     setGlobalFiles([...statusesRef.current]);
 
     let logId = null;
@@ -177,7 +189,17 @@ export function UploadProvider({ children }) {
       statusesRef.current[idx] = { ...statusesRef.current[idx], logId };
     } catch (e) { console.error('Failed to create initial log', e); }
 
+    let intervalId = null;
     try {
+      let fakeAttempt = 1;
+      intervalId = setInterval(() => {
+        fakeAttempt++;
+        if (fakeAttempt <= 10) {
+          statusesRef.current[idx] = { ...statusesRef.current[idx], attempt: fakeAttempt };
+          setGlobalFiles([...statusesRef.current]);
+        }
+      }, 2500);
+
       const onProgress = (prog, text) => {
         statusesRef.current[idx] = { ...statusesRef.current[idx], progress: prog, statusText: text };
         setGlobalFiles([...statusesRef.current]);
@@ -238,6 +260,7 @@ export function UploadProvider({ children }) {
       }
 
     } finally {
+      if (intervalId) clearInterval(intervalId);
       activeUploadsRef.current -= 1;
       setTimeout(processNextGlobal, 250);
     }
