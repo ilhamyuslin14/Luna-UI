@@ -10,6 +10,12 @@ import { getSeleksi, updateSeleksiStatus, getKandidatCountBySeleksi, getMaxAlurB
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
 
+const ArchiveSvg = () => (
+  <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5 }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
+  </svg>
+);
+
 const fmtUpah = (val) => {
   if (!val) return '-';
   const n = parseInt(String(val).replace(/[^0-9]/g, ''), 10);
@@ -50,6 +56,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
   const [activeSort, setActiveSort] = useState('nama_asc');
   const [showBulkDropdown, setShowBulkDropdown] = useState(false);
   const [archiveModal, setArchiveModal] = useState(null);
+  const [unarchiveModal, setUnarchiveModal] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
   const [page, setPage] = useState(1);
@@ -118,12 +125,22 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
     setPage(1);
   };
 
-  let filteredRows = activeFilters.size === 0
-    ? rows
-    : rows.filter(r => {
-        const statusLabel = STATUS_CONFIG[r.status]?.label;
-        return activeFilters.has(statusLabel);
-      });
+  let filteredRows = rows;
+
+  if (activeFilters.has('Arsip')) {
+    filteredRows = filteredRows.filter(r => r.arsip === true);
+  } else {
+    filteredRows = filteredRows.filter(r => !r.arsip);
+  }
+
+  const statusPosisiOpts = ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'];
+  const activeStatusPosisi = statusPosisiOpts.filter(f => activeFilters.has(f));
+  if (activeStatusPosisi.length > 0) {
+    filteredRows = filteredRows.filter(r => {
+      const statusLabel = STATUS_CONFIG[r.status]?.label;
+      return activeStatusPosisi.includes(statusLabel);
+    });
+  }
 
   filteredRows = [...filteredRows].sort((a, b) => {
     switch (activeSort) {
@@ -201,23 +218,34 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
               count={selectedRows.size}
               isOpen={showBulkDropdown}
               onToggle={(e) => { e?.stopPropagation(); setShowSortDropdown(false); setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
-              actions={[
-                {
-                  icon: <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>,
-                  label: 'Arsipkan',
-                  onClick: () => {
-                    setShowBulkDropdown(false);
-                    const n = selectedRows.size;
-                    setArchiveModal({
-                      ids: [...selectedRows],
-                      title: 'Arsipkan Posisi',
-                      body: `Apakah Anda yakin ingin mengarsipkan ${n} posisi yang dipilih?`,
-                    });
-                  },
-                },
-              ]}
+              actions={
+                activeFilters.has('Arsip') ? [
+                  {
+                    icon: <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ transform: 'rotate(180deg)' }}><path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" /></svg>,
+                    label: 'Tampilkan',
+                    onClick: () => {
+                      setShowBulkDropdown(false);
+                      setUnarchiveModal({ isBulk: true });
+                    }
+                  }
+                ] : [
+                  {
+                    icon: <ArchiveSvg />,
+                    label: 'Arsipkan',
+                    onClick: () => {
+                      setShowBulkDropdown(false);
+                      setArchiveModal({
+                        ids: [...selectedRows],
+                        title: 'Arsipkan Posisi',
+                        body: `Apakah Anda yakin ingin mengarsipkan ${selectedRows.size} posisi yang dipilih?`,
+                      });
+                    },
+                  }
+                ]
+              }
             />
           )}
+
           <SortDropdown
             options={[
               { label: 'Nama (A-Z)', value: 'nama_asc' },
@@ -232,7 +260,8 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
           />
           <FilterDropdown
             groups={[
-              { title: 'Status', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
+              { title: 'Status', options: ['Arsip'] },
+              { title: 'Status Posisi', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
             ]}
             activeFilters={activeFilters}
             onToggle={toggleFilter}
@@ -257,19 +286,21 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
               <th width="108">Upah Min</th>
               <th width="100">Upah Maks</th>
               <th width="106">Tanggal Dibuat</th>
-              <th width="100"></th>
+              <th width="100">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
-            ) : rows.length === 0 ? (
-              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Belum ada posisi seleksi.</td></tr>
+            ) : filteredRows.length === 0 ? (
+              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>
+                {activeFilters.has('Arsip') ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
+              </td></tr>
             ) : pagedRows.map((row) => {
               const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.rencana;
               return (
                 <tr key={row.id} className={row.arsip ? 'lw-row-archived' : ''}>
-                  <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} disabled={row.arsip} /></td>
+                  <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} /></td>
                   <td
                     className={`lw-posisi${row.arsip ? '' : ' clickable'}`}
                     onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
@@ -314,16 +345,28 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                   <td>{row.upahMaks}</td>
                   <td>{row.tanggal}</td>
                   <td>
-                    {row.arsip && (
-                      <button className="lw-btn-outline btn-show" onClick={async () => {
-                        try {
-                          await unarchiveSeleksi(row.id);
-                          setRows(prev => prev.map(r => r.id === row.id ? { ...r, arsip: false } : r));
-                          showToast('Posisi ditampilkan', `${row.posisi} kembali aktif`);
-                        } catch {
-                          showToast('Gagal', 'Tidak dapat menampilkan posisi');
-                        }
-                      }}>Tampilkan</button>
+                    {row.arsip ? (
+                      <button className="lw-btn-outline" onClick={() => {
+                        setUnarchiveModal({
+                          id: row.id,
+                          posisi: row.posisi
+                        });
+                      }}>
+                        <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5, transform: 'rotate(180deg)' }}>
+                          <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
+                        </svg>
+                        Tampilkan
+                      </button>
+                    ) : (
+                      <button className="lw-btn-outline btn-archive" onClick={() => {
+                        setArchiveModal({
+                          ids: [row.id],
+                          title: 'Arsipkan Posisi',
+                          body: `Apakah Anda yakin ingin mengarsipkan posisi "${row.posisi}"?`,
+                        });
+                      }}>
+                        <ArchiveSvg /> Arsipkan
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -349,7 +392,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             setArchiveModal(null);
             try {
               await Promise.all(archiveModal.ids.map(id => archiveSeleksi(id)));
-              setRows(prev => prev.filter(r => !archiveModal.ids.includes(r.id)));
+              setRows(prev => prev.map(r => archiveModal.ids.includes(r.id) ? { ...r, arsip: true } : r));
               setSelectedRows(new Set());
               showToast('Berhasil diarsipkan', `${archiveModal.ids.length} posisi dipindahkan ke arsip`);
             } catch {
@@ -357,6 +400,40 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             }
           }}
           onClose={() => setArchiveModal(null)}
+        />
+      )}
+      {unarchiveModal && (
+        <PopupKonfirmasi
+          title="Tampilkan Posisi"
+          body={unarchiveModal.isBulk
+            ? `Apakah Anda yakin ingin menampilkan ${selectedRows.size} posisi yang dipilih?`
+            : `Tampilkan kembali posisi "${unarchiveModal.posisi}"? Status akan diubah ke aktif.`}
+          confirmLabel="Tampilkan"
+          onConfirm={async () => {
+            if (unarchiveModal.isBulk) {
+              const ids = [...selectedRows];
+              setUnarchiveModal(null);
+              try {
+                await Promise.all(ids.map(id => unarchiveSeleksi(id)));
+                setRows(prev => prev.map(r => ids.includes(r.id) ? { ...r, arsip: false } : r));
+                setSelectedRows(new Set());
+                showToast('Posisi ditampilkan', `${ids.length} posisi kembali aktif`);
+              } catch {
+                showToast('Gagal menampilkan', 'Terjadi kesalahan, coba lagi');
+              }
+            } else {
+              const { id, posisi } = unarchiveModal;
+              setUnarchiveModal(null);
+              try {
+                await unarchiveSeleksi(id);
+                setRows(prev => prev.map(r => r.id === id ? { ...r, arsip: false } : r));
+                showToast('Posisi ditampilkan', `${posisi} kembali aktif`);
+              } catch {
+                showToast('Gagal menampilkan', 'Terjadi kesalahan, coba lagi');
+              }
+            }
+          }}
+          onClose={() => setUnarchiveModal(null)}
         />
       )}
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}

@@ -252,24 +252,32 @@ export default function Kandidat({ navigate, searchQuery = '', filter = '' }) {
             Jumlah Kandidat : <strong>{filteredData.length}</strong>
           </div>
           <div className="kan-divider" />
-          {selectedRows.size > 0 && !activeFilters.has('Arsip') && (
+          {selectedRows.size > 0 && (
             <CTABulkAksi
               count={selectedRows.size}
               isOpen={showBulkDropdown}
               onToggle={() => { setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
-              actions={[
-                {
-                  icon: <svg width="9" height="9" viewBox="0 0 9 8.745" fill="none"><path d="M7.875 2.25H6.75V1.6875C6.75 1.06641 6.24609 0.5625 5.625 0.5625H3.375C2.75391 0.5625 2.25 1.06641 2.25 1.6875V2.25H1.125C0.503906 2.25 0 2.75391 0 3.375V7.3125C0 7.93359 0.503906 8.4375 1.125 8.4375H7.875C8.49609 8.4375 9 7.93359 9 7.3125V3.375C9 2.75391 8.49609 2.25 7.875 2.25ZM3 1.6875C3 1.47891 3.16875 1.3125 3.375 1.3125H5.625C5.83125 1.3125 6 1.47891 6 1.6875V2.25H3V1.6875ZM8.25 7.3125C8.25 7.51875 8.08125 7.6875 7.875 7.6875H1.125C0.91875 7.6875 0.75 7.51875 0.75 7.3125V5.25H8.25V7.3125ZM8.25 4.5H0.75V3.375C0.75 3.16875 0.91875 3 1.125 3H7.875C8.08125 3 8.25 3.16875 8.25 3.375V4.5Z" fill="currentColor" /></svg>,
-                  label: 'Tambahkan ke Lowongan',
-                  onClick: openLowonganModal,
-                },
-                { type: 'divider' },
-                {
-                  icon: <ArchiveSvg />,
-                  label: 'Arsipkan',
-                  onClick: () => { setShowBulkDropdown(false); openArchiveModal([...selectedRows]); },
-                },
-              ]}
+              actions={
+                activeFilters.has('Arsip') ? [
+                  {
+                    icon: <ArchiveSvg style={{ transform: 'rotate(180deg)' }} />,
+                    label: 'Tampilkan',
+                    onClick: () => { setShowBulkDropdown(false); setUnarchiveModal({ isBulk: true }); },
+                  },
+                ] : [
+                  {
+                    icon: <svg width="9" height="9" viewBox="0 0 9 8.745" fill="none"><path d="M7.875 2.25H6.75V1.6875C6.75 1.06641 6.24609 0.5625 5.625 0.5625H3.375C2.75391 0.5625 2.25 1.06641 2.25 1.6875V2.25H1.125C0.503906 2.25 0 2.75391 0 3.375V7.3125C0 7.93359 0.503906 8.4375 1.125 8.4375H7.875C8.49609 8.4375 9 7.93359 9 7.3125V3.375C9 2.75391 8.49609 2.25 7.875 2.25ZM3 1.6875C3 1.47891 3.16875 1.3125 3.375 1.3125H5.625C5.83125 1.3125 6 1.47891 6 1.6875V2.25H3V1.6875ZM8.25 7.3125C8.25 7.51875 8.08125 7.6875 7.875 7.6875H1.125C0.91875 7.6875 0.75 7.51875 0.75 7.3125V5.25H8.25V7.3125ZM8.25 4.5H0.75V3.375C0.75 3.16875 0.91875 3 1.125 3H7.875C8.08125 3 8.25 3.16875 8.25 3.375V4.5Z" fill="currentColor" /></svg>,
+                    label: 'Tambahkan ke Lowongan',
+                    onClick: openLowonganModal,
+                  },
+                  { type: 'divider' },
+                  {
+                    icon: <ArchiveSvg />,
+                    label: 'Arsipkan',
+                    onClick: () => { setShowBulkDropdown(false); openArchiveModal([...selectedRows]); },
+                  },
+                ]
+              }
             />
           )}
           <SortDropdown
@@ -390,17 +398,32 @@ export default function Kandidat({ navigate, searchQuery = '', filter = '' }) {
       {unarchiveModal && (
         <PopupKonfirmasi
           title="Tampilkan Kandidat"
-          body={`Tampilkan kembali "${unarchiveModal.nama}"? Kandidat akan kembali aktif.`}
+          body={unarchiveModal.isBulk
+            ? `Apakah Anda yakin ingin menampilkan ${selectedRows.size} kandidat yang dipilih?`
+            : `Tampilkan kembali "${unarchiveModal.nama}"? Kandidat akan kembali aktif.`}
           confirmLabel="Tampilkan"
           onConfirm={async () => {
-            const { id, nama } = unarchiveModal;
-            setUnarchiveModal(null);
-            try {
-              await unarchiveKandidat(id);
-              setKandidatData(prev => prev.map(k => k.id === id ? { ...k, arsip: false } : k));
-              showToast('Kandidat ditampilkan', `${nama} kembali aktif`);
-            } catch {
-              showToast('Gagal', 'Tidak dapat menampilkan kandidat');
+            if (unarchiveModal.isBulk) {
+              const ids = [...selectedRows];
+              setUnarchiveModal(null);
+              try {
+                await Promise.all(ids.map(id => unarchiveKandidat(id)));
+                setKandidatData(prev => prev.map(k => ids.includes(k.id) ? { ...k, arsip: false } : k));
+                setSelectedRows(new Set());
+                showToast('Kandidat ditampilkan', `${ids.length} kandidat kembali aktif`);
+              } catch {
+                showToast('Gagal', 'Tidak dapat menampilkan kandidat');
+              }
+            } else {
+              const { id, nama } = unarchiveModal;
+              setUnarchiveModal(null);
+              try {
+                await unarchiveKandidat(id);
+                setKandidatData(prev => prev.map(k => k.id === id ? { ...k, arsip: false } : k));
+                showToast('Kandidat ditampilkan', `${nama} kembali aktif`);
+              } catch {
+                showToast('Gagal', 'Tidak dapat menampilkan kandidat');
+              }
             }
           }}
           onClose={() => setUnarchiveModal(null)}

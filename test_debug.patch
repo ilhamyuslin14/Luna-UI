@@ -1,0 +1,10 @@
+--- src/views/kandidat/Kandidat-UnggahCV.jsx
++++ src/views/kandidat/Kandidat-UnggahCV.jsx
+@@ -231,6 +231,7 @@
+   // Derived state dari Context untuk phase 'uploading'
+   const { scoringQueue } = useUpload();
+   const ctxFiles = globalFiles;
++  console.log('DEBUG Kandidat-UnggahCV rendering. scoringQueue:', scoringQueue, 'ctxFiles:', ctxFiles);
+   
+   const extendedFiles = ctxFiles.map(f => {
+     const isUploadAndScoring = !!f.posisi;

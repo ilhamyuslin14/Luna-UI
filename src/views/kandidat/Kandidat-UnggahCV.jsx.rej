@@ -1,0 +1,8 @@
+@@ -231,6 +231,7 @@
+   // Derived state dari Context untuk phase 'uploading'
+   const { scoringQueue } = useUpload();
+   const ctxFiles = globalFiles;
++  window.scoringQueueDebug = scoringQueue;
+   
+   const extendedFiles = ctxFiles.map(f => {
+     const isUploadAndScoring = !!f.posisi;

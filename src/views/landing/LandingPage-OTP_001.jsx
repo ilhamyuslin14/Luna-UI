@@ -225,7 +225,7 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
                   <div className="lpm-heading-text">
                     <h2 className="lpm-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Verifikasi WhatsApp</h2>
                     <p className="lpm-subtitle lpm-hide-on-mobile">Kami akan mengirim kode verifikasi ke nomor Anda untuk mengamankan akun.</p>
-                    <p className="lpm-subtitle lpm-show-on-mobile">Kode verifikasi akan dikirim via WhatsApp.</p>
+                    <p className="lpm-subtitle lpm-show-on-mobile">Kode OTP akan dikirim ke nomor anda.</p>
                   </div>
                 </div>
               </div>

@@ -14,10 +14,9 @@ const ArchiveSvg = () => (
   </svg>
 );
 
-const ShowSvg = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4.5 }}>
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
+const UnarchiveSvg = () => (
+  <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5, transform: 'rotate(180deg)' }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
   </svg>
 );
 
@@ -153,8 +152,15 @@ export default function Departemen({ navigate, searchQuery = '' }) {
 
   const handleUnarchiveConfirm = async () => {
     try {
-      await unarchiveDepartment(unarchiveTarget.id);
-      showToast('Departemen ditampilkan kembali', 'Status diubah ke aktif');
+      if (unarchiveTarget === 'bulk') {
+        await Promise.all([...selectedRows].map(id => unarchiveDepartment(id)));
+        showToast(`${selectedRows.size} departemen ditampilkan`, 'Status diubah ke aktif');
+        setSelectedRows(new Set());
+        setShowBulkDropdown(false);
+      } else {
+        await unarchiveDepartment(unarchiveTarget.id);
+        showToast('Departemen ditampilkan kembali', 'Status diubah ke aktif');
+      }
       fetchDepts();
     } catch {
       showToast('Gagal', 'Terjadi kesalahan saat menampilkan departemen');
@@ -184,14 +190,18 @@ export default function Departemen({ navigate, searchQuery = '' }) {
           <div className="dept-right-actions">
             <div className="dept-stats-badge">Jumlah Departemen : <strong>{deptData.length}</strong></div>
             <div className="dept-divider" />
-            {selectedRows.size > 0 && !showArchived && (
+            {selectedRows.size > 0 && (
               <CTABulkAksi
                 count={selectedRows.size}
                 isOpen={showBulkDropdown}
                 onToggle={() => { setShowSortDropdown(false); setShowFilterDropdown(false); setShowBulkDropdown(v => !v); }}
-                actions={[
-                  { icon: <ArchiveSvg />, label: 'Arsipkan', onClick: handleBulkArchive },
-                ]}
+                actions={
+                  showArchived ? [
+                    { icon: <UnarchiveSvg />, label: 'Tampilkan', onClick: () => { setShowBulkDropdown(false); setUnarchiveTarget('bulk'); } },
+                  ] : [
+                    { icon: <ArchiveSvg />, label: 'Arsipkan', onClick: handleBulkArchive },
+                  ]
+                }
               />
             )}
             <SortDropdown
@@ -257,8 +267,8 @@ export default function Departemen({ navigate, searchQuery = '' }) {
                         <span>{displayDate}</span>
                         <div className="dept-actions">
                           {dept.status === 'arsip' ? (
-                            <button className="dept-btn-outline btn-show" onClick={() => setUnarchiveTarget(dept)}>
-                              Tampilkan
+                            <button className="dept-btn-outline" onClick={() => setUnarchiveTarget(dept)}>
+                              <UnarchiveSvg /> Tampilkan
                             </button>
                           ) : (
                             <button className="dept-btn-outline btn-archive" onClick={() => setArchiveTarget(dept)}>
@@ -327,7 +337,9 @@ export default function Departemen({ navigate, searchQuery = '' }) {
       {unarchiveTarget !== null && (
         <PopupKonfirmasi
           title="Tampilkan Departemen"
-          body={`Tampilkan kembali departemen "${unarchiveTarget.name}"? Status akan diubah ke aktif.`}
+          body={unarchiveTarget === 'bulk'
+            ? `Apakah Anda yakin ingin menampilkan ${selectedRows.size} departemen yang dipilih?`
+            : `Tampilkan kembali departemen "${unarchiveTarget.name}"? Status akan diubah ke aktif.`}
           confirmLabel="Tampilkan"
           onConfirm={handleUnarchiveConfirm}
           onClose={() => setUnarchiveTarget(null)}
