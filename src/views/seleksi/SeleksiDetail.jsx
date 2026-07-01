@@ -61,16 +61,12 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
   const [seleksiKode, setSeleksiKode] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
-  const [pageCreated, setPageCreated] = useState(false);
-  const [pageCreation, setPageCreation] = useState('idle'); // 'idle' | 'creating'
-  const [creationProgress, setCreationProgress] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const kaririUrl = seleksiKode
     ? `${window.location.origin}/?view=laman-karir&perusahaan=${slugify(companyName)}&posisi=${slugify(jabatan)}&kode=${encodeURIComponent(seleksiKode)}`
     : `${window.location.origin}/?view=laman-karir&jabatan=${encodeURIComponent(jabatan)}`;
-  const karilEnabled = recruitStatus === 'aktif' && pageCreated;
+  const karilEnabled = recruitStatus === 'aktif';
   const currentOpt = STATUS_OPTS.find(o => o.val === recruitStatus) || STATUS_OPTS[0];
 
   const fetchSeleksiData = () => {
@@ -85,9 +81,6 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
         if (data.status) {
           const s = data.status.trim().toLowerCase();
           setRecruitStatus(s);
-          if (s === 'aktif') {
-            setPageCreated(true);
-          }
         }
       }
     });
@@ -107,16 +100,6 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
     const handleSync = (e) => {
       const newVal = e.detail.toLowerCase();
       setRecruitStatus(newVal);
-      if (newVal === 'aktif') {
-        setPageCreation(prev => {
-          if (prev === 'idle') {
-            setPageCreated(false);
-            setCreationProgress(0);
-            return 'creating';
-          }
-          return prev;
-        });
-      }
     };
     window.addEventListener('syncSeleksiStatus', handleSync);
     return () => window.removeEventListener('syncSeleksiStatus', handleSync);
@@ -132,27 +115,6 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
       window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: cap }));
     }
   };
-
-  useEffect(() => {
-    if (pageCreation !== 'creating') return;
-    const interval = setInterval(() => {
-      setCreationProgress(p => Math.min(p + 2.5, 100));
-    }, 90);
-    return () => clearInterval(interval);
-  }, [pageCreation]);
-
-  useEffect(() => {
-    if (creationProgress < 100 || pageCreation !== 'creating') return;
-    setPageCreated(true);
-    setPageCreation('idle');
-    setShowSuccess(true);
-  }, [creationProgress, pageCreation]);
-
-  useEffect(() => {
-    if (!showSuccess) return;
-    const t = setTimeout(() => setShowSuccess(false), 3500);
-    return () => clearTimeout(t);
-  }, [showSuccess]);
 
   const handleCopyLink = () => {
     if (!karilEnabled) return;
@@ -237,9 +199,7 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
             </button>
             {!karilEnabled && (
               <div className="sd-cta-tooltip">
-                {pageCreation === 'creating'
-                  ? 'Laman karir sedang dibuat, harap tunggu...'
-                  : 'Status rekrutmen harus Aktif untuk mengaktifkan fitur ini'}
+                Status rekrutmen harus Aktif untuk mengaktifkan fitur ini
               </div>
             )}
           </div>
@@ -258,23 +218,12 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
             </button>
             {!karilEnabled && (
               <div className="sd-cta-tooltip sd-cta-tooltip--right">
-                {pageCreation === 'creating'
-                  ? 'Laman karir sedang dibuat, harap tunggu...'
-                  : 'Status rekrutmen harus Aktif untuk mengaktifkan fitur ini'}
+                Status rekrutmen harus Aktif untuk mengaktifkan fitur ini
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {(pageCreation === 'creating' || showSuccess) && (
-        <ToastProgress
-          state={showSuccess ? 'success' : 'creating'}
-          label={showSuccess ? 'Laman karir berhasil dibuat!' : 'Membuat laman karir...'}
-          subLabel={pageCreation === 'creating' ? 'Harap tunggu sebentar' : undefined}
-          progress={creationProgress}
-        />
-      )}
 
       <TabNav
         tabs={[
