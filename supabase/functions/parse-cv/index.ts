@@ -340,6 +340,21 @@ serve(async (req) => {
       return jsonResponse({ error: true, message: err.message || 'Gagal memproses dokumen dengan AI.' })
     }
 
+    // Catat log usage AI (best-effort) - Pindahkan ke atas agar tercatat walau dokumen invalid
+    if (usageMetadata) {
+      supabase.from('ai_usage_history').insert([{
+        model_used: promptData.model || 'gemini-1.5-pro',
+        function_name: 'Generate CV Parsing',
+        input_tokens: usageMetadata.promptTokenCount || 0,
+        output_tokens: usageMetadata.candidatesTokenCount || 0,
+        total_tokens: usageMetadata.totalTokenCount || 0,
+        latency_ms: usageMetadata.latency || 0,
+        input_text: stripHtml(rawText).substring(0, 5000),
+        output_json: parsedData,
+        is_flex_mode: !!promptData.use_flex,
+      }]).then(({ error }) => { if (error) console.error('Gagal mencatat log usage CV Parsing:', error) })
+    }
+
     if (parsedData?.is_valid_cv === false) {
       await removeStorageFile(cvUrl)
       return jsonResponse({ error: true, message: parsedData.reason_not_valid || 'Dokumen bukan CV yang valid.' })
@@ -413,21 +428,6 @@ serve(async (req) => {
     if (rawSaveErr) {
       console.error('[parse-cv] Error saat menyimpan data ke tabel kandidat_raw_data:', rawSaveErr)
       console.error('[parse-cv] PAYLOAD INSERT GAGAL (kandidat_raw_data):', safeParsedDataString)
-    }
-
-    // 5. Catat log usage AI (best-effort, tidak menghentikan response)
-    if (usageMetadata) {
-      supabase.from('ai_usage_history').insert([{
-        model_used: promptData.model || 'gemini-1.5-pro',
-        function_name: 'Generate CV Parsing',
-        input_tokens: usageMetadata.promptTokenCount || 0,
-        output_tokens: usageMetadata.candidatesTokenCount || 0,
-        total_tokens: usageMetadata.totalTokenCount || 0,
-        latency_ms: usageMetadata.latency || 0,
-        input_text: stripHtml(rawText).substring(0, 5000),
-        output_json: parsedData,
-        is_flex_mode: !!promptData.use_flex,
-      }]).then(({ error }) => { if (error) console.error('Gagal mencatat log usage CV Parsing:', error) })
     }
 
     return jsonResponse({ kandidat: savedKandidat })
