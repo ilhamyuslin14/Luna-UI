@@ -13,12 +13,21 @@ import { runScoring, getScoringByKandidat } from '../../services/scoringService.
 import { useAuth } from '../../context/AuthContext.jsx';
 
 /* ── Tambahkan ke Posisi Modal ─────────────────────────── */
+const POSISI_MODAL_EXIT_DURATION = 180;
+
 function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScoring }) {
   const { companyId }             = useAuth();
   const [query, setQuery]         = useState('');
   const [preChecked, setPreChecked] = useState({}); // { [posisiId]: 'done' } — from DB
   const [posisiList, setPosisiList] = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
+  const [closing, setClosing]       = useState(false);
+
+  const dismiss = () => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, POSISI_MODAL_EXIT_DURATION);
+  };
 
   // Pre-check posisi yang sudah pernah di-scoring dari DB
   useEffect(() => {
@@ -49,10 +58,10 @@ function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScori
 
   useEffect(() => {
     inputRef.current?.focus();
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape') dismiss(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [closing]);
 
   useEffect(() => {
     async function loadPosisi() {
@@ -89,10 +98,10 @@ function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScori
   };
 
   return (
-    <div className="kd001-posisi-overlay" onClick={onClose}>
+    <div className={`kd001-posisi-overlay${closing ? ' kd001-posisi-closing' : ''}`} onClick={dismiss}>
       <div className="kd001-posisi-modal" onClick={e => e.stopPropagation()}>
 
-        <button className="kd001-posisi-close" onClick={onClose}>
+        <button className="kd001-posisi-close" onClick={dismiss}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#555f71" strokeWidth="2" strokeLinecap="round">
             <line x1="1" y1="1" x2="13" y2="13"/>
             <line x1="13" y1="1" x2="1" y2="13"/>
@@ -249,18 +258,26 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
         <div className="kd001-profile-header">
           <div className="kd001-profile-info">
             <h1 className="kd001-title">{k.nama}</h1>
-            <div className="kd001-profile-job">
-              {k.jabatan_saat_ini || 'Belum ada jabatan'} {k.perusahaan_saat_ini && k.perusahaan_saat_ini !== '-' ? `at ${k.perusahaan_saat_ini}` : ''}
+            <div className="kd001-role-line">
+              <span className="kd001-role-badge">{k.jabatan_saat_ini || 'Belum ada jabatan'}</span>
+              {k.perusahaan_saat_ini && k.perusahaan_saat_ini !== '-' ? `di ${k.perusahaan_saat_ini}` : ''}
             </div>
-            <div className="kd001-profile-exp">
-              {k.pengalaman_tahun ? `${k.pengalaman_tahun} tahun` : '0 tahun'}
-            </div>
-            <div className="kd001-profile-loc">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              {k.domisili || 'Belum ada domisili'}
+            <div className="kd001-meta-row">
+              <span className="kd001-meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 3" />
+                </svg>
+                {k.pengalaman_tahun ? `${k.pengalaman_tahun} tahun` : '0 tahun'} pengalaman
+              </span>
+              <span className="kd001-meta-dot" />
+              <span className="kd001-meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                {k.domisili || 'Belum ada domisili'}
+              </span>
             </div>
           </div>
         </div>

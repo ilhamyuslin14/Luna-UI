@@ -18,11 +18,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 12px 20px 12px 26px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 10;
+  overflow: hidden;
+}
+
+.sd001-title-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, var(--luna-orange-400), var(--luna-orange-600));
 }
 
 .sd001-title {

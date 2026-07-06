@@ -10,24 +10,35 @@ const ALASAN_OPTIONS = [
   'Lainnya',
 ];
 
+const PTS_EXIT_DURATION = 180;
+
 export default function PopupTidakSesuai({ targetText = 'Kandidat', onConfirm, onClose }) {
   const [reason, setReason]   = useState('');
   const [details, setDetails] = useState('');
+  const [closing, setClosing] = useState(false);
+
+  const dismiss = (action) => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(action, PTS_EXIT_DURATION);
+  };
 
   const handleConfirm = () => {
     if (!reason) return;
-    onConfirm?.(reason, details);
-    setReason('');
-    setDetails('');
+    dismiss(() => {
+      onConfirm?.(reason, details);
+      setReason('');
+      setDetails('');
+    });
   };
 
   return (
-    <div className="pts-overlay" onClick={onClose}>
+    <div className={`pts-overlay${closing ? ' pts-closing' : ''}`} onClick={() => dismiss(onClose)}>
       <div className="pts-modal" onClick={e => e.stopPropagation()}>
 
         <div className="pts-header">
           <h3 className="pts-title">Alasan Tidak Sesuai</h3>
-          <button className="pts-close" onClick={onClose}>
+          <button className="pts-close" onClick={() => dismiss(onClose)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -74,7 +85,7 @@ export default function PopupTidakSesuai({ targetText = 'Kandidat', onConfirm, o
         </div>
 
         <div className="pts-footer">
-          <button className="pts-btn-cancel" onClick={onClose}>Batal</button>
+          <button className="pts-btn-cancel" onClick={() => dismiss(onClose)}>Batal</button>
           <button className="pts-btn-confirm" onClick={handleConfirm} disabled={!reason}>
             Tandai Tidak Sesuai
           </button>
