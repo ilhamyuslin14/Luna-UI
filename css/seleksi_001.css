@@ -415,8 +415,13 @@
 }
 
 .lw001-table td.lw001-posisi {
-    color: var(--luna-orange-500);
+    color: #171e2c;
     font-weight: 400; /* Normal weight matching Figma */
+    cursor: pointer;
+}
+
+.lw001-table td.lw001-posisi:hover {
+    text-decoration: underline;
 }
 
 .lw001-kandidat-badge {

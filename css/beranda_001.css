@@ -308,7 +308,7 @@
 }
 
 .db001-action-card.secondary .db001-action-icon-circle {
-  background: rgba(255, 141, 33, 0.08);
+  background: var(--luna-ink-050);
 }
 
 

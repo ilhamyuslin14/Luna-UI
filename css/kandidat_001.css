@@ -380,7 +380,7 @@
 }
 
 .kan001-table td.kan001-name {
-    color: var(--luna-orange-500);
+    color: #171e2c;
     font-weight: 500;
     cursor: pointer;
 }

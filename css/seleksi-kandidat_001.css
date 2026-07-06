@@ -460,7 +460,7 @@
 
 td.sdk001-name {
   font-weight: 500;
-  color: var(--luna-orange-500);
+  color: #171e2c;
   cursor: pointer;
   white-space: nowrap;
 }

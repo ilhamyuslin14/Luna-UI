@@ -157,8 +157,13 @@
 }
 
 .dept001-table td.dept001-name {
-    color: var(--luna-orange-500);
+    color: var(--luna-ink-900);
     font-weight: 500;
+    cursor: pointer;
+}
+
+.dept001-table td.dept001-name:hover {
+    text-decoration: underline;
 }
 
 .dept001-actions {
