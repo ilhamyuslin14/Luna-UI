@@ -23,7 +23,6 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow: hidden;
 }
 
 .sd001-title-bar::before {
@@ -120,7 +119,7 @@
 }
 
 .sd001-share-btn:hover {
-  background: #f4f6fa;
+  background: var(--luna-ink-050);
 }
 
 .sd001-share-btn.active {
@@ -345,7 +344,7 @@
 }
 
 .sd001-edit-btn:hover {
-  background: #f4f6fa;
+  background: var(--luna-ink-050);
 }
 
 .sd001-edit-btn svg {
@@ -506,7 +505,7 @@
   transition: background 0.15s;
 }
 .sd001-deskripsi-content--hoverable:hover {
-  background: #f4f6fa;
+  background: var(--luna-ink-050);
 }
 
 .sd001-deskripsi-content p {
@@ -1201,7 +1200,7 @@
 }
 
 .sd001-kriteria-add-btn:hover {
-  background: #f4f6fa;
+  background: var(--luna-ink-050);
   border-color: #abb2c1;
 }
 
@@ -1221,7 +1220,7 @@
 }
 
 .sd001-kriteria-cancel-btn:hover {
-  background: #f4f6fa;
+  background: var(--luna-ink-050);
 }
 
 /* ─── Status Badge + Dropdown ───────────────────────────────── */

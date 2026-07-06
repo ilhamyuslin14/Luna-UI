@@ -589,8 +589,8 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
               style={{
                 cursor: 'text',
                 borderRadius: 6,
-                border: `1.5px solid ${hoveredDeskripsi ? '#0977be44' : 'transparent'}`,
-                background: hoveredDeskripsi ? '#f0f6ff' : 'transparent',
+                border: '1.5px solid transparent',
+                background: hoveredDeskripsi ? '#f4f6fa' : 'transparent',
                 transition: 'border-color 0.15s, background 0.15s',
               }}
             />
