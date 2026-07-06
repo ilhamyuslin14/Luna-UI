@@ -1,8 +1,9 @@
 .pts-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(23, 30, 44, 0.4);
+  background: rgba(10, 9, 8, 0.4);
   backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,11 +11,11 @@
 }
 
 .pts-modal {
-  background: white;
+  background: var(--luna-ink-000);
   border-radius: 12px;
   width: 500px;
   max-width: 90vw;
-  box-shadow: 0 12px 32px rgba(23, 30, 44, 0.15);
+  box-shadow: 0 12px 32px rgba(10, 9, 8, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -25,13 +26,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #f0f2f6;
+  border-bottom: 1px solid var(--luna-ink-200);
 }
 
 .pts-title {
+  font-family: 'Inter Tight', sans-serif;
   font-size: 18px;
   font-weight: 700;
-  color: #171e2c;
+  color: var(--luna-ink-900);
   margin: 0;
 }
 
@@ -39,7 +41,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #7e8799;
+  color: var(--luna-ink-600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,8 +50,8 @@
 }
 
 .pts-close:hover {
-  background: #f0f2f6;
-  color: #323b4d;
+  background: var(--luna-ink-200);
+  color: var(--luna-ink-800);
 }
 
 .pts-body {
@@ -66,14 +68,15 @@
 }
 
 .pts-label {
+  font-family: 'Inter Tight', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #323b4d;
+  color: var(--luna-ink-800);
 }
 
 .pts-optional {
   font-weight: 400;
-  color: #7e8799;
+  color: var(--luna-ink-600);
 }
 
 .pts-select-wrap {
@@ -84,11 +87,11 @@
   width: 100%;
   height: 40px;
   padding: 0 36px 0 14px;
-  border: 1px solid #cbd0db;
+  border: 1px solid var(--luna-ink-400);
   border-radius: 8px;
   font-size: 13px;
-  font-family: var(--font-family);
-  color: #171e2c;
+  font-family: 'Inter Tight', sans-serif;
+  color: var(--luna-ink-900);
   appearance: none;
   background: white;
   outline: none;
@@ -96,7 +99,7 @@
 }
 
 .pts-select:focus {
-  border-color: #0977be;
+  border-color: var(--luna-orange-400);
 }
 
 .pts-select-wrap svg {
@@ -105,29 +108,52 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: #7e8799;
+  color: var(--luna-ink-600);
 }
 
 .pts-textarea {
   width: 100%;
   height: 120px;
   padding: 12px 14px;
-  border: 1px solid #cbd0db;
+  border: 1px solid var(--luna-ink-400);
   border-radius: 8px;
   font-size: 13px;
-  font-family: var(--font-family);
-  color: #171e2c;
+  font-family: 'Inter Tight', sans-serif;
+  color: var(--luna-ink-900);
   resize: vertical;
   outline: none;
   box-sizing: border-box;
 }
 
 .pts-textarea:focus {
-  border-color: #0977be;
+  border-color: var(--luna-orange-400);
 }
 
 .pts-textarea::placeholder {
-  color: #abb2c1;
+  color: var(--luna-ink-500);
+}
+
+.pts-textarea:disabled {
+  background: var(--luna-ink-100);
+  color: var(--luna-ink-500);
+  cursor: not-allowed;
+}
+
+.pts-alert {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: #FAEBEA;
+  border: 1px solid #EFC2BF;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.pts-alert-text {
+  font-size: 13px;
+  color: var(--luna-semantic-error);
+  line-height: 1.4;
 }
 
 .pts-footer {
@@ -135,25 +161,25 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
-  background: #f9fafc;
-  border-top: 1px solid #f0f2f6;
+  background: var(--luna-ink-100);
+  border-top: 1px solid var(--luna-ink-200);
 }
 
 .pts-btn-cancel {
   padding: 0 16px;
   height: 36px;
-  border: 1px solid #cbd0db;
+  border: none;
   border-radius: 6px;
-  background: white;
-  color: #4a5568;
+  background: none;
+  color: var(--luna-ink-700);
   font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family);
+  font-weight: 700;
+  font-family: 'Inter Tight', sans-serif;
   cursor: pointer;
 }
 
 .pts-btn-cancel:hover {
-  background: #f0f2f6;
+  background: var(--luna-ink-200);
 }
 
 .pts-btn-confirm {
@@ -161,19 +187,19 @@
   height: 36px;
   border: none;
   border-radius: 6px;
-  background: #0977be;
-  color: white;
+  background: var(--luna-orange-400);
+  color: var(--luna-ink-000);
   font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family);
+  font-weight: 700;
+  font-family: 'Inter Tight', sans-serif;
   cursor: pointer;
 }
 
 .pts-btn-confirm:hover:not(:disabled) {
-  background: #075a91;
+  background: var(--luna-orange-500);
 }
 
 .pts-btn-confirm:disabled {
-  background: #cbd0db;
+  background: var(--luna-ink-400);
   cursor: not-allowed;
 }

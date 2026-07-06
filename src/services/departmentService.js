@@ -13,7 +13,7 @@ export async function getDepartments({ showArchived = false, showAll = false } =
 
   const [{ data: depts, error }, { data: seleksiRows }] = await Promise.all([
     query,
-    supabase.from('seleksi').select('department_id'),
+    supabase.from('seleksi').select('department_id').neq('arsip', true),
   ]);
 
   if (error) {

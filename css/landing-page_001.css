@@ -13,6 +13,11 @@
   --luna-orange-400: #FF8D21;
   /* Primer */
   --luna-orange-500: #FF7B00;
+  /* Extrapolasi HSL (H=29 S=100%, mengikuti pola 050-500), belum ada di design-guidelines.md resmi — untuk surface gelap bertema orange yang butuh teks putih */
+  --luna-orange-600: #D66800;
+  --luna-orange-700: #AD5400;
+  --luna-orange-800: #854000;
+  --luna-orange-900: #5C2C00;
 
   /* Ink Scale (Netral Hangat) */
   --luna-ink-000: #FFFFFF;

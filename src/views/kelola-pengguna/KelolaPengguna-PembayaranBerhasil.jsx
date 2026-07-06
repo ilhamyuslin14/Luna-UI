@@ -29,7 +29,7 @@ export default function PembayaranBerhasil({ navigate, back }) {
             {/* Plan Box */}
             <div className="pb-plan-box">
               <div className="pb-plan-icon-wrap">
-                <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="#0977BE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
                   <polyline points="2 17 12 22 22 17"></polyline>
                   <polyline points="2 12 12 17 22 12"></polyline>

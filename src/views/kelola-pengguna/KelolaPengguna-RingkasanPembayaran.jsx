@@ -40,7 +40,7 @@ export default function RingkasanPembayaran({ plan = 'BASIC', cycle = 'bulanan',
             <div className="rp-card">
               <div className="rp-card-header">
                 <div className="rp-card-icon">
-                  <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="#0977BE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -99,7 +99,7 @@ export default function RingkasanPembayaran({ plan = 'BASIC', cycle = 'bulanan',
             <div className="rp-card">
               <div className="rp-card-header">
                 <div className="rp-card-icon">
-                  <svg width="20" height="16" viewBox="0 0 24 24" fill="none" stroke="#0977BE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
                     <line x1="2" y1="10" x2="22" y2="10"></line>
                   </svg>
@@ -138,7 +138,7 @@ export default function RingkasanPembayaran({ plan = 'BASIC', cycle = 'bulanan',
 
             <div className="rp-plan-badge">
               <div className="rp-plan-badge-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0977BE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                   <path d="M9 12l2 2 4-4"></path>
                 </svg>

@@ -4,24 +4,24 @@
 }
 
 .bulk-aksi-btn {
-  background: #0977be;
+  background: var(--luna-orange-050);
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
   height: 40px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--luna-orange-400);
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .bulk-aksi-btn:hover {
-  background: #0466a6;
+  background: var(--luna-orange-100);
 }
 
 .bulk-aksi-chevron {
@@ -34,7 +34,7 @@
 }
 
 .bulk-aksi-badge {
-  background-color: #14b541;
+  background-color: var(--luna-orange-500);
   color: #ffffff;
   border-radius: 50%;
   width: 20px;
@@ -76,7 +76,7 @@
   background: none;
   border: none;
   font-size: 10px;
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   color: #323b4d;
   font-weight: 500;
   line-height: 1.5;
@@ -87,7 +87,7 @@
 }
 
 .bulk-aksi-item:hover {
-  color: #0977be;
+  color: var(--luna-orange-500);
 }
 
 .bulk-aksi-divider {

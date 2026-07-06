@@ -6,9 +6,9 @@ import Toast from '../../components/Toast.jsx';
 
 export default function PengaturanUser({ navigate }) {
   const [users, setUsers] = useState([
-    { id: 1, initials: 'DA', name: 'Dito Arkademi', email: 'dito.admin@arkademi.com', role: 'Admin', status: 'Aktif', isYou: true, color: '#f042a1' },
-    { id: 2, initials: 'BS', name: 'Budi Santoso', email: 'budi.hr@arkademi.com', role: 'Admin', status: 'Aktif', isYou: false, color: '#19b243' },
-    { id: 3, initials: 'SW', name: 'Sarah Wijaya', email: 'sarah@arkademi.com', role: 'Admin', status: 'Menunggu', isYou: false, color: '#2d88eb' },
+    { id: 1, initials: 'DA', name: 'Dito Arkademi', email: 'dito.admin@arkademi.com', role: 'Admin', status: 'Aktif', isYou: true, color: 'var(--luna-orange-400)' },
+    { id: 2, initials: 'BS', name: 'Budi Santoso', email: 'budi.hr@arkademi.com', role: 'Admin', status: 'Aktif', isYou: false, color: 'var(--luna-orange-400)' },
+    { id: 3, initials: 'SW', name: 'Sarah Wijaya', email: 'sarah@arkademi.com', role: 'Admin', status: 'Menunggu', isYou: false, color: 'var(--luna-orange-400)' },
   ]);
 
   const [deleteUser, setDeleteUser] = useState(null);

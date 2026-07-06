@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@source "./src/views/sandbox";
 
 :root {
   /* Primary Colors */
@@ -34,10 +34,12 @@
   --shadow-lg: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 body {
@@ -63,7 +65,9 @@ body {
 
 header {
   grid-area: header;
-  background-color: var(--color-neutral-white);
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-neutral-300);
   display: flex;
   align-items: center;
@@ -250,11 +254,11 @@ button {
 
 .inline-edit-value.editable:hover .inline-edit-icon {
   opacity: 1;
-  color: #0977be;
+  color: var(--luna-orange-400);
 }
 
 .inline-edit-value.add-data {
-  color: #0977be;
+  color: var(--luna-orange-400);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -264,7 +268,7 @@ button {
 }
 
 .inline-edit-value.add-data:hover {
-  background: #eef7fd;
+  background: var(--luna-orange-050);
   transform: translateX(4px);
 }
 
@@ -293,8 +297,8 @@ button {
 }
 
 .inline-edit-input:focus {
-  border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.1);
+  border-color: var(--luna-orange-400);
+  box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
 .inline-edit-input::placeholder {
@@ -343,8 +347,8 @@ button {
 }
 
 .inline-edit-select:focus {
-  border-color: #0977be;
-  box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.1);
+  border-color: var(--luna-orange-400);
+  box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
 .inline-edit-select-wrap svg {
@@ -389,15 +393,15 @@ button {
 }
 
 .inline-action-btn.save {
-  color: #0977be;
-  background: #eef7fd;
+  color: var(--luna-orange-400);
+  background: var(--luna-orange-050);
 }
 
 .inline-action-btn.save:hover:not(:disabled) {
-  background: #0977be;
+  background: var(--luna-orange-700);
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(9, 119, 190, 0.2);
+  box-shadow: 0 2px 6px rgba(255, 141, 33, 0.3);
 }
 
 @keyframes spin {

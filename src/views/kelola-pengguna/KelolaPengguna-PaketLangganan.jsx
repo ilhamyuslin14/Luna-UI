@@ -7,10 +7,10 @@ const CheckGreen = () => (
   </svg>
 );
 
-const CheckBlue = () => (
+const CheckOrange = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="pl-check-icon">
-    <circle cx="7" cy="7" r="7" fill="#EBF5FF"/>
-    <path d="M4.5 7L6.5 9L9.5 5" stroke="#0977BE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="7" cy="7" r="7" fill="var(--luna-orange-050)"/>
+    <path d="M4.5 7L6.5 9L9.5 5" stroke="var(--luna-orange-500)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 export default function PaketLangganan({ navigate }) {
@@ -145,11 +145,11 @@ export default function PaketLangganan({ navigate }) {
             <div className="pl-features-list">
               <h4 className="pl-features-title">TERMASUK FITUR :</h4>
               <div className="pl-feature-item">
-                <CheckBlue />
+                <CheckOrange />
                 <p className="pl-feature-text">Jumlah lowongan aktif <span className="pl-feature-highlight">tidak terbatas</span></p>
               </div>
               <div className="pl-feature-item">
-                <CheckBlue />
+                <CheckOrange />
                 <p className="pl-feature-text">Jumlah kuota kandidat <span className="pl-feature-highlight">tidak terbatas</span></p>
               </div>
               <div className="pl-feature-item">

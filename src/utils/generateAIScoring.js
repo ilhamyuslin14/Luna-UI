@@ -15,7 +15,7 @@ const SCORING_RESPONSE_SCHEMA = {
           tag: { type: 'STRING' },
           kategori: { type: 'STRING', description: "Kategori kriteria: 'Wajib' atau 'Nilai Tambah'" },
           evidence: { type: 'STRING' },
-          score_evaluate: { type: 'INTEGER' },
+          score_evaluate: { type: 'INTEGER', minimum: 0, maximum: 100 },
           weight: { type: 'INTEGER' }
         },
         required: ["tag", "kategori", "evidence", "score_evaluate", "weight"]

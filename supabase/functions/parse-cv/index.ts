@@ -88,6 +88,102 @@ const CV_RESPONSE_SCHEMA = {
   required: ['is_valid_cv'],
 }
 
+// Skema yang sama persis dengan CV_RESPONSE_SCHEMA di atas, tapi ditulis ulang
+// dalam format JSON Schema standar (huruf kecil, nullable via union type, dan
+// additionalProperties:false + required lengkap di semua level) — wajib untuk
+// mode "strict" Structured Outputs milik OpenAI, beda konvensi dari Gemini.
+const OAI_STRING = { type: 'string' }
+const OAI_STRING_N = { type: ['string', 'null'] }
+const OAI_INTEGER_N = { type: ['integer', 'null'] }
+
+const OAI_DETAIL_KANDIDAT = {
+  type: 'object',
+  properties: {
+    nama_lengkap: OAI_STRING_N,
+    linkedin: OAI_STRING_N,
+    gender: OAI_STRING_N,
+    tanggal_lahir: OAI_STRING_N,
+    domisili: OAI_STRING_N,
+    email: OAI_STRING_N,
+    no_telpon: OAI_STRING_N,
+    jurusan: OAI_STRING_N,
+    universitas: OAI_STRING_N,
+    perusahaan_saat_ini: OAI_STRING_N,
+    jabatan_saat_ini: OAI_STRING_N,
+  },
+  required: ['nama_lengkap', 'linkedin', 'gender', 'tanggal_lahir', 'domisili', 'email', 'no_telpon', 'jurusan', 'universitas', 'perusahaan_saat_ini', 'jabatan_saat_ini'],
+  additionalProperties: false,
+}
+
+const OAI_DETAIL_TAMBAHAN = {
+  type: 'object',
+  properties: {
+    bidang_industri: OAI_STRING_N,
+    tahun_terakhir_bekerja: OAI_INTEGER_N,
+    harapan_upah: OAI_INTEGER_N,
+    harapan_benefit: OAI_STRING_N,
+  },
+  required: ['bidang_industri', 'tahun_terakhir_bekerja', 'harapan_upah', 'harapan_benefit'],
+  additionalProperties: false,
+}
+
+const OAI_PENGALAMAN_ITEM = {
+  type: 'object',
+  properties: {
+    jabatan: OAI_STRING,
+    perusahaan: OAI_STRING,
+    start: OAI_STRING,
+    end: OAI_STRING_N,
+    deskripsi: { type: 'array', items: OAI_STRING },
+  },
+  required: ['jabatan', 'perusahaan', 'start', 'end', 'deskripsi'],
+  additionalProperties: false,
+}
+
+const OAI_PENDIDIKAN_ITEM = {
+  type: 'object',
+  properties: {
+    institusi: OAI_STRING,
+    jenjang: OAI_STRING,
+    jurusan: OAI_STRING,
+    start: OAI_STRING,
+    end: OAI_STRING_N,
+    gpa: OAI_STRING_N,
+  },
+  required: ['institusi', 'jenjang', 'jurusan', 'start', 'end', 'gpa'],
+  additionalProperties: false,
+}
+
+const OAI_SERTIFIKASI_ITEM = {
+  type: 'object',
+  properties: {
+    nama: OAI_STRING,
+    penerbit: OAI_STRING_N,
+    start: OAI_STRING_N,
+    end: OAI_STRING_N,
+    deskripsi: { type: 'array', items: OAI_STRING },
+  },
+  required: ['nama', 'penerbit', 'start', 'end', 'deskripsi'],
+  additionalProperties: false,
+}
+
+const OPENAI_CV_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    is_valid_cv: { type: 'boolean' },
+    reason_not_valid: OAI_STRING_N,
+    detail_kandidat: OAI_DETAIL_KANDIDAT,
+    detail_tambahan: OAI_DETAIL_TAMBAHAN,
+    keahlian: { type: 'array', items: OAI_STRING },
+    pengalaman_kerja: { type: 'array', items: OAI_PENGALAMAN_ITEM },
+    pendidikan: { type: 'array', items: OAI_PENDIDIKAN_ITEM },
+    sertifikasi: { type: 'array', items: OAI_SERTIFIKASI_ITEM },
+    ai_signal_insight: OAI_STRING_N,
+  },
+  required: ['is_valid_cv', 'reason_not_valid', 'detail_kandidat', 'detail_tambahan', 'keahlian', 'pengalaman_kerja', 'pendidikan', 'sertifikasi', 'ai_signal_insight'],
+  additionalProperties: false,
+}
+
 function stripHtml(html) {
   if (!html) return ''
   return html
@@ -236,6 +332,124 @@ async function callGeminiForParsing({ cvText, fileBase64, fileMimeType, apiKey, 
   }
 }
 
+// Setara callGeminiForParsing, tapi lewat OpenAI Responses API (bukan Chat
+// Completions — API itu sudah tidak menerima file input sejak Sep 2025).
+// Prioritas tetap kirim teks hasil ekstraksi lokal (cvText) dulu untuk hemat
+// token; fileBase64 cuma dipakai sebagai fallback OCR kalau ekstraksi gagal,
+// sama seperti alur Gemini.
+// Model reasoning OpenAI (gpt-5*, o1, o3) menolak parameter `temperature`
+// sama sekali (HTTP 400 "Unsupported parameter"). Model non-reasoning seperti
+// gpt-4.1-nano masih menerimanya seperti biasa.
+function isOpenAIReasoningModel(model) {
+  return /^(gpt-5|o1|o3)/i.test(model)
+}
+
+async function callOpenAIForParsing({ cvText, fileBase64, fileMimeType, apiKey, model, prompt, useFlexMode, temperature, reasoningEffort }) {
+  const plainText = stripHtml(cvText)
+  if (!plainText && !fileBase64) throw new Error('Teks CV dan Dokumen kosong.')
+  if (!apiKey) throw new Error('API Key OpenAI belum dikonfigurasi.')
+  if (!model) throw new Error('Model AI (OpenAI) belum dipilih. Cek tab Konfigurasi API.')
+
+  let systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : 'Extract candidate info into JSON.'
+  systemPrompt += '\n\nCRITICAL RULE: Determine if the document is a valid CV/Resume belonging to an individual candidate. A valid CV MUST contain specific personal identity (e.g. name, contact info, personal profile). If the document is a Job Vacancy (Lowongan Pekerjaan), Job Description (which lists job requirements/duties but lacks a specific applicant\'s personal identity), brochure, menu, or random article, it is NOT a valid CV. If it is NOT a valid CV, set is_valid_cv to false, provide the reason in reason_not_valid USING INDONESIAN LANGUAGE (Bahasa Indonesia) IN MAXIMUM 8 WORDS (e.g. "Bukan CV, melainkan deskripsi lowongan pekerjaan"), and leave all other fields empty/null. If it is a valid CV of a person, set is_valid_cv to true and extract the information.'
+  systemPrompt += '\n\nIMPORTANT DATE RULE: For ALL date fields (e.g. tanggal_lahir, start, end), always use the ISO format YYYY-MM-DD (e.g. "2001-11-19"). If exact day is unknown, use "YYYY-MM-01". If only year is known, use "YYYY-01-01". However, if an end date (for education, experience, etc.) is explicitly described as "Present", "Sekarang", "Saat ini", or similar, return the exact string "Sekarang". If a date is genuinely missing or not mentioned, return null.'
+
+  const content = fileBase64 && fileMimeType
+    ? [
+        { type: 'input_file', filename: 'cv_document', file_data: `data:${fileMimeType};base64,${fileBase64}` },
+        { type: 'input_text', text: 'Berikut adalah file dokumen CV. Tolong analisis dan ekstrak informasinya sesuai format yang diminta.' },
+      ]
+    : [{ type: 'input_text', text: `Dokumen CV:\n${plainText}` }]
+
+  const payload = {
+    model,
+    instructions: systemPrompt,
+    input: [{ role: 'user', content }],
+    ...(useFlexMode && { service_tier: 'flex' }),
+    ...(isOpenAIReasoningModel(model)
+      ? { reasoning: { effort: reasoningEffort || 'low' } }
+      : { temperature: Number(temperature) }),
+    text: {
+      verbosity: 'low',
+      format: {
+        type: 'json_schema',
+        name: 'cv_parsing_result',
+        strict: true,
+        schema: OPENAI_CV_RESPONSE_SCHEMA,
+      },
+    },
+  }
+
+  const startTime = Date.now()
+  let response;
+  let data;
+  let attempts = 0;
+  const maxAttempts = 10; // 1 initial + 9 retries
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(payload),
+    })
+
+    data = await response.json()
+
+    if (response.ok) {
+      break;
+    } else {
+      // OpenAI Flex mengembalikan 429 kalau kapasitas penuh (tidak dikenakan biaya saat ini terjadi)
+      if ((response.status === 429 || response.status === 503) && attempts < maxAttempts) {
+        console.warn(`[OpenAI API] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 2.5 detik... (Percobaan ${attempts})`);
+        await new Promise(resolve => setTimeout(resolve, 2500));
+      } else {
+        let errMsg = data.error?.message || `OpenAI API error (HTTP ${response.status})`
+        if (response.status === 429 || response.status === 503) {
+          errMsg = "Server AI sedang penuh (High Demand). Silakan coba beberapa saat lagi.";
+        }
+        throw new Error(errMsg)
+      }
+    }
+  }
+
+  const latency = Date.now() - startTime
+
+  // Cari item output bertipe "message" pertama, lalu content bertipe "output_text"
+  // di dalamnya — jangan asumsikan output[0].content[0] langsung berisi teks,
+  // karena array output bisa berisi item lain (tool call, reasoning, dll).
+  const messageItem = (data.output || []).find(o => o.type === 'message')
+  const textItem = messageItem?.content?.find(c => c.type === 'output_text')
+  const contentText = textItem?.text
+  if (!contentText) throw new Error('Respon AI kosong. Coba lagi.')
+
+  let rawJson = contentText.trim()
+  if (rawJson.startsWith('```')) {
+    rawJson = rawJson.replace(/^```(json)?\n/, '').replace(/\n```$/, '')
+  }
+
+  rawJson = rawJson.replace(/\0/g, '').replace(/\\u0000/g, '')
+
+  const parsed = JSON.parse(rawJson)
+
+  if (parsed.detail_kandidat && Array.isArray(parsed.pengalaman_kerja)) {
+    parsed.detail_kandidat.pengalaman_kerja_tahun = calculateTotalExperience(parsed.pengalaman_kerja)
+  }
+
+  return {
+    parsedData: parsed,
+    rawJson: JSON.stringify(parsed, null, 2),
+    // Normalisasi nama field usage supaya kompatibel dengan kode pencatatan
+    // ai_usage_history yang sama dipakai untuk kedua provider.
+    usageMetadata: data.usage ? {
+      promptTokenCount: data.usage.input_tokens || 0,
+      candidatesTokenCount: data.usage.output_tokens || 0,
+      totalTokenCount: data.usage.total_tokens || 0,
+      latency,
+    } : null,
+  }
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -288,9 +502,13 @@ serve(async (req) => {
       supabase.from('prompt_settings').select('*').eq('type', 'CV').limit(1).single(),
     ])
 
-    if (!configData?.api_key || !promptData) {
+    const activeProvider = configData?.active_provider === 'openai' ? 'openai' : 'gemini'
+    const providerApiKey = activeProvider === 'openai' ? configData?.openai_api_key : configData?.api_key
+    const providerModel = activeProvider === 'openai' ? promptData?.model_openai : promptData?.model
+
+    if (!providerApiKey || !promptData) {
       await removeStorageFile(cvUrl)
-      return jsonResponse({ error: true, message: 'Konfigurasi AI belum lengkap. Harap isi API Key dan Prompt Settings di halaman Konfigurasi.' })
+      return jsonResponse({ error: true, message: `Konfigurasi AI (${activeProvider}) belum lengkap. Harap isi API Key dan Prompt Settings di halaman Konfigurasi.` })
     }
 
     // 3. Fallback Fetch PDF if rawText is empty
@@ -319,18 +537,20 @@ serve(async (req) => {
       }
     }
 
-    // 4. Panggil AI Parsing
+    // 4. Panggil AI Parsing (Gemini atau OpenAI, tergantung provider aktif)
     let parsedData, rawJson, usageMetadata
     try {
-      const result = await callGeminiForParsing({
+      const callFn = activeProvider === 'openai' ? callOpenAIForParsing : callGeminiForParsing
+      const result = await callFn({
         cvText: rawText,
         fileBase64,
         fileMimeType,
-        apiKey: configData.api_key,
-        model: promptData.model || 'gemini-1.5-pro',
+        apiKey: providerApiKey,
+        model: providerModel || (activeProvider === 'openai' ? 'gpt-5-nano' : 'gemini-2.5-flash-lite'),
         prompt: promptData.prompt,
         useFlexMode: promptData.use_flex,
         temperature: promptData.temperature || 0.2,
+        reasoningEffort: promptData.reasoning_effort || 'low',
       })
       parsedData = result.parsedData
       rawJson = result.rawJson
@@ -343,7 +563,7 @@ serve(async (req) => {
     // Catat log usage AI (best-effort) - Pindahkan ke atas agar tercatat walau dokumen invalid
     if (usageMetadata) {
       supabase.from('ai_usage_history').insert([{
-        model_used: promptData.model || 'gemini-1.5-pro',
+        model_used: providerModel || (activeProvider === 'openai' ? 'gpt-5-nano' : 'gemini-2.5-flash-lite'),
         function_name: 'Generate CV Parsing',
         input_tokens: usageMetadata.promptTokenCount || 0,
         output_tokens: usageMetadata.candidatesTokenCount || 0,

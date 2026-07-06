@@ -318,7 +318,7 @@ export default function LamanKarir({ kode }) {
       {/* Top Bar */}
       <header className="lk-topbar">
         <div className="lk-topbar-brand">
-          <img src="/assets/logos/logo-wordmark.png" alt="LUNA" className="lk-topbar-logo" />
+          <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lk-topbar-logo" style={{ borderRadius: '6px' }} />
         </div>
         <div className="lk-topbar-right">
           <span className="lk-topbar-company-label">Diposting oleh</span>
@@ -517,7 +517,7 @@ export default function LamanKarir({ kode }) {
                       />
                       {cvFile ? (
                         <div className="lk-file-info">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                           <span className="lk-file-name">{cvFile.name}</span>
                           <button type="button" className="lk-file-remove" onClick={(e) => { e.stopPropagation(); setCvFile(null); setFileError(''); }}>×</button>
                         </div>
@@ -544,7 +544,7 @@ export default function LamanKarir({ kode }) {
                           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                         </svg>
                         <span>
-                          Jika lebih dari 1 file, harap gabungkan menjadi 1 file PDF atau DOC sebelum diunggah (bisa menggunakan <a href="https://www.ilovepdf.com/merge_pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline', fontWeight: 500 }}>tools ini</a>).
+                          Jika lebih dari 1 file, harap gabungkan menjadi 1 file PDF atau DOC sebelum diunggah (bisa menggunakan <a href="https://www.ilovepdf.com/merge_pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--luna-orange-600)', textDecoration: 'underline', fontWeight: 500 }}>tools ini</a>).
                         </span>
                       </div>
                     </div>

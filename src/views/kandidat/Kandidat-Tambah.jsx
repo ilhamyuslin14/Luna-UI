@@ -4,7 +4,7 @@ import TabNav from '../../components/TabNav.jsx';
 import KandidatUnggahCV from './Kandidat-UnggahCV.jsx';
 import KandidatRiwayatUnggah from './Kandidat-RiwayatUnggah.jsx';
 
-export default function KandidatTambah({ navigate }) {
+export default function KandidatTambah({ navigate, back }) {
   const [activeTab,    setActiveTab]    = useState('unggah');
   const [historyData,  setHistoryData]  = useState(null);
 
@@ -21,7 +21,7 @@ export default function KandidatTambah({ navigate }) {
   return (
     <div className="kt-view">
       <div className="kt-title-bar">
-        <BackButton onClick={() => navigate('kandidat')} />
+        <BackButton onClick={() => back ? back() : navigate('kandidat_001')} />
         <h1 className="kt-title">Tambah Kandidat</h1>
       </div>
 

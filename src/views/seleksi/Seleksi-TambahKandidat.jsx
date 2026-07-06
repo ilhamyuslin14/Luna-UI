@@ -83,7 +83,7 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
       {availableList.map((k, i) => (
         <div className="stk-kandidat-row" key={k.id}>
           <div className="stk-kandidat-info">
-            <div className="stk-avatar" style={{ background: '#0977be' }}>
+            <div className="stk-avatar" style={{ background: 'var(--luna-orange-400)' }}>
               {getInisial(k.nama_lengkap)}
             </div>
             <div className="stk-kandidat-meta">
@@ -132,7 +132,7 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
   return (
     <div className="stk-view">
       <div className="stk-title-bar">
-        <BackButton onClick={() => back ? back() : navigate('seleksi')} />
+        <BackButton onClick={() => back ? back() : navigate('seleksi_001')} />
         <h1 className="stk-title">Tambah Kandidat{jabatan ? ` — ${jabatan}` : ''}</h1>
       </div>
 

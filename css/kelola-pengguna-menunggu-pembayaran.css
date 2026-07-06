@@ -11,14 +11,15 @@
     justify-content: center;
     align-items: center;
     padding-top: 40px;
+    font-family: 'Inter Tight', sans-serif;
     padding-bottom: 40px;
     box-sizing: border-box;
 }
 
 .mp-card {
     background: #ffffff;
-    border: 1px solid #e8eef6;
-    box-shadow: 0px 4px 3px rgba(5, 49, 96, 0.08);
+    border: 1px solid #e2e5ec;
+    box-shadow: 0px 4px 3px rgba(23, 30, 44, 0.06);
     border-radius: 20px;
     width: 550px;
     padding: 24px 26px 20px 26px;
@@ -38,7 +39,7 @@
 }
 
 .mp-title {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 24px;
     color: #171e2c;
@@ -55,7 +56,7 @@
 }
 
 .mp-subtitle {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     color: #171e2c;
     margin: 0;
@@ -71,7 +72,7 @@
 }
 
 .mp-timer-text {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 600;
     font-size: 12px;
     color: #171e2c;
@@ -80,8 +81,8 @@
 
 /* Total Transfer Block */
 .mp-total-box {
-    background: #f6fcff;
-    border: 1px solid #89ccf6;
+    background: var(--luna-orange-050);
+    border: 1px solid var(--luna-orange-200);
     border-radius: 10px;
     padding: 14px 12px;
     display: flex;
@@ -93,10 +94,10 @@
 }
 
 .mp-total-label {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #0466a6;
+    color: var(--luna-orange-600);
     margin: 0;
 }
 
@@ -107,7 +108,7 @@
 }
 
 .mp-amount {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 28px;
     color: #171e2c;
@@ -125,7 +126,7 @@
 }
 
 .mp-warning-box {
-    background: #e9f5fc;
+    background: var(--luna-orange-050);
     border-radius: 20px;
     padding: 3px 8px;
     display: flex;
@@ -134,7 +135,7 @@
 }
 
 .mp-warning-text {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 10px;
     color: #323b4d;
     margin: 0;
@@ -182,14 +183,14 @@
 }
 
 .mp-bank-name {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     color: #555f71;
     margin: 0;
 }
 
 .mp-bank-holder {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 600;
     font-size: 12px;
     color: #323b4d;
@@ -210,7 +211,7 @@
 }
 
 .mp-acc-number {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 14px;
     color: #323b4d;
@@ -226,7 +227,7 @@
 }
 
 .mp-instructions-title {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 16px;
     color: #323b4d;
@@ -236,7 +237,7 @@
 .mp-instructions-list {
     margin: 0;
     padding-left: 20px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     color: #555f71;
     line-height: 1.8;
@@ -259,7 +260,7 @@
 }
 
 .mp-details-title {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 12px;
     color: #555f71;
@@ -282,14 +283,14 @@
 }
 
 .mp-details-label {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     color: #555f71;
     margin: 0;
 }
 
 .mp-details-value {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 600;
     font-size: 12px;
     color: #171e2c;
@@ -304,7 +305,7 @@
 }
 
 .mp-details-total-label {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 12px;
     color: #555f71;
@@ -312,7 +313,7 @@
 }
 
 .mp-details-total-value {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 12px;
     color: #171e2c;
@@ -338,7 +339,7 @@
     gap: 6px;
     height: 39px;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 14px;
     color: #171e2c;
     font-weight: 600;
@@ -351,7 +352,7 @@
 
 .mp-btn-primary {
     flex: 1;
-    background: #0977be;
+    background: var(--luna-orange-500);
     border: none;
     border-radius: 10px;
     display: flex;
@@ -360,7 +361,7 @@
     gap: 6px;
     height: 39px;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 14px;
     color: #ffffff;
     font-weight: 600;
@@ -368,11 +369,11 @@
 }
 
 .mp-btn-primary:hover {
-    background: #0866a3;
+    background: var(--luna-orange-600);
 }
 
 .mp-upload-link {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     color: #555f71;
     text-align: center;
@@ -380,7 +381,7 @@
 }
 
 .mp-upload-link-action {
-    color: #0977be;
+    color: var(--luna-orange-500);
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -414,7 +415,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0px 8px 16px rgba(5, 49, 96, 0.1);
+    box-shadow: 0px 8px 16px rgba(23, 30, 44, 0.08);
     box-sizing: border-box;
 }
 
@@ -429,8 +430,8 @@
 }
 
 .mp-modal-icon.uploading {
-    background-color: #cfeafc;
-    color: #0977be;
+    background-color: var(--luna-orange-100);
+    color: var(--luna-orange-500);
 }
 
 .mp-modal-icon.success {
@@ -439,7 +440,7 @@
 }
 
 .mp-modal-title {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 700;
     font-size: 18px;
     color: #171e2c;
@@ -448,7 +449,7 @@
 }
 
 .mp-modal-desc {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 400;
     font-size: 12px;
     color: #555f71;
@@ -468,23 +469,23 @@
 
 .mp-progress-fill {
     height: 100%;
-    background-color: #0977be;
+    background-color: var(--luna-orange-500);
     transition: width 0.2s ease;
 }
 
 .mp-progress-text {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #0977be;
+    color: var(--luna-orange-500);
 }
 
 .mp-modal-btn {
     width: 100%;
     height: 39px;
-    background-color: #0977be;
+    background-color: var(--luna-orange-500);
     color: #ffffff;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-weight: 600;
     font-size: 14px;
     border: none;
@@ -494,5 +495,5 @@
 }
 
 .mp-modal-btn:hover {
-    background-color: #0866a3;
+    background-color: var(--luna-orange-600);
 }

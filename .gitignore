@@ -25,6 +25,5 @@ dist-ssr
 .mcp.json
 
 # Sandbox (Local Only)
-src/views/sandbox/
 css/sandbox.css
 

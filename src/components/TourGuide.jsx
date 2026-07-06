@@ -8,17 +8,17 @@ const STEPS = [
     description: 'Mari kita mulai tur singkat untuk mengenali fitur-fitur baru dan cara memaksimalkan LUNA AI untuk kebutuhan rekrutmen Anda.',
     position: 'center',
   },
-  { menu: 'beranda', selector: '.db-stats-grid',           title: 'Statistik Perusahaan',    description: 'Pantau performa rekrutmen Anda secara menyeluruh melalui ringkasan talenta dan lowongan aktif.',                       position: 'bottom' },
-  { menu: 'beranda', selector: '.db-action-card.primary',  title: 'Setup Penilaian',          description: 'Mulai setup kriteria penilaian AI untuk role baru langsung dari dashboard.',                                         position: 'bottom' },
-  { menu: 'beranda', selector: '.db-action-card.secondary',title: 'Unggah CV Massal',         description: 'Unggah dataset CV secara massal ke data Warehouse untuk selanjutnya diproses oleh AI kami.',                        position: 'bottom' },
-  { menu: 'beranda', selector: '.db-activity-card',        title: 'Arus Aktivitas',           description: 'Tetap terinformasi dengan log aktivitas terbaru dari tim rekrutmen.',                                               position: 'left'   },
-  { menu: 'beranda', selector: '.menu-item[data-menu="departemen"]', title: 'Menu Departemen', description: 'Klik menu ini untuk mengelola struktur departemen di perusahaan Anda.',                                             position: 'right'  },
-  { menu: 'departemen', selector: '.dept-btn-primary',     title: 'Tambah Departemen',        description: 'Klik tombol ini untuk membuat departemen baru pada organisasi Anda.',                                               position: 'bottom' },
-  { menu: 'departemen', selector: '.menu-item[data-menu="seleksi"]', title: 'Menu Seleksi',    description: 'Pantau semua proses seleksi posisi, dari kandidat baru hingga penawaran kerja.',                                    position: 'right'  },
-  { menu: 'seleksi',  selector: '.lw-btn-primary',          title: 'Buat Lowongan Baru',       description: 'Mulai proses rekrutmen dengan membuat lowongan baru dan mengatur kriteria penilaian AI.',                          position: 'bottom' },
-  { menu: 'seleksi',  selector: '.menu-item[data-menu="kandidat"]',  title: 'Menu Kandidat',   description: 'Akses seluruh database kandidat yang telah masuk ke sistem Luna AI.',                                             position: 'right'  },
-  { menu: 'kandidat', selector: '.kan-btn-primary',         title: 'Tambah Kandidat',          description: 'Tambah atau cari kandidat terbaik dari database talenta Anda.',                                                    position: 'bottom' },
-  { menu: 'kandidat', selector: '.menu-item[data-menu="pengaturan"]',title: 'Menu Kelola Pengguna', description: 'Atur profil perusahaan, paket langganan, dan pengguna sistem.',                                              position: 'right'  },
+  { menu: 'beranda_001', selector: '.db001-stats-grid',           title: 'Statistik Perusahaan',    description: 'Pantau performa rekrutmen Anda secara menyeluruh melalui ringkasan talenta dan lowongan aktif.',                       position: 'bottom' },
+  { menu: 'beranda_001', selector: '.db001-action-card.primary',  title: 'Setup Penilaian',          description: 'Mulai setup kriteria penilaian AI untuk role baru langsung dari dashboard.',                                         position: 'bottom' },
+  { menu: 'beranda_001', selector: '.db001-action-card.secondary',title: 'Unggah CV Massal',         description: 'Unggah dataset CV secara massal ke data Warehouse untuk selanjutnya diproses oleh AI kami.',                        position: 'bottom' },
+  { menu: 'beranda_001', selector: '.db001-activity-card',        title: 'Arus Aktivitas',           description: 'Tetap terinformasi dengan log aktivitas terbaru dari tim rekrutmen.',                                               position: 'left'   },
+  { menu: 'beranda_001', selector: '.menu-item[data-menu="departemen_001"]', title: 'Menu Departemen', description: 'Klik menu ini untuk mengelola struktur departemen di perusahaan Anda.',                                             position: 'right'  },
+  { menu: 'departemen_001', selector: '.dept001-btn-primary',     title: 'Tambah Departemen',        description: 'Klik tombol ini untuk membuat departemen baru pada organisasi Anda.',                                               position: 'bottom' },
+  { menu: 'departemen_001', selector: '.menu-item[data-menu="seleksi_001"]', title: 'Menu Seleksi',    description: 'Pantau semua proses seleksi posisi, dari kandidat baru hingga penawaran kerja.',                                    position: 'right'  },
+  { menu: 'seleksi_001',  selector: '.lw001-btn-primary',          title: 'Buat Lowongan Baru',       description: 'Mulai proses rekrutmen dengan membuat lowongan baru dan mengatur kriteria penilaian AI.',                          position: 'bottom' },
+  { menu: 'seleksi_001',  selector: '.menu-item[data-menu="kandidat_001"]',  title: 'Menu Kandidat',   description: 'Akses seluruh database kandidat yang telah masuk ke sistem Luna AI.',                                             position: 'right'  },
+  { menu: 'kandidat_001', selector: '.kan001-btn-primary',         title: 'Tambah Kandidat',          description: 'Tambah atau cari kandidat terbaik dari database talenta Anda.',                                                    position: 'bottom' },
+  { menu: 'kandidat_001', selector: '.menu-item[data-menu="pengaturan"]',title: 'Menu Kelola Pengguna', description: 'Atur profil perusahaan, paket langganan, dan pengguna sistem.',                                              position: 'right'  },
   { menu: 'pengaturan', selector: '.kp-settings-grid',      title: 'Pengaturan Akun',          description: 'Detail akun dan riwayat transaksi dapat Anda kelola secara transparan di sini.',                                  position: 'top'    },
   { menu: 'pengaturan', selector: '.search-wrapper',        title: 'Pencarian Universal',      description: 'Temukan data apapun dengan cepat melalui bilah pencarian ini.',                                                    position: 'bottom' },
   { menu: 'pengaturan', selector: '#btn-bantuan',           title: 'Pusat Bantuan',            description: 'Hubungi tim dukungan kami jika Anda menemui kendala teknis.',                                                     position: 'right'  },
@@ -146,12 +146,14 @@ export default function TourGuide({ navigate }) {
           <p className="tour-tooltip-desc">{step.description}</p>
         </div>
         <div className="tour-tooltip-footer">
-          <div className="tour-actions-left">
-            {stepIndex > 0 && (
-              <button className="tour-btn tour-btn-back" onClick={prev}>Kembali</button>
-            )}
-            <span className="tour-progress">{stepIndex + 1} / {STEPS.length}</span>
-          </div>
+          <button
+            className="tour-btn tour-btn-back"
+            onClick={prev}
+            style={stepIndex === 0 ? { visibility: 'hidden' } : undefined}
+          >
+            Kembali
+          </button>
+          <span className="tour-progress">{stepIndex + 1} / {STEPS.length}</span>
           <div className="tour-actions-right">
             <button className="tour-btn tour-btn-skip" onClick={endTour}>Lewati</button>
             <button className="tour-btn tour-btn-next" onClick={next}>

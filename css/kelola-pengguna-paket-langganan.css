@@ -11,6 +11,7 @@
     box-sizing: border-box;
     position: relative;
     overflow-y: hidden;
+    font-family: 'Inter Tight', sans-serif;
 }
 
 .pl-bg-wrapper {
@@ -100,7 +101,7 @@
 
 .pl-toggle-option.active {
     background: #ffffff;
-    color: #035388;
+    color: var(--luna-orange-600);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -138,7 +139,7 @@
 }
 
 .pl-card-hoverable:hover, .pl-card-default-highlight {
-    border: 4px solid #5dc5f8;
+    border: 4px solid var(--luna-orange-300);
     padding: 21px 22px 24px 22px; /* Restored to match Figma exactly */
 }
 
@@ -152,7 +153,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    background: linear-gradient(69.07deg, #2A86FF 20.15%, #9777FF 87.04%);
+    background: linear-gradient(69.07deg, var(--luna-orange-500) 20.15%, var(--luna-orange-300) 87.04%);
     color: #ffffff;
     border-bottom-left-radius: 14px;
     padding: 6px 16px;
@@ -188,14 +189,14 @@
 }
 
 .pl-title-basic {
-    background: linear-gradient(71.5deg, #1d8cd4 5.6%, #0182d5 52.1%, #03daf2 109.5%);
+    background: linear-gradient(71.5deg, var(--luna-orange-600) 5.6%, var(--luna-orange-400) 52.1%, var(--luna-orange-200) 109.5%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
 }
 
 .pl-title-plus {
-    background: linear-gradient(71.5deg, #1d8cd4 5.6%, #0182d5 52.1%, #03daf2 109.5%);
+    background: linear-gradient(71.5deg, var(--luna-orange-600) 5.6%, var(--luna-orange-400) 52.1%, var(--luna-orange-200) 109.5%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
@@ -271,7 +272,7 @@
 
 .pl-feature-highlight {
     font-weight: 700;
-    color: #0977be;
+    color: var(--luna-orange-500);
 }
 
 /* Card Button */
@@ -279,9 +280,9 @@
     width: 100%;
     padding: 10px 16px;
     background: #ffffff;
-    border: 1px solid #0977be;
+    border: 1px solid var(--luna-orange-500);
     border-radius: 32px;
-    color: #0977be;
+    color: var(--luna-orange-500);
     font-size: 14px;
     font-weight: 700;
     font-family: inherit;
@@ -290,7 +291,7 @@
     justify-content: center;
     gap: 6px;
     cursor: pointer;
-    box-shadow: 0px 6px 8px 0px rgba(2, 61, 108, 0.08);
+    box-shadow: 0px 6px 8px 0px rgba(255, 141, 33, 0.15);
     transition: all 0.2s;
     line-height: 1.5;
     flex-shrink: 0;
@@ -298,13 +299,13 @@
 }
 
 .pl-btn-outline:hover {
-    background: #f0f8ff;
+    background: var(--luna-orange-050);
 }
 
 .pl-btn-solid {
     width: 100%;
     padding: 10px 16px;
-    background: #085db3;
+    background: var(--luna-orange-400);
     border: none;
     border-radius: 32px;
     color: #ffffff;
@@ -316,7 +317,7 @@
     justify-content: center;
     gap: 6px;
     cursor: pointer;
-    box-shadow: 0px 6px 8px 0px rgba(2, 61, 108, 0.08);
+    box-shadow: 0px 6px 8px 0px rgba(255, 141, 33, 0.15);
     transition: all 0.2s;
     line-height: 1.5;
     flex-shrink: 0;
@@ -324,7 +325,7 @@
 }
 
 .pl-btn-solid:hover {
-    background: #064990;
+    background: var(--luna-orange-500);
 }
 
 @media (max-width: 900px) {
@@ -364,8 +365,8 @@
 }
 
 .pl-annual-badge {
-    background: #cfeafc;
-    color: #0466a6;
+    background: var(--luna-orange-100);
+    color: var(--luna-orange-600);
     font-size: 10px;
     font-weight: 600;
     padding: 2px 8px;

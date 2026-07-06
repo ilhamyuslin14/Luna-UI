@@ -25,6 +25,28 @@ export async function getDepartmentByName(companyId, departmentName) {
 }
 
 /**
+ * Mengambil detail satu departemen berdasarkan ID uniknya (menghindari ambiguitas
+ * kalau ada beberapa departemen dengan nama yang sama, misal setelah arsip+buat ulang)
+ * @param {string} departmentId - ID UUID departemen
+ */
+export async function getDepartmentById(departmentId) {
+  if (!departmentId) return null;
+
+  const { data, error } = await supabase
+    .from('departments')
+    .select('*')
+    .eq('id', departmentId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching department details:', error);
+    throw error;
+  }
+
+  return data || null;
+}
+
+/**
  * Mengupdate field spesifik dari suatu departemen
  * @param {string} id - ID UUID departemen
  * @param {Object} updates - Data yang diubah { website, industry, location, address, contact, description }

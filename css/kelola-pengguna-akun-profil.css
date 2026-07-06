@@ -7,6 +7,7 @@
     justify-content: center;
     padding: 50px 40px 60px 40px;
     box-sizing: border-box;
+    font-family: 'Inter Tight', sans-serif;
 }
 
 .pap-wrapper {
@@ -26,6 +27,11 @@
     align-items: flex-start;
     gap: 8px;
     width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f9fafc;
+    padding-bottom: 12px;
 }
 
 .pap-back-btn {
@@ -38,7 +44,7 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     color: #555f71;
     transition: color 0.2s;
 }
@@ -205,7 +211,7 @@
 }
 
 .pap-row--editable:hover .pap-pencil-btn {
-    color: #0977be;
+    color: var(--luna-orange-400);
 }
 
 .pap-edit-wrap {
@@ -219,9 +225,9 @@
     flex: 1;
     height: 32px;
     padding: 0 10px;
-    border: 1px solid #0977be;
+    border: 1px solid var(--luna-orange-400);
     border-radius: 7px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     font-size: 12px;
     font-weight: 400;
     color: #323b4d;
@@ -231,7 +237,7 @@
 }
 
 .pap-edit-input:focus {
-    box-shadow: 0 0 0 3px rgba(9, 119, 190, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
 .pap-edit-actions {
@@ -312,7 +318,7 @@
 }
 
 .pap-btn-save {
-    background: #0977be;
+    background: var(--luna-orange-400);
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -322,11 +328,11 @@
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
 }
 
 .pap-btn-save:hover {
-    background: #075f98;
+    background: var(--luna-orange-500);
 }
 
 /* Keamanan Akun Form */
@@ -363,7 +369,7 @@
 }
 
 .pap-form-group input:focus {
-    border-color: #0977be;
+    border-color: var(--luna-orange-500);
 }
 
 .pap-form-actions {
@@ -385,7 +391,7 @@
 }
 
 .pap-btn-submit {
-    background: #0977be;
+    background: var(--luna-orange-400);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -396,7 +402,7 @@
 }
 
 .pap-btn-submit:hover {
-    background: #075f98;
+    background: var(--luna-orange-500);
 }
 
 @media (max-width: 1200px) {

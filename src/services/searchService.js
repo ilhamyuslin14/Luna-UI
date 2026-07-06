@@ -56,7 +56,7 @@ export async function searchUniversal(companyId, query) {
     return {
       id: k.id,
       initials: (k.nama_lengkap || '').substring(0, 2).toUpperCase(),
-      color: '#0977be', // Permintaan User: biru aja
+      color: 'var(--luna-orange-400)',
       name: k.nama_lengkap || 'Tanpa Nama',
       sub: parts.length > 0 ? parts.join(' · ') : 'Detail belum lengkap'
     };

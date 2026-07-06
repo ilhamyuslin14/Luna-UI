@@ -58,15 +58,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #0466a6;
+  color: var(--luna-orange-600);
   line-height: 1.5;
 }
 
 .sc-header-name {
-  font-family: var(--font-family);
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #171e2c;
@@ -209,6 +209,9 @@
   color: #323b4d;
   line-height: 1.5;
   margin: 0;
+  max-height: 90px; /* ~6 baris (10px * 1.5 line-height * 6) */
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 /* ── Criteria Table ── */
@@ -372,16 +375,16 @@
 
 /* Primary (Penilaian Ulang) */
 .sc-btn-action.primary {
-  background: #0466a6;
-  border: 1px solid #0466a6;
+  background: var(--luna-orange-400);
+  border: 1px solid var(--luna-orange-400);
   color: white;
-  box-shadow: 0 2px 6px rgba(4, 102, 166, 0.2);
+  box-shadow: 0 2px 6px rgba(255, 141, 33, 0.2);
 }
 
 .sc-btn-action.primary:hover {
-  background: #035285;
-  border-color: #035285;
-  box-shadow: 0 4px 10px rgba(4, 102, 166, 0.3);
+  background: var(--luna-orange-500);
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 4px 10px rgba(255, 141, 33, 0.3);
 }
 
 .sc-btn-action.primary svg path {
@@ -445,9 +448,9 @@ select.sc-btn-action {
 }
 
 .sc-alur-option.active {
-  color: #0977be;
+  color: var(--luna-orange-500);
   font-weight: 600;
-  background: #eef7fd;
+  background: var(--luna-orange-050);
 }
 
 .sc-btn-close {

@@ -36,6 +36,33 @@ const RESPONSE_SCHEMA = {
   },
 };
 
+// Setara RESPONSE_SCHEMA di atas, tapi dibungkus { kriteria: [...] } karena
+// OpenAI Structured Outputs strict mode mewajibkan root schema bertipe
+// "object" (bukan array seperti Gemini) — di-unwrap lagi setelah parsing.
+// Field-field item (kategori/tag/teks/bobot/point) identik dengan versi Gemini.
+const OPENAI_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    kriteria: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          kategori: { type: 'string', description: "Kategori kriteria: gunakan tepat 'Wajib' atau 'Nilai Tambah'" },
+          tag: { type: 'string', description: '2-3 kata ringkasan (summary) dari kriteria tersebut' },
+          teks: { type: 'string', description: 'Deskripsi tajam dan singkat (maksimal 80 karakter) tanpa basa-basi korporat' },
+          bobot: { type: 'string', description: "Tingkat kepentingan: gunakan tepat 'tinggi', 'sedang', atau 'rendah'" },
+          point: { type: 'integer', description: 'Skor bobot: 150 (untuk tinggi), 100 (untuk sedang), atau 50 (untuk rendah)' },
+        },
+        required: ['kategori', 'tag', 'teks', 'bobot', 'point'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['kriteria'],
+  additionalProperties: false,
+}
+
 const DEFAULT_PROMPT = `Berdasarkan teks deskripsi pekerjaan berikut, hasilkan Kriteria Penilaian yang komprehensif dan relevan untuk mengevaluasi kandidat. Buat kriteria yang spesifik dan terukur. Pisahkan antara kriteria wajib (must-have) dan nilai tambah (nice-to-have). Sesuaikan bobot berdasarkan tingkat kepentingan kriteria tersebut untuk posisi ini.`;
 
 function stripHtml(html: string) {
@@ -51,10 +78,10 @@ function stripHtml(html: string) {
 
 function normalizeItem(item: any, index: number) {
   const kategori = (item.kategori || 'Wajib') === 'Nilai Tambah' ? 'Nilai Tambah' : 'Wajib';
-  
+
   let bobotText = 'sedang';
   const pointNum = Number(item.point || item.Point || item.bobot_angka || 100);
-  
+
   if (item.bobot && ['tinggi', 'sedang', 'rendah'].includes(item.bobot.toLowerCase())) {
     bobotText = item.bobot.toLowerCase();
   } else {
@@ -71,6 +98,199 @@ function normalizeItem(item: any, index: number) {
     bobot: bobotText,
     point: pointNum
   };
+}
+
+async function callGeminiForKriteria({ plainText, apiKey, model, prompt, useFlexMode, temperature }: any) {
+  const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : DEFAULT_PROMPT;
+  const modelId = model.startsWith('models/') ? model : `models/${model}`;
+
+  const startTime = Date.now();
+
+  let attempt = 0;
+  const maxAttempts = 10;
+  const delay = 2500;
+
+  let response: Response | undefined;
+  let data: any;
+
+  while (attempt < maxAttempts) {
+    attempt++;
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/${modelId}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          contents: [{ parts: [{ text: `Deskripsi Pekerjaan:\n${plainText}` }] }],
+          ...(useFlexMode && { service_tier: 'flex' }),
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: RESPONSE_SCHEMA,
+            temperature: Number(temperature),
+          },
+        }),
+      }
+    );
+
+    data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      if (status === 429 || status === 503 || status === 500) {
+        if (attempt < maxAttempts) {
+          console.log(`[generate-kriteria] Percobaan ${attempt} gagal (${status}). Menunggu ${delay}ms...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+      }
+      const errMsg = data.error?.message || `Gemini API error (HTTP ${response.status})`;
+      throw new Error(errMsg);
+    }
+
+    break;
+  }
+
+  const latency = Date.now() - startTime;
+
+  const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!contentText) throw new Error('Respon AI kosong. Coba lagi.');
+
+  let rawJson = contentText.trim();
+  if (rawJson.startsWith('```')) {
+    rawJson = rawJson.replace(/^```(json)?\n/, '').replace(/\n```$/, '');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(rawJson);
+  } catch (e) {
+    throw new Error('Gagal membaca JSON dari AI.');
+  }
+
+  let parsedArray = parsed;
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Array.isArray(parsed.data)) {
+    parsedArray = parsed.data;
+  }
+
+  if (!Array.isArray(parsedArray)) {
+    throw new Error('Format output AI tidak valid (tidak ditemukan array kriteria).');
+  }
+
+  return {
+    parsedArray,
+    parsedRaw: parsed,
+    usageMetadata: data.usageMetadata ? { ...data.usageMetadata, latency } : null,
+  }
+}
+
+// Model reasoning OpenAI (gpt-5*, o1, o3) menolak parameter `temperature`
+// sama sekali (HTTP 400 "Unsupported parameter"). Model non-reasoning seperti
+// gpt-4.1-nano masih menerimanya seperti biasa.
+function isOpenAIReasoningModel(model: string) {
+  return /^(gpt-5|o1|o3)/i.test(model)
+}
+
+// Setara callGeminiForKriteria, tapi lewat OpenAI Responses API. Array
+// kriteria dibungkus { kriteria: [...] } karena strict mode OpenAI
+// mewajibkan root object, lalu di-unwrap lagi di sini.
+async function callOpenAIForKriteria({ plainText, apiKey, model, prompt, useFlexMode, temperature, reasoningEffort }: any) {
+  const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : DEFAULT_PROMPT;
+
+  const payload = {
+    model,
+    instructions: systemPrompt,
+    input: [{ role: 'user', content: [{ type: 'input_text', text: `Deskripsi Pekerjaan:\n${plainText}` }] }],
+    ...(useFlexMode && { service_tier: 'flex' }),
+    ...(isOpenAIReasoningModel(model)
+      ? { reasoning: { effort: reasoningEffort || 'low' } }
+      : { temperature: Number(temperature) }),
+    text: {
+      verbosity: 'low',
+      format: {
+        type: 'json_schema',
+        name: 'kriteria_penilaian_result',
+        strict: true,
+        schema: OPENAI_RESPONSE_SCHEMA,
+      },
+    },
+  }
+
+  const startTime = Date.now();
+
+  let attempt = 0;
+  const maxAttempts = 10;
+  const delay = 2500;
+
+  let response: Response | undefined;
+  let data: any;
+
+  while (attempt < maxAttempts) {
+    attempt++;
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(payload),
+    })
+
+    data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      if (status === 429 || status === 503) {
+        if (attempt < maxAttempts) {
+          console.log(`[generate-kriteria] (OpenAI) Percobaan ${attempt} gagal (${status}). Menunggu ${delay}ms...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+      }
+      let errMsg = data.error?.message || `OpenAI API error (HTTP ${response.status})`;
+      if (status === 429 || status === 503) {
+        errMsg = 'Server AI sedang penuh (High Demand). Silakan coba beberapa saat lagi.';
+      }
+      throw new Error(errMsg);
+    }
+
+    break;
+  }
+
+  const latency = Date.now() - startTime;
+
+  const messageItem = (data.output || []).find((o: any) => o.type === 'message');
+  const textItem = messageItem?.content?.find((c: any) => c.type === 'output_text');
+  const contentText = textItem?.text;
+  if (!contentText) throw new Error('Respon AI kosong. Coba lagi.');
+
+  let rawJson = contentText.trim();
+  if (rawJson.startsWith('```')) {
+    rawJson = rawJson.replace(/^```(json)?\n/, '').replace(/\n```$/, '');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(rawJson);
+  } catch (e) {
+    throw new Error('Gagal membaca JSON dari AI.');
+  }
+
+  const parsedArray = Array.isArray(parsed?.kriteria) ? parsed.kriteria : parsed;
+
+  if (!Array.isArray(parsedArray)) {
+    throw new Error('Format output AI tidak valid (tidak ditemukan array kriteria).');
+  }
+
+  return {
+    parsedArray,
+    parsedRaw: parsed,
+    usageMetadata: data.usage ? {
+      promptTokenCount: data.usage.input_tokens || 0,
+      candidatesTokenCount: data.usage.output_tokens || 0,
+      totalTokenCount: data.usage.total_tokens || 0,
+      latency,
+    } : null,
+  }
 }
 
 const corsHeaders = {
@@ -100,97 +320,48 @@ serve(async (req) => {
     const plainText = stripHtml(deskripsi);
 
     const [{ data: configData }, { data: promptData }] = await Promise.all([
-      supabase.from('sandbox_configs').select('api_key').order('updated_at', { ascending: false }).limit(1),
+      supabase.from('sandbox_configs').select('*').order('updated_at', { ascending: false }).limit(1),
       supabase.from('prompt_settings').select('*').eq('type', 'JD').limit(1),
     ])
 
-    const apiKey = configData?.[0]?.api_key;
-    const model = promptData?.[0]?.model;
-    const prompt = promptData?.[0]?.prompt;
-    const useFlexMode = promptData?.[0]?.use_flex || false;
-    const temperature = promptData?.[0]?.temperature ?? 0.2;
+    const config = configData?.[0]
+    const promptSetting = promptData?.[0]
+    const activeProvider = config?.active_provider === 'openai' ? 'openai' : 'gemini'
+    const providerApiKey = activeProvider === 'openai' ? config?.openai_api_key : config?.api_key
+    const providerModel = activeProvider === 'openai' ? promptSetting?.model_openai : promptSetting?.model
+    const prompt = promptSetting?.prompt
+    const useFlexMode = promptSetting?.use_flex || false
+    const temperature = promptSetting?.temperature ?? 0.2
+    const reasoningEffort = promptSetting?.reasoning_effort || 'low'
 
-    if (!apiKey || !model) {
-      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: 'API Key atau Model belum disetup.' }] }).eq('id', seleksiId)
-      return jsonResponse({ error: true, message: 'API Key atau Model belum disetup.' }, 500)
+    if (!providerApiKey || !providerModel) {
+      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: `API Key atau Model (${activeProvider}) belum disetup.` }] }).eq('id', seleksiId)
+      return jsonResponse({ error: true, message: `API Key atau Model (${activeProvider}) belum disetup.` }, 500)
     }
 
-    const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : DEFAULT_PROMPT;
-    const modelId = model.startsWith('models/') ? model : `models/${model}`;
-
-    const startTime = Date.now();
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/${modelId}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          contents: [{ parts: [{ text: `Deskripsi Pekerjaan:\n${plainText}` }] }],
-          ...(useFlexMode && { service_tier: 'flex' }),
-          generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: RESPONSE_SCHEMA,
-            temperature: Number(temperature),
-          },
-        }),
-      }
-    );
-
-    const data = await response.json();
-    const endTime = Date.now();
-    const latency = endTime - startTime;
-
-    if (!response.ok) {
-      const errMsg = data.error?.message || `Gemini API error (HTTP ${response.status})`;
-      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: errMsg }] }).eq('id', seleksiId)
-      throw new Error(errMsg);
-    }
-
-    const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!contentText) {
-      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: 'Respon AI kosong. Coba lagi.' }] }).eq('id', seleksiId)
-      throw new Error('Respon AI kosong. Coba lagi.');
-    }
-
-    let rawJson = contentText.trim();
-    if (rawJson.startsWith('\`\`\`')) {
-      rawJson = rawJson.replace(/^\`\`\`(json)?\n/, '').replace(/\n\`\`\`$/, '');
-    }
-
-    let parsed;
+    let parsedArray, parsedRaw, usageMetadata
     try {
-      parsed = JSON.parse(rawJson);
-    } catch (e) {
-      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: 'Gagal membaca JSON dari AI.' }] }).eq('id', seleksiId)
-      return jsonResponse({ error: true, message: 'Gagal membaca JSON dari AI.' }, 500)
-    }
-
-    let parsedArray = parsed;
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Array.isArray(parsed.data)) {
-      parsedArray = parsed.data;
-    }
-
-    if (!Array.isArray(parsedArray)) {
-      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: 'Format output AI tidak valid (tidak ditemukan array kriteria).' }] }).eq('id', seleksiId)
-      return jsonResponse({ error: true, message: 'Format output AI tidak valid (tidak ditemukan array kriteria).' }, 500)
+      const callFn = activeProvider === 'openai' ? callOpenAIForKriteria : callGeminiForKriteria
+      const result = await callFn({ plainText, apiKey: providerApiKey, model: providerModel, prompt, useFlexMode, temperature, reasoningEffort })
+      parsedArray = result.parsedArray
+      parsedRaw = result.parsedRaw
+      usageMetadata = result.usageMetadata
+    } catch (err: any) {
+      await supabase.from('seleksi').update({ kriteria: [{ _isError: true, message: err.message }] }).eq('id', seleksiId)
+      return jsonResponse({ error: true, message: err.message }, 500)
     }
 
     // Log ke ai_usage_history
-    if (data.usageMetadata) {
-      const usage = data.usageMetadata;
+    if (usageMetadata) {
       supabase.from('ai_usage_history').insert([{
-        model_used: model,
+        model_used: providerModel,
         function_name: 'Generate Kriteria Penilaian',
-        input_tokens: usage.promptTokenCount || 0,
-        output_tokens: usage.candidatesTokenCount || 0,
-        total_tokens: usage.totalTokenCount || 0,
-        latency_ms: latency,
+        input_tokens: usageMetadata.promptTokenCount || 0,
+        output_tokens: usageMetadata.candidatesTokenCount || 0,
+        total_tokens: usageMetadata.totalTokenCount || 0,
+        latency_ms: usageMetadata.latency || 0,
         input_text: plainText.substring(0, 5000),
-        output_json: parsed,
+        output_json: parsedRaw,
         is_flex_mode: useFlexMode,
       }]).then(({ error }) => {
         if (error) console.error('Gagal mencatat riwayat AI:', error.message);

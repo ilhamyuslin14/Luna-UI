@@ -1,0 +1,1568 @@
+/* Kandidat Detail — kd001- prefix */
+
+.kd001-view {
+  background: #f9fafc;
+  height: calc(100vh - 58px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter Tight', sans-serif;
+}
+
+/* Title Bar */
+.kd001-title-bar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-neutral-300);
+  height: auto;
+  min-height: 120px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 20px;
+  flex-shrink: 0;
+}
+
+.kd001-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kd001-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kd001-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #ec4899;
+  /* Pink background */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.kd001-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kd001-profile-job {
+  font-size: 13px;
+  font-weight: 400;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.kd001-profile-exp {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.kd001-profile-loc {
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.kd001-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  text-decoration: none;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.kd001-back-btn:hover {
+  color: var(--luna-orange-600);
+}
+
+.kd001-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+  letter-spacing: -0.5px;
+}
+
+.kd001-title-actions {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: 8px;
+}
+
+.kd001-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--luna-orange-400);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter Tight', sans-serif;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.kd001-btn-primary:hover {
+  background: var(--luna-orange-500);
+}
+
+.kd001-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--color-neutral-300);
+  color: var(--color-neutral-700);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter Tight', sans-serif;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.kd001-btn-outline:hover {
+  border-color: var(--color-neutral-500);
+  color: var(--color-neutral-900);
+}
+
+.kd001-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kd001-menu-btn:hover {
+  background: var(--color-neutral-200);
+}
+
+/* Sub-nav Tabs */
+.kd001-subnav {
+  background: white;
+  border-bottom: 1px solid var(--color-neutral-300);
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.kd001-tabs {
+  display: flex;
+  gap: 32px;
+}
+
+.kd001-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 11px 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-neutral-700);
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  line-height: 1.4;
+  transition: color 0.2s;
+  margin-bottom: -1px;
+}
+
+.kd001-tab.active {
+  border-bottom-color: var(--luna-orange-500);
+  font-weight: 700;
+  color: var(--color-neutral-900);
+}
+
+/* Content wrapper (shell: back button + sub-view) */
+.kd001-content-wrapper {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kd001-content-wrapper--viewer {
+  padding: 0;
+  gap: 0;
+}
+
+/* Content layout (two-column grid inside sub-view) */
+.kd001-content {
+  display: flex;
+  gap: 16px;
+  overflow-y: auto;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.kd001-col-left {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kd001-col-right {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Card */
+.kd001-card {
+  background: white;
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 12px;
+}
+
+.kd001-card-header {
+  background: white;
+  border-bottom: 1px solid var(--color-neutral-200);
+  border-radius: 12px 12px 0 0;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.kd001-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-neutral-500);
+  text-transform: uppercase;
+  letter-spacing: 0.65px;
+}
+
+.kd001-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 0.857px solid var(--color-neutral-300);
+  border-radius: 25px;
+  font-size: 10.4px;
+  font-weight: 400;
+  color: var(--color-neutral-700);
+  font-family: 'Inter Tight', sans-serif;
+  padding: 4px 13px 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.kd001-edit-btn:hover {
+  border-color: var(--color-neutral-500);
+}
+
+.kd001-add-circle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+/* Detail rows */
+.kd001-detail-rows {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 20px 12px 20px;
+  gap: 2px;
+}
+
+.kd001-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+}
+
+.kd001-detail-label {
+  flex: 0 0 160px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-neutral-800);
+}
+
+.kd001-detail-value {
+  width: 285px;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-neutral-800);
+  padding: 10px 12px;
+  border-radius: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kd001-detail-add {
+  width: 285px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+  border-radius: 7px;
+  height: 32px;
+}
+
+.kd001-detail-add:hover {
+  background: var(--luna-orange-100);
+}
+
+/* AI Penilaian */
+.kd001-ai-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.kd001-ai-empty {
+  font-size: 12px;
+  color: #abb2c1;
+  text-align: center;
+  padding: 16px 12px;
+  line-height: 1.5;
+}
+
+.kd001-ai-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eff1f5;
+}
+
+.kd001-ai-row:last-child {
+  border-bottom: none;
+}
+
+.kd001-ai-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  justify-content: space-between;
+}
+
+.kd001-ai-posisi {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-neutral-800);
+  white-space: nowrap;
+}
+
+.kd001-fit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 25px;
+  padding: 4px 5px 4px 11px;
+  border-radius: 26px;
+  border: 1px solid;
+  background: white;
+  flex-shrink: 0;
+}
+
+.kd001-fit-badge.low {
+  border-color: #fca5a5;
+}
+
+.kd001-fit-badge.moderate {
+  border-color: #ffd086;
+}
+
+.kd001-fit-badge.high {
+  border-color: #6eea90;
+}
+
+.kd001-fit-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-neutral-800);
+  white-space: nowrap;
+}
+
+.kd001-fit-badge.high .kd001-fit-label {
+  font-weight: 600;
+}
+
+.kd001-fit-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  width: 31px;
+  border-radius: 25px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.kd001-fit-score.low {
+  background: #ef4444;
+}
+
+.kd001-fit-score.moderate {
+  background: #f8aa01;
+}
+
+.kd001-fit-score.high {
+  background: #14b541;
+}
+
+.kd001-detail-penilaian-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  white-space: nowrap;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.kd001-detail-penilaian-btn:hover {
+  color: var(--luna-orange-600);
+}
+
+.kd001-card-footer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  border-top: 1px solid #eff1f5;
+}
+
+.kd001-lihat-lainnya {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+}
+
+.kd001-lihat-lainnya:hover {
+  color: var(--luna-orange-600);
+}
+
+/* Experience / Education cards */
+.kd001-exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 20px 16px 20px;
+}
+
+.kd001-exp-card {
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 12px;
+  padding: 10px 8px 12px 14px;
+}
+
+.kd001-exp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kd001-exp-header-left {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kd001-exp-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  line-height: 1.5;
+}
+
+.kd001-exp-three-dot {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.kd001-exp-three-dot:hover {
+  background: var(--color-neutral-200);
+}
+
+.kd001-exp-company,
+.kd001-exp-period {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--color-neutral-600);
+  line-height: 1.5;
+}
+
+.kd001-exp-body {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kd001-exp-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-neutral-800);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.kd001-read-more {
+  background: none;
+  border: none;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  padding: 0;
+  text-align: left;
+}
+
+.kd001-read-more:hover {
+  color: var(--luna-orange-600);
+}
+
+/* ── Tambahkan ke Posisi Modal ─────────────────────────── */
+.kd001-posisi-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.kd001-posisi-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
+  width: 442px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.kd001-posisi-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #555f71;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.kd001-posisi-close:hover {
+  background: #f4f6fa;
+}
+
+.kd001-posisi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 29px 28px;
+  overflow-y: auto;
+}
+
+.kd001-posisi-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.3;
+  padding-right: 20px;
+}
+
+/* Search */
+.kd001-posisi-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kd001-posisi-search {
+  width: 100%;
+  height: 39px;
+  border: 1px solid #d4d9e6;
+  border-radius: 8px;
+  padding: 0 36px 0 14px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #171e2c;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.kd001-posisi-search:focus {
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.1);
+}
+
+.kd001-posisi-search::placeholder {
+  color: #abb2c1;
+}
+
+.kd001-posisi-search-icon {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+}
+
+/* Results */
+.kd001-posisi-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kd001-posisi-count {
+  font-size: 10px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+.kd001-posisi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.kd001-posisi-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 8px;
+  padding: 10px 12px 11px;
+  transition: border-color 0.15s;
+}
+
+.kd001-posisi-item:hover {
+  border-color: #d4d9e6;
+}
+
+.kd001-posisi-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd001-posisi-item-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  line-height: 1.5;
+}
+
+.kd001-posisi-item-dept {
+  font-size: 10px;
+  font-weight: 400;
+  color: #555f71;
+  line-height: 1.5;
+}
+
+.kd001-posisi-tambah-btn {
+  background: #fff;
+  border: 0.889px solid #cbd0db;
+  border-radius: 8px;
+  padding: 6px 14px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #171e2c;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.kd001-posisi-tambah-btn:hover:not(:disabled) {
+  background: var(--luna-orange-100);
+  border-color: var(--luna-orange-500);
+  color: var(--luna-orange-500);
+}
+
+.kd001-posisi-tambah-done {
+  background: #edfcf2;
+  border-color: #3cd266;
+  color: #089f32;
+  cursor: default;
+}
+
+.kd001-posisi-tambah-btn:disabled:not(.kd001-posisi-tambah-done):not(.kd001-posisi-tambah-error) {
+  background: #f5f7fa;
+  border-color: #e2e6ed;
+  color: #9aa3b0;
+  cursor: not-allowed;
+}
+
+.kd001-posisi-tambah-error {
+  background: #fff5f5;
+  border-color: #f87171;
+  color: #c0392b;
+}
+
+.kd001-posisi-empty {
+  font-size: 12px;
+  color: #abb2c1;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Toast notification ─────────────────────────────────── */
+.kd001-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 99999;
+  background: #fff;
+  border: 1px solid #e2e5ec;
+  border-left: 4px solid #14b541;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 340px;
+  max-width: 480px;
+  animation: kd001-toast-in 0.3s ease;
+}
+
+@keyframes kd001-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kd001-toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.kd001-toast-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd001-toast-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #171e2c;
+  line-height: 1.4;
+}
+
+.kd001-toast-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+.kd001-toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #555f71;
+  transition: background 0.15s;
+}
+
+.kd001-toast-close:hover {
+  background: #f4f6fa;
+}
+
+/* ── Penilaian AI hover effect ──────────────────────────── */
+.kd001-ai-row--hoverable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.kd001-ai-row--hoverable:hover {
+  background: var(--luna-orange-050);
+}
+
+.kd001-ai-row--hoverable:hover .kd001-detail-penilaian-btn {
+  border-color: var(--luna-orange-500);
+  color: var(--luna-orange-500);
+}
+
+/* ── Keahlian section ───────────────────────────────────── */
+.kd001-keahlian-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.kd001-keahlian-header {
+  background: #fff;
+  border-bottom: 1px solid #f0f2f6;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.kd001-keahlian-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #abb2c1;
+  letter-spacing: 0.65px;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.kd001-keahlian-body {
+  padding: 14px 20px 21px;
+}
+
+.kd001-keahlian-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 6px;
+  align-items: center;
+}
+
+/* Skill tag — Figma: bg var(--luna-orange-100), text var(--luna-orange-600), h-26, rounded-26px */
+.kd001-skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--luna-orange-050);
+  height: 26px;
+  border-radius: 26px;
+  padding: 0 12px;
+  transition: background 0.15s;
+}
+
+.kd001-skill-tag:hover {
+  background: rgba(255, 205, 144, 0.35);
+}
+
+.kd001-skill-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--luna-orange-400);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.kd001-skill-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.kd001-skill-remove:hover {
+  opacity: 1;
+}
+
+/* Add button — blue gradient circle 26px */
+/* Wrapper input+button agar tetap satu baris saat flex-wrap */
+.kd001-skill-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.kd001-skill-add-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(197.3deg, var(--luna-orange-400) 16.34%, var(--luna-orange-500) 88.78%);
+  box-shadow: 0 2px 2px rgba(11, 23, 43, 0.05);
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.kd001-skill-add-btn:hover {
+  opacity: 0.85;
+}
+
+/* Inline input for adding skill */
+/* Inline skill input — styled seperti tag putih di Figma */
+.kd001-skill-inline-input {
+  height: 26px;
+  border: 1px solid #cbd0db;
+  border-radius: 26px;
+  padding: 0 12px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  font-family: inherit;
+  outline: none;
+  width: 170px;
+  flex-shrink: 1;
+  line-height: 26px;
+  transition: border-color 0.15s;
+}
+
+.kd001-skill-inline-input:focus {
+  border-color: var(--luna-orange-500);
+}
+
+.kd001-skill-inline-input::placeholder {
+  color: #abb2c1;
+}
+
+/* ── Edit: remove button on exp/edu items ── */
+.kd001-exp-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.kd001-exp-remove-btn:hover {
+  background: #fff3f3;
+}
+
+/* ── Edit: add entry form (pengalaman & pendidikan) ── */
+.kd001-add-entry-form {
+  padding: 8px 20px 12px;
+  border-top: 1px solid #f0f2f6;
+}
+
+.kd001-add-entry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px dashed #cbd0db;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.kd001-add-entry-btn:hover {
+  border-color: var(--luna-orange-500);
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-600);
+  transform: scale(1.02);
+  box-shadow: 0 3px 10px rgba(255, 123, 0, 0.1);
+}
+
+.kd001-add-entry-btn:active {
+  transform: scale(0.99);
+  box-shadow: none;
+}
+
+.kd001-item-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kd001-item-clickable:hover {
+  border-color: var(--luna-orange-200);
+  background: var(--luna-orange-050);
+}
+
+/* ── Skill tag edit action buttons — lebih kecil dari InlineEditRow ── */
+.kd001-skill-tag--editing .inline-action-btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  padding: 3px;
+}
+
+.kd001-skill-tag--editing .inline-action-btn svg {
+  width: 10px;
+  height: 10px;
+}
+
+.kd001-entry-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kd001-entry-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── Entry form inputs (Figma style: h-30px border #d4d9e6 rounded-7px) ── */
+.kd001-entry-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+.kd001-entry-input:focus {
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.08);
+}
+
+.kd001-entry-input::placeholder {
+  color: #abb2c1;
+}
+
+.kd001-entry-date-row {
+  display: flex;
+  gap: 6px;
+}
+
+.kd001-entry-date {
+  flex: 1;
+}
+
+/* Rich text editor in entry form */
+.kd001-entry-editor {
+  min-height: 93px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.kd001-entry-editor .sd-deskripsi-editable {
+  min-height: 70px;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.kd001-exp-desc-editor {
+  min-height: 70px;
+}
+
+/* Delete button — trash icon, pastel rose */
+.kd001-exp-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  color: #e09090;
+  transition: background 0.15s, color 0.15s;
+}
+
+.kd001-exp-remove-btn:hover {
+  background: #fff0f0;
+  color: #c0504a;
+}
+
+/* Skill field input (regular input style, not inline tag) */
+.kd001-skill-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 8px;
+}
+
+.kd001-skill-field-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.kd001-skill-field-input:focus {
+  border-color: var(--luna-orange-500);
+  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.08);
+}
+
+.kd001-skill-field-input::placeholder {
+  color: #abb2c1;
+}
+
+/* ── Education redesign (Figma 484:9797) ── */
+.kd001-edu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px 21px;
+}
+
+/* Form card (add / inline edit) — bg #fbfcfe border #eff1f5 rounded-12px */
+.kd001-edu-form-card {
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 12px;
+  padding: 15px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Input style from Figma: h-30 border #d4d9e6 rounded-7px p-10px */
+.kd001-edu-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.kd001-edu-input:focus {
+  border-color: var(--luna-orange-500);
+}
+
+.kd001-edu-input::placeholder {
+  color: #abb2c1;
+}
+
+/* Degree select wrapper with chevron */
+.kd001-edu-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kd001-edu-select-wrap .kd001-edu-input {
+  padding-right: 28px;
+}
+
+.kd001-edu-select-chevron {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+}
+
+/* Display item card */
+.kd001-edu-item {
+  background: #fbfcfe;
+  border: 1px solid #eff1f5;
+  border-radius: 12px;
+  padding: 10px 8px 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kd001-edu-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.kd001-edu-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.kd001-edu-item-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+/* 3-dot menu */
+.kd001-three-dot-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.kd001-three-dot-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.kd001-three-dot-btn:hover {
+  background: #f0f2f6;
+}
+
+.kd001-three-dot-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #fff;
+  border: 1px solid #e2e5ec;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.kd001-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  color: #323b4d;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.kd001-menu-item:hover {
+  background: #f7f8fa;
+}
+
+.kd001-menu-item--danger {
+  color: #c0504a;
+}
+
+.kd001-menu-item--danger:hover {
+  background: #fff0f0;
+}
+
+/* ── Date input with calendar icon ── */
+/* ── Date field: icon + hint text inside the box ── */
+.kd001-date-field {
+  position: relative;
+  flex: 1;
+  height: 30px;
+  border: 1px solid #d4d9e6;
+  border-radius: 7px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.kd001-date-field:focus-within {
+  border-color: var(--luna-orange-500);
+}
+
+/* Native input: invisible, covers full area for click/calendar */
+.kd001-date-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+/* Visual display layer: hint text + icon */
+.kd001-date-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  pointer-events: none;
+}
+
+.kd001-date-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #abb2c1;
+  white-space: nowrap;
+}
+
+.kd001-date-val {
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+}
+
+/* ── Exp item description display ── */
+.kd001-exp-item {
+  align-items: flex-start;
+}
+
+.kd001-exp-desc-display {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd001-exp-desc-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #323b4d;
+  line-height: 1.5;
+}
+
+.kd001-exp-desc-collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kd001-read-more {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+
+/* ── Bullet-point inputs for exp description ── */
+.kd001-bullets-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kd001-bullet-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kd001-bullet-dot {
+  font-size: 14px;
+  color: #abb2c1;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.kd001-bullet-input {
+  flex: 1;
+}
+
+.kd001-bullet-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.kd001-bullet-remove:hover {
+  background: #f0f2f6;
+}
+
+.kd001-bullet-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: 1px dashed #cbd0db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  font-family: inherit;
+  padding: 7px 14px;
+  margin-top: 2px;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kd001-bullet-add:hover {
+  border-color: var(--luna-orange-500);
+  background: var(--luna-orange-050);
+}
+
+/* ── Empty state ── */
+.kd001-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.kd001-empty-text {
+  font-size: 12px;
+  color: #abb2c1;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.kd001-empty-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--luna-orange-500);
+  background: none;
+  border: 1px dashed var(--luna-orange-200);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.kd001-empty-add-btn:hover {
+  background: var(--luna-orange-050);
+  border-color: var(--luna-orange-500);
+}

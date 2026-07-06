@@ -6,6 +6,7 @@
     justify-content: center;
     padding: 50px 40px 60px 40px;
     box-sizing: border-box;
+    font-family: 'Inter Tight', sans-serif;
 }
 
 .pu-wrapper {
@@ -88,7 +89,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: #0977be;
+    background: var(--luna-orange-400);
     color: #fff;
     border: none;
     border-radius: 7.5px;
@@ -101,7 +102,7 @@
 }
 
 .pu-invite-btn:hover {
-    background: #075f98;
+    background: var(--luna-orange-500);
 }
 
 .pu-table-container {

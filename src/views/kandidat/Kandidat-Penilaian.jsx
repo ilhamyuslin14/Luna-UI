@@ -272,8 +272,8 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
               Hasil Penilaian AI
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-              <div style={{ fontSize: '11px', color: '#7e8799', fontWeight: 500 }}>Penilaian untuk posisi</div>
-              <div style={{ color: '#0977be', fontWeight: 700, fontSize: '18px', lineHeight: 1 }}>{kandidat.jabatanDilamar || kandidat.jabatan}</div>
+              <div style={{ fontSize: '11px', color: '#7e8799', fontWeight: 500, fontFamily: "'Inter Tight', sans-serif" }}>Penilaian untuk posisi</div>
+              <div style={{ color: 'var(--luna-orange-500)', fontWeight: 700, fontSize: '18px', lineHeight: 1, fontFamily: "'Inter Tight', sans-serif" }}>{kandidat.jabatanDilamar || kandidat.jabatan}</div>
               {kandidat.departemen && kandidat.departemen !== '-' && (
                 <div style={{ 
                   fontSize: '11px', 
@@ -545,12 +545,15 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
               </Tip>
             )}
 
-            {kandidat.alur === 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fef2f2', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '6px', color: '#b91c1c', fontSize: '13px', fontWeight: 500 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                {kandidat.alasan ? kandidat.alasan + (kandidat.detail ? ` - ${kandidat.detail}` : '') : 'Alasan tidak tersedia'}
-              </div>
-            )}
+            {kandidat.alur === 0 && (() => {
+              const badge = (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fef2f2', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '6px', color: '#b91c1c', fontSize: '13px', fontWeight: 500, maxWidth: '260px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{kandidat.alasan || 'Alasan tidak tersedia'}</span>
+                </div>
+              );
+              return kandidat.detail ? <Tip text={kandidat.detail}>{badge}</Tip> : badge;
+            })()}
           </div>
           <button className="sc-btn-close" onClick={handleClose}>Tutup</button>
         </div>

@@ -1,8 +1,9 @@
 .pua-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(23, 30, 44, 0.4);
+  background: rgba(10, 9, 8, 0.4);
   backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +11,7 @@
 }
 
 .pua-modal {
-  background: #ffffff;
+  background: var(--luna-ink-000);
   border-radius: 18px;
   padding: 28px 29px 24px;
   width: 442px;
@@ -28,19 +29,19 @@
 }
 
 .pua-title {
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   font-size: 22px;
   font-weight: 700;
-  color: #171e2c;
+  color: var(--luna-ink-900);
   line-height: 1.3;
   margin: 0;
 }
 
 .pua-desc {
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 500;
-  color: #171e2c;
+  color: var(--luna-ink-900);
   line-height: 1.5;
   margin: 0;
 }
@@ -58,10 +59,10 @@
 }
 
 .pua-label {
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #323b4d;
+  color: var(--luna-ink-800);
   line-height: 1.4;
 }
 
@@ -71,31 +72,31 @@
   padding: 10px 14px;
   font-size: 12px;
   font-weight: 400;
-  font-family: var(--font-family);
-  color: #171e2c;
+  font-family: 'Inter Tight', sans-serif;
+  color: var(--luna-ink-900);
   outline: none;
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
+  background: var(--luna-ink-000);
 }
 
 .pua-input::placeholder {
-  color: #abb2c1;
+  color: var(--luna-ink-500);
 }
 
 .pua-input:focus {
-  border-color: #0977be;
+  border-color: var(--luna-orange-400);
 }
 
 .pua-input--readonly {
   background: #f7f8fa;
-  border-color: #e2e5ec;
-  color: #7e8799;
+  border-color: var(--luna-ink-300);
+  color: var(--luna-ink-600);
   cursor: default;
 }
 
 .pua-input--readonly:focus {
-  border-color: #e2e5ec;
+  border-color: var(--luna-ink-300);
 }
 
 .pua-footer {
@@ -105,14 +106,14 @@
 }
 
 .pua-btn-cancel {
-  background: #e2e5ec;
-  color: #555f71;
+  background: none;
+  color: var(--luna-ink-700);
   border: none;
   border-radius: 8px;
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 700;
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   line-height: 1.5;
   cursor: pointer;
 }
@@ -122,23 +123,24 @@
 }
 
 .pua-btn-confirm {
-  background: #0977be;
-  color: #ffffff;
+  background: var(--luna-orange-400);
+  color: var(--luna-ink-900);
   border: none;
   border-radius: 8px;
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 700;
-  font-family: var(--font-family);
+  font-family: 'Inter Tight', sans-serif;
   line-height: 1.5;
   cursor: pointer;
 }
 
 .pua-btn-confirm:hover:not(:disabled) {
-  background: #0466a6;
+  background: var(--luna-orange-500);
 }
 
 .pua-btn-confirm:disabled {
-  background: #cbd0db;
+  background: var(--luna-ink-300);
+  color: var(--luna-ink-500);
   cursor: not-allowed;
 }

@@ -20,7 +20,7 @@
     box-shadow: 0 0 0 9999px rgba(11, 23, 41, 0.7); /* Deep blue-tinted dark overlay */
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
-    border: 2px solid #44a1ec; /* Highlight border */
+    border: 2px solid var(--luna-orange-400); /* Highlight border */
 }
 
 /* Special case for centered intro step */
@@ -36,7 +36,7 @@
 .tour-tooltip {
     position: fixed;
     z-index: 9999;
-    width: 340px;
+    width: 400px;
     background: #ffffff;
     border-radius: 16px;
     padding: 24px;
@@ -90,19 +90,17 @@
 }
 
 .tour-progress {
+    flex: 1;
+    text-align: center;
     font-size: 12px;
     font-weight: 600;
     color: #abb2c1;
 }
 
-.tour-actions-left {
-    display: flex;
-    gap: 8px;
-}
-
 .tour-actions-right {
     display: flex;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 .tour-btn {
@@ -117,15 +115,19 @@
 }
 
 .tour-btn-skip {
-    background: #f4f6fa;
+    background: none;
     color: #7e8799;
+}
+
+.tour-btn-skip:hover {
+    background: #f4f6fa;
 }
 
 .tour-btn-back {
     background: transparent;
     color: #abb2c1;
     padding: 8px 0;
-    margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .tour-btn-back:hover {
@@ -133,12 +135,12 @@
 }
 
 .tour-btn-next {
-    background: #0977be;
+    background: var(--luna-orange-400);
     color: #ffffff;
 }
 
 .tour-btn-next:hover {
-    background: #0466a6;
+    background: var(--luna-orange-500);
 }
 
 /* Arrow for tooltip */

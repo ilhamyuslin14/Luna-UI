@@ -1,0 +1,495 @@
+/* ─── Kandidat Seleksi sub-view — ks001- prefix ─────────────── */
+
+.ks001-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  background: #f9fafc;
+  font-family: 'Inter Tight', sans-serif;
+}
+
+/* ─── Action Bar ──────────────────────────────────────────── */
+.ks001-action-bar {
+  background: white;
+  border-bottom: 1px solid var(--color-neutral-300);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.ks001-filter-container {
+  position: relative;
+}
+
+/* ─── Table ───────────────────────────────────────────────── */
+.ks001-table {
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+  border-bottom: 1px solid #f0f2f6;
+}
+
+.ks001-table-head {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  background: url('/assets/frame_table_header.png') no-repeat center;
+  background-size: cover;
+  border-bottom: 4px solid #f0f2f6;
+  font-size: 12px;
+  font-weight: 700;
+  color: #171e2c;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.ks001-table-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f2f6;
+  font-size: 12px;
+}
+
+.ks001-table-row:hover {
+  background: #fafbfc;
+}
+
+/* Column widths match design proportions */
+.ks001-col-posisi {
+  flex: 0 0 30%;
+}
+
+.ks001-col-departemen {
+  flex: 0 0 20%;
+}
+
+.ks001-col-alur {
+  flex: 0 0 22%;
+}
+
+.ks001-col-skor {
+  flex: 1;
+}
+
+.ks001-col-action {
+  flex: 0 0 120px;
+  text-align: right;
+}
+
+/* ─── Cell content ────────────────────────────────────────── */
+.ks001-posisi-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+}
+
+.ks001-posisi-link:hover {
+  text-decoration: underline;
+}
+
+.ks001-alur-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #e2e5ec;
+  border-radius: 26px;
+  padding: 4px 10px 4px 11px;
+  height: 25px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #323b4d;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ks001-alur-badge:hover {
+  border-color: #cbd0db;
+}
+
+.ks001-fit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #ffd086;
+  border-radius: 26px;
+  padding: 4px 5px 4px 11px;
+  height: 25px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ks001-fit-label {
+  font-weight: 500;
+  color: #323b4d;
+}
+
+.ks001-fit-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 31px;
+  height: 16px;
+  border-radius: 25px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.ks001-detail-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--luna-orange-500);
+  cursor: pointer;
+}
+
+.ks001-detail-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Alur Dropdown ───────────────────────────────────────── */
+.ks001-alur-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ks001-alur-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border: 1px solid #cbd0db;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(23, 30, 44, 0.12);
+  z-index: 100;
+  min-width: 180px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ks001-alur-option {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 7px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #323b4d;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ks001-alur-option:hover {
+  background: #f0f2f6;
+}
+
+.ks001-alur-option.active {
+  color: var(--luna-orange-500);
+  font-weight: 600;
+  background: var(--luna-orange-100);
+}
+
+/* ─── Drop Modal (Tidak Sesuai) ───────────────────────────── */
+.sdk-drop-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(23, 30, 44, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100001;
+}
+
+.sdk-drop-modal {
+  background: white;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90vw;
+  box-shadow: 0 12px 32px rgba(23, 30, 44, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sdk-drop-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f2f6;
+}
+
+.sdk-drop-modal-desc {
+  font-size: 14px;
+  color: #323b4d;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.sdk-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0; /* Gap dihilangkan karena RejectSvg sudah punya marginRight */
+  background: #ffffff;
+  border: 1px solid #e2e5ec;
+  color: #323b4d;
+  border-radius: 18px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 0 14px;
+  height: 25px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.sdk-btn-outline:hover {
+  background: #f9fafc;
+  border-color: #cbd0db;
+}
+
+.sdk-drop-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #171e2c;
+  margin: 0;
+}
+
+.sdk-drop-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7e8799;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.sdk-drop-modal-close:hover {
+  background: #f0f2f6;
+  color: #323b4d;
+}
+
+.sdk-drop-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sdk-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sdk-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #323b4d;
+}
+
+.sdk-form-select-wrap {
+  position: relative;
+}
+
+.sdk-form-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: 1px solid #cbd0db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #171e2c;
+  appearance: none;
+  background: white;
+  outline: none;
+}
+
+.sdk-form-select:focus, .sdk-form-textarea:focus {
+  border-color: var(--luna-orange-500);
+}
+
+.sdk-form-select-wrap svg {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #7e8799;
+}
+
+.sdk-form-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px 14px;
+  border: 1px solid #cbd0db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #171e2c;
+  resize: vertical;
+  outline: none;
+}
+
+.sdk-form-textarea::placeholder {
+  color: #abb2c1;
+}
+
+.sdk-drop-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f9fafc;
+  border-top: 1px solid #f0f2f6;
+}
+
+.sdk-btn-cancel {
+  padding: 0 16px;
+  height: 36px;
+  border: 1px solid #cbd0db;
+  border-radius: 6px;
+  background: white;
+  color: #4a5568;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sdk-btn-cancel:hover {
+  background: #f0f2f6;
+}
+
+.sdk-btn-drop {
+  padding: 0 16px;
+  height: 36px;
+  border: 1px solid var(--luna-orange-500);
+  border-radius: 6px;
+  background: var(--luna-orange-500);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sdk-btn-drop:hover {
+  background: var(--luna-orange-600);
+}
+
+/* ─── Score Popover ───────────────────────────────────────── */
+.sdk-score-popover-wrapper {
+  position: fixed;
+  padding-top: 6px; /* Transparent bridge for hover */
+  z-index: 100000;
+}
+
+.sdk-score-popover {
+  background: white;
+  border: 1px solid #f0f2f6;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(23, 30, 44, 0.08);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: default;
+}
+
+.sdk-score-popover-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Donut Chart Simulation */
+.sdk-score-donut {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(#f29a01 75%, #f0f2f6 75%);
+}
+
+.sdk-score-donut::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: white;
+  border-radius: 50%;
+}
+
+.sdk-score-donut-val {
+  position: relative;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f29a01;
+  line-height: 1;
+}
+
+.sdk-score-donut-lbl {
+  position: relative;
+  font-size: 8px;
+  font-weight: 600;
+  color: #f29a01;
+  margin-top: 2px;
+}
+
+/* Stats Badges */
+.sdk-score-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sdk-stat-pill {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.sdk-stat-pill.tinggi { background: #e5fcea; color: #089f32; }
+.sdk-stat-pill.sedang { background: #fdf9e1; color: #da8700; }
+.sdk-stat-pill.rendah { background: #fff3f3; color: #fb484b; }
+
+.sdk-score-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  border: 1px solid #cbd0db;
+  border-radius: 6px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  color: #171e2c;
+  cursor: pointer;
+}
+
+.sdk-score-action:hover {
+  background: #f9fafc;
+}

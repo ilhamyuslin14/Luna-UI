@@ -153,8 +153,8 @@ export default function InlineEditRow({
               <>
                 {emptyLabel}
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                  <circle cx="8.5" cy="8.5" r="7.5" stroke="#0977be" strokeWidth="1"/>
-                  <path d="M8.5 5.5v6M5.5 8.5h6" stroke="#0977be" strokeWidth="1.2" strokeLinecap="round"/>
+                  <circle cx="8.5" cy="8.5" r="7.5" stroke="var(--luna-orange-400)" strokeWidth="1"/>
+                  <path d="M8.5 5.5v6M5.5 8.5h6" stroke="var(--luna-orange-400)" strokeWidth="1.2" strokeLinecap="round"/>
                 </svg>
               </>
             )}

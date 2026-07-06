@@ -25,7 +25,7 @@ const SCORING_RESPONSE_SCHEMA = {
           tag: { type: 'STRING' },
           kategori: { type: 'STRING', description: "Kategori kriteria: 'Wajib' atau 'Nilai Tambah'" },
           evidence: { type: 'STRING' },
-          score_evaluate: { type: 'INTEGER' },
+          score_evaluate: { type: 'INTEGER', minimum: 0, maximum: 100 },
           weight: { type: 'INTEGER' },
         },
         required: ['tag', 'kategori', 'evidence', 'score_evaluate', 'weight'],
@@ -34,6 +34,34 @@ const SCORING_RESPONSE_SCHEMA = {
     summary: { type: 'STRING' },
   },
   required: ['scores', 'summary'],
+}
+
+// Setara SCORING_RESPONSE_SCHEMA di atas, tapi pakai konvensi standar JSON
+// Schema (huruf kecil) + additionalProperties:false — wajib untuk mode
+// "strict" Structured Outputs milik OpenAI. Root sudah bertipe object di
+// kedua provider jadi tidak perlu wrapper seperti generate-kriteria.
+const OPENAI_SCORING_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    scores: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          tag: { type: 'string' },
+          kategori: { type: 'string', description: "Kategori kriteria: 'Wajib' atau 'Nilai Tambah'" },
+          evidence: { type: 'string' },
+          score_evaluate: { type: 'integer', minimum: 0, maximum: 100 },
+          weight: { type: 'integer' },
+        },
+        required: ['tag', 'kategori', 'evidence', 'score_evaluate', 'weight'],
+        additionalProperties: false,
+      },
+    },
+    summary: { type: 'string' },
+  },
+  required: ['scores', 'summary'],
+  additionalProperties: false,
 }
 
 function stripHtml(html) {
@@ -153,6 +181,103 @@ async function callGeminiForScoring({ cvText, kriteriaText, apiKey, model, promp
   }
 }
 
+// Model reasoning OpenAI (gpt-5*, o1, o3) menolak parameter `temperature`
+// sama sekali (HTTP 400 "Unsupported parameter"). Model non-reasoning seperti
+// gpt-4.1-nano masih menerimanya seperti biasa.
+function isOpenAIReasoningModel(model) {
+  return /^(gpt-5|o1|o3)/i.test(model)
+}
+
+// Setara callGeminiForScoring, tapi lewat OpenAI Responses API. Cuma butuh
+// input teks (tidak ada file input untuk scoring), jadi lebih sederhana
+// dibanding parse-cv.
+async function callOpenAIForScoring({ cvText, kriteriaText, apiKey, model, prompt, useFlexMode, temperature, reasoningEffort }) {
+  const plainCv = stripHtml(cvText)
+  const plainKriteria = stripHtml(kriteriaText)
+
+  if (!plainCv) throw new Error('Teks CV kosong. Unggah atau tempel CV terlebih dahulu.')
+  if (!plainKriteria) throw new Error('Teks Kriteria Penilaian kosong. Masukkan kriteria terlebih dahulu.')
+  if (!apiKey) throw new Error('API Key OpenAI belum dikonfigurasi.')
+  if (!model) throw new Error('Model AI (OpenAI) belum dipilih. Cek tab Konfigurasi API.')
+
+  const systemPrompt = (prompt && prompt.trim()) ? prompt.trim() : 'Evaluate candidate based on requirements.'
+
+  const payload = {
+    model,
+    instructions: systemPrompt,
+    input: [{ role: 'user', content: [{ type: 'input_text', text: `Kriteria Penilaian:\n${plainKriteria}\n\nData CV Kandidat:\n${plainCv}` }] }],
+    ...(useFlexMode && { service_tier: 'flex' }),
+    ...(isOpenAIReasoningModel(model)
+      ? { reasoning: { effort: reasoningEffort || 'low' } }
+      : { temperature: Number(temperature) }),
+    text: {
+      verbosity: 'low',
+      format: {
+        type: 'json_schema',
+        name: 'ai_scoring_result',
+        strict: true,
+        schema: OPENAI_SCORING_RESPONSE_SCHEMA,
+      },
+    },
+  };
+
+  const startTime = Date.now()
+  let response;
+  let data;
+  let attempts = 0;
+  const maxAttempts = 10; // 1 initial + 9 retry
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(payload),
+    })
+
+    data = await response.json()
+
+    if (response.ok) {
+      break; // Berhasil
+    } else {
+      if ((response.status === 429 || response.status === 503) && attempts < maxAttempts) {
+        console.warn(`[OpenAI API Scoring] Server sibuk (HTTP ${response.status}). Mencoba lagi dalam 2.5 detik... (Percobaan ${attempts})`);
+        await new Promise(resolve => setTimeout(resolve, 2500));
+      } else {
+        let errMsg = data.error?.message || `OpenAI API error (HTTP ${response.status})`
+        if (response.status === 429 || response.status === 503) {
+           errMsg = "Server AI sedang penuh (High Demand). Silakan coba beberapa saat lagi.";
+        }
+        throw new Error(errMsg)
+      }
+    }
+  }
+
+  const latency = Date.now() - startTime
+
+  const messageItem = (data.output || []).find(o => o.type === 'message')
+  const textItem = messageItem?.content?.find(c => c.type === 'output_text')
+  const contentText = textItem?.text
+  if (!contentText) throw new Error('Respon AI kosong. Coba lagi.')
+
+  let rawJson = contentText.trim()
+  if (rawJson.startsWith('```')) {
+    rawJson = rawJson.replace(/^```(json)?\n/, '').replace(/\n```$/, '')
+  }
+  const parsed = JSON.parse(rawJson)
+
+  return {
+    parsedData: parsed,
+    rawJson: JSON.stringify(parsed, null, 2),
+    usageMetadata: data.usage ? {
+      promptTokenCount: data.usage.input_tokens || 0,
+      candidatesTokenCount: data.usage.output_tokens || 0,
+      totalTokenCount: data.usage.total_tokens || 0,
+      latency,
+    } : null,
+  }
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -186,27 +311,36 @@ serve(async (req) => {
       return jsonResponse({ error: true, message: 'Data CV kandidat tidak ditemukan. Pastikan CV sudah diunggah.' })
     if (sErr || !seleksi?.kriteria)
       return jsonResponse({ error: true, message: 'Kriteria penilaian pada posisi ini belum diisi.' })
-    if (!config?.api_key)
-      return jsonResponse({ error: true, message: 'API Key belum dikonfigurasi di Sandbox.' })
     if (!promptSetting)
       return jsonResponse({ error: true, message: 'Prompt Scoring belum dikonfigurasi di Prompt Settings.' })
 
+    const activeProvider = config?.active_provider === 'openai' ? 'openai' : 'gemini'
+    const providerApiKey = activeProvider === 'openai' ? config?.openai_api_key : config?.api_key
+    const providerModel = activeProvider === 'openai' ? promptSetting.model_openai : promptSetting.model
+
+    if (!providerApiKey)
+      return jsonResponse({ error: true, message: `API Key (${activeProvider}) belum dikonfigurasi di Sandbox.` })
+    if (!providerModel)
+      return jsonResponse({ error: true, message: `Model AI (${activeProvider}) belum dipilih di Prompt Settings.` })
+
     const kriteriaText = serializeKriteria(seleksi.kriteria)
-    
+
     // Gunakan raw_text jika ada, jika tidak ada (karena fallback OCR langsung dari PDF), gunakan output_ai_raw
     let cvInputText = kandidat.raw_text
     if (!cvInputText && kandidat.output_ai_raw) {
       cvInputText = typeof kandidat.output_ai_raw === 'string' ? kandidat.output_ai_raw : JSON.stringify(kandidat.output_ai_raw)
     }
 
-    const { parsedData, rawJson, usageMetadata } = await callGeminiForScoring({
+    const callFn = activeProvider === 'openai' ? callOpenAIForScoring : callGeminiForScoring
+    const { parsedData, rawJson, usageMetadata } = await callFn({
       cvText: cvInputText,
       kriteriaText,
-      apiKey: config.api_key,
-      model: promptSetting.model,
+      apiKey: providerApiKey,
+      model: providerModel,
       prompt: promptSetting.prompt,
       useFlexMode: promptSetting.use_flex ?? false,
       temperature: promptSetting.temperature ?? 0.2,
+      reasoningEffort: promptSetting.reasoning_effort || 'low',
     })
 
     const totalScore = calcTotalScore((parsedData.scores || []).filter((s) => s.kategori === 'Wajib'))
@@ -252,7 +386,7 @@ serve(async (req) => {
 
     if (usageMetadata) {
       supabase.from('ai_usage_history').insert([{
-        model_used: promptSetting.model,
+        model_used: providerModel,
         function_name: 'Generate AI Scoring',
         input_tokens: usageMetadata.promptTokenCount || 0,
         output_tokens: usageMetadata.candidatesTokenCount || 0,

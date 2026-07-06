@@ -15,11 +15,11 @@
 .back-btn--default {
   gap: 6px;
   font-size: 12px;
-  color: #0977be;
+  color: var(--luna-orange-500);
 }
 
 .back-btn--default:hover {
-  color: #0466a6;
+  color: var(--luna-orange-600);
 }
 
 .back-btn--secondary {

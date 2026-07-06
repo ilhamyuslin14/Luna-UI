@@ -6,7 +6,7 @@ import { useUpload } from '../../context/UploadContext';
 import { getSeleksi } from '../../services/seleksiService';
 
 const UploadIcon = () => (
-  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" />
     <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
   </svg>
@@ -23,7 +23,7 @@ const ChevronIcon = () => (
   </svg>
 );
 const IconUploading = () => (
-  <svg className="kt-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0977be" strokeWidth="2.5" strokeLinecap="round">
+  <svg className="kt-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-500)" strokeWidth="2.5" strokeLinecap="round">
     <path d="M21 12a9 9 0 1 1-6.22-8.56" />
   </svg>
 );
@@ -330,7 +330,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
           finalStatus = 'gagal';
           isFailed = true;
           failReason = isUploadFailed ? `Unggah Gagal: ${f.upload_fail_reason} & AI Gagal: ${f.scoring_fail_reason}` : `AI Gagal: ${f.scoring_fail_reason}`;
-        } else if (isUploadFailed && !f.scoring_status) {
+        } else if (isUploadFailed) {
           finalStatus = 'gagal';
           isFailed = true;
           failReason = f.upload_fail_reason;
@@ -375,7 +375,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                         <div
                           className="kt-detail-badge"
                           style={{ cursor: 'pointer', opacity: 1 }}
-                          onClick={() => navigate('kandidat-detail', { kandidat: f.kandidatId })}
+                          onClick={() => navigate('kandidat-detail_001', { kandidat: f.kandidatId })}
                         >
                           Detail
                         </div>
@@ -410,7 +410,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
             </div>
           )}
           <div className="kt-upload-footer">
-            <button className="kt-btn-lihat" onClick={() => navigate('kandidat')}>Lihat Kandidat</button>
+            <button className="kt-btn-lihat" onClick={() => navigate('kandidat_001')}>Lihat Kandidat</button>
             <button className="kt-btn-upload-more" onClick={() => onUploadMore ? onUploadMore() : navigate('kandidat-tambah')}>Upload CV Lainnya</button>
           </div>
         </div>
@@ -482,14 +482,14 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                     gap: '8px',
                     fontSize: '14px',
                     fontWeight: 600,
-                    color: '#0977be',
+                    color: 'var(--luna-orange-500)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
                     padding: '0'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#07619c'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#0977be'}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--luna-orange-600)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--luna-orange-500)'}
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -558,7 +558,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                     <div className="kt-upload-row-right">
                       <div className="kt-upload-slot">
                         {fs.finalStatus === 'uploading' && <div className="kt-file-progress-track"><div className="kt-file-progress-fill" style={{ width: `${fs.progress}%` }} /></div>}
-                        {fs.finalStatus === 'berhasil' && fs.data && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail', { kandidat: fs.data })}>Detail</div>}
+                        {fs.finalStatus === 'berhasil' && fs.data && <div className="kt-detail-badge" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-detail_001', { kandidat: fs.data })}>Detail</div>}
                       </div>
                       <div className={`kt-status-label ${fs.finalStatus}`}>
                         {fs.finalStatus === 'uploading' && <><IconUploading /><span>{fs.statusText}</span></>}
@@ -603,7 +603,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
             )}
 
             <div className="kt-upload-footer">
-              <button className="kt-btn-lihat" onClick={() => navigate('kandidat')}>Lihat Kandidat</button>
+              <button className="kt-btn-lihat" onClick={() => navigate('kandidat_001')}>Lihat Kandidat</button>
               {allDone && (
                 <button className="kt-btn-upload-more" onClick={() => { clearGlobalUploads(); setPhase('drop'); }}>
                   Upload CV Lainnya
