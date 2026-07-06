@@ -29,7 +29,14 @@ const IcKandidat = () => (
 );
 
 const planCardVariants = [
-  { id: 'basic' },
+  {
+    id: 'berakhir',
+    className: 'plan-card--berakhir',
+    label: 'PAKET SAAT INI',
+    name: 'Berakhir',
+    expiry: 'Berakhir pada : 31 Des 2026',
+    buttonLabel: 'Pilih Paket',
+  },
   {
     id: 'trial',
     className: 'plan-card--trial',
@@ -40,6 +47,7 @@ const planCardVariants = [
     kandidat: { used: 5000, total: 5000 },
     buttonLabel: 'Upgrade Paket',
   },
+  { id: 'basic' },
   {
     id: 'plus',
     className: 'plan-card--plus',
@@ -47,19 +55,13 @@ const planCardVariants = [
     name: 'Plus',
     expiry: 'Aktif s.d : 31 Des 2026',
   },
-  {
-    id: 'berakhir',
-    className: 'plan-card--berakhir',
-    label: 'PAKET SAAT INI',
-    name: 'Berakhir',
-    expiry: 'Berakhir pada : 31 Des 2026',
-    buttonLabel: 'Pilih Paket',
-  },
 ];
+
+const DEFAULT_PLAN_CARD_INDEX = planCardVariants.findIndex(v => v.id === 'basic');
 
 export default function Sidebar({ activeMenu, onNavigate }) {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [planCardIndex, setPlanCardIndex] = useState(0);
+  const [planCardIndex, setPlanCardIndex] = useState(DEFAULT_PLAN_CARD_INDEX);
   const activePlanVariant = planCardVariants[planCardIndex];
   const cyclePlanCard = () => setPlanCardIndex(i => (i + 1) % planCardVariants.length);
 
@@ -75,10 +77,9 @@ export default function Sidebar({ activeMenu, onNavigate }) {
       <div className="sidebar-content">
         <div className="sidebar-top">
           {activePlanVariant.id === 'basic' ? (
-            <div className="plan-card" onClick={cyclePlanCard}>
-              <img src="/assets/ellipse46.svg" alt="" className="plan-bg-ellipse" />
+            <div className="plan-card plan-card--basic" onClick={cyclePlanCard}>
               <div className="plan-header">
-                <div className="plan-label">PAKET SAAT INI</div>
+                <div className="plan-label"><span className="plan-label-dot" />PAKET SAAT INI</div>
                 <div className="plan-name">Basic</div>
                 <div className="plan-expiry">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8, marginRight: 2 }}>
@@ -122,9 +123,11 @@ export default function Sidebar({ activeMenu, onNavigate }) {
             </div>
           ) : (
             <div className={`plan-card ${activePlanVariant.className}`} onClick={cyclePlanCard}>
-              <img src="/assets/ellipse46.svg" alt="" className="plan-bg-ellipse" />
               <div className="plan-header">
-                <div className="plan-label">{activePlanVariant.label}</div>
+                <div className="plan-label">
+                  <span className="plan-label-dot" />
+                  {activePlanVariant.label}
+                </div>
                 <div className="plan-name">{activePlanVariant.name}</div>
                 <div className="plan-expiry">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8, marginRight: 2 }}>

@@ -32,7 +32,7 @@
 }
 
 .tabnav-btn.active {
-  border-bottom-color: var(--color-primary-500, #0977be);
+  border-bottom-color: var(--luna-orange-500);
   font-weight: 700;
   color: var(--color-neutral-900, #171e2c);
 }

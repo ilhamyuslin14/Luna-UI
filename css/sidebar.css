@@ -24,7 +24,6 @@
   width: 100%;
   height: auto;
 
-  background: linear-gradient(214.85deg, var(--luna-orange-400) 10.61%, var(--luna-orange-600) 82.65%);
   border-radius: 14px;
 
   color: var(--luna-ink-000);
@@ -36,46 +35,153 @@
   cursor: pointer;
 }
 
+/* Basic — bagian dari keluarga "ambient glow" yang sama dengan Plus/Trial,
+   diposisikan di tengah: base gradasi hangat (bukan ink datar seperti
+   Trial/Plus) + glow di dua pojok, biar tidak jomplang sendirian sebagai
+   satu-satunya kartu oranye terang di antara kartu-kartu gelap lainnya. */
+.plan-card--basic {
+  background: linear-gradient(200deg, #2c2117 8%, var(--luna-ink-800) 85%);
+  border: 1px solid var(--luna-ink-700);
+}
+
+.plan-card--basic::before {
+  content: "";
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  left: -70px;
+  top: -90px;
+  background: radial-gradient(circle, rgba(255, 141, 33, 0.16), transparent 70%);
+  z-index: 0;
+}
+
+.plan-card--basic::after {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  right: -60px;
+  bottom: -85px;
+  background: radial-gradient(circle, rgba(255, 123, 0, 0.20), transparent 70%);
+  z-index: 0;
+}
+
+.plan-card--basic .plan-label {
+  color: var(--luna-orange-400);
+  position: relative;
+  z-index: 1;
+}
+
+.plan-card--basic .progress-fill {
+  background: var(--luna-orange-400);
+}
+
+/* Trial — "Soft Amber": satu keluarga sama Basic/Plus, tapi glow oranye-nya
+   jauh lebih redup (opacity 0.16 vs Basic 0.16-0.20 dua sisi dan Plus 0.35
+   satu sisi terang) — terasa "sekeluarga" tapi jelas belum full tier. */
 .plan-card--trial {
-  background: linear-gradient(222.98deg, #5b6982 11.211%, #323943 83.076%);
+  background: var(--luna-ink-800);
+  border: 1px solid var(--luna-ink-700);
+}
+
+.plan-card--trial::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  right: -60px;
+  bottom: -80px;
+  background: radial-gradient(circle, rgba(255, 123, 0, 0.16), transparent 70%);
+  z-index: 0;
+}
+
+.plan-card--trial .progress-fill {
+  background: var(--luna-orange-300);
 }
 
 .plan-card--plus {
-  background: linear-gradient(200.33deg, #9e5dff 17.105%, #103ee3 84.506%);
+  background: var(--luna-ink-800);
+  border: 1px solid var(--luna-ink-700);
 }
 
+.plan-card--plus::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  right: -70px;
+  bottom: -90px;
+  background: radial-gradient(circle, rgba(255, 123, 0, 0.35), transparent 70%);
+  filter: blur(2px);
+  z-index: 0;
+}
+
+.plan-card--plus::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.plan-label-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--luna-orange-500);
+  box-shadow: 0 0 8px 1px rgba(255, 123, 0, 0.8);
+  display: inline-block;
+  margin-right: 2px;
+}
+
+/* Berakhir — "Dim Signal": satu keluarga base gelap yang sama, tapi glow-nya
+   merah redup (bukan oranye brand) — sinyal semantik "kedaluwarsa, perlu
+   tindakan" yang sengaja beda hue supaya tidak tertukar sama Trial. Tombol
+   CTA dibikin solid oranye supaya jadi satu-satunya hal yang paling menarik
+   mata di kartu ini. */
 .plan-card--berakhir {
-  background: linear-gradient(213.25deg, #5b6982 11.211%, #323943 83.076%);
+  background: var(--luna-ink-800);
+  border: 1px solid var(--luna-ink-700);
 }
 
-.plan-card--trial .plan-label,
+.plan-card--berakhir::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  right: -60px;
+  bottom: -80px;
+  background: radial-gradient(circle, rgba(230, 62, 62, 0.20), transparent 70%);
+  z-index: 0;
+}
+
+.plan-card--trial .plan-label {
+  color: var(--luna-orange-300);
+}
+
 .plan-card--berakhir .plan-label {
-  color: #7387a9;
+  color: #e6a3a3;
+}
+
+.plan-card--trial .plan-label-dot {
+  background: var(--luna-orange-400);
+  box-shadow: 0 0 6px 1px rgba(255, 141, 33, 0.5);
+}
+
+.plan-card--berakhir .plan-label-dot {
+  background: #e63e3e;
+  box-shadow: 0 0 6px 1px rgba(230, 62, 62, 0.6);
 }
 
 .plan-card--trial .upgrade-btn,
-.plan-card--berakhir .upgrade-btn {
+.plan-card--berakhir .upgrade-btn,
+.plan-card--basic .upgrade-btn {
   color: var(--luna-ink-800);
 }
 
-.plan-card--trial .upgrade-btn:hover,
-.plan-card--berakhir .upgrade-btn:hover {
-  background: var(--luna-ink-100);
-}
-
 .plan-card--plus .plan-label {
-  color: #4882ff;
-}
-
-.plan-bg-ellipse {
-  position: absolute;
-  height: 266.376px;
-  left: -136px;
-  top: -31px;
-  width: 328px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.18;
+  color: var(--luna-orange-400);
 }
 
 .plan-header {

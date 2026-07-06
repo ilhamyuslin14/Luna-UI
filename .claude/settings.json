@@ -200,7 +200,13 @@
       "Bash(grep -n \"const \\\\[temperature, setTemperature\\\\]\\\\|resolvedTemperature\\\\|resolvedUseFlex\\\\|return { provider\\\\|generateFn\\({\" /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/sandbox/Sandbox-Kriteria.jsx)",
       "Bash(grep -n \"const \\\\[temperature, setTemperature\\\\]\\\\|resolvedTemperature\\\\|resolvedUseFlex\\\\|return { provider\\\\|generateFn\\({\" /Users/ilham/Documents/Project/Node/projects/Luna-UI/src/views/sandbox/Sandbox-AIScoring.jsx)",
       "Bash(grep -n \"isOpenAIReasoningModel\\\\|async function callOpenAIForScoring\\\\|const { parsedData, rawJson, usageMetadata } = await callFn\" /Users/ilham/Documents/Project/Node/projects/Luna-UI/supabase/functions/run-scoring/index.ts)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npm run *)",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "Bash(sort -u -t: -k3)"
     ],
     "additionalDirectories": [
       "/Users/ilham/Documents/Project/Node/projects/Luna-UI/src/assets",
