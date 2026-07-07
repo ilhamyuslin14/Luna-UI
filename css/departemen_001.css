@@ -136,7 +136,7 @@
 }
 
 .dept001-table tbody tr:hover {
-    background-color: var(--luna-orange-050);
+    background-color: #f7f8fa;
 }
 .dept001-table tbody tr.dept001-row-archived {
     background-color: #f4f6fa;
