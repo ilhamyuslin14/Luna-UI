@@ -188,13 +188,7 @@
 }
 
 .ks001-alur-option:hover {
-  background: #f0f2f6;
-}
-
-.ks001-alur-option.active {
-  color: var(--luna-orange-500);
-  font-weight: 600;
-  background: var(--luna-orange-100);
+  background: #f4f6fa;
 }
 
 /* ─── Drop Modal (Tidak Sesuai) ───────────────────────────── */

@@ -252,13 +252,12 @@ export default function KandidatSeleksi_001({ back, navigate, kandidat }) {
                   </button>
                   {openAlurRow === row.id && (
                     <div className="ks001-alur-dropdown">
-                      {alurList.map(opt => (
+                      {alurList.filter(opt => opt.level !== 0).map(opt => (
                         <button
                           key={opt.level}
                           className={`ks001-alur-option${row.alur === opt.level ? ' active' : ''}`}
                           onClick={e => { e.stopPropagation(); updateAlur(row.id, opt.level); }}
                         >
-                          <span style={{ color: '#9aa3b0', fontSize: 10, marginRight: 6 }}>{opt.level}</span>
                           {opt.nama}
                         </button>
                       ))}
