@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { fetchPriceMap, estimateCostIDR, formatRupiah, formatLatencySeconds } from '../../utils/aiPricing';
+import { fetchPriceMap, estimateCostIDR, formatRupiah } from '../../utils/aiPricing';
 
 const supabaseUrl = 'https://qxmkwfncpxcibjnwnmup.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4bWt3Zm5jcHhjaWJqbndubXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzA3NDQsImV4cCI6MjA5NjA0Njc0NH0.igrn_j_7WK0vmHjwDNEid15g_3aYbHeaX7tLvI7N-94';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const PAGE_SIZE = 8;
+const ROW_LIMIT = 8;
 
 function scoreBadgeClasses(score) {
   if (score >= 80) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -15,55 +15,292 @@ function scoreBadgeClasses(score) {
   return 'bg-slate-100 text-slate-500 border-slate-200';
 }
 
-export default function SandboxLabs() {
-  const [runs, setRuns] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [priceMap, setPriceMap] = useState({});
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedRun, setSelectedRun] = useState(null);
+function formatDate(isoString) {
+  if (!isoString) return '-';
+  const d = new Date(isoString);
+  return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
 
-  const fetchRuns = async (targetPage = page) => {
+function DetailPlaceholder({ text }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400 border border-slate-200/60 rounded-xl">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-2.5 opacity-50">
+        <path d="M9 2v6L3 20a1 1 0 0 0 1 2h16a1 1 0 0 0 1-2l-6-12V2" />
+        <path d="M8 2h8" />
+      </svg>
+      <p className="text-sm">{text}</p>
+    </div>
+  );
+}
+
+/* ── Kolom simple yang sama untuk ketiga tabel ── */
+function SimpleUsageTable({ title, functionName, priceMap, onRowClick, selectedId }) {
+  const [rows, setRows] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchRows = async () => {
     setIsLoading(true);
     try {
-      const from = targetPage * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      const { data, error, count } = await supabase
+      const { data, error } = await supabase
         .from('ai_usage_history')
-        .select('id, created_at, model_used, input_tokens, output_tokens, total_tokens, latency_ms, is_flex_mode, output_json', { count: 'exact' })
-        .eq('function_name', 'Generate AI Scoring')
+        .select('id, created_at, model_used, input_tokens, output_tokens, total_tokens, latency_ms, is_flex_mode, output_json')
+        .eq('function_name', functionName)
         .order('created_at', { ascending: false })
-        .range(from, to);
+        .limit(ROW_LIMIT);
       if (error) throw error;
-      setRuns(data || []);
-      setTotal(count || 0);
-      setPage(targetPage);
+      setRows(data || []);
     } catch (err) {
-      console.error('Gagal memuat data Labs:', err);
+      console.error(`Gagal memuat data ${functionName}:`, err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchRuns(0); fetchPriceMap().then(setPriceMap); }, []);
+  useEffect(() => { fetchRows(); }, []);
 
-  const formatDate = (isoString) => {
-    if (!isoString) return '-';
-    const d = new Date(isoString);
-    return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  };
+  return (
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-bold text-slate-800">{title}</h2>
+        <button
+          onClick={fetchRows}
+          disabled={isLoading}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+        >
+          <svg className={isLoading ? 'animate-spin' : ''} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+        </button>
+      </div>
 
-  const handleSelectRun = (row) => {
-    setSelectedId(row.id);
-    setSelectedRun(row);
-  };
+      <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
+            <tr>
+              <th className="text-left px-3 py-2 font-semibold whitespace-nowrap">Waktu</th>
+              <th className="text-left px-3 py-2 font-semibold whitespace-nowrap">Model</th>
+              <th className="text-left px-3 py-2 font-semibold whitespace-nowrap">Estimasi Biaya</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map(row => {
+              const active = selectedId === row.id;
+              return (
+                <tr
+                  key={row.id}
+                  onClick={() => onRowClick(row)}
+                  className={`cursor-pointer transition-colors ${active ? 'bg-orange-50' : 'hover:bg-slate-50'}`}
+                >
+                  <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{formatDate(row.created_at)}</td>
+                  <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{(row.model_used || '-').replace('models/', '')}</td>
+                  <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{formatRupiah(estimateCostIDR(row, priceMap))}</td>
+                </tr>
+              );
+            })}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={3} className="px-3 py-6 text-center text-slate-400 text-sm">
+                  {isLoading ? 'Memuat...' : 'Belum ada data.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
-  const scores = selectedRun?.output_json?.scores || [];
+/* ── Detail: rincian skor AI Scoring ── */
+function ScoringDetail({ run }) {
+  if (!run) return <DetailPlaceholder text="Pilih salah satu baris di tabel AI Scoring untuk melihat rincian skor tiap kriteria." />;
+
+  const scores = run.output_json?.scores || [];
   const wajibScores = scores.filter(s => !(s.kategori || '').toLowerCase().includes('tambah'));
   const totalWeight = wajibScores.reduce((acc, s) => acc + (s.weight || 1), 0);
   const weightedSum = wajibScores.reduce((acc, s) => acc + ((s.score_evaluate || 0) * (s.weight || 1)), 0);
   const finalScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-bold text-slate-800">Rincian Skor</h3>
+          <p className="text-xs text-slate-500 mt-0.5">{formatDate(run.created_at)} · {(run.model_used || '-').replace('models/', '')}</p>
+        </div>
+        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold ${scoreBadgeClasses(finalScore)}`}>
+          Skor Akhir: {finalScore}
+        </div>
+      </div>
+
+      {run.output_json?.summary && (
+        <div className="bg-slate-50 border border-slate-200/60 rounded-xl px-4 py-3 mb-4 text-sm text-slate-700">
+          {run.output_json.summary}
+        </div>
+      )}
+
+      <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
+            <tr>
+              <th className="text-left px-4 py-2.5 font-semibold">Kriteria</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Kategori</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Bobot</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Skor</th>
+              <th className="text-left px-4 py-2.5 font-semibold">Evidence</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {scores.map((s, i) => {
+              const isPref = (s.kategori || '').toLowerCase().includes('tambah');
+              return (
+                <tr key={i} className="hover:bg-slate-50/60">
+                  <td className="px-4 py-3 text-slate-800 font-medium align-top">{s.tag || '-'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap align-top">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${isPref ? 'bg-slate-100 text-slate-500' : 'bg-orange-50 text-orange-600'}`}>
+                      {s.kategori || '-'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap align-top">{s.weight ?? '-'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap align-top">
+                    <span className={`inline-flex items-center justify-center min-w-[42px] px-2 py-0.5 rounded-lg border text-xs font-bold ${scoreBadgeClasses(s.score_evaluate || 0)}`}>
+                      {s.score_evaluate ?? '-'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 align-top">{s.evidence || '-'}</td>
+                </tr>
+              );
+            })}
+            {scores.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-sm">Tidak ada data skor kriteria pada hasil ini.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+/* ── Detail: daftar kriteria hasil Generate Kriteria Penilaian ── */
+function KriteriaDetail({ run }) {
+  if (!run) return <DetailPlaceholder text="Pilih salah satu baris di tabel Kriteria Penilaian untuk melihat rincian kriterianya." />;
+
+  const raw = run.output_json;
+  const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.kriteria) ? raw.kriteria : []);
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-bold text-slate-800">Rincian Kriteria</h3>
+          <p className="text-xs text-slate-500 mt-0.5">{formatDate(run.created_at)} · {(run.model_used || '-').replace('models/', '')}</p>
+        </div>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700">
+          {list.length} kriteria
+        </div>
+      </div>
+
+      <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
+            <tr>
+              <th className="text-left px-4 py-2.5 font-semibold">Kriteria</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Kategori</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Bobot</th>
+              <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Point</th>
+              <th className="text-left px-4 py-2.5 font-semibold">Deskripsi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {list.map((k, i) => {
+              const isPref = (k.kategori || '').toLowerCase().includes('tambah');
+              return (
+                <tr key={i} className="hover:bg-slate-50/60">
+                  <td className="px-4 py-3 text-slate-800 font-medium align-top">{k.tag || '-'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap align-top">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${isPref ? 'bg-slate-100 text-slate-500' : 'bg-orange-50 text-orange-600'}`}>
+                      {k.kategori || '-'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap align-top capitalize">{k.bobot || '-'}</td>
+                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap align-top">{k.point ?? '-'}</td>
+                  <td className="px-4 py-3 text-slate-600 align-top">{k.teks || '-'}</td>
+                </tr>
+              );
+            })}
+            {list.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-sm">Tidak ada data kriteria pada hasil ini.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+/* ── Detail: profil kandidat hasil Generate CV Parsing ── */
+function CvParsingDetail({ run }) {
+  if (!run) return <DetailPlaceholder text="Pilih salah satu baris di tabel CV Parsing untuk melihat hasil ekstraksinya." />;
+
+  const oj = run.output_json || {};
+  const kandidat = oj.detail_kandidat || {};
+  const tambahan = oj.detail_tambahan || {};
+  const fields = [
+    ['Nama Lengkap', kandidat.nama_lengkap],
+    ['Email', kandidat.email],
+    ['No. Telepon', kandidat.no_telpon],
+    ['Domisili', kandidat.domisili],
+    ['Jabatan Saat Ini', kandidat.jabatan_saat_ini],
+    ['Perusahaan Saat Ini', kandidat.perusahaan_saat_ini],
+    ['Universitas', kandidat.universitas],
+    ['Jurusan', kandidat.jurusan],
+    ['Bidang Industri', tambahan.bidang_industri],
+    ['Harapan Upah', tambahan.harapan_upah],
+  ];
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-bold text-slate-800">Hasil Ekstraksi CV</h3>
+          <p className="text-xs text-slate-500 mt-0.5">{formatDate(run.created_at)} · {(run.model_used || '-').replace('models/', '')}</p>
+        </div>
+        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold ${oj.is_valid_cv === false ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+          {oj.is_valid_cv === false ? 'CV Tidak Valid' : 'CV Valid'}
+        </div>
+      </div>
+
+      {oj.is_valid_cv === false && oj.reason_not_valid && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 text-sm text-red-700">
+          {oj.reason_not_valid}
+        </div>
+      )}
+
+      <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm">
+          <tbody className="divide-y divide-slate-100">
+            {fields.map(([label, value]) => (
+              <tr key={label} className="hover:bg-slate-50/60">
+                <td className="px-4 py-2.5 text-slate-500 font-medium whitespace-nowrap w-48">{label}</td>
+                <td className="px-4 py-2.5 text-slate-800">{value || <span className="text-slate-300 italic">-</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+export default function SandboxLabs() {
+  const [priceMap, setPriceMap] = useState({});
+  const [selectedKriteria, setSelectedKriteria] = useState(null);
+  const [selectedCvParsing, setSelectedCvParsing] = useState(null);
+  const [selectedScoring, setSelectedScoring] = useState(null);
+
+  useEffect(() => { fetchPriceMap().then(setPriceMap); }, []);
 
   return (
     <div className="flex flex-col h-full bg-white/50 backdrop-blur animate-in fade-in duration-300 overflow-y-auto custom-scrollbar">
@@ -79,171 +316,27 @@ export default function SandboxLabs() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Labs</h1>
-            <p className="text-sm text-slate-500 mt-1 max-w-lg">Lihat rincian skor per kriteria dari tiap hasil AI Scoring yang pernah di-generate di Sandbox.</p>
+            <p className="text-sm text-slate-500 mt-1 max-w-lg">Ringkasan hasil generate AI di Sandbox — Kriteria Penilaian, CV Parsing, dan AI Scoring. Klik salah satu baris untuk lihat rinciannya di bawah.</p>
           </div>
         </div>
       </div>
 
-      {/* List Run */}
+      {/* 3 tabel sampingan */}
+      <div className="px-8 py-6 border-b border-slate-200/60 flex gap-6 items-start">
+        <SimpleUsageTable title="Kriteria Penilaian" functionName="Generate Kriteria Penilaian" priceMap={priceMap} onRowClick={setSelectedKriteria} selectedId={selectedKriteria?.id} />
+        <SimpleUsageTable title="CV Parsing" functionName="Generate CV Parsing" priceMap={priceMap} onRowClick={setSelectedCvParsing} selectedId={selectedCvParsing?.id} />
+        <SimpleUsageTable title="AI Scoring" functionName="Generate AI Scoring" priceMap={priceMap} onRowClick={setSelectedScoring} selectedId={selectedScoring?.id} />
+      </div>
+
+      {/* 3 panel rincian, satu per tabel di atas */}
       <div className="px-8 py-6 border-b border-slate-200/60">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-slate-800">Daftar Hasil AI Scoring</h2>
-          <button
-            onClick={() => fetchRuns(page)}
-            disabled={isLoading}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
-          >
-            <svg className={isLoading ? 'animate-spin' : ''} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-            Refresh
-          </button>
-        </div>
-
-        <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
-              <tr>
-                <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Waktu</th>
-                <th className="text-left px-4 py-2.5 font-semibold">Kandidat / Posisi</th>
-                <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Jumlah Kriteria</th>
-                <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Model</th>
-                <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Estimasi Biaya</th>
-                <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Latensi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {runs.map(row => {
-                const active = selectedId === row.id;
-                const oj = row.output_json || {};
-                const scoreCount = (oj.scores || []).length;
-                return (
-                  <tr
-                    key={row.id}
-                    onClick={() => handleSelectRun(row)}
-                    className={`cursor-pointer transition-colors ${active ? 'bg-orange-50' : 'hover:bg-slate-50'}`}
-                  >
-                    <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{formatDate(row.created_at)}</td>
-                    <td className="px-4 py-2.5 text-slate-800">
-                      <span className="font-medium">{oj.cand_id || 'Kandidat'}</span>
-                      <span className="text-slate-400"> — {oj.job_id || 'Posisi'}</span>
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{scoreCount} kriteria</td>
-                    <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{(row.model_used || '-').replace('models/', '')}</td>
-                    <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{formatRupiah(estimateCostIDR(row, priceMap))}</td>
-                    <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">{formatLatencySeconds(row.latency_ms)}</td>
-                  </tr>
-                );
-              })}
-              {runs.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-slate-400 text-sm">
-                    {isLoading ? 'Memuat data...' : 'Belum ada hasil AI Scoring.'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {total > 0 && (
-          <div className="flex items-center justify-between mt-3">
-            <p className="text-xs text-slate-500">
-              Menampilkan {page * PAGE_SIZE + 1}–{Math.min(total, page * PAGE_SIZE + runs.length)} dari {total} hasil
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => fetchRuns(page - 1)}
-                disabled={isLoading || page === 0}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                Sebelumnya
-              </button>
-              <span className="text-xs text-slate-500 font-medium px-1">
-                Halaman {page + 1} dari {Math.max(1, Math.ceil(total / PAGE_SIZE))}
-              </span>
-              <button
-                onClick={() => fetchRuns(page + 1)}
-                disabled={isLoading || (page + 1) * PAGE_SIZE >= total}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Selanjutnya
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </button>
-            </div>
-          </div>
-        )}
+        <KriteriaDetail run={selectedKriteria} />
       </div>
-
-      {/* Breakdown skor per kriteria */}
+      <div className="px-8 py-6 border-b border-slate-200/60">
+        <CvParsingDetail run={selectedCvParsing} />
+      </div>
       <div className="px-8 py-6">
-        {!selectedRun ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-3 opacity-50">
-              <path d="M9 2v6L3 20a1 1 0 0 0 1 2h16a1 1 0 0 0 1-2l-6-12V2" />
-              <path d="M8 2h8" />
-            </svg>
-            <p className="text-sm">Pilih salah satu baris di atas untuk melihat rincian skor tiap kriteria.</p>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-sm font-bold text-slate-800">Rincian Skor — {selectedRun.output_json?.cand_id || 'Kandidat'}</h2>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedRun.output_json?.job_id || 'Posisi'} · {formatDate(selectedRun.created_at)}</p>
-              </div>
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold ${scoreBadgeClasses(finalScore)}`}>
-                Skor Akhir: {finalScore}
-              </div>
-            </div>
-
-            {selectedRun.output_json?.summary && (
-              <div className="bg-slate-50 border border-slate-200/60 rounded-xl px-4 py-3 mb-4 text-sm text-slate-700">
-                {selectedRun.output_json.summary}
-              </div>
-            )}
-
-            <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
-                  <tr>
-                    <th className="text-left px-4 py-2.5 font-semibold">Kriteria</th>
-                    <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Kategori</th>
-                    <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Bobot</th>
-                    <th className="text-left px-4 py-2.5 font-semibold whitespace-nowrap">Skor</th>
-                    <th className="text-left px-4 py-2.5 font-semibold">Evidence</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {scores.map((s, i) => {
-                    const isPref = (s.kategori || '').toLowerCase().includes('tambah');
-                    return (
-                      <tr key={i} className="hover:bg-slate-50/60">
-                        <td className="px-4 py-3 text-slate-800 font-medium align-top">{s.tag || '-'}</td>
-                        <td className="px-4 py-3 whitespace-nowrap align-top">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${isPref ? 'bg-slate-100 text-slate-500' : 'bg-orange-50 text-orange-600'}`}>
-                            {s.kategori || '-'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap align-top">{s.weight ?? '-'}</td>
-                        <td className="px-4 py-3 whitespace-nowrap align-top">
-                          <span className={`inline-flex items-center justify-center min-w-[42px] px-2 py-0.5 rounded-lg border text-xs font-bold ${scoreBadgeClasses(s.score_evaluate || 0)}`}>
-                            {s.score_evaluate ?? '-'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-slate-600 align-top">{s.evidence || '-'}</td>
-                      </tr>
-                    );
-                  })}
-                  {scores.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-sm">Tidak ada data skor kriteria pada hasil ini.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+        <ScoringDetail run={selectedScoring} />
       </div>
     </div>
   );
