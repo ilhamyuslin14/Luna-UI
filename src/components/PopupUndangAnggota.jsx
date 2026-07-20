@@ -1,16 +1,25 @@
 import { useState } from 'react';
 
 export default function PopupUndangAnggota({ onConfirm, onClose }) {
-  const [nama,    setNama]    = useState('');
-  const [tampilan, setTampilan] = useState('');
-  const [email,   setEmail]   = useState('');
+  const [nama, setNama] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const isValid = nama.trim() && tampilan.trim() && email.trim();
+  const isValid = nama.trim() && email.trim();
 
-  const handleConfirm = () => {
-    if (!isValid) return;
-    onConfirm?.({ nama, tampilan, email, role: 'Admin' });
-    setNama(''); setTampilan(''); setEmail('');
+  const handleConfirm = async () => {
+    if (!isValid || isSubmitting) return;
+    setIsSubmitting(true);
+    setError('');
+    try {
+      await onConfirm?.({ nama, email });
+      setNama(''); setEmail('');
+    } catch (err) {
+      setError(err.message || 'Gagal mengundang anggota.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -20,7 +29,7 @@ export default function PopupUndangAnggota({ onConfirm, onClose }) {
         <div className="pua-header">
           <h3 className="pua-title">Undang Anggota Tim</h3>
           <p className="pua-desc">
-            Kami akan mengirimkan email undangan ke alamat di bawah ini. Pengguna baru akan diminta untuk membuat kata sandi mereka sendiri untuk mengakses LUNA.
+            Akun baru akan langsung dibuat dengan password default <strong>12345678</strong>. Bagikan info login ini secara manual — pengguna akan diminta mengganti password saat pertama kali login.
           </p>
         </div>
 
@@ -33,16 +42,7 @@ export default function PopupUndangAnggota({ onConfirm, onClose }) {
               placeholder="Isi Nama Lengkap"
               value={nama}
               onChange={e => setNama(e.target.value)}
-            />
-          </div>
-          <div className="pua-field">
-            <label className="pua-label">Nama Tampilan</label>
-            <input
-              className="pua-input"
-              type="text"
-              placeholder="Isi Nama Tampilan"
-              value={tampilan}
-              onChange={e => setTampilan(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
           <div className="pua-field">
@@ -53,6 +53,7 @@ export default function PopupUndangAnggota({ onConfirm, onClose }) {
               placeholder="Isi Alamat Email"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
           <div className="pua-field">
@@ -64,16 +65,17 @@ export default function PopupUndangAnggota({ onConfirm, onClose }) {
               readOnly
             />
           </div>
+          {error && <p style={{ color: '#e11d48', fontSize: 13, margin: 0 }}>{error}</p>}
         </div>
 
         <div className="pua-footer">
-          <button className="pua-btn-cancel" onClick={onClose}>Batal</button>
+          <button className="pua-btn-cancel" onClick={onClose} disabled={isSubmitting}>Batal</button>
           <button
             className="pua-btn-confirm"
             onClick={handleConfirm}
-            disabled={!isValid}
+            disabled={!isValid || isSubmitting}
           >
-            Kirim Undangan
+            {isSubmitting ? 'Mengundang…' : 'Kirim Undangan'}
           </button>
         </div>
 

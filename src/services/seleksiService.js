@@ -70,6 +70,49 @@ export async function createSeleksi(companyId, data) {
   return result;
 }
 
+/**
+ * Duplikat sebuah seleksi — semua data pekerjaan & kriteria penilaian
+ * di-copy apa adanya, KECUALI: kode (dibuat baru), status (direset ke
+ * 'Rencana'), arsip (direset ke false), dan pic_user_id (dikosongkan agar
+ * PIC baru bisa ditentukan). Kandidat/scoring tidak ikut ter-copy karena
+ * itu terhubung lewat seleksi_id yang baru — seleksi hasil duplikat
+ * otomatis mulai tanpa kandidat.
+ */
+export async function duplicateSeleksi(seleksiId) {
+  if (!seleksiId) throw new Error('seleksiId is required');
+
+  const { data: source, error: fetchErr } = await supabase
+    .from('seleksi')
+    .select('*')
+    .eq('id', seleksiId)
+    .single();
+  if (fetchErr) throw fetchErr;
+
+  const duplicateData = {
+    department_id: source.department_id,
+    jabatan: source.jabatan,
+    lokasi: source.lokasi,
+    remote: source.remote,
+    jumlah_rekrut: source.jumlah_rekrut,
+    ikatan_kerja: source.ikatan_kerja,
+    upah_min: source.upah_min,
+    upah_maks: source.upah_maks,
+    siklus_upah: source.siklus_upah,
+    tgl_mulai: source.tgl_mulai,
+    tgl_onboard: source.tgl_onboard,
+    pendidikan: source.pendidikan,
+    pengalaman: source.pengalaman,
+    deskripsi: source.deskripsi,
+    kriteria: source.kriteria,
+    status: 'Rencana',
+    arsip: false,
+    pic_user_id: null,
+    kode: `LUN-${Math.floor(Math.random() * 10000)}`,
+  };
+
+  return createSeleksi(source.company_id, duplicateData);
+}
+
 export async function deleteSeleksi(id) {
   const { error } = await supabase
     .from('seleksi')

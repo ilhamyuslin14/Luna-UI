@@ -225,6 +225,20 @@
   color: var(--color-neutral-900);
 }
 
+/* Back row — tab Ringkasan & Resume, samain padding dgn .ks001-action-bar (tab Seleksi) tanpa border-bottom */
+.kd001-back-row {
+  padding: 8px 20px;
+  min-height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: content-box;
+}
+
+.kd001-back-row--white {
+  background: white;
+}
+
 /* Content wrapper (shell: back button + sub-view) */
 .kd001-content-wrapper {
   flex: 1;

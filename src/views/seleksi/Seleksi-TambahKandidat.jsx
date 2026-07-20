@@ -6,7 +6,6 @@ import KandidatRiwayatUnggah from '../kandidat/Kandidat-RiwayatUnggah.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useUpload } from '../../context/UploadContext.jsx';
 import { getKandidat } from '../../services/kandidatService.js';
-import { getSeleksiByJabatan } from '../../services/seleksiService.js';
 import { getScoringBySeleksi } from '../../services/scoringService.js';
 import Toast from '../../components/Toast.jsx';
 
@@ -106,18 +105,10 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
   );
 }
 
-export default function SeleksiTambahKandidat({ navigate, back, jabatan }) {
+export default function SeleksiTambahKandidat({ navigate, back, jabatan, seleksiId }) {
   const { companyId } = useAuth();
-  const [seleksiId, setSeleksiId] = useState(null);
   const [activeTab, setActiveTab] = useState('pilih');
   const [historyData, setHistoryData] = useState(null);
-
-  useEffect(() => {
-    if (!companyId || !jabatan) return;
-    getSeleksiByJabatan(companyId, jabatan)
-      .then(s => setSeleksiId(s?.id || null))
-      .catch(() => {});
-  }, [companyId, jabatan]);
 
   const handleViewRiwayat = (item) => {
     setHistoryData(item);

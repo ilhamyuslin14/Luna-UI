@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { fetchPriceMap, estimateCostIDR, formatRupiah } from '../../utils/aiPricing';
+import { normalizeRawText } from '../../utils/parseJobDescManual';
+import { extractTextFromFile } from '../../utils/extractTextFromFile';
 
 const supabaseUrl = 'https://qxmkwfncpxcibjnwnmup.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4bWt3Zm5jcHhjaWJqbndubXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzA3NDQsImV4cCI6MjA5NjA0Njc0NH0.igrn_j_7WK0vmHjwDNEid15g_3aYbHeaX7tLvI7N-94';
@@ -137,6 +139,15 @@ function ScoringDetail({ run }) {
         </div>
       )}
 
+      <div className="flex flex-col gap-1.5 mb-6">
+        <label className="text-sm font-semibold text-slate-700">Output JSON AI Scoring</label>
+        <textarea
+          className="w-full bg-[#1e1e1e] border border-[#333] text-[#d4d4d4] text-[13px] rounded-xl p-4 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 font-mono resize-none min-h-[250px]"
+          readOnly
+          value={JSON.stringify(run.output_json, null, 2)}
+        />
+      </div>
+
       <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
@@ -183,6 +194,38 @@ function ScoringDetail({ run }) {
 
 /* ── Detail: daftar kriteria hasil Generate Kriteria Penilaian ── */
 function KriteriaDetail({ run }) {
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('');
+  const [uploadStatus, setUploadStatus] = useState('idle'); // idle | uploading | done
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [extractedText, setExtractedText] = useState('');
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setFileName(file.name);
+    setUploadStatus('uploading');
+    setUploadProgress(10);
+    setLoadingMessage('Mengekstrak teks dokumen...');
+
+    try {
+      const raw = await extractTextFromFile(file);
+      setExtractedText(normalizeRawText(raw));
+      setUploadProgress(100);
+      setLoadingMessage('Ekstraksi selesai!');
+      setTimeout(() => setUploadStatus('done'), 500);
+    } catch (err) {
+      console.error(err);
+      alert('Gagal membaca file: ' + err.message);
+      setUploadStatus('idle');
+      setUploadProgress(0);
+    }
+
+    e.target.value = '';
+  };
+
   if (!run) return <DetailPlaceholder text="Pilih salah satu baris di tabel Kriteria Penilaian untuk melihat rincian kriterianya." />;
 
   const raw = run.output_json;
@@ -198,6 +241,69 @@ function KriteriaDetail({ run }) {
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700">
           {list.length} kriteria
         </div>
+      </div>
+
+      {/* Upload Card */}
+      <div className="bg-white border border-slate-200/60 rounded-2xl p-6 shadow-sm mb-6">
+        <p className="text-sm font-semibold text-slate-700 mb-4">Unggah dokumen untuk mengekstrak teksnya</p>
+        <div>
+          <div className="flex items-center gap-4 mb-3">
+            <button
+              className={`inline-flex items-center justify-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-lg transition-all ${uploadStatus === 'uploading' ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' : 'bg-orange-600 text-white shadow hover:bg-orange-700 active:scale-[0.98]'}`}
+              onClick={() => uploadStatus !== 'uploading' && fileInputRef.current?.click()}
+              disabled={uploadStatus === 'uploading'}
+            >
+              Unggah Data
+            </button>
+            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={handleFileChange} />
+
+            {uploadStatus === 'idle' && (
+              <span className="text-sm text-slate-400 italic">Belum ada file terpilih</span>
+            )}
+            {uploadStatus === 'uploading' && (
+              <div className="flex-1 max-w-md">
+                <div className="flex justify-between text-xs font-semibold text-orange-600 mb-1">
+                  <span>{loadingMessage || 'Mengunggah...'}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-orange-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              </div>
+            )}
+            {uploadStatus === 'done' && (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-sm font-medium rounded-lg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>{fileName}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <p>Mendukung file: PDF, DOC, DOCX, TXT</p>
+            <div className="w-1 h-1 rounded-full bg-slate-300" />
+            <p>Ukuran maksimal 10 Mb</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5 mb-6">
+        <label className="text-sm font-semibold text-slate-700">Hasil Ekstraksi Teks Upload</label>
+        <textarea
+          className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all leading-relaxed font-mono resize-none"
+          value={extractedText}
+          onChange={e => setExtractedText(e.target.value)}
+          placeholder="Teks akan muncul di sini setelah Anda mengunggah dokumen, atau ketik/paste langsung..."
+          style={{ height: '250px' }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5 mb-6">
+        <label className="text-sm font-semibold text-slate-700">Output JSON Kriteria Penilaian</label>
+        <textarea
+          className="w-full bg-[#1e1e1e] border border-[#333] text-[#d4d4d4] text-[13px] rounded-xl p-4 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 font-mono resize-none min-h-[250px]"
+          readOnly
+          value={JSON.stringify(raw, null, 2)}
+        />
       </div>
 
       <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
@@ -242,6 +348,38 @@ function KriteriaDetail({ run }) {
 
 /* ── Detail: profil kandidat hasil Generate CV Parsing ── */
 function CvParsingDetail({ run }) {
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('');
+  const [uploadStatus, setUploadStatus] = useState('idle'); // idle | uploading | done
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [extractedText, setExtractedText] = useState('');
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setFileName(file.name);
+    setUploadStatus('uploading');
+    setUploadProgress(10);
+    setLoadingMessage('Mengekstrak teks CV...');
+
+    try {
+      const raw = await extractTextFromFile(file);
+      setExtractedText(normalizeRawText(raw));
+      setUploadProgress(100);
+      setLoadingMessage('Ekstraksi selesai!');
+      setTimeout(() => setUploadStatus('done'), 500);
+    } catch (err) {
+      console.error(err);
+      alert('Gagal membaca file: ' + err.message);
+      setUploadStatus('idle');
+      setUploadProgress(0);
+    }
+
+    e.target.value = '';
+  };
+
   if (!run) return <DetailPlaceholder text="Pilih salah satu baris di tabel CV Parsing untuk melihat hasil ekstraksinya." />;
 
   const oj = run.output_json || {};
@@ -277,6 +415,69 @@ function CvParsingDetail({ run }) {
           {oj.reason_not_valid}
         </div>
       )}
+
+      {/* Upload Card */}
+      <div className="bg-white border border-slate-200/60 rounded-2xl p-6 shadow-sm mb-6">
+        <p className="text-sm font-semibold text-slate-700 mb-4">Unggah CV untuk mengekstrak teksnya</p>
+        <div>
+          <div className="flex items-center gap-4 mb-3">
+            <button
+              className={`inline-flex items-center justify-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-lg transition-all ${uploadStatus === 'uploading' ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' : 'bg-orange-600 text-white shadow hover:bg-orange-700 active:scale-[0.98]'}`}
+              onClick={() => uploadStatus !== 'uploading' && fileInputRef.current?.click()}
+              disabled={uploadStatus === 'uploading'}
+            >
+              Unggah CV
+            </button>
+            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={handleFileChange} />
+
+            {uploadStatus === 'idle' && (
+              <span className="text-sm text-slate-400 italic">Belum ada file terpilih</span>
+            )}
+            {uploadStatus === 'uploading' && (
+              <div className="flex-1 max-w-md">
+                <div className="flex justify-between text-xs font-semibold text-orange-600 mb-1">
+                  <span>{loadingMessage || 'Mengunggah...'}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-orange-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              </div>
+            )}
+            {uploadStatus === 'done' && (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-sm font-medium rounded-lg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>{fileName}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <p>Mendukung file: PDF, DOC, DOCX, TXT</p>
+            <div className="w-1 h-1 rounded-full bg-slate-300" />
+            <p>Ukuran maksimal 10 Mb</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5 mb-6">
+        <label className="text-sm font-semibold text-slate-700">Hasil Ekstraksi Teks Upload</label>
+        <textarea
+          className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all leading-relaxed font-mono resize-none"
+          value={extractedText}
+          onChange={e => setExtractedText(e.target.value)}
+          placeholder="Teks akan muncul di sini setelah Anda mengunggah CV, atau ketik/paste langsung..."
+          style={{ height: '250px' }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5 mb-6">
+        <label className="text-sm font-semibold text-slate-700">Output JSON Hasil Ekstraksi CV</label>
+        <textarea
+          className="w-full bg-[#1e1e1e] border border-[#333] text-[#d4d4d4] text-[13px] rounded-xl p-4 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 font-mono resize-none min-h-[250px]"
+          readOnly
+          value={JSON.stringify(oj, null, 2)}
+        />
+      </div>
 
       <div className="border border-slate-200/60 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">

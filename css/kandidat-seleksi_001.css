@@ -20,6 +20,13 @@
   flex-shrink: 0;
 }
 
+/* Sort/Filter dipadatkan biar konsisten dengan toolbar Departemen/Seleksi */
+.ks001-right-actions .filter-dropdown-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  height: 32px;
+}
+
 .ks001-filter-container {
   position: relative;
 }

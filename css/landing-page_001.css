@@ -273,6 +273,33 @@
   filter: hue-rotate(-180deg) saturate(2) brightness(1.2);
 }
 
+/* Hero eyebrow — versi minimalis (teks netral + garis aksen oranye), dipakai di LandingPage_002.
+   .lp-hero-left pakai flex gap:40px rata ke semua child; margin negatif di sini menarik jarak
+   eyebrow→H1 jadi lebih rapat (~18px) tanpa mengubah jarak H1→subtitle / subtitle→CTA. */
+.lp-_001-container .lp-hero-eyebrow-b {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: -22px;
+}
+
+.lp-_001-container .lp-hero-eyebrow-b-text {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--luna-ink-900);
+}
+
+.lp-_001-container .lp-hero-eyebrow-b-rule {
+  width: 28px;
+  height: 2px;
+  background: var(--luna-orange-400);
+  border-radius: 2px;
+}
+
 .lp-_001-container .lp-terpopuler-badge {
   background: var(--luna-orange-400);
   /* use background instead of background-color to override the gradient */

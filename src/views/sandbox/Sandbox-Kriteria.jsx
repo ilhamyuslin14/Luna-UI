@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import mammoth from 'mammoth';
-import pdfToText from 'react-pdftotext';
 import { createClient } from '@supabase/supabase-js';
 import { parseJobDescManual, normalizeRawText } from '../../utils/parseJobDescManual';
+import { extractTextFromFile } from '../../utils/extractTextFromFile';
 import { generateKriteria } from '../../utils/generateKriteria';
 import { generateKriteriaOpenAI } from '../../utils/generateKriteriaOpenAI';
 import { fetchPriceMap, estimateCostIDR, formatRupiah as formatBiayaRupiah, formatLatencySeconds } from '../../utils/aiPricing';
@@ -343,37 +342,6 @@ export default function SandboxKriteria({ navigate }) {
 
   const handleUpah = (key) => (e) => {
     setForm(prev => ({ ...prev, [key]: formatRupiah(e.target.value) }));
-  };
-
-  const extractTextFromFile = async (file) => {
-    const extension = file.name.split('.').pop().toLowerCase();
-    
-    if (extension === 'pdf') {
-      return await pdfToText(file);
-    } else if (extension === 'docx') {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
-            resolve(result.value);
-          } catch (err) {
-            reject(err);
-          }
-        };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-      });
-    } else if (extension === 'txt') {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-    } else {
-      throw new Error('Format file tidak didukung. Harap unggah PDF, DOCX, atau TXT.');
-    }
   };
 
   const callGeminiAPI = async (text, key, model, overridePrompt, useFlex) => {

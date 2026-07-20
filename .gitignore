@@ -27,3 +27,6 @@ dist-ssr
 # Sandbox (Local Only)
 css/sandbox.css
 
+
+# Claude Code local settings (may contain machine-specific tokens)
+.claude/settings.local.json

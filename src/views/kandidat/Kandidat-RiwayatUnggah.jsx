@@ -9,6 +9,7 @@ export default function KandidatRiwayatUnggah({ onView }) {
 
   // States untuk Filter
   const [filterSumber, setFilterSumber] = useState('Semua');
+  const [filterPosisi, setFilterPosisi] = useState('Semua');
   const [filterStatus, setFilterStatus] = useState('Semua');
   const [filterDateStart, setFilterDateStart] = useState('');
   const [filterDateEnd, setFilterDateEnd] = useState('');
@@ -29,6 +30,7 @@ export default function KandidatRiwayatUnggah({ onView }) {
               tanggal: row.created_at,
               tipe_aktivitas: row.tipe_aktivitas,
               source: row.source,
+              posisi_nama: row.posisi_nama || null,
               files: [],
               total: 0,
               upload_berhasil: 0,
@@ -158,26 +160,28 @@ export default function KandidatRiwayatUnggah({ onView }) {
   // --- Filtering Logic ---
   const getDisplaySource = (s) => s === 'Portal Karir' ? 'Portal Karir' : (s === 'HR' ? 'HR' : s);
   const uniqueSources = ['Semua', ...new Set(batches.map(b => getDisplaySource(b.source)))];
-  
-  const statusOptions = [
+
+  const uniquePosisi = [
     'Semua',
-    'Unggah CV Berhasil',
-    'Penilaian AI Berhasil',
-    'Unggah CV & Penilaian AI Berhasil',
-    'Sebagian Gagal',
-    'Unggah CV Gagal',
-    'Penilaian AI Gagal',
-    'Unggah CV & Penilaian AI Gagal',
-    'Sedang Diproses'
+    ...new Set(batches.map(b => b.posisi_nama).filter(Boolean)),
+    ...(batches.some(b => !b.posisi_nama) ? ['Tanpa Posisi'] : []),
   ];
+
+  // Cuma tampilkan status yang benar-benar muncul di data, bukan daftar statis
+  const statusOptions = ['Semua', ...new Set(batches.map(b => getBatchStatusInfo(b).finalStatusText))];
 
   const filteredBatches = batches.filter(item => {
     const info = getBatchStatusInfo(item);
     const displaySource = getDisplaySource(item.source);
-    
+
     if (filterSumber !== 'Semua' && displaySource !== filterSumber) return false;
+    if (filterPosisi !== 'Semua') {
+      if (filterPosisi === 'Tanpa Posisi') {
+        if (item.posisi_nama) return false;
+      } else if (item.posisi_nama !== filterPosisi) return false;
+    }
     if (filterStatus !== 'Semua' && info.finalStatusText !== filterStatus) return false;
-    
+
     if (filterDateStart || filterDateEnd) {
       const itemDate = new Date(item.tanggal);
       itemDate.setHours(0, 0, 0, 0);
@@ -216,7 +220,23 @@ export default function KandidatRiwayatUnggah({ onView }) {
             <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </div>
         </div>
-        
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', letterSpacing: '0.2px' }}>Nama Posisi</label>
+          <div style={{ position: 'relative' }}>
+            <select
+              value={filterPosisi}
+              onChange={e => setFilterPosisi(e.target.value)}
+              style={{ appearance: 'none', padding: '10px 36px 10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', outline: 'none', backgroundColor: '#f8fafc', minWidth: '200px', color: '#1e293b', transition: 'all 0.2s', cursor: 'pointer' }}
+              onFocus={e => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; e.target.style.backgroundColor = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.backgroundColor = '#f8fafc'; }}
+            >
+              {uniquePosisi.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+            <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', letterSpacing: '0.2px' }}>Status Pengerjaan</label>
           <div style={{ position: 'relative' }}>
@@ -257,10 +277,10 @@ export default function KandidatRiwayatUnggah({ onView }) {
           />
         </div>
 
-        {(filterSumber !== 'Semua' || filterStatus !== 'Semua' || filterDateStart || filterDateEnd) && (
+        {(filterSumber !== 'Semua' || filterPosisi !== 'Semua' || filterStatus !== 'Semua' || filterDateStart || filterDateEnd) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button 
-              onClick={() => { setFilterSumber('Semua'); setFilterStatus('Semua'); setFilterDateStart(''); setFilterDateEnd(''); }} 
+            <button
+              onClick={() => { setFilterSumber('Semua'); setFilterPosisi('Semua'); setFilterStatus('Semua'); setFilterDateStart(''); setFilterDateEnd(''); }}
               style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', backgroundColor: '#fee2e2', color: '#ef4444', fontSize: '14px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}
               onMouseOver={e => { e.currentTarget.style.backgroundColor = '#fecaca'; }}
               onMouseOut={e => { e.currentTarget.style.backgroundColor = '#fee2e2'; }}
@@ -274,6 +294,7 @@ export default function KandidatRiwayatUnggah({ onView }) {
       {/* Header */}
       <div className="ktr-table-header" style={{ alignItems: 'stretch', padding: '0 20px' }}>
         <div className="ktr-col-name" style={{ flex: 1.1, display: 'flex', alignItems: 'center' }}>Sesi Aktivitas</div>
+        <div className="ktr-col-count" style={{ flex: 1.0, display: 'flex', alignItems: 'center' }}>Nama Posisi</div>
         <div className="ktr-col-count" style={{ flex: 1.0, display: 'flex', alignItems: 'center' }}>Sumber</div>
         <div className="ktr-col-count" style={{ flex: 0.6, display: 'flex', alignItems: 'center' }}>Total File</div>
         <div className="ktr-col-status" style={{ flex: 1.4, display: 'flex', alignItems: 'center' }}>Status</div>
@@ -333,6 +354,9 @@ export default function KandidatRiwayatUnggah({ onView }) {
           <div className="ktr-col-name" style={{ flex: 1.1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span className="ktr-import-name" style={{ fontWeight: 600 }}>{labelAktivitas}</span>
             <span style={{ fontSize: '12px', color: '#64748b' }}>{formatTanggal(item.tanggal)}</span>
+          </div>
+          <div className="ktr-col-count" style={{ flex: 1.0, fontSize: '12px', color: item.posisi_nama ? '#171e2c' : '#94a3b8' }}>
+            {item.posisi_nama || '-'}
           </div>
           <div className="ktr-col-count" style={{ flex: 1.0 }}>
             <span style={{ 

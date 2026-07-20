@@ -28,6 +28,13 @@ const IcKandidat = () => (
   </svg>
 );
 
+const IcKaryawan = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+  </svg>
+);
+
 const planCardVariants = [
   {
     id: 'berakhir',
@@ -43,9 +50,7 @@ const planCardVariants = [
     label: 'PAKET SAAT INI',
     name: 'Trial',
     expiry: 'Aktif s.d : 31 Des 2026',
-    posisi: { used: 15, total: 15 },
-    kandidat: { used: 5000, total: 5000 },
-    buttonLabel: 'Upgrade Paket',
+    buttonLabel: 'Pilih Paket',
   },
   { id: 'basic' },
   {
@@ -70,6 +75,7 @@ export default function Sidebar({ activeMenu, onNavigate }) {
     { id: 'departemen_001', Icon: IcDepartemen, label: 'Departemen' },
     { id: 'seleksi_001', Icon: IcSeleksi, label: 'Seleksi' },
     { id: 'kandidat_001', Icon: IcKandidat, label: 'Kandidat' },
+    { id: 'karyawan', Icon: IcKaryawan, label: 'Karyawan' },
   ];
 
   return (
@@ -91,34 +97,8 @@ export default function Sidebar({ activeMenu, onNavigate }) {
                   <span>Aktif s.d : 31 Des 2026</span>
                 </div>
               </div>
-              <div className="plan-stats">
-                <div className="stat-item">
-                  <div className="stat-info">
-                    <span>Total Posisi</span>
-                    <div className="stat-value">
-                      <span className="font-bold">15</span>
-                      <span>/ 15</span>
-                    </div>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: '100%' }}></div>
-                  </div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-info">
-                    <span>Total Kandidat</span>
-                    <div className="stat-value">
-                      <span className="font-bold">5000</span>
-                      <span>/ 5000</span>
-                    </div>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: '35%' }}></div>
-                  </div>
-                </div>
-              </div>
               <button className="upgrade-btn" onClick={(e) => { e.stopPropagation(); onNavigate('paket-langganan'); }}>
-                Upgrade Paket
+                Pilih Paket
               </button>
             </div>
           ) : (

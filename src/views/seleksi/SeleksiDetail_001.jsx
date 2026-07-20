@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import TabNav from '../../components/TabNav.jsx';
 import ToastProgress from '../../components/ToastProgress.jsx';
+import Toast from '../../components/Toast.jsx';
+import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import SeleksiKandidat_001 from './Seleksi-Kandidat_001.jsx';
 import SeleksiRingkasan_001 from './Seleksi-Ringkasan_001.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getSeleksiById, updateSeleksi } from '../../services/seleksiService.js';
+import { getSeleksiById, updateSeleksi, duplicateSeleksi, archiveSeleksi } from '../../services/seleksiService.js';
 import { slugify } from '../../utils/slug.js';
 
 const STATUS_OPTS = [
@@ -62,6 +64,11 @@ export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan =
   const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showTitleMenu, setShowTitleMenu] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const kaririUrl = seleksiKode
     ? `${window.location.origin}/?view=laman-karir&perusahaan=${slugify(companyName)}&posisi=${slugify(jabatan)}&kode=${encodeURIComponent(seleksiKode)}`
@@ -122,10 +129,42 @@ export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan =
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+    setShowTitleMenu(false);
+  };
+
+  const handleDuplicate = async () => {
+    if (isDuplicating) return;
+    setShowTitleMenu(false);
+    setIsDuplicating(true);
+    try {
+      const duplicated = await duplicateSeleksi(seleksiId);
+      navigate('seleksi-detail_001', { seleksiId: duplicated.id, jabatan: duplicated.jabatan, activeTab: 'ringkasan' });
+    } catch (err) {
+      console.error(err);
+      setToast({ message: 'Gagal menduplikat', subMessage: err.message || 'Terjadi kesalahan.', type: 'error' });
+    } finally {
+      setIsDuplicating(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    if (isArchiving) return;
+    setIsArchiving(true);
+    try {
+      await archiveSeleksi(seleksiId);
+      setShowArchiveConfirm(false);
+      back ? back() : navigate('seleksi_001');
+    } catch (err) {
+      console.error(err);
+      setShowArchiveConfirm(false);
+      setToast({ message: 'Gagal mengarsipkan', subMessage: err.message || 'Terjadi kesalahan.', type: 'error' });
+    } finally {
+      setIsArchiving(false);
+    }
   };
 
   return (
-    <div className="sd001-view" onClick={() => setShowStatusDrop(false)}>
+    <div className="sd001-view" onClick={() => { setShowStatusDrop(false); setShowTitleMenu(false); }}>
       {/* ── Title Bar ─────────────────────────────────── */}
       <div className="sd001-title-bar">
         <div className="sd001-title-content" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
@@ -204,26 +243,79 @@ export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan =
             )}
           </div>
 
-          {/* Salin Tautan — replaces "Bagikan" */}
-          <div className="sd001-cta-tip-wrap">
+          {/* Menu titik-tiga: Salin Tautan + Duplikat Seleksi */}
+          <div className="sd001-share-wrap" onClick={e => e.stopPropagation()}>
             <button
-              className={`sd001-share-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}${copied ? ' sd001-btn-copied' : ''}`}
-              onClick={handleCopyLink}
+              className={`sd001-title-menu-btn${showTitleMenu ? ' active' : ''}`}
+              onClick={() => setShowTitleMenu(v => !v)}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
               </svg>
-              {copied ? 'Disalin!' : 'Salin Tautan'}
             </button>
-            {!karilEnabled && (
-              <div className="sd001-cta-tooltip sd001-cta-tooltip--right">
-                Status rekrutmen harus Aktif untuk mengaktifkan fitur ini
+
+            {showTitleMenu && (
+              <div className="sd001-share-dropdown">
+                <button
+                  className="sd001-share-option"
+                  onClick={handleCopyLink}
+                  disabled={!karilEnabled}
+                  style={!karilEnabled ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
+                  title={!karilEnabled ? 'Status rekrutmen harus Aktif untuk mengaktifkan fitur ini' : undefined}
+                >
+                  <span className="sd001-share-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                  </span>
+                  {copied ? 'Disalin!' : 'Salin Tautan'}
+                </button>
+                <button
+                  className="sd001-share-option"
+                  onClick={handleDuplicate}
+                  disabled={isDuplicating}
+                  style={isDuplicating ? { opacity: 0.6, cursor: 'wait' } : undefined}
+                >
+                  <span className="sd001-share-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </span>
+                  {isDuplicating ? 'Menduplikat…' : 'Duplikat Seleksi'}
+                </button>
+                <div style={{ borderTop: '1px solid #f0f2f6', margin: '4px 0' }} />
+                <button
+                  className="sd001-share-option"
+                  onClick={() => { setShowTitleMenu(false); setShowArchiveConfirm(true); }}
+                >
+                  <span className="sd001-share-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="21 8 21 21 3 21 3 8" />
+                      <rect x="1" y="3" width="22" height="5" />
+                      <line x1="10" y1="12" x2="14" y2="12" />
+                    </svg>
+                  </span>
+                  Arsipkan
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {toast && <Toast message={toast.message} subMessage={toast.subMessage} type={toast.type} onClose={() => setToast(null)} />}
+
+      {showArchiveConfirm && (
+        <PopupKonfirmasi
+          title="Arsipkan Posisi"
+          body={`Apakah Anda yakin ingin mengarsipkan posisi "${jabatan}"? Posisi yang diarsipkan tidak akan tampil di daftar seleksi aktif.`}
+          confirmLabel={isArchiving ? 'Mengarsipkan…' : 'Arsipkan'}
+          onConfirm={handleArchive}
+          onClose={() => setShowArchiveConfirm(false)}
+        />
+      )}
 
       <TabNav
         tabs={[

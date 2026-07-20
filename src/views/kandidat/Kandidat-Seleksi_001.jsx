@@ -190,7 +190,7 @@ export default function KandidatSeleksi_001({ back, navigate, kandidat }) {
       {/* ── Action bar ── */}
       <div className="ks001-action-bar">
         <BackButton onClick={() => back ? back() : navigate?.('kandidat')} />
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+        <div className="ks001-right-actions" style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
           <SortDropdown
             options={[
               { label: 'Skor Tertinggi', value: 'skor_desc' },
@@ -234,7 +234,7 @@ export default function KandidatSeleksi_001({ back, navigate, kandidat }) {
           return (
             <div className="ks001-table-row" key={row.id}>
               <div className="ks001-col-posisi">
-                <span className="ks001-posisi-link" onClick={() => navigate?.('seleksi-detail', { seleksiId: row.seleksi_id, jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
+                <span className="ks001-posisi-link" onClick={() => navigate?.('seleksi-detail_001', { seleksiId: row.seleksiId, jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
               </div>
 
               <div className="ks001-col-departemen" style={{ fontSize: '12px', color: '#555f71' }}>

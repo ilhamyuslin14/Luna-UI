@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, memo } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksiById, updateSeleksi } from '../../services/seleksiService.js';
 import { getDepartments } from '../../services/departmentService.js';
+import { getCompanyUsers } from '../../services/companyUserService.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import Toast from '../../components/Toast.jsx';
 import KriteriaPenilaian_001 from '../../components/KriteriaPenilaian_001';
@@ -188,6 +189,8 @@ const DESKRIPSI_HTML = `<h3 class="sd001-deskripsi-section-title">Role Overview<
 export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Manager' }) {
   const { companyId } = useAuth();
   const [departments, setDepartments] = useState([]);
+  const [companyUsers, setCompanyUsers] = useState([]);
+  const [picUserId, setPicUserId] = useState('');
   const [toast, setToast] = useState(null);
   
   const showToast = (message, subMessage, type = 'success') => {
@@ -226,9 +229,10 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
 
   useEffect(() => {
     if (!seleksiId) return;
-    
+
     getDepartments().then(setDepartments).catch(console.error);
-    
+    if (companyId) getCompanyUsers(companyId).then(setCompanyUsers).catch(console.error);
+
     getSeleksiById(seleksiId).then(data => {
       if (data) {
         const mapped = {
@@ -260,6 +264,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
 
         setFormData(mapped);
         setOriginalData(mapped);
+        setPicUserId(data.pic_user_id || '');
         if (data.deskripsi) {
           setDeskripsiHtml(formatDeskripsiToHtml(data.deskripsi));
         }
@@ -282,7 +287,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
     window.addEventListener('syncSeleksiStatus', handleSync);
 
     return () => window.removeEventListener('syncSeleksiStatus', handleSync);
-  }, [seleksiId]);
+  }, [seleksiId, companyId]);
 
   // Poll Supabase jika sedang generating kriteria
   useEffect(() => {
@@ -635,6 +640,29 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
             }
           }}
         />
+
+        <div className="sd001-card">
+          <div className="sd001-card-header">
+            <span className="sd001-card-title">Penanggung Jawab</span>
+          </div>
+          <div className="sd001-detail-rows">
+            <InlineEditRow
+              label="Nama Rekruter"
+              tooltip="HR yang bertanggung jawab atas lowongan ini — dipakai untuk melacak hasil rekrutmen per HR"
+              value={picUserId}
+              displayValue={companyUsers.find(u => u.id === picUserId)?.name || ''}
+              type="dropdown"
+              options={companyUsers}
+              onSave={async (valToSave) => {
+                setPicUserId(valToSave);
+                if (seleksiId) {
+                  await updateSeleksi(seleksiId, { pic_user_id: valToSave || null });
+                  showToast('Berhasil', 'PIC lowongan berhasil diperbarui.');
+                }
+              }}
+            />
+          </div>
+        </div>
       </div>
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} type={toast.type} onClose={() => setToast(null)} />}
     </div>

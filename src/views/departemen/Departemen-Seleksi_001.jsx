@@ -208,13 +208,13 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
       }}
     >
       {/* Actions Bar */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: '64px', flexShrink: 0 }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', gap: 14, padding: '0 20px', height: '64px', flexShrink: 0 }}>
         {onBack && (
           <BackButton onClick={onBack} />
         )}
+        <div style={{ flex: 1 }} />
         <div className="lw001-right-actions">
-          <div className="lw001-stats-badge">Jumlah Posisi : <strong>{filteredRows.length}</strong></div>
-          <div className="lw001-divider" />
+          <span className="dseleksi001-count-text">{filteredRows.length} posisi</span>
           {selectedRows.size > 0 && (
             <CTABulkAksi
               count={selectedRows.size}

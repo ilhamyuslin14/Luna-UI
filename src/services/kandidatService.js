@@ -1,6 +1,5 @@
 import { supabase } from '../config/supabase.js';
-import mammoth from 'mammoth';
-import pdfToText from 'react-pdftotext';
+import { extractTextFromFile } from '../utils/extractTextFromFile.js';
 
 export async function getKandidatById(id) {
   if (!id) return null;
@@ -46,34 +45,6 @@ export async function archiveKandidat(ids) {
   const idArray = Array.isArray(ids) ? ids : [ids];
   const { error } = await supabase.from('kandidat').update({ arsip: true }).in('id', idArray);
   if (error) throw error;
-}
-
-// Helper untuk ekstrak teks dari CV di frontend
-async function extractTextFromFile(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'pdf') {
-    return await pdfToText(file);
-  } else if (ext === 'docx') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
-          resolve(result.value);
-        } catch (err) { reject(err); }
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-  } else if (ext === 'txt' || ext === 'doc') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
-  }
-  throw new Error('Format file tidak didukung. Harap unggah PDF, DOCX, atau TXT.');
 }
 
 // Helper untuk menghitung hash SHA-256 dari file
@@ -170,7 +141,7 @@ export async function getActivityLogs(companyId) {
   if (!companyId) return [];
   const { data, error } = await supabase
     .from('activity_logs')
-    .select('id, batch_id, created_at, tipe_aktivitas, upload_status, upload_fail_reason, scoring_status, scoring_fail_reason, source, nama_file, kandidat_id')
+    .select('id, batch_id, created_at, tipe_aktivitas, upload_status, upload_fail_reason, scoring_status, scoring_fail_reason, source, nama_file, kandidat_id, posisi_nama')
     .eq('company_id', companyId)
     .order('created_at', { ascending: false });
     

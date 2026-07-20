@@ -15,6 +15,7 @@ import Departemen from './views/departemen/Departemen.jsx';
 import Departemen_001 from './views/departemen/Departemen_001.jsx';
 import Kandidat from './views/kandidat/Kandidat.jsx';
 import Kandidat_001 from './views/kandidat/Kandidat_001.jsx';
+import Karyawan from './views/karyawan/Karyawan.jsx';
 import KelolaPengguna from './views/kelola-pengguna/KelolaPengguna.jsx';
 import KandidatTambah from './views/kandidat/Kandidat-Tambah.jsx';
 import SeleksiTambahKandidat from './views/seleksi/Seleksi-TambahKandidat.jsx';
@@ -36,6 +37,7 @@ import MenungguPembayaran from './views/kelola-pengguna/KelolaPengguna-MenungguP
 import PembayaranBerhasil from './views/kelola-pengguna/KelolaPengguna-PembayaranBerhasil.jsx';
 import LandingPage from './views/landing/LandingPage.jsx';
 import LandingPage_001 from './views/landing/LandingPage_001.jsx';
+import LandingPage_002 from './views/landing/LandingPage_002.jsx';
 import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
@@ -44,6 +46,7 @@ import LandingPageMasuk_001 from './views/landing/LandingPage-Masuk_001.jsx';
 import LandingPageDaftar_001 from './views/landing/LandingPage-Daftar_001.jsx';
 import LandingPageOTP_001 from './views/landing/LandingPage-OTP_001.jsx';
 import LandingPageLupaPassword_001 from './views/landing/LandingPage-LupaPassword_001.jsx';
+import LandingPageTerimaUndangan from './views/landing/LandingPage-TerimaUndangan.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
 const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
 
@@ -136,14 +139,14 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'seleksi-detail', 'seleksi-detail_001', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
+  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
-  const { user, loading } = useAuth();
+  const { user, loading, mustChangePassword } = useAuth();
 
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
     const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -183,6 +186,10 @@ export default function App() {
     );
   }
 
+  if (user && mustChangePassword) {
+    return <LandingPageTerimaUndangan />;
+  }
+
   if (activeMenu === 'laman-karir') {
     return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
@@ -193,6 +200,10 @@ export default function App() {
 
   if (activeMenu === 'landingpage_001') {
     return <LandingPage_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage_002') {
+    return <LandingPage_002 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage-masuk') {
@@ -245,6 +256,7 @@ export default function App() {
       case 'seleksi-detail_001': return <SeleksiDetail_001 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'kandidat_001': return <Kandidat_001 navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
+      case 'karyawan': return <Karyawan navigate={navigate} searchQuery={searchQuery} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} back={back} />;
       case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} seleksiId={selectedSeleksiId} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;

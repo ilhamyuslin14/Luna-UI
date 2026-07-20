@@ -61,7 +61,8 @@ export function UploadProvider({ children }) {
           upload_status: null,
           scoring_status: 'menunggu',
           kandidat_id: kandidatId,
-          source: 'HR'
+          source: 'HR',
+          posisi_nama: seleksiNama || null,
         });
         logId = log.id;
         
@@ -172,7 +173,8 @@ export function UploadProvider({ children }) {
         tipe_aktivitas,
         upload_status: 'proses',
         scoring_status: target.posisi?.id ? 'menunggu' : null,
-        source: user?.id || 'HR'
+        source: user?.id || 'HR',
+        posisi_nama: target.posisi?.jabatan || null,
       });
       logId = log.id;
       statusesRef.current[idx] = { ...statusesRef.current[idx], logId };

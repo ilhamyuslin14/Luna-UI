@@ -234,24 +234,13 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
       if (!e.target.closest('.filter-dropdown-container')) setShowFilterDropdown(false);
       if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
     }}>
-      <div className="kan001-header-container">
-        <h1 className="kan001-title">Kandidat</h1>
-      </div>
-
-      <div className="kan001-actions-bar">
-        <div className="kan001-left-actions">
-          <button className="kan001-btn-primary" onClick={() => navigate('kandidat-tambah')}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Tambah Kandidat
-          </button>
+      <div className="kan001-toolbar-row">
+        <div className="kan001-title-group">
+          <h1 className="kan001-title">Kandidat</h1>
+          <span className="kan001-count-text">{filteredData.length} kandidat</span>
         </div>
+        <div className="kan001-toolbar-spacer"></div>
         <div className="kan001-right-actions">
-          <div className="kan001-stats-badge">
-            Jumlah Kandidat : <strong>{filteredData.length}</strong>
-          </div>
-          <div className="kan001-divider" />
           {selectedRows.size > 0 && (
             <CTABulkAksi
               count={selectedRows.size}
@@ -303,6 +292,14 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
             isOpen={showFilterDropdown}
             onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
           />
+          <button className="kan001-btn-primary" onClick={() => navigate('kandidat-tambah')}>
+            <span className="kan001-btn-primary-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </span>
+            Tambah Kandidat
+          </button>
         </div>
       </div>
 

@@ -386,17 +386,21 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
   };
 
   const ActionsBar = ({ boardMode }) => (
-    <div className="lw001-actions-bar">
-      <div className="lw001-left-actions">
-        <button className="lw001-btn-primary" onClick={() => navigate('setup-penilaian_001')}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
-            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg> Setup Penilaian
-        </button>
+    <div className="lw001-toolbar-row">
+      <div className="lw001-title-group">
+        <h1 className="lw001-title">Seleksi</h1>
+        <span className="lw001-count-text">{activeCount} posisi</span>
       </div>
+      <div className="lw001-toolbar-spacer"></div>
       <div className="lw001-right-actions">
-        <div className="lw001-stats-badge">Jumlah Posisi : <strong>{activeCount}</strong></div>
-        <div className="lw001-divider"></div>
+        <div className="lw001-view-toggle">
+          <button className={`lw001-toggle-item${boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(true)}>
+            <IconPapan /> Papan
+          </button>
+          <button className={`lw001-toggle-item${!boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(false)}>
+            <IconList /> List
+          </button>
+        </div>
         {!boardMode && selectedRows.size > 0 && !activeFilters.has('Arsip') && (
           <CTABulkAksi
             count={selectedRows.size}
@@ -427,14 +431,14 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
           isOpen={showFilterDropdown}
           onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
         />
-        <div className="lw001-view-toggle">
-          <button className={`lw001-toggle-item${boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(true)}>
-            <IconPapan /> Papan
-          </button>
-          <button className={`lw001-toggle-item${!boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(false)}>
-            <IconList /> List
-          </button>
-        </div>
+        <button className="lw001-btn-primary" onClick={() => navigate('setup-penilaian_001')}>
+          <span className="lw001-btn-primary-icon">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </span>
+          Setup Penilaian
+        </button>
       </div>
     </div>
   );
@@ -448,10 +452,6 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       if (!e.target.closest('.lw001-board-card-status-wrap') && !e.target.closest('.lw001-status-dropdown')) setOpenCardStatus(null);
       if (!e.target.closest('.lw001-board-card-menu-wrap') && !e.target.closest('.lw001-board-card-menu-dropdown')) setOpenCardMenu(null);
     }}>
-      <div className="lw001-header-container">
-        <h1 className="lw001-title">Seleksi</h1>
-      </div>
-
       {ActionsBar({ boardMode: isBoardView })}
 
       {isBoardView ? (

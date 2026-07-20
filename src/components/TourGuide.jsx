@@ -19,7 +19,7 @@ const STEPS = [
   { menu: 'seleksi_001',  selector: '.menu-item[data-menu="kandidat_001"]',  title: 'Menu Kandidat',   description: 'Akses seluruh database kandidat yang telah masuk ke sistem Luna AI.',                                             position: 'right'  },
   { menu: 'kandidat_001', selector: '.kan001-btn-primary',         title: 'Tambah Kandidat',          description: 'Tambah atau cari kandidat terbaik dari database talenta Anda.',                                                    position: 'bottom' },
   { menu: 'kandidat_001', selector: '.menu-item[data-menu="pengaturan"]',title: 'Menu Kelola Pengguna', description: 'Atur profil perusahaan, paket langganan, dan pengguna sistem.',                                              position: 'right'  },
-  { menu: 'pengaturan', selector: '.kp-settings-grid',      title: 'Pengaturan Akun',          description: 'Detail akun dan riwayat transaksi dapat Anda kelola secara transparan di sini.',                                  position: 'top'    },
+  { menu: 'pengaturan', selector: '.kp-settings-list',      title: 'Pengaturan Akun',          description: 'Detail akun dan riwayat transaksi dapat Anda kelola secara transparan di sini.',                                  position: 'top'    },
   { menu: 'pengaturan', selector: '.search-wrapper',        title: 'Pencarian Universal',      description: 'Temukan data apapun dengan cepat melalui bilah pencarian ini.',                                                    position: 'bottom' },
   { menu: 'pengaturan', selector: '#btn-bantuan',           title: 'Pusat Bantuan',            description: 'Hubungi tim dukungan kami jika Anda menemui kendala teknis.',                                                     position: 'right'  },
 ];

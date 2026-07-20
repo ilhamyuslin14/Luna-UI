@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import mammoth from 'mammoth';
-import pdfToText from 'react-pdftotext';
 import { normalizeRawText } from '../../utils/parseJobDescManual';
+import { extractTextFromFile } from '../../utils/extractTextFromFile';
 import { generateAIScoring } from '../../utils/generateAIScoring';
 import { generateAIScoringOpenAI } from '../../utils/generateAIScoringOpenAI';
 import { fetchPriceMap, estimateCostIDR, formatRupiah, formatLatencySeconds } from '../../utils/aiPricing';
@@ -24,33 +23,6 @@ const SpinnerIcon = () => (
     <path d="M5.5 8.5L4.1 9.9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
   </svg>
 );
-
-async function extractTextFromFile(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'pdf') {
-    return await pdfToText(file);
-  } else if (ext === 'docx') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
-          resolve(result.value);
-        } catch (err) { reject(err); }
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-  } else if (ext === 'txt' || ext === 'doc') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
-  }
-  throw new Error('Format file tidak didukung. Harap unggah PDF, DOCX, atau TXT.');
-}
 
 const DEFAULT_KANDIDAT = {
   nama: 'Kandidat',

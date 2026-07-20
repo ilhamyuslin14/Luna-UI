@@ -132,7 +132,8 @@
   background: var(--luna-orange-500);
   box-shadow: 0 0 8px 1px rgba(255, 123, 0, 0.8);
   display: inline-block;
-  margin-right: 2px;
+  flex-shrink: 0;
+  margin-right: 6px;
 }
 
 /* Berakhir — "Dim Signal": satu keluarga base gelap yang sama, tapi glow-nya
@@ -192,6 +193,8 @@
 
 .plan-label {
   font-family: 'Inter Tight', sans-serif;
+  display: inline-flex;
+  align-items: center;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.6px;
@@ -310,6 +313,7 @@
   font-weight: 500;
   color: var(--luna-ink-800);
   transition: background-color 0.15s, color 0.15s;
+  position: relative;
 }
 
 .menu-item svg {
@@ -323,8 +327,25 @@
 }
 
 .menu-item.active {
-  background-color: var(--luna-orange-050);
+  background-color: transparent;
+  color: var(--luna-orange-600);
+  font-weight: 700;
+}
+
+.menu-item.active svg {
   color: var(--luna-orange-500);
+}
+
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--luna-orange-400);
 }
 
 /* Sidebar Footer */
@@ -348,6 +369,7 @@
   font-weight: 400;
   color: var(--luna-ink-600);
   transition: background-color 0.15s, color 0.15s;
+  position: relative;
 }
 
 .sidebar-footer-item svg {
@@ -362,8 +384,25 @@
 }
 
 .sidebar-footer-item.active {
-  background-color: var(--luna-orange-050);
+  background-color: transparent;
+  color: var(--luna-orange-600);
+  font-weight: 700;
+}
+
+.sidebar-footer-item.active svg {
   color: var(--luna-orange-500);
+}
+
+.sidebar-footer-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--luna-orange-400);
 }
 
 .sidebar-footer-item--danger:hover {

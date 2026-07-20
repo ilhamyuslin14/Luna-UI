@@ -197,6 +197,7 @@ export default function LamanKarir({ kode }) {
           scoring_status: 'menunggu',
           kandidat_id: kandidat?.id || null,
           source: 'Portal Karir',
+          posisi_nama: seleksiData.jabatan || null,
         });
         logId = log?.id;
       } catch (e) {}
@@ -223,6 +224,7 @@ export default function LamanKarir({ kode }) {
           scoring_status: err?.existingKandidatId ? 'menunggu' : 'gagal',
           kandidat_id: err?.existingKandidatId || null,
           source: 'Portal Karir',
+          posisi_nama: seleksiData.jabatan || null,
         });
         logId = log?.id;
       } catch (e) {}

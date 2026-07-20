@@ -202,7 +202,8 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
         tipe_aktivitas: 'scoring_only',
         scoring_status: 'menunggu',
         kandidat_id: kandidatId,
-        source: 'HR'
+        source: 'HR',
+        posisi_nama: posisiNama || null,
       });
       logId = log?.id;
     } catch(e) {
@@ -304,14 +305,15 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
         onChange={setActiveTab}
       />
 
+      {/* Back button — konsisten di tab Ringkasan & Resume; tab Seleksi punya bar sendiri (Kembali + Urutkan + Filter satu baris) */}
+      {activeTab !== 'seleksi' && (
+        <div className={`kd001-back-row${activeTab === 'resume' ? ' kd001-back-row--white' : ''}`}>
+          <BackButton onClick={() => back ? back() : navigate('kandidat_001')} />
+        </div>
+      )}
+
       {/* Content */}
       <div className={`kd001-content-wrapper${(activeTab === 'resume' || activeTab === 'seleksi') ? ' kd001-content-wrapper--viewer' : ''}`}>
-        {activeTab === 'ringkasan' && (
-          <div style={{ margin: '-20px -20px 0', padding: '8px 20px', display: 'flex', alignItems: 'center' }}>
-            <BackButton onClick={() => back ? back() : navigate('kandidat_001')} />
-            <div style={{ height: 40 }} />
-          </div>
-        )}
         {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
         {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}

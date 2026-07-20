@@ -74,7 +74,7 @@ export default function Beranda_001({ navigate }) {
           </div>
         </div>
 
-        <div className="db001-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat_001', { filter: 'direkrut' })}>
+        <div className="db001-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('karyawan')}>
           <div className="db001-stat-card-header">
             <div className="db001-stat-label">Karyawan Direkrut</div>
             <div className="db001-stat-arrow">

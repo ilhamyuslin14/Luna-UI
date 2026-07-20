@@ -55,27 +55,23 @@
 .sdk001-stats-badge {
   display: inline-flex;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  background: var(--luna-orange-050);
+  height: 32px;
+  padding: 0 12px;
+  background: var(--luna-ink-100, #f0f2f6);
   border-radius: 8px;
   font-family: 'Inter Tight', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--luna-orange-400);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--luna-ink-700, #3b4252);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.sdk001-stats-badge strong {
-  font-weight: 700;
-}
-
-/* Vertical separator */
-.sdk001-bar-divider {
-  width: 1px;
-  height: 40px;
-  background: #e2e5ec;
-  flex-shrink: 0;
+/* Sort/Filter dipadatkan biar konsisten dengan toolbar Departemen/Seleksi */
+.sdk001-right-actions .filter-dropdown-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  height: 32px;
 }
 
 /* Filter */
@@ -222,23 +218,24 @@
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
-  height: 40px;
+  height: 32px;
 }
 
 .sdk001-view-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
+  gap: 6px;
+  padding: 0 12px;
   background: white;
   border: none;
   font-family: 'Inter Tight', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #171e2c;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
+  position: relative;
 }
 
 .sdk001-view-btn:not(.active):hover {
@@ -257,8 +254,25 @@
 }
 
 .sdk001-view-btn.active {
-  background: var(--luna-orange-050);
-  color: var(--luna-orange-400);
+  background: transparent;
+  color: var(--luna-orange-600);
+  font-weight: 700;
+}
+
+.sdk001-view-btn.active svg {
+  color: var(--luna-orange-500);
+}
+
+.sdk001-view-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--luna-orange-400);
 }
 
 /* Table */

@@ -42,9 +42,9 @@ export default function Sandbox({ navigate }) {
               <span className="px-3 mb-1 text-[11px] font-bold tracking-wider text-slate-400 uppercase">AI Engine</span>
               {[
                 { id: 'konfigurasi', label: 'Konfigurasi API', icon: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/> },
-                { id: 'ai_scoring', label: 'AI Scoring', icon: <><circle cx="12" cy="12" r="10"></circle><path d="M16 12l-4 4-4-4M12 8v8"/></> },
-                { id: 'cv_parsing', label: 'CV Parsing', icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></> },
                 { id: 'kriteria', label: 'Kriteria Penilaian', icon: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon> },
+                { id: 'cv_parsing', label: 'CV Parsing', icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></> },
+                { id: 'ai_scoring', label: 'AI Scoring', icon: <><circle cx="12" cy="12" r="10"></circle><path d="M16 12l-4 4-4-4M12 8v8"/></> },
               ].map(item => {
                 const active = activeTab === item.id;
                 return (

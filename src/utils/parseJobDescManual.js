@@ -85,6 +85,29 @@ function firstCapture(text, patterns) {
 
 // ── Per-field parsers ─────────────────────────────────────────────────────────
 
+// Frasa boilerplate yang sering jadi judul dokumen JD, bukan nama jabatan itu
+// sendiri — mis. "Job Description Cloud Engineer" → judul dokumennya adalah
+// "Job Description", nama jabatannya "Cloud Engineer".
+const GENERIC_TITLE_PREFIXES = [
+  'job description', 'deskripsi pekerjaan', 'deskripsi posisi',
+  'job vacancy', 'lowongan pekerjaan', 'lowongan kerja',
+  'job posting', 'job opening', 'job ad', 'vacancy',
+];
+
+// Buang prefix boilerplate dari sebuah baris kandidat nama jabatan.
+// - Baris yang PERSIS sama dengan salah satu frasa → dianggap bukan judul, jadi ''
+// - Baris yang DIAWALI frasa + spasi/titik dua → prefix dibuang, sisanya dipakai
+// - Baris lain → dikembalikan apa adanya
+function stripGenericTitlePrefix(line) {
+  const lower = line.toLowerCase();
+  for (const prefix of GENERIC_TITLE_PREFIXES) {
+    if (lower === prefix) return '';
+    if (lower.startsWith(prefix + ' ')) return line.slice(prefix.length).trim();
+    if (lower.startsWith(prefix + ':')) return line.slice(prefix.length + 1).trim();
+  }
+  return line;
+}
+
 function parseNamaJabatan(text) {
   const trimFiller = (s) => s.replace(/\s+(?:yang\b|untuk\b|dengan\b|dan\b|the\b|a\b|an\b).*/i, '').trim();
   const lines = text.split('\n').map(l => l.trim());
@@ -118,8 +141,11 @@ function parseNamaJabatan(text) {
     if (clean.length <= 100) return clean;
   }
 
-  // Fallback: baris pertama yang sesuai (skip baris yang terlihat seperti label/header)
-  const candidates = lines.filter(l => l.length > 3 && l.length < 80 && /[a-zA-Z]/.test(l) && !/^nama\s+/i.test(l) && !l.endsWith(':'));
+  // Fallback: baris pertama yang sesuai (skip baris yang terlihat seperti label/header,
+  // dan buang prefix boilerplate seperti "Job Description"/"Deskripsi Pekerjaan" dulu)
+  const candidates = lines
+    .map(stripGenericTitlePrefix)
+    .filter(l => l.length > 3 && l.length < 80 && /[a-zA-Z]/.test(l) && !/^nama\s+/i.test(l) && !l.endsWith(':'));
   return candidates[0] || '';
 }
 
@@ -261,14 +287,15 @@ function parsePendidikan(text) {
 }
 
 function parsePengalaman(text) {
-  // Pola kontekstual: "pengalaman X tahun" atau "min X tahun"
+  // Pola kontekstual: "pengalaman X tahun", "min X tahun", atau range "min X-Y tahun"
+  // (angka pertama = batas minimal yang diambil; "-Y" / "+" cuma dikonsumsi, tidak dipakai)
   const contextual = text.match(
-    /(?:pengalaman|experience|min\.?|minimal|minimum|at least)\s*(?:kerja|work|bekerja|selama)?\s*(\d+)\s*[-–+]?\s*(?:tahun|year|thn)/i
+    /(?:pengalaman|experience|min\.?|minimal|minimum|at least)\s*(?:kerja|work|bekerja|selama)?\s*(\d+)\s*(?:[-–]\s*\d+)?\s*\+?\s*(?:tahun|year|thn)/i
   );
   if (contextual) return contextual[1];
 
-  // Pola terbalik: "X tahun pengalaman"
-  const reversed = text.match(/(\d+)\s*(?:tahun|year|thn)\s*(?:pengalaman|experience)/i);
+  // Pola terbalik: "X tahun pengalaman" atau range "X-Y tahun pengalaman"
+  const reversed = text.match(/(\d+)\s*(?:[-–]\s*\d+)?\s*(?:tahun|year|thn)s?\s*(?:pengalaman|experience)/i);
   if (reversed) return reversed[1];
 
   return '';

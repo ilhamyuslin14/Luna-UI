@@ -181,22 +181,16 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
       if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
       if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
     }}>
-      <div className="dept001-header-container">
-        <h1 className="dept001-title">Departemen</h1>
-      </div>
-
       <div className="dept001-body">
-        <div className="dept001-actions-bar">
-          <div className="dept001-left-actions">
-            <button className="dept001-btn-primary" onClick={openAddModal}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg> Tambah Departemen
-            </button>
+        <div className="dept001-toolbar-row">
+          <div className="dept001-title-group">
+            <h1 className="dept001-title">Departemen</h1>
+            <span className="dept001-count-text">{deptData.length} total</span>
           </div>
+
+          <div className="dept001-toolbar-spacer" />
+
           <div className="dept001-right-actions">
-            <div className="dept001-stats-badge">Jumlah Departemen : <strong>{deptData.length}</strong></div>
-            <div className="dept001-divider" />
             {selectedRows.size > 0 && (
               <CTABulkAksi
                 count={selectedRows.size}
@@ -230,6 +224,14 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
               isOpen={showFilterDropdown}
               onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
             />
+            <button className="dept001-btn-primary" onClick={openAddModal}>
+              <span className="dept001-btn-primary-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </span>
+              Departemen
+            </button>
           </div>
         </div>
 

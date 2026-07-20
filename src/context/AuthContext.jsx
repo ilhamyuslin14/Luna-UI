@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   const [companyName, setCompanyName] = useState(null);
   const [companyDetails, setCompanyDetails] = useState({});
   const [userRole, setUserRole] = useState(null);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchCompanyId = async (userId) => {
@@ -22,14 +23,24 @@ export function AuthProvider({ children }) {
       setCompanyName(null);
       setCompanyDetails({});
       setUserRole(null);
+      setMustChangePassword(false);
       return;
     }
-    const { data, error } = await supabase
-      .from('company_users')
-      .select('company_id, role, companies(name, industri, ukuran, lokasi)')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
+    const [{ data, error }, { data: profile }] = await Promise.all([
+      supabase
+        .from('company_users')
+        .select('company_id, role, companies(name, industri, ukuran, lokasi)')
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('must_change_password')
+        .eq('id', userId)
+        .maybeSingle(),
+    ]);
+
+    setMustChangePassword(!!profile?.must_change_password);
+
     if (data && !error) {
       setCompanyId(data.company_id);
       setUserRole(data.role);
@@ -65,6 +76,7 @@ export function AuthProvider({ children }) {
         setCompanyName(null);
         setCompanyDetails({});
         setUserRole(null);
+        setMustChangePassword(false);
       }
       setLoading(false);
     });
@@ -108,6 +120,7 @@ export function AuthProvider({ children }) {
     companyName,
     companyDetails,
     userRole,
+    mustChangePassword,
     loading,
     login,
     register,

@@ -6,9 +6,8 @@ import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { ID_REGIONS } from '../../utils/idRegions.js';
 import Toast from '../../components/Toast.jsx';
 import { supabase } from '../../config/supabase.js';
-import mammoth from 'mammoth';
-import pdfToText from 'react-pdftotext';
 import { parseJobDescManual } from '../../utils/parseJobDescManual';
+import { extractTextFromFile } from '../../utils/extractTextFromFile';
 
 const SP001_DRAFT_KEY = 'sp001-draft';
 
@@ -279,36 +278,6 @@ export default function SetupPenilaian_001({ navigate }) {
 
   const handleUpah = (key) => (e) => {
     setForm(prev => ({ ...prev, [key]: formatRupiah(e.target.value) }));
-  };
-
-  const extractTextFromFile = async (file) => {
-    const extension = file.name.split('.').pop().toLowerCase();
-    if (extension === 'pdf') {
-      return await pdfToText(file);
-    } else if (extension === 'docx') {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
-            resolve(result.value);
-          } catch (err) {
-            reject(err);
-          }
-        };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-      });
-    } else if (extension === 'txt') {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-    } else {
-      throw new Error('Format file tidak didukung.');
-    }
   };
 
   const formatDeskripsiToHtml = (text) => {

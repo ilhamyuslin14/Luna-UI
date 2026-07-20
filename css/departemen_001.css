@@ -1,3 +1,19 @@
+/* Bar tab Seleksi di dalam Departemen-Detail (Departemen-Seleksi_001.jsx) */
+.dseleksi001-count-text {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--luna-ink-700, #3b4252);
+    background: var(--luna-ink-100, #f0f2f6);
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
 .dept001-view {
     background-color: #f9fafc;
     height: calc(100vh - 58px);
@@ -5,23 +21,6 @@
     flex-direction: column;
     overflow: hidden;
     font-family: 'Inter Tight', sans-serif;
-}
-
-.dept001-header-container {
-    background: url('/assets/frame_header_dept.png') no-repeat center;
-    background-size: cover;
-    border-bottom: 1px solid #e2e5ec;
-    padding: 16px 20px 18px 20px;
-    width: 100%;
-}
-
-.dept001-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--luna-ink-900);
-    margin: 0;
-    line-height: 1.2;
 }
 
 .dept001-body {
@@ -37,30 +36,71 @@
     width: 1px;
     height: 16px;
     background-color: #cbd0db;
-    margin: 0 12px;
+    margin: 0 4px;
 }
 
-/* Actions Bar */
-.dept001-actions-bar {
+/* Toolbar — judul, jumlah, dan aksi digabung satu baris compact */
+.dept001-toolbar-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 14px;
     background: var(--luna-ink-000);
-    padding: 12px 20px;
+    padding: 14px 20px 14px 26px;
     border-bottom: 1px solid #e2e5ec;
     width: 100%;
+    position: relative;
 }
 
-.dept001-left-actions {
+.dept001-toolbar-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, var(--luna-orange-400), var(--luna-orange-600));
+}
+
+.dept001-title-group {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: baseline;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.dept001-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--luna-ink-900);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.dept001-count-text {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    color: var(--luna-ink-500, #7e8799);
+    font-variant-numeric: tabular-nums;
+}
+
+.dept001-toolbar-spacer {
+    flex: 1;
 }
 
 .dept001-right-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+}
+
+/* Sort/Filter dipakai bareng halaman lain (Kandidat, Seleksi, dst) — jadi
+   di-compact-in cuma di dalam toolbar Departemen, bukan class global-nya. */
+.dept001-right-actions .filter-dropdown-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    height: 32px;
 }
 
 .dept001-btn-primary {
@@ -68,31 +108,32 @@
     background-color: var(--luna-orange-400);
     color: var(--luna-ink-000);
     border: none;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 14px;
+    border-radius: 999px;
+    padding: 4px 14px 4px 6px;
+    height: 32px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     transition: background 0.2s;
+    margin-left: 4px;
 }
 
 .dept001-btn-primary:hover {
     background-color: var(--luna-orange-500);
 }
 
-.dept001-stats-badge {
-    font-family: 'Inter Tight', sans-serif;
-    background-color: var(--luna-orange-050);
-    color: var(--luna-orange-500);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    height: 40px;
+.dept001-btn-primary-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* Table Section */

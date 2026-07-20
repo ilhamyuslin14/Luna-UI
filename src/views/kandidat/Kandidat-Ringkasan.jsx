@@ -151,6 +151,7 @@ const GENDER_OPTIONS = ['Laki-laki', 'Perempuan'];
 const DETAIL_FIELDS = [
   { key: 'nama', label: 'Nama Lengkap', type: 'text', dbCol: 'nama_lengkap' },
   { key: 'linkedin_url', label: 'LinkedIn', type: 'text', dbCol: 'linkedin_url' },
+  { key: 'portfolio_url', label: 'Portofolio', type: 'text', dbCol: 'portfolio_url' },
   { key: 'id', label: 'ID Kandidat', type: 'readonly' },
   { key: 'gender', label: 'Gender', type: 'dropdown', dbCol: 'gender', options: GENDER_OPTIONS },
   { key: 'jurusan', label: 'Jurusan', type: 'text', dbCol: 'jurusan' },
@@ -334,9 +335,23 @@ function DomisiliInlineRow({ label, value, onSave }) {
   );
 }
 
+/* ── Deteksi overflow line-clamp ──
+   clientHeight elemen ber-`-webkit-line-clamp` tidak konsisten di semua
+   browser (kadang ikut melaporkan tinggi penuh, bukan cuma tinggi ter-clamp),
+   jadi scrollHeight-vs-clientHeight bisa salah baca. Sebagai gantinya
+   bandingkan scrollHeight terhadap ambang batas independen: line-height × 3. */
+function isClampOverflowing(el) {
+  if (!el) return false;
+  const style = window.getComputedStyle(el);
+  let lineHeight = parseFloat(style.lineHeight);
+  if (!lineHeight || Number.isNaN(lineHeight)) lineHeight = (parseFloat(style.fontSize) || 12) * 1.5;
+  const maxCollapsedHeight = lineHeight * 3 + 2;
+  return el.scrollHeight > maxCollapsedHeight;
+}
+
 /* ── DB format converters ── */
 const toDbExp = e => { const p = (e.periode || '').split(' – '); return { jabatan: e.jabatan, perusahaan: e.perusahaan, start: p[0] || '', end: p[1] || '', deskripsi: e.deskripsi || [] }; };
-const toDbEdu = e => { const p = (e.periode || '').split(' – '); return { institusi: e.institusi, jenjang: e.gelar || '', start: p[0] || '', end: p[1] || '' }; };
+const toDbEdu = e => { const p = (e.periode || '').split(' – '); return { institusi: e.institusi, jenjang: e.gelar || '', jurusan: e.jurusan || '', gpa: e.gpa || '', start: p[0] || '', end: p[1] || '' }; };
 const toDbSert = s => { const p = (s.periode || '').split(' – '); return { nama: s.judul, penerbit: s.penyelenggara, start: p[0] || '', end: p[1] || '', deskripsi: s.deskripsi || [] }; };
 
 export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPanel = false, scoringVersion = 0, onAddPosisi }) {
@@ -454,12 +469,12 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
   /* ── Pendidikan ── */
   const [pendidikanList, setPendidikanList] = useState(() => {
     const arr = (kandidat.pendidikan?.length > 0)
-      ? kandidat.pendidikan.map(e => ({ institusi: e.institusi || '', gelar: e.jenjang || '', periode: [e.start, e.end].filter(Boolean).join(' – ') || '' }))
+      ? kandidat.pendidikan.map(e => ({ institusi: e.institusi || '', gelar: e.jenjang || '', jurusan: e.jurusan || '', gpa: e.gpa || '', periode: [e.start, e.end].filter(Boolean).join(' – ') || '' }))
       : [];
     return arr.map((e, i) => ({ ...e, id: i }));
   });
   const [addingEdu, setAddingEdu] = useState(false);
-  const [newEdu, setNewEdu] = useState({ institusi: '', jenjang: '', tglMulai: '', tglSelesai: '' });
+  const [newEdu, setNewEdu] = useState({ institusi: '', jenjang: '', jurusan: '', gpa: '', tglMulai: '', tglSelesai: '' });
   const [eduMenuOpen, setEduMenuOpen] = useState(null);
   const [editingEduId, setEditingEduId] = useState(null);
   const [editEduData, setEditEduData] = useState({});
@@ -475,21 +490,21 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
   const confirmEdu = async () => {
     if (!newEdu.institusi.trim()) return;
     const periode = [newEdu.tglMulai, newEdu.tglSelesai].filter(Boolean).join(' – ') || '';
-    const newEntry = { institusi: newEdu.institusi, gelar: newEdu.jenjang, periode, id: Date.now() };
+    const newEntry = { institusi: newEdu.institusi, gelar: newEdu.jenjang, jurusan: newEdu.jurusan, gpa: newEdu.gpa, periode, id: Date.now() };
     const newList = [...pendidikanList, newEntry];
     setPendidikanList(newList);
-    setNewEdu({ institusi: '', jenjang: '', tglMulai: '', tglSelesai: '' }); setAddingEdu(false);
+    setNewEdu({ institusi: '', jenjang: '', jurusan: '', gpa: '', tglMulai: '', tglSelesai: '' }); setAddingEdu(false);
     await saveEduToDb(newList);
     showToast('Pendidikan tersimpan', 'Data riwayat pendidikan berhasil ditambahkan');
   };
   const startInlineEditEdu = (edu) => {
     const parts = (edu.periode || '').split(' – ');
-    setEditEduData({ institusi: edu.institusi, jenjang: edu.gelar, tglMulai: parts[0] || '', tglSelesai: parts[1] || '' });
+    setEditEduData({ institusi: edu.institusi, jenjang: edu.gelar, jurusan: edu.jurusan || '', gpa: edu.gpa || '', tglMulai: parts[0] || '', tglSelesai: parts[1] || '' });
     setEditingEduId(edu.id); setEduMenuOpen(null);
   };
   const saveInlineEditEdu = async (id) => {
     const periode = [editEduData.tglMulai, editEduData.tglSelesai].filter(Boolean).join(' – ') || '';
-    const newList = pendidikanList.map(e => e.id === id ? { ...e, institusi: editEduData.institusi, gelar: editEduData.jenjang, periode } : e);
+    const newList = pendidikanList.map(e => e.id === id ? { ...e, institusi: editEduData.institusi, gelar: editEduData.jenjang, jurusan: editEduData.jurusan, gpa: editEduData.gpa, periode } : e);
     setPendidikanList(newList);
     setEditingEduId(null);
     await saveEduToDb(newList);
@@ -562,10 +577,32 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
     setExpandedSert(next);
   };
 
+  // Tombol "Lihat Lebih Banyak" cuma muncul kalau teks deskripsi beneran
+  // kepotong sama line-clamp:3 — bukan asal ada deskripsi.
+  const sertDescRefs = useRef({});
+  const [overflowingSert, setOverflowingSert] = useState(new Set());
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      setOverflowingSert(prev => {
+        const next = new Set(prev);
+        Object.entries(sertDescRefs.current).forEach(([id, el]) => {
+          if (!el) return;
+          const numId = Number(id);
+          if (expandedSert.has(numId)) return; // sudah expanded, biarkan status lama
+          if (isClampOverflowing(el)) next.add(numId);
+          else next.delete(numId);
+        });
+        return next;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [sertifikasiList]);
+
   /* ── Detail Kandidat ── */
   const [detailData, setDetailData] = useState(() => ({
     nama: kandidat.nama_lengkap ?? kandidat.nama ?? '',
     linkedin_url: kandidat.linkedin_url ?? kandidat.linkedin ?? '',
+    portfolio_url: kandidat.portfolio_url ?? '',
     id: kandidat.id ?? '',
     gender: (!kandidat.gender || kandidat.gender === 'N/A') ? '' : kandidat.gender,
     jurusan: kandidat.jurusan ?? '',
@@ -606,6 +643,25 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
     if (next.has(i)) next.delete(i); else next.add(i);
     setExpandedExp(next);
   };
+
+  const expDescRefs = useRef({});
+  const [overflowingExp, setOverflowingExp] = useState(new Set());
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      setOverflowingExp(prev => {
+        const next = new Set(prev);
+        Object.entries(expDescRefs.current).forEach(([id, el]) => {
+          if (!el) return;
+          const numId = Number(id);
+          if (expandedExp.has(numId)) return;
+          if (isClampOverflowing(el)) next.add(numId);
+          else next.delete(numId);
+        });
+        return next;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pengalamanList]);
 
   /* ══════════════════════════════ JSX ══════════════════════════════ */
   return (
@@ -759,11 +815,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                       <span className="kd-edu-item-sub">{sert.periode}</span>
                       {(sert.deskripsi?.[0]) && (
                         <div className="kd-exp-desc-display">
-                          <div className={`kd-exp-desc-text${expandedSert.has(sert.id) ? '' : ' kd-exp-desc-collapsed'}`}
+                          <div
+                            ref={el => { if (el) sertDescRefs.current[sert.id] = el; }}
+                            className={`kd-exp-desc-text${expandedSert.has(sert.id) ? '' : ' kd-exp-desc-collapsed'}`}
                             dangerouslySetInnerHTML={{ __html: sert.deskripsi.map(d => `• ${d}`).join('<br/>') }} />
-                          <button className="kd-read-more" onClick={e => { e.stopPropagation(); toggleSert(sert.id); }}>
-                            {expandedSert.has(sert.id) ? 'Lihat Lebih Sedikit' : 'Lihat Lebih Banyak'}
-                          </button>
+                          {overflowingSert.has(sert.id) && (
+                            <button className="kd-read-more" onClick={e => { e.stopPropagation(); toggleSert(sert.id); }}>
+                              {expandedSert.has(sert.id) ? 'Lihat Lebih Sedikit' : 'Lihat Lebih Banyak'}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -985,11 +1045,15 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                       <span className="kd-edu-item-sub">{exp.periode}</span>
                       {exp.deskripsi?.[0] && (
                         <div className="kd-exp-desc-display">
-                          <div className={`kd-exp-desc-text${expandedExp.has(exp.id) ? '' : ' kd-exp-desc-collapsed'}`}
+                          <div
+                            ref={el => { if (el) expDescRefs.current[exp.id] = el; }}
+                            className={`kd-exp-desc-text${expandedExp.has(exp.id) ? '' : ' kd-exp-desc-collapsed'}`}
                             dangerouslySetInnerHTML={{ __html: exp.deskripsi.map(d => `• ${d}`).join('<br/>') }} />
-                          <button className="kd-read-more" onClick={e => { e.stopPropagation(); toggleExp(exp.id); }}>
-                            {expandedExp.has(exp.id) ? 'Lihat Lebih Sedikit' : 'Lihat Lebih Banyak'}
-                          </button>
+                          {overflowingExp.has(exp.id) && (
+                            <button className="kd-read-more" onClick={e => { e.stopPropagation(); toggleExp(exp.id); }}>
+                              {expandedExp.has(exp.id) ? 'Lihat Lebih Sedikit' : 'Lihat Lebih Banyak'}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1038,12 +1102,14 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
               <div className="kd-edu-form-card">
                 <input className="kd-edu-input" placeholder="Nama Institusi *" value={newEdu.institusi} onChange={e => setNewEdu(p => ({ ...p, institusi: e.target.value }))} />
                 <input className="kd-edu-input" placeholder="Jenjang / Gelar *" value={newEdu.jenjang} onChange={e => setNewEdu(p => ({ ...p, jenjang: e.target.value }))} />
+                <input className="kd-edu-input" placeholder="Jurusan" value={newEdu.jurusan} onChange={e => setNewEdu(p => ({ ...p, jurusan: e.target.value }))} />
+                <input className="kd-edu-input" placeholder="IPK / GPA" value={newEdu.gpa} onChange={e => setNewEdu(p => ({ ...p, gpa: e.target.value }))} />
                 <div className="kd-entry-date-row">
                   <DateInputField label="Tanggal Masuk" value={newEdu.tglMulai} onChange={e => setNewEdu(p => ({ ...p, tglMulai: e.target.value }))} />
                   <DateInputField label="Tanggal Lulus" value={newEdu.tglSelesai} onChange={e => setNewEdu(p => ({ ...p, tglSelesai: e.target.value }))} />
                 </div>
                 <div className="kd-entry-row-actions">
-                  <button className="sd-edit-cancel-btn" onClick={() => { setAddingEdu(false); setNewEdu({ institusi: '', jenjang: '', tglMulai: '', tglSelesai: '' }); }}>Batal</button>
+                  <button className="sd-edit-cancel-btn" onClick={() => { setAddingEdu(false); setNewEdu({ institusi: '', jenjang: '', jurusan: '', gpa: '', tglMulai: '', tglSelesai: '' }); }}>Batal</button>
                   <button className="sd-edit-save-btn" onClick={confirmEdu}>Simpan</button>
                 </div>
               </div>
@@ -1064,6 +1130,8 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                   <div className="kd-edu-form-card">
                     <input className="kd-edu-input" placeholder="Nama Institusi *" value={editEduData.institusi} onChange={e => setEditEduData(p => ({ ...p, institusi: e.target.value }))} />
                     <input className="kd-edu-input" placeholder="Jenjang / Gelar *" value={editEduData.jenjang} onChange={e => setEditEduData(p => ({ ...p, jenjang: e.target.value }))} />
+                    <input className="kd-edu-input" placeholder="Jurusan" value={editEduData.jurusan} onChange={e => setEditEduData(p => ({ ...p, jurusan: e.target.value }))} />
+                    <input className="kd-edu-input" placeholder="IPK / GPA" value={editEduData.gpa} onChange={e => setEditEduData(p => ({ ...p, gpa: e.target.value }))} />
                     <div className="kd-entry-date-row">
                       <DateInputField label="Tanggal Masuk" value={editEduData.tglMulai} onChange={e => setEditEduData(p => ({ ...p, tglMulai: e.target.value }))} />
                       <DateInputField label="Tanggal Lulus" value={editEduData.tglSelesai} onChange={e => setEditEduData(p => ({ ...p, tglSelesai: e.target.value }))} />
@@ -1077,8 +1145,9 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                   <div className="kd-edu-item kd-item-clickable" onClick={() => startInlineEditEdu(edu)}>
                     <div className="kd-edu-item-content">
                       <span className="kd-edu-item-name">{edu.institusi}</span>
-                      <span className="kd-edu-item-sub">{edu.gelar}</span>
+                      <span className="kd-edu-item-sub">{[edu.gelar, edu.jurusan].filter(Boolean).join(' - ')}</span>
                       <span className="kd-edu-item-sub">{edu.periode}</span>
+                      {edu.gpa && <span className="kd-edu-item-sub">IPK {edu.gpa}</span>}
                     </div>
                     <div className="kd-three-dot-wrap" onClick={e => e.stopPropagation()}>
                       <button className="kd-three-dot-btn" onClick={() => setEduMenuOpen(prev => prev === edu.id ? null : edu.id)}>

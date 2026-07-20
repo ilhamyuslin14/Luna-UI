@@ -193,7 +193,8 @@ export default function KandidatDetail({ kandidat = {}, navigate, back }) {
         tipe_aktivitas: 'scoring_only',
         scoring_status: 'menunggu',
         kandidat_id: kandidatId,
-        source: 'HR'
+        source: 'HR',
+        posisi_nama: posisiNama || null,
       });
       logId = log?.id;
     } catch(e) {

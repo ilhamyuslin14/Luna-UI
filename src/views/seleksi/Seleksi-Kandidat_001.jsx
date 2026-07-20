@@ -253,10 +253,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
       <div className="sdk001-actions-bar">
         {back && <BackButton onClick={back} />}
         <div className="sdk001-right-actions" style={!back ? { marginLeft: 'auto' } : {}}>
-          <div className="sdk001-stats-badge">
-            Jumlah Kandidat : <strong>{filteredData.length}</strong>
-          </div>
-          <div className="sdk001-bar-divider" />
+          <div className="sdk001-stats-badge">{filteredData.length} kandidat</div>
 
           {selected.size > 0 && (
             <CTABulkAksi

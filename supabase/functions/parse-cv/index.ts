@@ -22,6 +22,7 @@ const CV_RESPONSE_SCHEMA = {
       properties: {
         nama_lengkap: { type: 'STRING', nullable: true },
         linkedin: { type: 'STRING', nullable: true },
+        portfolio: { type: 'STRING', nullable: true, description: 'Link portofolio kandidat jika ada, misalnya GitHub, personal website, Behance, Dribbble, dsb.' },
         gender: { type: 'STRING', nullable: true },
         tanggal_lahir: { type: 'STRING', nullable: true },
         domisili: { type: 'STRING', nullable: true },
@@ -101,6 +102,7 @@ const OAI_DETAIL_KANDIDAT = {
   properties: {
     nama_lengkap: OAI_STRING_N,
     linkedin: OAI_STRING_N,
+    portfolio: OAI_STRING_N,
     gender: OAI_STRING_N,
     tanggal_lahir: OAI_STRING_N,
     domisili: OAI_STRING_N,
@@ -111,7 +113,7 @@ const OAI_DETAIL_KANDIDAT = {
     perusahaan_saat_ini: OAI_STRING_N,
     jabatan_saat_ini: OAI_STRING_N,
   },
-  required: ['nama_lengkap', 'linkedin', 'gender', 'tanggal_lahir', 'domisili', 'email', 'no_telpon', 'jurusan', 'universitas', 'perusahaan_saat_ini', 'jabatan_saat_ini'],
+  required: ['nama_lengkap', 'linkedin', 'portfolio', 'gender', 'tanggal_lahir', 'domisili', 'email', 'no_telpon', 'jurusan', 'universitas', 'perusahaan_saat_ini', 'jabatan_saat_ini'],
   additionalProperties: false,
 }
 
@@ -595,6 +597,7 @@ serve(async (req) => {
       email: dk.email || null,
       phone: dk.no_telpon || null,
       linkedin_url: dk.linkedin || null,
+      portfolio_url: dk.portfolio || null,
       gender: dk.gender || null,
       tgl_lahir: dk.tanggal_lahir || null,
       domisili: dk.domisili || null,
