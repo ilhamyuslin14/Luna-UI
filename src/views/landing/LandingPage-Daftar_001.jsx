@@ -115,7 +115,7 @@ export default function LandingPageDaftar_001({ navigate }) {
             <h1 className="lpm-left-title" style={{ color: '#fff', fontSize: '48px', fontWeight: '700', marginBottom: '24px', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
               Bangun Ekosistem Rekrutmen Anda            </h1>
             <p className="lpm-left-subtitle" style={{ color: 'rgba(255,255,255,0.95)', fontSize: '18px', lineHeight: '1.8', fontWeight: '400' }}>
-              LUNA ATS memadukan kecerdasan buatan dengan desain intuitif untuk menyortir, menganalisis, dan memilih kandidat terbaik dari ribuan pelamar. Nikmati alur kerja yang terstruktur dan tingkatkan efisiensi waktu hiring Anda hingga 3x lebih cepat.
+              LUNA ATS memadukan kecerdasan buatan dengan desain intuitif untuk menyortir, menganalisis, dan memilih kandidat terbaik dari ribuan pelamar. Nikmati alur kerja yang terstruktur dan tingkatkan efisiensi waktu hiring Anda.
             </p>
           </div>
 

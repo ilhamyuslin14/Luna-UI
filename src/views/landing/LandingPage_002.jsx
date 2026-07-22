@@ -116,7 +116,7 @@ export default function LandingPage_002({ navigate }) {
       title: "AI Matching & Scoring",
       icon: "/assets/landing/lp-icon-brain.svg",
       bg: "#f4f3fe",
-      desc: "AI membaca Kriteria Penilaian yang telah dibuat dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan bebas bias secara akurat."
+      desc: "AI membaca Kriteria Penilaian yang telah dibuat dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan tanpa bias."
     },
     {
       title: "Pipeline Management",
@@ -167,7 +167,7 @@ export default function LandingPage_002({ navigate }) {
             <span className="lp-hero-title-highlight">untuk Rekrutmen Modern.</span>
           </h1>
           <p className="lp-hero-subtitle">
-            Berhenti membaca ratusan CV satu per satu — biarkan AI kami menyaring, menilai, dan merapikan pipeline rekrutmen Anda dalam hitungan detik.
+            Berhenti membaca ratusan CV satu per satu — biarkan AI kami menyaring, menilai, dan merapikan pipeline rekrutmen Anda dalam hitungan menit.
           </p>
           <div className="lp-hero-ctas lp-hide-on-mobile">
             <button className="lp-hero-btn-primary" onClick={() => navigate?.('landingpage-daftar_001')}>
@@ -326,7 +326,7 @@ export default function LandingPage_002({ navigate }) {
             </div>
             <div className="lp-feature-text">
               <h3 className="lp-feature-name">AI Matching &amp; Scoring</h3>
-              <p className="lp-feature-desc">AI membaca Job Description dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan bebas bias secara akurat.</p>
+              <p className="lp-feature-desc">AI membaca Job Description dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan tanpa bias.</p>
             </div>
           </div>
           <div className="lp-feature-card">
