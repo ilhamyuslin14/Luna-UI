@@ -113,16 +113,16 @@ export default function LandingPage_002({ navigate }) {
       desc: "Tarik dan lepas puluhan CV sekaligus dalam format PDF atau DOCX. Sistem mengekstrak data dalam sekejap tanpa data-entry manual."
     },
     {
-      title: "AI Matching & Scoring",
+      title: "Pencocokan & Penilaian AI",
       icon: "/assets/landing/lp-icon-brain.svg",
       bg: "#f4f3fe",
-      desc: "AI membaca Kriteria Penilaian yang telah dibuat dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan tanpa bias."
+      desc: "AI mencocokkan Kriteria Penilaian dengan kualifikasi kandidat secara objektif, membantu mengurangi bias screening."
     },
     {
-      title: "Pipeline Management",
+      title: "Pipeline Rekrutmen",
       icon: "/assets/landing/lp-icon-pipeline.svg",
       bg: "#ecfcf8",
-      desc: "Kelola kandidat dari Screening hingga Hired dalam satu Kanban board intuitif dengan fitur drag-and-drop."
+      desc: "Kelola kandidat dari screening hingga Hired dalam satu Kanban board intuitif dengan fitur drag-and-drop."
     }
   ];
 
@@ -316,7 +316,7 @@ export default function LandingPage_002({ navigate }) {
               <img src="/assets/landing/lp-icon-upload.svg" alt="" />
             </div>
             <div className="lp-feature-text">
-              <h3 className="lp-feature-name">Upload CV Massal</h3>
+              <h3 className="lp-feature-name">Unggah CV Massal</h3>
               <p className="lp-feature-desc">Tarik dan lepas puluhan CV sekaligus dalam format PDF atau DOCX. Sistem mengekstrak data dalam sekejap tanpa data-entry manual.</p>
             </div>
           </div>
@@ -325,8 +325,8 @@ export default function LandingPage_002({ navigate }) {
               <img src="/assets/landing/lp-icon-brain.svg" alt="" />
             </div>
             <div className="lp-feature-text">
-              <h3 className="lp-feature-name">AI Matching &amp; Scoring</h3>
-              <p className="lp-feature-desc">AI membaca Job Description dan mencocokkannya dengan kualifikasi kandidat, menghasilkan skor instan tanpa bias.</p>
+              <h3 className="lp-feature-name">Pencocokan &amp; Penilaian AI</h3>
+              <p className="lp-feature-desc">AI mencocokkan Deskripsi Pekerjaan dengan kualifikasi kandidat secara objektif, membantu mengurangi bias screening.</p>
             </div>
           </div>
           <div className="lp-feature-card">
@@ -334,8 +334,8 @@ export default function LandingPage_002({ navigate }) {
               <img src="/assets/landing/lp-icon-pipeline.svg" alt="" />
             </div>
             <div className="lp-feature-text">
-              <h3 className="lp-feature-name">Pipeline Management</h3>
-              <p className="lp-feature-desc">Kelola kandidat dari Screening hingga Hired dalam satu Kanban board intuitif dengan fitur drag-and-drop.</p>
+              <h3 className="lp-feature-name">Pipeline Rekrutmen</h3>
+              <p className="lp-feature-desc">Kelola kandidat dari screening hingga Hired dalam satu Kanban board intuitif dengan fitur drag-and-drop.</p>
             </div>
           </div>
         </div>
@@ -658,7 +658,7 @@ export default function LandingPage_002({ navigate }) {
         <img src="/assets/landing/lp-cta-bg2-dark.svg" alt="" className="lp-cta-bg2" />
         <div className="lp-cta-content">
           <h2 className="lp-cta-title">Siap mentransformasi cara Anda merekrut?</h2>
-          <p className="lp-cta-subtitle">Bergabunglah sekarang dan rasakan efisiensi sistem ATS berbasis AI dalam 14 hari ke depan. Tanpa risiko, tanpa komitmen awal.</p>
+          <p className="lp-cta-subtitle">Bergabunglah sekarang dan rasakan efisiensi sistem ATS berbasis AI melalui uji coba gratis selama 14 hari.</p>
           <button className="lp-cta-btn" onClick={() => navigate?.('landingpage-daftar_001')}>Mulai Coba Gratis 14 Hari</button>
         </div>
       </section>
