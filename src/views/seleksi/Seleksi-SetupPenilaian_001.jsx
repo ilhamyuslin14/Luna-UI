@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { createSeleksi } from '../../services/seleksiService.js';
 import { getDepartments, createDepartment } from '../../services/departmentService.js';
+import { invalidate } from '../../services/dataCache.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { ID_REGIONS } from '../../utils/idRegions.js';
 import Toast from '../../components/Toast.jsx';
@@ -251,6 +252,7 @@ export default function SetupPenilaian_001({ navigate }) {
     setIsCreatingDept(true);
     try {
       const newDept = await createDepartment(companyId, { name: newDeptName.trim(), description: newDeptDesc.trim() });
+      invalidate('departemen');
       setDepartments(prev => [newDept, ...prev]);
       setForm(prev => ({ ...prev, departemen: newDept.id }));
       setShowDeptModal(false);
@@ -360,6 +362,7 @@ export default function SetupPenilaian_001({ navigate }) {
         kode: `LUN-${Math.floor(Math.random() * 10000)}`,
         kriteria: isSufficientDesc ? [{ _isGenerating: true }] : []
       });
+      invalidate('seleksi');
 
       // Panggil serverless function untuk merumuskan kriteria secara asinkron (fire and forget)
       if (isSufficientDesc) {

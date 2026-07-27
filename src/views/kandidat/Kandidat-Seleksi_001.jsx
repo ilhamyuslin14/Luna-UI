@@ -7,6 +7,7 @@ import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getScoringByKandidat, updateAlurProses } from '../../services/scoringService.js';
+import { invalidate } from '../../services/dataCache.js';
 import { getAlurSeleksi, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
 
 const FIT_CONFIG = {
@@ -161,7 +162,7 @@ export default function KandidatSeleksi_001({ back, navigate, kandidat }) {
     setRows(prev => prev.map(r => r.id === scoringId ? { ...r, alur: level, alurNama: alurNama(level) } : r));
     setOpenAlurRow(null);
     updateAlurProses(scoringId, level)
-      .then(() => showToast('Alur berhasil diubah', `Dipindahkan ke ${alurNama(level)}`))
+      .then(() => { invalidate('karyawan'); showToast('Alur berhasil diubah', `Dipindahkan ke ${alurNama(level)}`); })
       .catch(err => {
         setRows(prev => prev.map(r => r.id === scoringId ? { ...r, alur: row.alur, alurNama: row.alurNama } : r));
         showToast('Gagal memperbarui alur', err.message);

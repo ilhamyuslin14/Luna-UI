@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 import { supabase } from '../config/supabase.js';
 import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../services/kandidatService.js';
 import { runScoring } from '../services/scoringService.js';
+import { invalidate } from '../services/dataCache.js';
 import { useAuth } from './AuthContext.jsx';
 
 const UploadContext = createContext();
@@ -100,6 +101,8 @@ export function UploadProvider({ children }) {
 
     try {
       await runScoring(job.kandidatId, job.seleksiId, job.companyId);
+      invalidate('seleksi');
+      invalidate('karyawan');
       scoringQueueRef.current[idx] = { ...scoringQueueRef.current[idx], status: 'done' };
       if (job.logId) {
         await updateActivityLog(job.logId, { scoring_status: 'berhasil' }).catch(()=>{});
@@ -201,6 +204,8 @@ export function UploadProvider({ children }) {
           kandidat_id: data?.id || null,
         }).catch(()=>{});
       }
+
+      invalidate('kandidat');
 
       // Enqueue scoring jika posisi dipilih dan upload berhasil
       if (target.posisi?.id && data?.id) {

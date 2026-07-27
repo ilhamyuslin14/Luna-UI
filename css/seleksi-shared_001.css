@@ -89,11 +89,22 @@
   font-size: 12px;
   font-weight: 600;
   font-family: 'Inter Tight', sans-serif;
-  padding: 0 14px;
+  padding: 0 14px 0 8px;
   height: 32px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
+}
+
+.sd001-header-btn-primary-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .sd001-header-btn-primary:hover {
@@ -821,6 +832,187 @@
 .sd001-bobot-badge.rendah {
   border: 1px solid #cbd0db;
   color: #abb2c1;
+}
+
+/* ─── Kriteria Penilaian — versi compact (Opsi B), dipakai KriteriaPenilaian_002 ─── */
+.sd002-kriteria-content {
+  padding: 12px 20px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sd002-ai-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  color: #7e8799;
+  line-height: 1.5;
+}
+
+.sd002-ai-line b {
+  color: var(--luna-orange-500);
+  font-weight: 700;
+}
+
+.sd002-kriteria-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sd002-kriteria-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd002-kriteria-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.sd002-kriteria-section-title.wajib {
+  color: var(--luna-orange-500);
+}
+
+.sd002-kriteria-section-title.tambahan {
+  color: #323b4d;
+}
+
+.sd002-kriteria-section-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sd002-kriteria-section-title.wajib .sd002-kriteria-section-dot {
+  background: var(--luna-orange-500);
+}
+
+.sd002-kriteria-section-title.tambahan .sd002-kriteria-section-dot {
+  background: #7e8799;
+}
+
+.sd002-kriteria-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sd002-kriteria-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sd002-kriteria-item:hover {
+  background: #f9fafc;
+}
+
+/* Slot ukuran tetap di pojok kanan — badge bobot & label "Edit" ditumpuk
+   absolute di dalamnya dan saling crossfade, jadi posisinya selalu flush
+   kanan dan tidak pernah geser/tabrakan terlepas dari panjang teks kriteria. */
+.sd002-bobot-slot {
+  position: relative;
+  flex-shrink: 0;
+  width: 54px;
+  height: 16px;
+  margin-left: auto;
+}
+
+.sd002-kriteria-item-text {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: #323b4d;
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 13px;
+  position: relative;
+}
+
+.sd002-kriteria-item-text::before {
+  content: '•';
+  position: absolute;
+  left: 2px;
+  color: #abb2c1;
+}
+
+.sd002-bobot-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+
+.sd002-kriteria-item:hover .sd002-bobot-wrap {
+  opacity: 0;
+}
+
+.sd002-bobot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sd002-bobot-dot.tinggi {
+  background: #089f32;
+}
+
+.sd002-bobot-dot.sedang {
+  background: #fd800c;
+}
+
+.sd002-bobot-dot.rendah {
+  background: #abb2c1;
+}
+
+.sd002-bobot-text {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #7e8799;
+  white-space: nowrap;
+}
+
+.sd002-kriteria-item-edit-label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--luna-orange-500);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.sd002-kriteria-item:hover .sd002-kriteria-item-edit-label {
+  opacity: 1;
 }
 
 /* ─── Back Button (breadcrumb-like) ────────────────────────── */

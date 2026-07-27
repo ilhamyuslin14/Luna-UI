@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getDashboardMetrics, getRecentJobs, getRecentActivities } from '../../services/dashboardService.js';
 import { supabase } from '../../config/supabase.js';
+import { getCached } from '../../services/dataCache.js';
 
 const STATUS_CONFIG = {
   rencana: { icon: '/assets/status/status_rencana.svg', label: 'Rencana' },
@@ -31,13 +32,25 @@ export default function Beranda({ navigate }) {
   });
   const [recentJobs, setRecentJobs] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (companyId) {
-      getDashboardMetrics(companyId).then(data => setMetrics(data));
-      getRecentJobs(companyId).then(data => setRecentJobs(data));
-      getRecentActivities(companyId).then(data => setRecentActivities(data));
-    }
+    if (!companyId) return;
+    setIsLoading(true);
+    getCached(`beranda:${companyId}`, async () => {
+      const [metrics, recentJobs, recentActivities] = await Promise.all([
+        getDashboardMetrics(companyId),
+        getRecentJobs(companyId),
+        getRecentActivities(companyId),
+      ]);
+      return { metrics, recentJobs, recentActivities };
+    })
+      .then(data => {
+        setMetrics(data.metrics);
+        setRecentJobs(data.recentJobs);
+        setRecentActivities(data.recentActivities);
+      })
+      .finally(() => setIsLoading(false));
   }, [companyId]);
 
   return (
@@ -51,12 +64,20 @@ export default function Beranda({ navigate }) {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
           </div>
-          <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-value"></div>
+          ) : (
+            <div className="db-stat-value">{metrics.totalKandidat.toLocaleString()}</div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="db-stat-badge">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-              +{metrics.trends?.kandidat || 0} di bulan ini
-            </div>
+            {isLoading ? (
+              <div className="db-skeleton db-skeleton-badge"></div>
+            ) : (
+              <div className="db-stat-badge">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                +{metrics.trends?.kandidat || 0} di bulan ini
+              </div>
+            )}
           </div>
         </div>
 
@@ -67,11 +88,19 @@ export default function Beranda({ navigate }) {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
           </div>
-          <div className="db-stat-value">{metrics.lowonganAktif.toLocaleString()}</div>
-          <div className="db-stat-badge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            +{metrics.trends?.lowongan || 0} di bulan ini
-          </div>
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-value"></div>
+          ) : (
+            <div className="db-stat-value">{metrics.lowonganAktif.toLocaleString()}</div>
+          )}
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-badge"></div>
+          ) : (
+            <div className="db-stat-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              +{metrics.trends?.lowongan || 0} di bulan ini
+            </div>
+          )}
         </div>
 
         <div className="db-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('karyawan')}>
@@ -81,18 +110,30 @@ export default function Beranda({ navigate }) {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
           </div>
-          <div className="db-stat-value">{metrics.direkrut.toLocaleString()}</div>
-          <div className="db-stat-badge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            +{metrics.trends?.direkrut || 0} di bulan ini
-          </div>
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-value"></div>
+          ) : (
+            <div className="db-stat-value">{metrics.direkrut.toLocaleString()}</div>
+          )}
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-badge"></div>
+          ) : (
+            <div className="db-stat-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              +{metrics.trends?.direkrut || 0} di bulan ini
+            </div>
+          )}
         </div>
 
         <div className="db-stat-card">
           <div className="db-stat-card-header">
             <div className="db-stat-label">Rata-rata Penilaian</div>
           </div>
-          <div className="db-stat-value">{metrics.rataKecocokan}%</div>
+          {isLoading ? (
+            <div className="db-skeleton db-skeleton-value"></div>
+          ) : (
+            <div className="db-stat-value">{metrics.rataKecocokan}%</div>
+          )}
           <div className="db-stat-badge">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             Metrik Keseluruhan
@@ -156,7 +197,11 @@ export default function Beranda({ navigate }) {
                 <div>Kandidat Baru</div>
                 <div>Status</div>
               </div>
-              {recentJobs.length > 0 ? (
+              {isLoading ? (
+                <div style={{ padding: '24px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+                  Memuat data posisi...
+                </div>
+              ) : recentJobs.length > 0 ? (
                 recentJobs.map((row, i) => {
                   const statusKey = (row.status || 'rencana').toLowerCase();
                   const cfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.rencana;
@@ -190,7 +235,11 @@ export default function Beranda({ navigate }) {
           <div className="db-activity-card">
             <h2 className="db-section-title">Aktivitas Terbaru</h2>
             <div className="db-activity-list">
-              {recentActivities.length > 0 ? (
+              {isLoading ? (
+                <div style={{ padding: '24px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+                  Memuat data aktivitas...
+                </div>
+              ) : recentActivities.length > 0 ? (
                 recentActivities.map((item, i) => (
                   <div className="db-activity-item" key={i}>
                     <div className="db-activity-icon-wrapper" style={{ background: item.bg }}>

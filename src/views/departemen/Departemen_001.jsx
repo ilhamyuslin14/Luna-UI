@@ -7,6 +7,7 @@ import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getDepartments, createDepartment, archiveDepartment, unarchiveDepartment } from '../../services/departmentService.js';
+import { getCached, invalidate } from '../../services/dataCache.js';
 
 const ArchiveSvg = () => (
   <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5 }}>
@@ -47,7 +48,8 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
     const bothOn = activeFilters.has('Arsip') && activeFilters.has('Aktif');
     const archiveOnly = activeFilters.has('Arsip') && !activeFilters.has('Aktif');
     setLoading(true);
-    getDepartments({ showArchived: archiveOnly, showAll: bothOn })
+    const cacheKey = `departemen:${companyId}:${archiveOnly}:${bothOn}`;
+    getCached(cacheKey, () => getDepartments({ showArchived: archiveOnly, showAll: bothOn }))
       .then(data => setDeptData(data))
       .catch(() => showToast('Gagal memuat data', 'Terjadi kesalahan saat memuat departemen'))
       .finally(() => setLoading(false));
@@ -131,6 +133,7 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
     if (!namaInput.trim() || !companyId) return;
     try {
       await createDepartment(companyId, { name: namaInput.trim(), description: deskripsiInput.trim() });
+      invalidate('departemen');
       showToast('Berhasil', 'Departemen baru telah ditambahkan');
       closeAddModal();
       fetchDepts();
@@ -150,6 +153,7 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
         await archiveDepartment(archiveTarget.id);
         showToast('Departemen diarsipkan', 'Data dipindahkan ke arsip');
       }
+      invalidate('departemen');
       fetchDepts();
     } catch {
       showToast('Gagal', 'Terjadi kesalahan saat mengarsipkan');
@@ -168,6 +172,7 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
         await unarchiveDepartment(unarchiveTarget.id);
         showToast('Departemen ditampilkan kembali', 'Status diubah ke aktif');
       }
+      invalidate('departemen');
       fetchDepts();
     } catch {
       showToast('Gagal', 'Terjadi kesalahan saat menampilkan departemen');
@@ -253,9 +258,9 @@ export default function Departemen_001({ navigate, searchQuery = '' }) {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>Memuat data...</td></tr>
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data departemen...</td></tr>
               ) : pagedData.length === 0 ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
                   {showArchived ? 'Tidak ada departemen yang diarsipkan.' : 'Belum ada departemen. Silakan tambah baru.'}
                 </td></tr>
               ) : pagedData.map((dept) => {

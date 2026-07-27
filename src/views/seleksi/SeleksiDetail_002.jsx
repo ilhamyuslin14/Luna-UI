@@ -5,7 +5,7 @@ import ToastProgress from '../../components/ToastProgress.jsx';
 import Toast from '../../components/Toast.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import SeleksiKandidat_001 from './Seleksi-Kandidat_001.jsx';
-import SeleksiRingkasan_001 from './Seleksi-Ringkasan_001.jsx';
+import SeleksiRingkasan_002 from './Seleksi-Ringkasan_002.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksiById, updateSeleksi, duplicateSeleksi, archiveSeleksi } from '../../services/seleksiService.js';
 import { invalidate } from '../../services/dataCache.js';
@@ -54,7 +54,7 @@ const StatusIcon = ({ val, size = 13 }) => {
   return null;
 };
 
-export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
+export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId } = useAuth();
   
   const [recruitStatus, setRecruitStatus] = useState('rencana');
@@ -141,7 +141,7 @@ export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan =
     try {
       const duplicated = await duplicateSeleksi(seleksiId);
       invalidate('seleksi');
-      navigate('seleksi-detail_001', { seleksiId: duplicated.id, jabatan: duplicated.jabatan, activeTab: 'ringkasan' });
+      navigate('seleksi-detail_002', { seleksiId: duplicated.id, jabatan: duplicated.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
       console.error(err);
       setToast({ message: 'Gagal menduplikat', subMessage: err.message || 'Terjadi kesalahan.', type: 'error' });
@@ -347,7 +347,7 @@ export default function SeleksiDetail_001({ seleksiId, jabatan: initialJabatan =
             }}>
               <BackButton onClick={() => back ? back() : navigate('seleksi_001')} />
             </div>
-            <SeleksiRingkasan_001 seleksiId={seleksiId} jabatan={jabatan} />
+            <SeleksiRingkasan_002 seleksiId={seleksiId} jabatan={jabatan} />
           </>
         )}
       </div>

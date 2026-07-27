@@ -118,6 +118,34 @@
   color: white;
 }
 
+@keyframes db-skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.db-skeleton {
+  display: inline-block;
+  border-radius: 6px;
+  background: #f0f2f6;
+  animation: db-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.db-skeleton-value {
+  width: 72px;
+  height: 32px;
+  margin: 16px 0;
+}
+
+.db-skeleton-badge {
+  width: 110px;
+  height: 26px;
+  border-radius: 20px;
+}
+
+.db-stat-dark .db-skeleton {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .db-stat-badge {
   display: inline-flex;
   align-items: center;

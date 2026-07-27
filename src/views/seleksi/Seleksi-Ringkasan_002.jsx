@@ -12,7 +12,7 @@ const updateSeleksi = async (id, updates) => {
 };
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import Toast from '../../components/Toast.jsx';
-import KriteriaPenilaian_001 from '../../components/KriteriaPenilaian_001';
+import KriteriaPenilaian_002 from '../../components/KriteriaPenilaian_002';
 import InlineEditRow from '../../components/InlineEditRow.jsx';
 import { supabase } from '../../config/supabase.js';
 
@@ -193,7 +193,7 @@ const DESKRIPSI_HTML = `<h3 class="sd001-deskripsi-section-title">Role Overview<
 <li><strong>Mindset:</strong> A strong hunter mentality with the ability to sell the company vision.</li>
 </ul>`;
 
-export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Manager' }) {
+export default function SeleksiRingkasan_002({ seleksiId, jabatan = 'Project Manager' }) {
   const { companyId } = useAuth();
   const [departments, setDepartments] = useState([]);
   const [companyUsers, setCompanyUsers] = useState([]);
@@ -612,7 +612,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
 
       {/* Kolom Kanan */}
       <div className="sd001-col-right">
-        <KriteriaPenilaian_001
+        <KriteriaPenilaian_002
           kriteria={kriteria}
           onChange={(newKriteria) => {
             setKriteria(newKriteria);

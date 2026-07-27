@@ -114,6 +114,34 @@
   margin: 16px 0;
 }
 
+@keyframes db001-skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.db001-skeleton {
+  display: inline-block;
+  border-radius: 6px;
+  background: var(--luna-ink-100, #f0f2f6);
+  animation: db001-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.db001-skeleton-value {
+  width: 72px;
+  height: 32px;
+  margin: 16px 0;
+}
+
+.db001-skeleton-badge {
+  width: 110px;
+  height: 26px;
+  border-radius: 20px;
+}
+
+.db001-stat-dark .db001-skeleton {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .db001-stat-dark .db001-stat-value {
   color: var(--luna-ink-000);
 }

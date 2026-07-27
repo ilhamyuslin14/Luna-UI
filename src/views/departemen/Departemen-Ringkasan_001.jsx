@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect, memo } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getDepartmentByName, getDepartmentById, updateDepartmentDetails } from '../../services/departmentRingkasanService.js';
+import { getDepartmentByName, getDepartmentById, updateDepartmentDetails as updateDepartmentDetailsRaw } from '../../services/departmentRingkasanService.js';
+import { invalidate } from '../../services/dataCache.js';
 import Toast from '../../components/Toast.jsx';
+
+const updateDepartmentDetails = async (id, updates) => {
+  const result = await updateDepartmentDetailsRaw(id, updates);
+  invalidate('departemen');
+  return result;
+};
 import InlineEditRow from '../../components/InlineEditRow.jsx';
 
 const EditIcon = () => (

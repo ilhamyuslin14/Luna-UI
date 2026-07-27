@@ -7,6 +7,7 @@ import SortDropdown from '../../components/SortDropdown.jsx';
 import Pagination from '../../components/Pagination.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksi, updateSeleksiStatus, getKandidatCountBySeleksi, getMaxAlurBySeleksi, archiveSeleksi, unarchiveSeleksi } from '../../services/seleksiService.js';
+import { getCached, invalidate } from '../../services/dataCache.js';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
 
@@ -68,12 +69,16 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
       if (!companyId) return;
       try {
         setIsLoading(true);
-        const [data, kandCountMap, maxAlurMap, alur] = await Promise.all([
-          getSeleksi(companyId, { showAll: true }),
-          getKandidatCountBySeleksi(companyId),
-          getMaxAlurBySeleksi(companyId),
-          getAlurSeleksi(companyId),
-        ]);
+        const cacheKey = `seleksi:${companyId}:false:true`;
+        const { data, kandCountMap, maxAlurMap, alur } = await getCached(cacheKey, async () => {
+          const [data, kandCountMap, maxAlurMap, alur] = await Promise.all([
+            getSeleksi(companyId, { showAll: true }),
+            getKandidatCountBySeleksi(companyId),
+            getMaxAlurBySeleksi(companyId),
+            getAlurSeleksi(companyId),
+          ]);
+          return { data, kandCountMap, maxAlurMap, alur };
+        });
         setAlurList(alur);
         
         let rawData = data || [];
@@ -188,7 +193,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
     setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
     updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
-      .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${label}`))
+      .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${label}`); })
       .catch(err => {
         console.error('Gagal update status seleksi:', err);
         showToast('Gagal memperbarui status', err.message);
@@ -394,6 +399,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
             setArchiveModal(null);
             try {
               await Promise.all(archiveModal.ids.map(id => archiveSeleksi(id)));
+              invalidate('seleksi');
               setRows(prev => prev.map(r => archiveModal.ids.includes(r.id) ? { ...r, arsip: true } : r));
               setSelectedRows(new Set());
               showToast('Berhasil diarsipkan', `${archiveModal.ids.length} posisi dipindahkan ke arsip`);
@@ -417,6 +423,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
               setUnarchiveModal(null);
               try {
                 await Promise.all(ids.map(id => unarchiveSeleksi(id)));
+                invalidate('seleksi');
                 setRows(prev => prev.map(r => ids.includes(r.id) ? { ...r, arsip: false } : r));
                 setSelectedRows(new Set());
                 showToast('Posisi ditampilkan', `${ids.length} posisi kembali aktif`);
@@ -428,6 +435,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
               setUnarchiveModal(null);
               try {
                 await unarchiveSeleksi(id);
+                invalidate('seleksi');
                 setRows(prev => prev.map(r => r.id === id ? { ...r, arsip: false } : r));
                 showToast('Posisi ditampilkan', `${posisi} kembali aktif`);
               } catch {

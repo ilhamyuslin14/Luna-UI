@@ -9,6 +9,7 @@ import {
   unarchiveSeleksi,
 } from '../../services/seleksiService.js';
 import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
+import { getCached, invalidate } from '../../services/dataCache.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
@@ -135,12 +136,16 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       const showArchived = opts.showArchived ?? filterArchiveOnly;
       const showAll = opts.showAll ?? filterBothOn;
 
-      const [data, kandCountMap, maxMap, alur] = await Promise.all([
-        getSeleksi(companyId, { showArchived, showAll }),
-        getKandidatCountBySeleksi(companyId),
-        getMaxAlurBySeleksi(companyId),
-        getAlurSeleksi(companyId),
-      ]);
+      const cacheKey = `seleksi:${companyId}:${showArchived}:${showAll}`;
+      const { data, kandCountMap, maxMap, alur } = await getCached(cacheKey, async () => {
+        const [data, kandCountMap, maxMap, alur] = await Promise.all([
+          getSeleksi(companyId, { showArchived, showAll }),
+          getKandidatCountBySeleksi(companyId),
+          getMaxAlurBySeleksi(companyId),
+          getAlurSeleksi(companyId),
+        ]);
+        return { data, kandCountMap, maxMap, alur };
+      });
 
       setAlurList(alur);
       setMaxAlurMap(maxMap);
@@ -240,7 +245,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
     setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
     updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
-      .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${label}`))
+      .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${label}`); })
       .catch(err => {
         showToast('Gagal memperbarui status', err.message);
         setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: r.status } : r));
@@ -256,6 +261,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       onConfirm: async () => {
         try {
           await Promise.all([...selectedRows].map(id => archiveSeleksi(id)));
+          invalidate('seleksi');
           showToast(`${n} posisi diarsipkan`, 'Data dipindahkan ke arsip');
           setSelectedRows(new Set());
           setShowBulkDropdown(false);
@@ -276,6 +282,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       onConfirm: async () => {
         try {
           await archiveSeleksi(row.id);
+          invalidate('seleksi');
           showToast('Posisi diarsipkan', 'Data dipindahkan ke arsip');
           setArchiveModal(null);
           loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
@@ -290,6 +297,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
   const handleUnarchiveConfirm = async () => {
     try {
       await unarchiveSeleksi(unarchiveTarget.id);
+      invalidate('seleksi');
       showToast('Posisi ditampilkan kembali', 'Status diubah ke aktif');
       setUnarchiveTarget(null);
       loadData({ showArchived: filterArchiveOnly, showAll: filterBothOn });
@@ -309,6 +317,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       onConfirm: async () => {
         try {
           if (card.id) await archiveSeleksi(card.id);
+          invalidate('seleksi');
           setBoardColumns(prev => {
             const cards = prev[colKey].cards.filter((_, i) => i !== cardIdx);
             return { ...prev, [colKey]: { ...prev[colKey], cards } };
@@ -341,6 +350,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
     try {
       // Update DB
       await updateSeleksi(cardToMove.id, { status: newStatusLabel });
+      invalidate('seleksi');
       showToast('Status Diperbarui', 'Status posisi berhasil diubah.');
 
       // Update Local State
@@ -372,7 +382,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
     setOpenCardStatus(null);
     if (card.id) {
       updateSeleksiStatus(card.id, STATUS_TO_DB[newStatus] || newStatus)
-        .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${STATUS_CONFIG[newStatus].label}`))
+        .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${STATUS_CONFIG[newStatus].label}`); })
         .catch(() => showToast('Gagal memperbarui status', 'Coba lagi'));
     }
   };
@@ -393,14 +403,6 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       </div>
       <div className="lw001-toolbar-spacer"></div>
       <div className="lw001-right-actions">
-        <div className="lw001-view-toggle">
-          <button className={`lw001-toggle-item${boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(true)}>
-            <IconPapan /> Papan
-          </button>
-          <button className={`lw001-toggle-item${!boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(false)}>
-            <IconList /> List
-          </button>
-        </div>
         {!boardMode && selectedRows.size > 0 && !activeFilters.has('Arsip') && (
           <CTABulkAksi
             count={selectedRows.size}
@@ -431,6 +433,14 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
           isOpen={showFilterDropdown}
           onToggleOpen={() => { setShowBulkDropdown(false); setShowSortDropdown(false); setShowFilterDropdown(v => !v); }}
         />
+        <div className="lw001-view-toggle">
+          <button className={`lw001-toggle-item${boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(true)}>
+            <IconPapan /> Papan
+          </button>
+          <button className={`lw001-toggle-item${!boardMode ? ' active' : ''}`} onClick={() => setIsBoardView(false)}>
+            <IconList /> List
+          </button>
+        </div>
         <button className="lw001-btn-primary" onClick={() => navigate('setup-penilaian_001')}>
           <span className="lw001-btn-primary-icon">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
@@ -602,9 +612,9 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>Memuat data...</td></tr>
+                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data posisi...</td></tr>
               ) : pagedRows.length === 0 ? (
-                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>
+                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
                   {filterArchiveOnly ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
                 </td></tr>
               ) : pagedRows.map((row) => {

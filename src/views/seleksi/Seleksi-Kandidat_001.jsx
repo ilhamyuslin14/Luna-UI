@@ -9,6 +9,7 @@ import PopupTidakSesuai from '../../components/PopupTidakSesuai.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getScoringBySeleksi, updateAlurProses, markTidakSesuai } from '../../services/scoringService.js';
+import { invalidate } from '../../services/dataCache.js';
 import { getAlurSeleksi, seedDefaultAlur, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
 
 const IconPapan = () => (
@@ -224,7 +225,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
     setData(prev => prev.map(item => item.scoringId === scoringId ? { ...item, alur: level } : item));
     setAlurOpen(null);
     updateAlurProses(scoringId, level)
-      .then(() => showToast('Alur berhasil diubah', `Kandidat dipindahkan ke ${alurNama(level)}`))
+      .then(() => { invalidate('karyawan'); showToast('Alur berhasil diubah', `Kandidat dipindahkan ke ${alurNama(level)}`); })
       .catch(err => {
         console.error('Gagal update alur:', err);
         setData(prev => prev.map(item => item.scoringId === scoringId ? { ...item, alur: row.alur } : item));

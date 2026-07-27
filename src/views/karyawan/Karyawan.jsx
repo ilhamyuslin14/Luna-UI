@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getEmployees } from '../../services/employeeService.js';
 import { getAlurSeleksi, alurNamaByLevel } from '../../services/alurSeleksiService.js';
+import { getCached } from '../../services/dataCache.js';
 import Pagination from '../../components/Pagination.jsx';
 import SortDropdown from '../../components/SortDropdown.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
@@ -33,7 +34,10 @@ export default function Karyawan({ navigate, searchQuery = '' }) {
   useEffect(() => {
     if (!companyId) return;
     setIsLoading(true);
-    Promise.all([getEmployees(companyId), getAlurSeleksi(companyId)])
+    Promise.all([
+      getCached(`karyawan:${companyId}`, () => getEmployees(companyId)),
+      getAlurSeleksi(companyId),
+    ])
       .then(([emp, alur]) => { setEmployees(emp); setAlurList(alur); })
       .catch(console.error)
       .finally(() => setIsLoading(false));

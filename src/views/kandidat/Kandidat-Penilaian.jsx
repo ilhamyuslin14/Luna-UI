@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { updateAlurProses, runRescore, markTidakSesuai } from '../../services/scoringService.js';
+import { invalidate } from '../../services/dataCache.js';
 import PopupTidakSesuai from '../../components/PopupTidakSesuai.jsx';
 import { getAlurSeleksi, seedDefaultAlur, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -520,6 +521,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
                         if (kandidat.scoringId) {
                           updateAlurProses(kandidat.scoringId, opt.level)
                             .then(() => {
+                              invalidate('karyawan');
                               showToast('Alur berhasil diubah', `Dipindahkan ke ${opt.nama}`);
                               if (onAlurChanged) onAlurChanged(kandidat.scoringId, opt.level);
                             })

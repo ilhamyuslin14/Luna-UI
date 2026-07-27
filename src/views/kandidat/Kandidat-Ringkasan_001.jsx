@@ -4,8 +4,17 @@ import { ID_REGIONS } from '../../utils/idRegions.js';
 import KandidatPenilaian from './Kandidat-Penilaian.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import Toast from '../../components/Toast.jsx';
-import { updateKandidat } from '../../services/kandidatService.js';
+import { updateKandidat as updateKandidatRaw } from '../../services/kandidatService.js';
 import { getScoringByKandidat } from '../../services/scoringService.js';
+import { invalidate } from '../../services/dataCache.js';
+
+// Setiap perubahan detail kandidat di sini mempengaruhi list di halaman Kandidat,
+// jadi cache-nya diinvalidasi otomatis lewat wrapper ini alih-alih di tiap call site.
+const updateKandidat = async (id, updates) => {
+  const result = await updateKandidatRaw(id, updates);
+  invalidate('kandidat');
+  return result;
+};
 
 const EditIcon = () => (
   <svg width="9" height="9" viewBox="0 0 9 9" fill="none">

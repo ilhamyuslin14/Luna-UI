@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useUpload } from '../../context/UploadContext.jsx';
 import { getKandidat, getDirekrutKandidat, archiveKandidat, unarchiveKandidat } from '../../services/kandidatService.js';
 import { getSeleksi } from '../../services/seleksiService.js';
+import { getCached, invalidate } from '../../services/dataCache.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
@@ -69,21 +70,13 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
 
   useEffect(() => {
     let mounted = true;
-    const fetch = async () => {
-      setIsLoading(true);
-      try {
-        const data = filter === 'direkrut' 
-          ? await getDirekrutKandidat(companyId)
-          : await getKandidat(companyId);
-        if (!mounted) return;
-        setKandidatData(data || []);
-      } catch (err) {
-        if (mounted) console.error(err);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-    fetch();
+    const cacheKey = filter === 'direkrut' ? `kandidat:direkrut:${companyId}` : `kandidat:${companyId}`;
+    const fetchFn = filter === 'direkrut' ? () => getDirekrutKandidat(companyId) : () => getKandidat(companyId);
+    setIsLoading(true);
+    getCached(cacheKey, fetchFn)
+      .then(data => { if (mounted) setKandidatData(data || []); })
+      .catch(err => { if (mounted) console.error(err); })
+      .finally(() => { if (mounted) setIsLoading(false); });
     return () => { mounted = false; };
   }, [companyId, filter]);
 
@@ -183,6 +176,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
   const doArchive = async (ids) => {
     const idArr = Array.isArray(ids) ? ids : [ids];
     await archiveKandidat(idArr);
+    invalidate('kandidat');
     setKandidatData(prev => prev.map(k => idArr.includes(k.id) ? { ...k, arsip: true } : k));
     setSelectedRows(prev => { const n = new Set(prev); idArr.forEach(id => n.delete(id)); return n; });
     showToast('Berhasil diarsipkan', `${idArr.length} kandidat dipindahkan ke arsip`);
@@ -298,7 +292,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </span>
-            Tambah Kandidat
+            Kandidat
           </button>
         </div>
       </div>
@@ -405,6 +399,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
               setUnarchiveModal(null);
               try {
                 await Promise.all(ids.map(id => unarchiveKandidat(id)));
+                invalidate('kandidat');
                 setKandidatData(prev => prev.map(k => ids.includes(k.id) ? { ...k, arsip: false } : k));
                 setSelectedRows(new Set());
                 showToast('Kandidat ditampilkan', `${ids.length} kandidat kembali aktif`);
@@ -416,6 +411,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
               setUnarchiveModal(null);
               try {
                 await unarchiveKandidat(id);
+                invalidate('kandidat');
                 setKandidatData(prev => prev.map(k => k.id === id ? { ...k, arsip: false } : k));
                 showToast('Kandidat ditampilkan', `${nama} kembali aktif`);
               } catch {

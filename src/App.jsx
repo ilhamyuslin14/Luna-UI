@@ -11,6 +11,7 @@ import Seleksi from './views/seleksi/Seleksi.jsx';
 import Seleksi_001 from './views/seleksi/Seleksi_001.jsx';
 import SeleksiDetail from './views/seleksi/SeleksiDetail.jsx';
 import SeleksiDetail_001 from './views/seleksi/SeleksiDetail_001.jsx';
+import SeleksiDetail_002 from './views/seleksi/SeleksiDetail_002.jsx';
 import Departemen from './views/departemen/Departemen.jsx';
 import Departemen_001 from './views/departemen/Departemen_001.jsx';
 import Kandidat from './views/kandidat/Kandidat.jsx';
@@ -93,7 +94,7 @@ export default function App() {
 
   const navigate = (menu, params = {}) => {
     setHistoryStack(stack => [...stack, { menu: activeMenu, seleksiId: selectedSeleksiId, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, departemenId: selectedDepartemenId, seleksiActiveTab }]);
-    if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-tambah-kandidat') {
+    if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') {
       if (params.seleksiId) setSelectedSeleksiId(params.seleksiId);
       if (params.jabatan) setSeleksiJabatan(params.jabatan);
       if (params.activeTab) setSeleksiActiveTab(params.activeTab);
@@ -110,8 +111,8 @@ export default function App() {
     }
     setActiveMenu(menu);
     updateUrl(menu, {
-      seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
-      jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
+      seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
+      jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
       kandidat: (menu === 'kandidat-detail' || menu === 'kandidat-detail_001') ? params.kandidat : selectedKandidat,
       filter: menu === 'kandidat' ? params.filter : kandidatFilter,
       departemen: (menu === 'departemen-detail' || menu === 'departemen-detail_001') ? params.departemen : selectedDepartemen,
@@ -139,7 +140,7 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
+  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
   const { user, loading, mustChangePassword } = useAuth();
 
@@ -254,6 +255,7 @@ export default function App() {
       case 'seleksi_001': return <Seleksi_001 navigate={navigate} searchQuery={searchQuery} />;
       case 'seleksi-detail': return <SeleksiDetail seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'seleksi-detail_001': return <SeleksiDetail_001 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'seleksi-detail_002': return <SeleksiDetail_002 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'kandidat_001': return <Kandidat_001 navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'karyawan': return <Karyawan navigate={navigate} searchQuery={searchQuery} />;
