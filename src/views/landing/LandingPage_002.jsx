@@ -159,7 +159,7 @@ export default function LandingPage_002({ navigate }) {
         <div className="lp-hero-left">
 
           <div className="lp-hero-eyebrow-b">
-            <span className="lp-hero-eyebrow-b-text">LUNA - Applicant Tracking System (ATS) untuk recruiter Indonesia.</span>
+            <span className="lp-hero-eyebrow-b-text">Applicant Tracking System (ATS) untuk recruiter Indonesia.</span>
             <div className="lp-hero-eyebrow-b-rule"></div>
           </div>
           <h1 className="lp-hero-title">

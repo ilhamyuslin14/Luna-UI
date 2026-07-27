@@ -75,8 +75,15 @@
     font-size: 42px;
     font-weight: 800;
     line-height: 1.15;
-    margin: 0;
-    /* Remove extra margin, use gap */
+    margin: 8px 0 0;
+    /* Extra gap above H1 on top of the flex gap, to separate it from the eyebrow line */
+  }
+
+  .lp-_001-container .lp-hero-eyebrow-b-text {
+    font-size: 12px;
+    white-space: normal;
+    /* Desktop keeps this on one line via nowrap; mobile column is too
+       narrow for that, so let it wrap instead of clipping/overflowing */
   }
 
   .lp-_001-container .lp-hero-title-highlight {
