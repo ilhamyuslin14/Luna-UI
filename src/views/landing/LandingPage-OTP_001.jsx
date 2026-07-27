@@ -1,63 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { COUNTRIES } from '../../data/countries.js';
-
-/* ── OTP 6-box input ─────────────────────────── */
-function OTPInput({ value, onChange }) {
-  const inputs = useRef([]);
-
-  const handleKey = (i, e) => {
-    if (e.key === 'Backspace') {
-      if (value[i]) {
-        const next = [...value];
-        next[i] = '';
-        onChange(next);
-      } else if (i > 0) {
-        inputs.current[i - 1]?.focus();
-      }
-    }
-  };
-
-  const handleChange = (i, e) => {
-    const digit = e.target.value.replace(/\D/g, '').slice(-1);
-    const next = [...value];
-    next[i] = digit;
-    onChange(next);
-    if (digit && i < 5) inputs.current[i + 1]?.focus();
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    const next = Array(6).fill('');
-    pasted.split('').forEach((d, i) => { next[i] = d; });
-    onChange(next);
-    const focus = Math.min(pasted.length, 5);
-    inputs.current[focus]?.focus();
-  };
-
-  return (
-    <div className="lpotp-boxes">
-      {value.map((digit, i) => (
-        <input
-          key={i}
-          ref={el => inputs.current[i] = el}
-          className={`lpotp-box${digit ? ' lpotp-box-filled' : ''}`}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={digit}
-          onChange={e => handleChange(i, e)}
-          onKeyDown={e => handleKey(i, e)}
-          onPaste={handlePaste}
-        />
-      ))}
-    </div>
-  );
-}
+import { useAuth } from '../../context/AuthContext.jsx';
+import { supabase } from '../../config/supabase.js';
+import OTPInput from '../../components/OTPInput.jsx';
 
 /* ── Main component ──────────────────────────── */
 export default function LandingPageOTP_001({ navigate, phone = '' }) {
+  const { user, refreshCompanyData } = useAuth();
   const [step, setStep] = useState('nomor');   // 'nomor' | 'mengirim' | 'otp'
+  const [isVerifying, setIsVerifying] = useState(false);
   const [nomor, setNomor] = useState(phone);
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [resendTimer, setResendTimer] = useState(0);
@@ -108,8 +59,15 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
     }, 2200);
   };
 
-  const handleVerif = () => {
-    if (otp.join('').length < 6) return;
+  const handleVerif = async () => {
+    if (otp.join('').length < 6 || isVerifying) return;
+    setIsVerifying(true);
+    // Dummy verification: nomor & kode tidak divalidasi ke provider WA manapun,
+    // tapi status "verified" tetap ditulis ke akun supaya wajib dilewati sekali per akun.
+    if (user?.id) {
+      await supabase.from('profiles').update({ otp_verified: true }).eq('id', user.id);
+      await refreshCompanyData(user.id);
+    }
     localStorage.setItem('luna_trigger_tour', 'true');
     navigate?.('beranda_001');
   };
@@ -309,6 +267,16 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
                     Kirim Kode Verifikasi
                   </button>
 
+                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <button
+                      type="button"
+                      className="lpm-register-link"
+                      onClick={() => navigate?.('landingpage-verifikasi-metode_001')}
+                      style={{ fontSize: '13px' }}
+                    >
+                      Ganti metode verifikasi
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -357,12 +325,12 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
 
                 <div className="lpotp-actions" style={{ marginTop: '24px' }}>
                   <button
-                    className={`lpm-submit${!otpFull ? ' lpm-disabled' : ''}`}
-                    disabled={!otpFull}
+                    className={`lpm-submit${(!otpFull || isVerifying) ? ' lpm-disabled' : ''}`}
+                    disabled={!otpFull || isVerifying}
                     onClick={handleVerif}
                     style={{ width: '100%', height: '48px', fontSize: '15px' }}
                   >
-                    Verifikasi OTP
+                    {isVerifying ? 'Memverifikasi...' : 'Verifikasi OTP'}
                   </button>
 
                   <div className="lpotp-resend-block" style={{ marginTop: '24px', textAlign: 'center' }}>

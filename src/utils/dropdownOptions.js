@@ -4,4 +4,5 @@ export const DROPDOWN_OPTIONS = {
   siklusUpah: ['Jam', 'Harian', 'Mingguan', 'Bulanan', 'Kwartal', 'Tahunan'],
   pendidikan: ['SD/Sederajat', 'SMP/Sederajat', 'SMA/SMK/Sederajat', 'DI/DII/DIII (Diploma)', 'D4/S1 (Sarjana)', 'S2 (Magister)', 'S3 (Doktor)'],
   remote: ['Ya', 'Tidak'],
+  levelJabatan: ['Intern', 'Staff/Junior', 'Senior', 'Supervisor/Lead', 'Manager', 'Head/Director', 'C-Level'],
 };

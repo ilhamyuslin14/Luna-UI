@@ -460,3 +460,65 @@
   animation: lpotp-spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
   margin: 0 auto;
 }
+
+/* ── Pilih Metode Verifikasi (cards) ── */
+.lpotp-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.lpotp-method-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1.5px solid #e2e4ea;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.lpotp-method-card:hover {
+  border-color: var(--luna-orange-400);
+  background: #fff8f3;
+}
+
+.lpotp-method-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #fff1e6;
+  color: var(--luna-orange-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lpotp-method-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.lpotp-method-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #171e2c;
+}
+
+.lpotp-method-desc {
+  font-size: 13px;
+  color: #555f71;
+}
+
+.lpotp-method-arrow {
+  color: #abb2c1;
+  flex-shrink: 0;
+}

@@ -158,6 +158,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
         return {
           id: item.id,
           posisi: item.jabatan || '-',
+          levelJabatan: item.level_jabatan || '-',
           dept: item.departments?.name || '-',
           lokasi: item.lokasi || '-',
           alur: alurNama,
@@ -599,6 +600,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
               <tr>
                 <th width="24"><input type="checkbox" className="lw001-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
                 <th width="184">Posisi</th>
+                <th width="110">Level</th>
                 <th width="130">Departemen</th>
                 <th width="120">Lokasi</th>
                 <th width="145">Status</th>
@@ -612,9 +614,9 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data posisi...</td></tr>
+                <tr><td colSpan="12" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data posisi...</td></tr>
               ) : pagedRows.length === 0 ? (
-                <tr><td colSpan="11" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
+                <tr><td colSpan="12" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
                   {filterArchiveOnly ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
                 </td></tr>
               ) : pagedRows.map((row) => {
@@ -627,6 +629,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
                       onClick={row.arsip ? undefined : () => navigate('seleksi-detail_001', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                       style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                     >{row.posisi}</td>
+                    <td>{row.levelJabatan}</td>
                     <td>{row.dept}</td>
                     <td>{row.lokasi}</td>
                     <td>

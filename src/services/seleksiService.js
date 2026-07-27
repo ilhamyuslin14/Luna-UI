@@ -91,6 +91,7 @@ export async function duplicateSeleksi(seleksiId) {
   const duplicateData = {
     department_id: source.department_id,
     jabatan: source.jabatan,
+    level_jabatan: source.level_jabatan,
     lokasi: source.lokasi,
     remote: source.remote,
     jumlah_rekrut: source.jumlah_rekrut,

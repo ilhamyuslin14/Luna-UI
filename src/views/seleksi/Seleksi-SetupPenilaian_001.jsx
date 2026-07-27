@@ -167,7 +167,7 @@ export default function SetupPenilaian_001({ navigate }) {
   }, []);
 
   const [form, setForm] = useState(() => ({
-    jabatan: '', departemen: '', lokasi: '', statusRekrutmen: '', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: '',
+    jabatan: '', levelJabatan: '', departemen: '', lokasi: '', statusRekrutmen: '', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: '',
     ...(draftRef.current?.form || {}),
   }));
 
@@ -347,6 +347,7 @@ export default function SetupPenilaian_001({ navigate }) {
       const dataBaru = await createSeleksi(companyId, {
         department_id: form.departemen,
         jabatan: form.jabatan,
+        level_jabatan: form.levelJabatan,
         lokasi: form.lokasi,
         status: form.statusRekrutmen,
         jumlah_rekrut: parseInt(form.jumlahRekrut) || null,
@@ -450,10 +451,22 @@ export default function SetupPenilaian_001({ navigate }) {
 
           <p className="sp001-section-title">Detail Posisi</p>
 
-          {/* Nama Jabatan */}
-          <div className="sp001-field">
-            <label className="sp001-label">Nama Jabatan <span className="sp001-req">*</span></label>
-            <input className="sp001-input" placeholder="Isi Nama Jabatan" value={form.jabatan} onChange={set('jabatan')} />
+          {/* Nama Jabatan + Level Jabatan */}
+          <div className="sp001-row">
+            <div className="sp001-field sp001-field-flex">
+              <label className="sp001-label">Nama Jabatan <span className="sp001-req">*</span></label>
+              <input className="sp001-input" placeholder="Isi Nama Jabatan" value={form.jabatan} onChange={set('jabatan')} />
+            </div>
+            <div className="sp001-field sp001-field-flex">
+              <label className="sp001-label">Level Jabatan</label>
+              <div className="sp001-select-wrapper">
+                <select className="sp001-select" style={{ color: form.levelJabatan ? '#171e2c' : '#abb2c1' }} value={form.levelJabatan} onChange={set('levelJabatan')}>
+                  <option value="" disabled>Pilih Level</option>
+                  {DROPDOWN_OPTIONS.levelJabatan.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+                <span className="sp001-select-icon"><ChevronIcon /></span>
+              </div>
+            </div>
           </div>
 
           {/* Departemen */}

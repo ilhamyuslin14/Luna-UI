@@ -46,6 +46,8 @@ import LandingPageLupaPassword from './views/landing/LandingPage-LupaPassword.js
 import LandingPageMasuk_001 from './views/landing/LandingPage-Masuk_001.jsx';
 import LandingPageDaftar_001 from './views/landing/LandingPage-Daftar_001.jsx';
 import LandingPageOTP_001 from './views/landing/LandingPage-OTP_001.jsx';
+import LandingPageOTPEmail_001 from './views/landing/LandingPage-OTP-Email_001.jsx';
+import LandingPageVerifikasiMetode_001 from './views/landing/LandingPage-VerifikasiMetode_001.jsx';
 import LandingPageLupaPassword_001 from './views/landing/LandingPage-LupaPassword_001.jsx';
 import LandingPageTerimaUndangan from './views/landing/LandingPage-TerimaUndangan.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
@@ -142,7 +144,7 @@ export default function App() {
 
   const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
-  const { user, loading, mustChangePassword } = useAuth();
+  const { user, loading, mustChangePassword, otpVerified } = useAuth();
 
   useEffect(() => {
     if (loading) return;
@@ -191,6 +193,11 @@ export default function App() {
     return <LandingPageTerimaUndangan />;
   }
 
+  const verifikasiMenus = ['landingpage-verifikasi-metode_001', 'landingpage-otp_001', 'landingpage-otp-email_001'];
+  if (user && !otpVerified && !verifikasiMenus.includes(activeMenu)) {
+    return <LandingPageVerifikasiMetode_001 navigate={navigate} />;
+  }
+
   if (activeMenu === 'laman-karir') {
     return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
@@ -233,6 +240,14 @@ export default function App() {
 
   if (activeMenu === 'landingpage-otp_001') {
     return <LandingPageOTP_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-otp-email_001') {
+    return <LandingPageOTPEmail_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-verifikasi-metode_001') {
+    return <LandingPageVerifikasiMetode_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage-lupa-password_001') {

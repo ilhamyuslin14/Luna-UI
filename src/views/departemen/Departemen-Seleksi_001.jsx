@@ -99,6 +99,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
           return {
             id: s.id,
             posisi: s.jabatan || '-',
+            levelJabatan: s.level_jabatan || '-',
             dept: s.departments?.name || s.departemen || '-',
             lokasi: s.lokasi || '-',
             status: STATUS_NORMALIZE[s.status] || 'rencana',
@@ -285,6 +286,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
             <tr>
               <th width="24"><input type="checkbox" className="lw001-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
               <th width="184">Posisi</th>
+              <th width="110">Level</th>
               <th width="130">Departemen</th>
               <th width="120">Lokasi</th>
               <th width="145">Status</th>
@@ -298,9 +300,9 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
+              <tr><td colSpan="12" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
             ) : filteredRows.length === 0 ? (
-              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>
+              <tr><td colSpan="12" style={{ textAlign: 'center', padding: 24, color: '#888' }}>
                 {activeFilters.has('Arsip') ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
               </td></tr>
             ) : pagedRows.map((row) => {
@@ -313,6 +315,7 @@ export default function DepartemenSeleksi_001({ navigate, onBack, departemen, de
                     onClick={row.arsip ? undefined : () => navigate('seleksi-detail_001', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                     style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                   >{row.posisi}</td>
+                  <td>{row.levelJabatan}</td>
                   <td>{row.dept}</td>
                   <td>{row.lokasi}</td>
                   <td>

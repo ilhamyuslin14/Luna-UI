@@ -129,6 +129,7 @@ function formatDateDisplay(val) {
 const FIELDS = [
   { key: 'kode',        label: 'Kode Seleksi',                     type: 'readonly'  },
   { key: 'jabatan',     label: 'Nama Jabatan',                      type: 'text'      },
+  { key: 'levelJabatan', label: 'Level Jabatan',                    type: 'dropdown'  },
   { key: 'dept',        label: 'Departemen',                        type: 'dropdown'  },
   { key: 'lokasi',      label: 'Lokasi',                            type: 'location'  },
   { key: 'remote',      label: 'Remote',                            type: 'add',      tooltip: 'Menandakan apakah posisi pekerjaan ini dapat dilakukan secara remote/WFH' },
@@ -147,6 +148,7 @@ const FIELDS = [
 const DEFAULT_VALUES = {
   kode:       'JD000001',
   jabatan:    null,
+  levelJabatan: '',
   dept:       'Product',
   lokasi:     'Tebet, Jakarta Selatan',
   remote:     '',
@@ -245,6 +247,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
         const mapped = {
           kode: `SLS-${String(data.id || '').padStart(5, '0').substring(0, 5)}`,
           jabatan: data.jabatan || '',
+          levelJabatan: data.level_jabatan || '',
           dept: data.department_id || '',
           lokasi: data.lokasi || '',
           remote: data.remote || '',
@@ -329,6 +332,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
     try {
       await updateSeleksi(seleksiId, {
         jabatan: formData.jabatan,
+        level_jabatan: formData.levelJabatan,
         department_id: formData.dept,
         lokasi: formData.lokasi,
         status: formData.status,
@@ -472,7 +476,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
                 const { type, options } = resolveField(field);
 
                 const dbKeyMap = {
-                  jabatan: 'jabatan', dept: 'department_id', lokasi: 'lokasi', status: 'status',
+                  jabatan: 'jabatan', levelJabatan: 'level_jabatan', dept: 'department_id', lokasi: 'lokasi', status: 'status',
                   jumlah: 'jumlah_rekrut', ikatan: 'ikatan_kerja', upahMin: 'upah_min', upahMaks: 'upah_maks',
                   siklus: 'siklus_upah', tglMulai: 'tgl_mulai', tglOnboard: 'tgl_onboard',
                   pendidikan: 'pendidikan', pengalaman: 'pengalaman', remote: 'remote'
