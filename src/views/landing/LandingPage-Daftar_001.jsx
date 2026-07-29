@@ -73,8 +73,8 @@ export default function LandingPageDaftar_001({ navigate }) {
     setErrorMsg('');
     try {
       await register(email, password, { nama_lengkap: nama, nama_perusahaan: perusahaan });
-      // Redirect ke pilihan metode verifikasi (dummy) sesuai request
-      navigate('landingpage-verifikasi-metode_001');
+      // Redirect ke OTP Email dummy sesuai request
+      navigate('landingpage-otp-email_001');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal mendaftar. Silakan coba lagi.');
     } finally {

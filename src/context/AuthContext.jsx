@@ -16,6 +16,7 @@ export function AuthProvider({ children }) {
   const [userRole, setUserRole] = useState(null);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [otpVerified, setOtpVerified] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const fetchCompanyId = async (userId) => {
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
       setUserRole(null);
       setMustChangePassword(false);
       setOtpVerified(true);
+      setOnboardingCompleted(true);
       return;
     }
     const [{ data, error }, { data: profile }] = await Promise.all([
@@ -36,13 +38,14 @@ export function AuthProvider({ children }) {
         .maybeSingle(),
       supabase
         .from('profiles')
-        .select('must_change_password, otp_verified')
+        .select('must_change_password, otp_verified, onboarding_completed')
         .eq('id', userId)
         .maybeSingle(),
     ]);
 
     setMustChangePassword(!!profile?.must_change_password);
     setOtpVerified(profile?.otp_verified !== false);
+    setOnboardingCompleted(profile?.onboarding_completed !== false);
 
     if (data && !error) {
       setCompanyId(data.company_id);
@@ -81,6 +84,7 @@ export function AuthProvider({ children }) {
         setUserRole(null);
         setMustChangePassword(false);
         setOtpVerified(true);
+        setOnboardingCompleted(true);
       }
       setLoading(false);
     });
@@ -126,6 +130,7 @@ export function AuthProvider({ children }) {
     userRole,
     mustChangePassword,
     otpVerified,
+    onboardingCompleted,
     loading,
     login,
     register,

@@ -68,7 +68,6 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
       await supabase.from('profiles').update({ otp_verified: true }).eq('id', user.id);
       await refreshCompanyData(user.id);
     }
-    localStorage.setItem('luna_trigger_tour', 'true');
     navigate?.('beranda_001');
   };
 
@@ -267,16 +266,6 @@ export default function LandingPageOTP_001({ navigate, phone = '' }) {
                     Kirim Kode Verifikasi
                   </button>
 
-                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    <button
-                      type="button"
-                      className="lpm-register-link"
-                      onClick={() => navigate?.('landingpage-verifikasi-metode_001')}
-                      style={{ fontSize: '13px' }}
-                    >
-                      Ganti metode verifikasi
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>

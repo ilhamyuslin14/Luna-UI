@@ -49,7 +49,6 @@ export default function LandingPageOTPEmail_001({ navigate }) {
       await supabase.from('profiles').update({ otp_verified: true }).eq('id', user.id);
       await refreshCompanyData(user.id);
     }
-    localStorage.setItem('luna_trigger_tour', 'true');
     navigate?.('beranda_001');
   };
 
@@ -159,17 +158,6 @@ export default function LandingPageOTPEmail_001({ navigate }) {
                       style={{ fontSize: '14px', color: resendTimer > 0 ? '#9ca3af' : 'var(--luna-orange-500)', textDecoration: resendTimer > 0 ? 'none' : 'underline' }}
                     >
                       {resendTimer > 0 ? `Kirim ulang kode (${resendTimer}s)` : 'Kirim ulang kode'}
-                    </button>
-                  </div>
-
-                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    <button
-                      type="button"
-                      className="lpm-register-link"
-                      onClick={() => navigate?.('landingpage-verifikasi-metode_001')}
-                      style={{ fontSize: '13px' }}
-                    >
-                      Ganti metode verifikasi
                     </button>
                   </div>
                 </div>

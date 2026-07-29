@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import TourGuide from './components/TourGuide.jsx';
+import OnboardingModal from './components/OnboardingModal.jsx';
 import UploadProgressWidget from './components/UploadProgressWidget.jsx';
 import GlobalAIPoller from './components/GlobalAIPoller.jsx';
 import Beranda from './views/beranda/Beranda.jsx';
@@ -39,6 +40,7 @@ import PembayaranBerhasil from './views/kelola-pengguna/KelolaPengguna-Pembayara
 import LandingPage from './views/landing/LandingPage.jsx';
 import LandingPage_001 from './views/landing/LandingPage_001.jsx';
 import LandingPage_002 from './views/landing/LandingPage_002.jsx';
+import LandingPage_003 from './views/landing/LandingPage_003.jsx';
 import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
@@ -149,7 +151,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
     const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -193,9 +195,8 @@ export default function App() {
     return <LandingPageTerimaUndangan />;
   }
 
-  const verifikasiMenus = ['landingpage-verifikasi-metode_001', 'landingpage-otp_001', 'landingpage-otp-email_001'];
-  if (user && !otpVerified && !verifikasiMenus.includes(activeMenu)) {
-    return <LandingPageVerifikasiMetode_001 navigate={navigate} />;
+  if (user && !otpVerified) {
+    return <LandingPageOTPEmail_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'laman-karir') {
@@ -212,6 +213,10 @@ export default function App() {
 
   if (activeMenu === 'landingpage_002') {
     return <LandingPage_002 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage_003') {
+    return <LandingPage_003 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage-masuk') {
@@ -309,6 +314,7 @@ export default function App() {
         {renderView()}
       </main>
       <TourGuide navigate={navigate} />
+      <OnboardingModal />
       <UploadProgressWidget navigate={navigate} />
       <GlobalAIPoller />
     </div>
