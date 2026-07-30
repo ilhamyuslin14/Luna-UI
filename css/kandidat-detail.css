@@ -431,6 +431,11 @@
   border-color: #6eea90;
 }
 
+.kd-fit-badge.belum_dinilai {
+  border-color: var(--color-neutral-400);
+  color: var(--color-neutral-600);
+}
+
 .kd-fit-label {
   font-size: 10px;
   font-weight: 500;
@@ -464,6 +469,10 @@
 
 .kd-fit-score.high {
   background: #14b541;
+}
+
+.kd-fit-score.belum_dinilai {
+  background: var(--color-neutral-400);
 }
 
 .kd-detail-penilaian-btn {

@@ -19,15 +19,19 @@ function scoreLevelFromValue(score) {
   return 'none';
 }
 
-const LEVEL_LABEL = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah', none: '-' };
+const LEVEL_LABEL = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah', none: '-', belum_dinilai: 'Belum Dinilai' };
 
 const KATEGORI_LEVEL = {
   'Sangat Fit': 'high', 'Fit': 'high',
   'Cukup Fit': 'moderate', 'Kurang Fit': 'low',
 };
 
+// Baris scoring dgn total_score & kategori_fit null hanya terjadi lewat
+// jalur skip-scoring paket Free (lihat run-scoring/index.ts) — kombinasi ini
+// tidak pernah muncul dari hasil AI yang normal, jadi aman dipakai sbg penanda.
 function mapScoringRow(s) {
-  const level = KATEGORI_LEVEL[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0);
+  const belumDinilai = s.total_score == null && s.kategori_fit == null;
+  const level = belumDinilai ? 'belum_dinilai' : (KATEGORI_LEVEL[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0));
   const aiOutput = s.detail_kriteria || [];
   const getAiMatch = (rawTag) => {
     if (!rawTag || aiOutput.length === 0) return null;
@@ -77,7 +81,8 @@ function mapScoringRow(s) {
     skor: {
       level,
       label: LEVEL_LABEL[level] || '-',
-      score: s.total_score ?? 0,
+      score: belumDinilai ? null : (s.total_score ?? 0),
+      belumDinilai,
       aiSummary: s.ai_summary || '',
       criteriaData,
       prefData,
@@ -364,7 +369,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
                         onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}
                       >
                         <span>{k.skor.label}</span>
-                        <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.score}</span>
+                        <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                       </div>
                     </td>
                     <td>
@@ -393,6 +398,7 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
       {scorePanel && (
         <KandidatPenilaian
           kandidat={scorePanel}
+          navigate={navigate}
           onClose={() => setScorePanel(null)}
           onReject={() => { setScorePanel(null); setDropTarget(scorePanel); setDropModalOpen(true); }}
           onRescored={() => {
@@ -497,33 +503,44 @@ export default function SeleksiKandidat({ navigate, back, seleksiId }) {
                               }}
                             >
                               <span>{k.skor.label}</span>
-                              <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.score}</span>
+                              <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                             </div>
                             {hoveredScore?.idx === k.scoringId && (
                               <div className="sdk-score-popover-wrapper" onClick={e => e.stopPropagation()} style={{ top: hoveredScore.top, left: hoveredScore.left, width: hoveredScore.width }}>
                                 <div className="sdk-score-popover">
-                                  <div className="sdk-score-popover-top">
-                                    <div className="sdk-score-donut" style={{
-                                      background: `conic-gradient(${k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b'} ${k.skor.score}%, #f0f2f6 ${k.skor.score}%)`
-                                    }}>
-                                      <span className="sdk-score-donut-val" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>{k.skor.score}</span>
-                                      <span className="sdk-score-donut-lbl" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>
-                                        {k.skor.level === 'high' ? 'High' : k.skor.level === 'moderate' ? 'Moderate' : 'Low'}
-                                      </span>
+                                  {k.skor.belumDinilai ? (
+                                    <div className="sdk-score-locked">
+                                      <p>Kandidat ini belum dinilai AI — paket Free tidak termasuk skoring otomatis.</p>
+                                      <button className="sdk-score-action" onClick={() => navigate('paket-langganan')}>
+                                        Upgrade Paket
+                                      </button>
                                     </div>
-                                    <div className="sdk-score-stats">
-                                      <span className="sdk-stat-pill tinggi">Tinggi: {k.skor.criteriaData?.filter(c => c.level === 'high').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
-                                      <span className="sdk-stat-pill sedang">Sedang: {k.skor.criteriaData?.filter(c => c.level === 'moderate').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
-                                      <span className="sdk-stat-pill rendah">Rendah: {(k.skor.criteriaData?.filter(c => c.level === 'low').length ?? 0) + (k.skor.criteriaData?.filter(c => c.level === 'none').length ?? 0)}/{k.skor.criteriaData?.length ?? 0}</span>
-                                    </div>
-                                  </div>
-                                  <button className="sdk-score-action" onClick={() => setScorePanel({ ...k, seleksiId })}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                                      <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
-                                    </svg>
-                                    Lihat Ringkasan AI
-                                  </button>
+                                  ) : (
+                                    <>
+                                      <div className="sdk-score-popover-top">
+                                        <div className="sdk-score-donut" style={{
+                                          background: `conic-gradient(${k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b'} ${k.skor.score}%, #f0f2f6 ${k.skor.score}%)`
+                                        }}>
+                                          <span className="sdk-score-donut-val" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>{k.skor.score}</span>
+                                          <span className="sdk-score-donut-lbl" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>
+                                            {k.skor.level === 'high' ? 'High' : k.skor.level === 'moderate' ? 'Moderate' : 'Low'}
+                                          </span>
+                                        </div>
+                                        <div className="sdk-score-stats">
+                                          <span className="sdk-stat-pill tinggi">Tinggi: {k.skor.criteriaData?.filter(c => c.level === 'high').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
+                                          <span className="sdk-stat-pill sedang">Sedang: {k.skor.criteriaData?.filter(c => c.level === 'moderate').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
+                                          <span className="sdk-stat-pill rendah">Rendah: {(k.skor.criteriaData?.filter(c => c.level === 'low').length ?? 0) + (k.skor.criteriaData?.filter(c => c.level === 'none').length ?? 0)}/{k.skor.criteriaData?.length ?? 0}</span>
+                                        </div>
+                                      </div>
+                                      <button className="sdk-score-action" onClick={() => setScorePanel({ ...k, seleksiId })}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                                          <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+                                        </svg>
+                                        Lihat Ringkasan AI
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             )}

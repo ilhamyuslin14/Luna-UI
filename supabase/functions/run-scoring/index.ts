@@ -299,6 +299,34 @@ serve(async (req) => {
       return jsonResponse({ error: true, message: 'Data tidak lengkap untuk menjalankan scoring.' })
     }
 
+    // Paket Free tidak termasuk skoring AI (fitur berbayar). Cek di sini
+    // (server-side), bukan cuma di UI, supaya tidak bisa dilewati dengan
+    // memanggil edge function ini langsung dan tetap dapat skoring gratis.
+    // Kandidat tetap ter-link ke posisi (baris `scoring` tetap dibuat),
+    // cuma field skor-nya dikosongkan (total_score/kategori_fit: null) —
+    // itu jadi penanda "belum dinilai" di UI karena kombinasi ini tidak
+    // pernah terjadi lewat jalur AI yang normal.
+    const { data: company } = await supabase.from('companies').select('plan').eq('id', companyId).single()
+    if (company?.plan === 'free') {
+      if (scoringId) {
+        return jsonResponse({ error: true, message: 'Paket Free tidak mendukung skoring AI, termasuk nilai ulang.' })
+      }
+      const { data: linked, error: linkErr } = await supabase
+        .from('scoring')
+        .insert([{
+          kandidat_id: kandidatId,
+          seleksi_id: seleksiId,
+          company_id: companyId,
+          total_score: null,
+          kategori_fit: null,
+          alur_proses: 1,
+        }])
+        .select()
+        .single()
+      if (linkErr) throw linkErr
+      return jsonResponse({ scoring: linked, skippedScoring: true })
+    }
+
     const [{ data: kandidat, error: kErr }, { data: seleksi, error: sErr }, { data: config }, { data: promptSetting }] =
       await Promise.all([
         supabase.from('kandidat').select('raw_text, output_ai_raw').eq('id', kandidatId).single(),

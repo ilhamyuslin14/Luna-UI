@@ -296,7 +296,7 @@ export default function KandidatDetail({ kandidat = {}, navigate, back }) {
             <div style={{ height: 40 }} />
           </div>
         )}
-        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} />}
+        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} navigate={navigate} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
         {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}
       </div>

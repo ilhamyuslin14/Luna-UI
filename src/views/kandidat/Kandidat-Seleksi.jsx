@@ -13,6 +13,7 @@ const FIT_CONFIG = {
   high: { label: 'Tinggi', border: '#a3e1b0', chip: '#089f32' },
   moderate: { label: 'Sedang', border: '#ffd086', chip: '#f8aa01' },
   low: { label: 'Rendah', border: '#fca5a5', chip: '#fb484b' },
+  belum_dinilai: { label: 'Belum Dinilai', border: 'var(--color-neutral-400)', chip: 'var(--color-neutral-400)' },
 };
 
 const KATEGORI_TO_FIT = {
@@ -28,7 +29,8 @@ function scoreLevelFromValue(score) {
 }
 
 function mapRow(s, alurList) {
-  const fit = KATEGORI_TO_FIT[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0);
+  const belumDinilai = s.total_score == null && s.kategori_fit == null;
+  const fit = belumDinilai ? 'belum_dinilai' : (KATEGORI_TO_FIT[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0));
   const alur = s.alur_proses ?? 1;
   const alurNama = alurList.find(a => a.level === alur)?.nama ?? `Level ${alur}`;
   const aiOutput = s.detail_kriteria || [];
@@ -71,11 +73,13 @@ function mapRow(s, alurList) {
     alurNama,
     alasan: s.alasan_tidak_sesuai || '',
     detail: s.alasan_tidak_sesuai_detail || '',
-    skor: s.total_score ?? 0,
+    skor: belumDinilai ? null : (s.total_score ?? 0),
+    belumDinilai,
     fit,
     skor_obj: {
       level: fit,
-      score: s.total_score ?? 0,
+      score: belumDinilai ? null : (s.total_score ?? 0),
+      belumDinilai,
       aiSummary: s.ai_summary || '',
       criteriaData: criteriaData,
       prefData: prefData,
@@ -270,7 +274,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
               <div className="ks-col-skor">
                 <div className="ks-fit-badge" style={{ borderColor: fit.border, cursor: 'pointer' }} onClick={e => { e.stopPropagation(); openPanel(row); }}>
                   <span className="ks-fit-label">{fit.label}</span>
-                  <span className="ks-fit-chip" style={{ background: fit.chip }}>{row.skor}</span>
+                  <span className="ks-fit-chip" style={{ background: fit.chip }}>{row.belumDinilai ? '—' : row.skor}</span>
                 </div>
               </div>
 
@@ -293,6 +297,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
       {scorePanel && (
         <KandidatPenilaian
           kandidat={scorePanel}
+          navigate={navigate}
           onClose={() => setScorePanel(null)}
           onRescored={() => {
             if (!kandidatId) return;

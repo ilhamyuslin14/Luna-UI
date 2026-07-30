@@ -33,15 +33,19 @@ function scoreLevelFromValue(score) {
   return 'none';
 }
 
-const LEVEL_LABEL = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah', none: '-' };
+const LEVEL_LABEL = { high: 'Tinggi', moderate: 'Sedang', low: 'Rendah', none: '-', belum_dinilai: 'Belum Dinilai' };
 
 const KATEGORI_LEVEL = {
   'Sangat Fit': 'high', 'Fit': 'high',
   'Cukup Fit': 'moderate', 'Kurang Fit': 'low',
 };
 
+// Baris scoring dgn total_score & kategori_fit null hanya terjadi lewat
+// jalur skip-scoring paket Free (lihat run-scoring/index.ts) — kombinasi ini
+// tidak pernah muncul dari hasil AI yang normal, jadi aman dipakai sbg penanda.
 function mapScoringRow(s) {
-  const level = KATEGORI_LEVEL[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0);
+  const belumDinilai = s.total_score == null && s.kategori_fit == null;
+  const level = belumDinilai ? 'belum_dinilai' : (KATEGORI_LEVEL[s.kategori_fit] || scoreLevelFromValue(s.total_score ?? 0));
   const aiOutput = s.detail_kriteria || [];
   const getAiMatch = (rawTag) => {
     if (!rawTag || aiOutput.length === 0) return null;
@@ -91,7 +95,8 @@ function mapScoringRow(s) {
     skor: {
       level,
       label: LEVEL_LABEL[level] || '-',
-      score: s.total_score ?? 0,
+      score: belumDinilai ? null : (s.total_score ?? 0),
+      belumDinilai,
       aiSummary: s.ai_summary || '',
       criteriaData,
       prefData,
@@ -375,7 +380,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                         onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}
                       >
                         <span>{k.skor.label}</span>
-                        <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.score}</span>
+                        <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                       </div>
                     </td>
                     <td>
@@ -404,6 +409,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
       {scorePanel && (
         <KandidatPenilaian
           kandidat={scorePanel}
+          navigate={navigate}
           onClose={() => setScorePanel(null)}
           onReject={() => { setScorePanel(null); setDropTarget(scorePanel); setDropModalOpen(true); }}
           onRescored={() => {
@@ -515,11 +521,20 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                               }}
                             >
                               <span>{k.skor.label}</span>
-                              <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.score}</span>
+                              <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                             </div>
                             {hoveredScore?.idx === k.scoringId && (
                               <div className="sdk001-score-popover-wrapper" onClick={e => e.stopPropagation()} style={{ top: hoveredScore.top, left: hoveredScore.left, width: hoveredScore.width }}>
                                 <div className="sdk001-score-popover">
+                                  {k.skor.belumDinilai ? (
+                                    <div className="sdk001-score-locked">
+                                      <p>Kandidat ini belum dinilai AI — paket Free tidak termasuk skoring otomatis.</p>
+                                      <button className="sdk001-score-action" onClick={() => navigate('paket-langganan')}>
+                                        Upgrade Paket
+                                      </button>
+                                    </div>
+                                  ) : (
+                                  <>
                                   <div className="sdk001-score-popover-top">
                                     <div className="sdk001-score-donut" style={{
                                       background: `conic-gradient(${k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b'} ${k.skor.score}%, #f0f2f6 ${k.skor.score}%)`
@@ -542,6 +557,8 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                                     </svg>
                                     Lihat Ringkasan AI
                                   </button>
+                                  </>
+                                  )}
                                 </div>
                               </div>
                             )}

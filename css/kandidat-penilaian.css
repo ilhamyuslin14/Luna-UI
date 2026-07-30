@@ -73,6 +73,57 @@
   line-height: 1.3;
 }
 
+/* ── Locked state (paket Free — skoring AI di-skip) ──
+   flex:1 + justify-content:center supaya mengisi ruang yang sama seperti
+   .sc-score-section + .sc-criteria-section yang digantikannya — tanpa ini
+   .sc-footer tidak terdorong ke bawah panel dan menyisakan area kosong. */
+.sc-locked-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 40px 32px;
+  min-height: 0;
+}
+
+.sc-locked-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Varian "siap dinilai" — dipakai saat kandidat belum di-score tapi paket
+   BUKAN free (mis. sempat ditambahkan saat masih free, lalu upgrade).
+   Warna biru AI (bukan abu-abu locked) menandakan aksi ini tersedia,
+   bukan terkunci. */
+.sc-locked-icon--ready {
+  background: #eef7fd;
+  color: #0977be;
+}
+
+.sc-locked-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #171e2c;
+  margin: 0;
+}
+
+.sc-locked-desc {
+  font-size: 13px;
+  color: var(--color-neutral-700);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 380px;
+}
+
 /* ── Score Summary ── */
 .sc-score-section {
   display: flex;
@@ -389,6 +440,23 @@
 
 .sc-btn-action.primary svg path {
   stroke: white;
+}
+
+/* Locked (Nilai Ulang saat paket Free — skor asli ada tapi rescore butuh
+   upgrade). Dashed border + warna netral menandakan "terkunci", bukan
+   dinonaktifkan total — tetap bisa diklik untuk menuju halaman upgrade,
+   makanya hover-nya bergeser ke warna aksen alih-alih makin pudar. */
+.sc-btn-action.locked {
+  background: var(--color-neutral-100);
+  border: 1px dashed var(--color-neutral-400);
+  color: var(--color-neutral-600);
+}
+
+.sc-btn-action.locked:hover {
+  background: var(--luna-orange-050);
+  border-color: var(--luna-orange-400);
+  border-style: solid;
+  color: var(--luna-orange-600);
 }
 
 /* Grey Action (Tidak Sesuai) */

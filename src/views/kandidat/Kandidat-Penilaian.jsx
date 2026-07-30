@@ -107,6 +107,13 @@ const IconRefresh = () => (
   </svg>
 );
 
+const IconLockSmall = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <rect x="5" y="10.5" width="14" height="9" rx="2" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+  </svg>
+);
+
 const Tip = ({ text, children }) => {
   const [position, setPosition] = useState('bottom');
   const [align, setAlign] = useState('center');
@@ -147,8 +154,9 @@ const Tip = ({ text, children }) => {
  *   onClose   — function
  *   onReject  — function
  */
-export default function KandidatPenilaian({ kandidat, onClose, onReject, onRescored, onAlurChanged, embedded = false }) {
-  const { companyId } = useAuth();
+export default function KandidatPenilaian({ kandidat, onClose, onReject, onRescored, onAlurChanged, embedded = false, navigate }) {
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   const [isClosing, setIsClosing] = useState(false);
   const [isAlurOpen, setIsAlurOpen] = useState(false);
   const [selectedAlurLevel, setSelectedAlurLevel] = useState(kandidat.alur ?? 1);
@@ -209,6 +217,7 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
     setTimeout(() => onClose(), 300);
   };
 
+  const belumDinilai = !!localSkor?.belumDinilai;
   const criteria = localSkor?.criteriaData || CRITERIA_DATA[localSkor?.level]?.criteriaData || (Array.isArray(CRITERIA_DATA[localSkor?.level]) ? CRITERIA_DATA[localSkor?.level] : []);
   const prefs = localSkor?.prefData || CRITERIA_DATA[localSkor?.level]?.prefData || [];
   const allCriteria = [...criteria, ...prefs];
@@ -294,6 +303,42 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
         </div>
 
         {/* Score Summary */}
+        {belumDinilai ? (
+          isFreePlan ? (
+            <div className="sc-locked-section">
+              <div className="sc-locked-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="5" y="10.5" width="14" height="9" rx="2" />
+                  <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+                </svg>
+              </div>
+              <h3 className="sc-locked-title">Kandidat ini belum dinilai AI</h3>
+              <p className="sc-locked-desc">Paket Free tidak termasuk skoring AI otomatis. Kandidat tetap tersimpan di posisi ini — upgrade paket untuk melihat skor kecocokan dan rangkuman AI-nya.</p>
+              {navigate && (
+                <button className="sc-btn-action primary" onClick={() => navigate('paket-langganan')}>
+                  Upgrade Paket
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="sc-locked-section">
+              <div className="sc-locked-icon sc-locked-icon--ready">
+                <svg width="20" height="20" viewBox="0 0 13 13" fill="currentColor">
+                  <path d="M6.5 0L7.64 4.86L13 6.5L7.64 8.14L6.5 13L5.36 8.14L0 6.5L5.36 4.86L6.5 0Z" />
+                </svg>
+              </div>
+              <h3 className="sc-locked-title">Kandidat ini belum dinilai AI</h3>
+              <p className="sc-locked-desc">Kandidat sudah tersimpan di posisi ini, tapi penilaian AI belum dijalankan. Klik tombol di bawah untuk mulai menilai kecocokannya sekarang.</p>
+              <button className="sc-btn-action primary" onClick={handleRescore} disabled={isRescoring} style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}>
+                {isRescoring
+                  ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
+                  : null}
+                {isRescoring ? 'Menilai...' : 'Mulai Penilaian AI'}
+              </button>
+            </div>
+          )
+        ) : (
+        <>
         <div className="sc-score-section">
           <div className="sc-score-left">
             <div
@@ -470,25 +515,39 @@ export default function KandidatPenilaian({ kandidat, onClose, onReject, onResco
             ))}
           </div>
         </div>
+        </>
+        )}
 
         {/* Footer */}
         <div className="sc-footer">
           <div className="sc-footer-actions">
-            {kandidat.alur !== 0 && (
-              <Tip text="Nilai ulang dengan kriteria aktif saat ini. Disarankan dilakukan setelah mengubah kriteria. Sedikit variasi skor antar penilaian adalah normal.">
-                <button
-                  className="sc-btn-action primary"
-                  onClick={handleRescore}
-                  disabled={isRescoring}
-                  style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}
-                >
-                  {isRescoring
-                    ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
-                    : <IconRefresh />
-                  }
-                  {isRescoring ? 'Menilai ulang...' : 'Penilaian Ulang'}
-                </button>
-              </Tip>
+            {kandidat.alur !== 0 && !belumDinilai && (
+              isFreePlan ? (
+                <Tip text="Nilai Ulang AI adalah fitur paket berbayar. Upgrade paket untuk menggunakannya.">
+                  <button
+                    className="sc-btn-action locked"
+                    onClick={() => navigate && navigate('paket-langganan')}
+                  >
+                    <IconLockSmall />
+                    Nilai Ulang
+                  </button>
+                </Tip>
+              ) : (
+                <Tip text="Nilai ulang dengan kriteria aktif saat ini. Disarankan dilakukan setelah mengubah kriteria. Sedikit variasi skor antar penilaian adalah normal.">
+                  <button
+                    className="sc-btn-action primary"
+                    onClick={handleRescore}
+                    disabled={isRescoring}
+                    style={{ opacity: isRescoring ? 0.7 : 1, cursor: isRescoring ? 'not-allowed' : 'pointer' }}
+                  >
+                    {isRescoring
+                      ? <svg className="kt-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>
+                      : <IconRefresh />
+                    }
+                    {isRescoring ? 'Menilai ulang...' : 'Penilaian Ulang'}
+                  </button>
+                </Tip>
+              )
             )}
 
             <div style={{ position: 'relative' }} ref={dropdownRef}>

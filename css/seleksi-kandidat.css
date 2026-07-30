@@ -584,6 +584,11 @@ td.sdk-linkedin {
   border-color: #ffabad;
 }
 
+.sdk-skor-badge.belum_dinilai {
+  border-color: var(--color-neutral-400);
+  color: var(--color-neutral-600);
+}
+
 .sdk-skor-score {
   display: flex;
   align-items: center;
@@ -606,6 +611,24 @@ td.sdk-linkedin {
 
 .sdk-skor-score.low {
   background: #fb484b;
+}
+
+.sdk-skor-score.belum_dinilai {
+  background: var(--color-neutral-400);
+}
+
+.sdk-score-locked {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sdk-score-locked p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-neutral-700);
+  line-height: 1.5;
 }
 
 /* Detail Penilaian */

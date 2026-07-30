@@ -319,7 +319,7 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
 
       {/* Content */}
       <div className={`kd001-content-wrapper${(activeTab === 'resume' || activeTab === 'seleksi') ? ' kd001-content-wrapper--viewer' : ''}`}>
-        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} />}
+        {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} navigate={navigate} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
         {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}
       </div>

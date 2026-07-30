@@ -83,7 +83,10 @@ function scoreLevelFromValue(score) {
 }
 
 function mapScoringToPanel(scoring, kandidatNama) {
-  const { fit, label } = KATEGORI_FIT_MAP[scoring.kategori_fit] || { fit: 'low', label: scoring.kategori_fit };
+  const belumDinilai = scoring.total_score == null && scoring.kategori_fit == null;
+  const { fit, label } = belumDinilai
+    ? { fit: 'belum_dinilai', label: 'Belum Dinilai' }
+    : (KATEGORI_FIT_MAP[scoring.kategori_fit] || { fit: 'low', label: scoring.kategori_fit });
 
   const aiOutput = scoring.detail_kriteria || [];
   const getAiMatch = (rawTag) => {
@@ -123,7 +126,8 @@ function mapScoringToPanel(scoring, kandidatNama) {
     departemen: scoring.seleksi?.departments?.name || '',
     fit,
     label,
-    score: scoring.total_score ?? 0,
+    score: belumDinilai ? null : (scoring.total_score ?? 0),
+    belumDinilai,
     panelData: {
       scoringId: scoring.id,
       kandidatId: scoring.kandidat_id,
@@ -137,7 +141,8 @@ function mapScoringToPanel(scoring, kandidatNama) {
       detail: scoring.alasan_tidak_sesuai_detail || '',
       skor: {
         level: fit,
-        score: scoring.total_score ?? 0,
+        score: belumDinilai ? null : (scoring.total_score ?? 0),
+        belumDinilai,
         aiSummary: scoring.ai_summary || '',
         criteriaData,
         prefData,
@@ -354,7 +359,7 @@ const toDbExp = e => { const p = (e.periode || '').split(' – '); return { jaba
 const toDbEdu = e => { const p = (e.periode || '').split(' – '); return { institusi: e.institusi, jenjang: e.gelar || '', jurusan: e.jurusan || '', gpa: e.gpa || '', start: p[0] || '', end: p[1] || '' }; };
 const toDbSert = s => { const p = (s.periode || '').split(' – '); return { nama: s.judul, penerbit: s.penyelenggara, start: p[0] || '', end: p[1] || '', deskripsi: s.deskripsi || [] }; };
 
-export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPanel = false, scoringVersion = 0, onAddPosisi }) {
+export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPanel = false, scoringVersion = 0, onAddPosisi, navigate }) {
   const [expandedExp, setExpandedExp] = useState(new Set());
   const [scorePanel, setScorePanel] = useState(null);
   const [aiScores, setAiScores] = useState([]);
@@ -882,7 +887,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
                       </div>
                       <span className={`kd-fit-badge ${item.fit}`} style={{ cursor: 'pointer' }} onClick={() => openPanel(item)}>
                         <span className="kd-fit-label">{item.label}</span>
-                        <span className={`kd-fit-score ${item.fit}`}>{item.score}</span>
+                        <span className={`kd-fit-score ${item.fit}`}>{item.belumDinilai ? '—' : item.score}</span>
                       </span>
                     </div>
                     <button className="kd-detail-penilaian-btn" onClick={() => openPanel(item)}>Detail Penilaian</button>
@@ -1178,6 +1183,7 @@ export default function KandidatRingkasan({ kandidat = {}, onChangeTab, hideAIPa
       {scorePanel && (
         <KandidatPenilaian
           kandidat={scorePanel}
+          navigate={navigate}
           onClose={() => setScorePanel(null)}
           onRescored={() => {
             if (!kandidat.id) return;
