@@ -123,7 +123,11 @@ const EditableContent = React.memo(
 );
 
 export default function SetupPenilaian({ navigate }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
+  const statusOptions = isFreePlan
+    ? DROPDOWN_OPTIONS.statusRekrutmen.filter(s => s === 'Rencana' || s === 'Aktif')
+    : DROPDOWN_OPTIONS.statusRekrutmen;
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState('');
   const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle' | 'uploading' | 'done'
@@ -295,7 +299,11 @@ export default function SetupPenilaian({ navigate }) {
     setIsSaving(true);
     try {
       const plainText = htmlDeskripsi.replace(/<[^>]*>/g, '').trim();
-      const isSufficientDesc = plainText.length >= 300;
+      const meetsDescLength = plainText.length >= 300;
+      // Paket Free tidak termasuk perumusan kriteria otomatis oleh AI — cuma
+      // simpan data lowongan-nya, kriteria dibiarkan kosong (state terkunci
+      // ditangani di Seleksi-Ringkasan/KriteriaPenilaian).
+      const isSufficientDesc = !isFreePlan && meetsDescLength;
 
       const dataBaru = await createSeleksi(companyId, {
         department_id: form.departemen,
@@ -321,13 +329,13 @@ export default function SetupPenilaian({ navigate }) {
         supabase.functions.invoke('generate-kriteria', {
           body: { seleksiId: dataBaru.id, deskripsi: htmlDeskripsi }
         }).catch(err => console.error('Gagal memanggil generate-kriteria:', err));
-      } else {
+      } else if (!isFreePlan && !meetsDescLength) {
         showToast('Info', 'Deskripsi kurang dari 300 karakter. Kriteria AI tidak dirumuskan.', 'warning');
       }
 
       navigate('seleksi-detail', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
-      showToast('Gagal', 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
+      showToast('Gagal', err.message || 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -476,7 +484,7 @@ export default function SetupPenilaian({ navigate }) {
               <div className="sp-select-wrapper">
                 <select className="sp-select" style={{ color: form.statusRekrutmen ? '#171e2c' : '#abb2c1' }} value={form.statusRekrutmen} onChange={set('statusRekrutmen')}>
                   <option value="" disabled>Pilih Status</option>
-                  {DROPDOWN_OPTIONS.statusRekrutmen.map(s => <option key={s} value={s}>{s}</option>)}
+                  {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <span className="sp-select-icon"><ChevronIcon /></span>
               </div>

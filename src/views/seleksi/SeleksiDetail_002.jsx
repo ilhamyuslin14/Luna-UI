@@ -55,7 +55,8 @@ const StatusIcon = ({ val, size = 13 }) => {
 };
 
 export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   
   const [recruitStatus, setRecruitStatus] = useState('rencana');
   const [jabatan, setJabatan] = useState(initialJabatan);
@@ -114,14 +115,21 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
   }, []);
 
   const handleStatusChange = async (newVal) => {
+    const prevStatus = recruitStatus;
     setRecruitStatus(newVal);
     setShowStatusDrop(false);
-    
+
     if (seleksiId) {
       const cap = newVal.charAt(0).toUpperCase() + newVal.slice(1);
-      await updateSeleksi(seleksiId, { status: cap });
-      invalidate('seleksi');
-      window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: cap }));
+      try {
+        await updateSeleksi(seleksiId, { status: cap });
+        invalidate('seleksi');
+        window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: cap }));
+      } catch (err) {
+        console.error(err);
+        setRecruitStatus(prevStatus);
+        setToast({ message: 'Gagal memperbarui status', subMessage: err.message || 'Terjadi kesalahan.', type: 'error' });
+      }
     }
   };
 
@@ -191,19 +199,29 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
 
             {showStatusDrop && (
               <div className="sd001-status-dropdown">
-                {STATUS_OPTS.map(opt => (
-                  <button
-                    key={opt.val}
-                    className={`sd001-status-option${recruitStatus === opt.val ? ' active' : ''}`}
-                    style={{ '--opt-color': opt.text }}
-                    onClick={() => handleStatusChange(opt.val)}
-                  >
-                    <span className="sd001-status-opt-icon" style={{ color: opt.text }}>
-                      <StatusIcon val={opt.val} size={13} />
-                    </span>
-                    <span style={{ color: opt.text }}>{opt.label}</span>
-                  </button>
-                ))}
+                {STATUS_OPTS.map(opt => {
+                  const isLocked = isFreePlan && opt.val !== 'rencana' && opt.val !== 'aktif';
+                  const color = isLocked ? '#b8b5ae' : opt.text;
+                  return (
+                    <button
+                      key={opt.val}
+                      className={`sd001-status-option${recruitStatus === opt.val ? ' active' : ''}${isLocked ? ' disabled' : ''}`}
+                      style={{ '--opt-color': color }}
+                      onClick={() => {
+                        if (isLocked) {
+                          setToast({ message: 'Perlu paket berlangganan', subMessage: `Status "${opt.label}" hanya tersedia di paket berbayar.`, type: 'error' });
+                          return;
+                        }
+                        handleStatusChange(opt.val);
+                      }}
+                    >
+                      <span className="sd001-status-opt-icon" style={{ color }}>
+                        <StatusIcon val={opt.val} size={13} />
+                      </span>
+                      <span style={{ color }}>{opt.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -347,7 +365,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
             }}>
               <BackButton onClick={() => back ? back() : navigate('seleksi_001')} />
             </div>
-            <SeleksiRingkasan_002 seleksiId={seleksiId} jabatan={jabatan} />
+            <SeleksiRingkasan_002 seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} />
           </>
         )}
       </div>

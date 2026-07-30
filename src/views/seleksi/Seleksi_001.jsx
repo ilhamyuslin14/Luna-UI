@@ -91,7 +91,11 @@ function buildBoardFromData(alurList, rows, maxAlurMap) {
 }
 
 export default function Seleksi_001({ navigate, searchQuery = '' }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
+  const statusConfigEntries = isFreePlan
+    ? Object.entries(STATUS_CONFIG).filter(([key]) => key === 'rencana' || key === 'aktif')
+    : Object.entries(STATUS_CONFIG);
   const [isBoardView, setIsBoardView] = useState(false);
   const [rows, setRows] = useState([]);
   const [alurList, setAlurList] = useState(DEFAULT_ALUR);
@@ -243,13 +247,14 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
 
   const updateStatus = (rowId, newStatus) => {
     const label = STATUS_CONFIG[newStatus]?.label || newStatus;
+    const prevStatus = rows.find(r => r.id === rowId)?.status;
     setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
     updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
       .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${label}`); })
       .catch(err => {
         showToast('Gagal memperbarui status', err.message);
-        setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: r.status } : r));
+        setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: prevStatus } : r));
       });
   };
 
@@ -366,7 +371,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
       // Also update rows so List View is in sync
       setRows(prev => prev.map(r => r.id === cardToMove.id ? { ...r, status: targetColKey } : r));
     } catch (err) {
-      showToast('Gagal', 'Terjadi kesalahan saat memindahkan status.', 'error');
+      showToast('Gagal', err.message || 'Terjadi kesalahan saat memindahkan status.', 'error');
     }
 
     draggedCard.current = null;
@@ -374,6 +379,8 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
 
   const updateCardStatus = (colKey, cardIdx, newStatus) => {
     const card = boardColumns[colKey].cards[cardIdx];
+    const prevStatus = card.status;
+    const prevStatusLabel = card.statusLabel;
     setBoardColumns(prev => {
       const cards = prev[colKey].cards.map((c, i) =>
         i === cardIdx ? { ...c, status: newStatus, statusLabel: STATUS_CONFIG[newStatus].label } : c
@@ -384,7 +391,15 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
     if (card.id) {
       updateSeleksiStatus(card.id, STATUS_TO_DB[newStatus] || newStatus)
         .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${STATUS_CONFIG[newStatus].label}`); })
-        .catch(() => showToast('Gagal memperbarui status', 'Coba lagi'));
+        .catch(err => {
+          showToast('Gagal memperbarui status', err.message || 'Coba lagi');
+          setBoardColumns(prev => {
+            const cards = prev[colKey].cards.map((c, i) =>
+              i === cardIdx ? { ...c, status: prevStatus, statusLabel: prevStatusLabel } : c
+            );
+            return { ...prev, [colKey]: { ...prev[colKey], cards } };
+          });
+        });
     }
   };
 
@@ -567,7 +582,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
                                     style={{ position: 'fixed', top: openCardStatus.bottom + 4, left: openCardStatus.left, bottom: 'auto' }}
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    {Object.entries(STATUS_CONFIG).map(([key, s]) => (
+                                    {statusConfigEntries.map(([key, s]) => (
                                       <div
                                         key={key}
                                         className="lw001-status-dropdown-item"
@@ -653,7 +668,7 @@ export default function Seleksi_001({ navigate, searchQuery = '' }) {
                           </div>
                           {openStatusIdx === row.id && (
                             <div className="lw001-status-dropdown active">
-                              {Object.entries(STATUS_CONFIG).map(([key, s]) => (
+                              {statusConfigEntries.map(([key, s]) => (
                                 <div key={key} className="lw001-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(row.id, key); }}>
                                   <div className="lw001-icon-wrapper"><img src={s.icon} /></div> {s.label}
                                 </div>

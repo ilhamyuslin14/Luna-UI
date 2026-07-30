@@ -1,5 +1,43 @@
 import { supabase } from '../config/supabase.js';
 
+// Paket Free cuma boleh punya status Rencana/Aktif, dan maksimal 1 lowongan
+// Aktif dalam satu waktu (status "Aktif" = lowongan itu tampil di Laman
+// Karier publik, jadi ini juga menjaga cuma 1 lowongan yang published).
+// Dipanggil dari createSeleksi/updateSeleksi/updateSeleksiStatus supaya
+// aturannya berlaku sama persis dari surface manapun status diubah
+// (Setup Penilaian, Kanban, dropdown detail, dst).
+const FREE_PLAN_ALLOWED_STATUSES = ['Rencana', 'Aktif'];
+
+async function assertStatusAllowedForPlan(companyId, status, { excludeSeleksiId } = {}) {
+  if (!status || !companyId) return;
+
+  const { data: company, error: companyErr } = await supabase
+    .from('companies')
+    .select('plan')
+    .eq('id', companyId)
+    .single();
+  if (companyErr) throw companyErr;
+  if (company?.plan !== 'free') return;
+
+  if (!FREE_PLAN_ALLOWED_STATUSES.includes(status)) {
+    throw new Error(`Paket Free hanya mendukung status "Rencana" dan "Aktif". Upgrade paket untuk menggunakan status "${status}".`);
+  }
+
+  if (status === 'Aktif') {
+    let query = supabase
+      .from('seleksi')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('status', 'Aktif');
+    if (excludeSeleksiId) query = query.neq('id', excludeSeleksiId);
+    const { count, error } = await query;
+    if (error) throw error;
+    if ((count || 0) > 0) {
+      throw new Error('Paket Free hanya bisa memiliki 1 lowongan aktif. Nonaktifkan lowongan lain terlebih dahulu sebelum mengaktifkan yang ini.');
+    }
+  }
+}
+
 export async function getSeleksi(companyId, { showArchived = false, showAll = false } = {}) {
   if (!companyId) return [];
 
@@ -51,6 +89,8 @@ export async function getMaxAlurBySeleksi(companyId) {
 
 export async function createSeleksi(companyId, data) {
   if (!companyId) throw new Error('company_id is required');
+
+  await assertStatusAllowedForPlan(companyId, data?.status);
 
   const { data: result, error } = await supabase
     .from('seleksi')
@@ -189,6 +229,15 @@ export async function getSeleksiByKode(kode) {
 
 export async function updateSeleksiStatus(id, statusRekrutmen) {
   if (!id) throw new Error('Seleksi ID is missing');
+
+  const { data: existing, error: fetchErr } = await supabase
+    .from('seleksi')
+    .select('company_id')
+    .eq('id', id)
+    .single();
+  if (fetchErr) throw fetchErr;
+  await assertStatusAllowedForPlan(existing.company_id, statusRekrutmen, { excludeSeleksiId: id });
+
   const { error } = await supabase
     .from('seleksi')
     .update({ status: statusRekrutmen })
@@ -216,6 +265,16 @@ export async function getKandidatCountBySeleksi(companyId) {
 
 export async function updateSeleksi(id, updates) {
   if (!id) throw new Error('Seleksi ID is missing');
+
+  if (updates?.status) {
+    const { data: existing, error: fetchErr } = await supabase
+      .from('seleksi')
+      .select('company_id')
+      .eq('id', id)
+      .single();
+    if (fetchErr) throw fetchErr;
+    await assertStatusAllowedForPlan(existing.company_id, updates.status, { excludeSeleksiId: id });
+  }
 
   const { data, error } = await supabase
     .from('seleksi')

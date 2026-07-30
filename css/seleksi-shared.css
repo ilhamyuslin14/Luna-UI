@@ -565,6 +565,73 @@
   gap: 14px;
 }
 
+/* Locked state (paket Free — kriteria & skoring AI di-skip). Bahasa visual
+   disamakan dengan locked-state lain di app (Kandidat-Tambah, Kandidat-
+   Penilaian): ikon gembok abu-abu, teks netral, CTA oranye brand. */
+.sd-kriteria-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 3rem 1.75rem;
+  margin: 1rem;
+  background: var(--color-neutral-100, #f9fafc);
+  border: 1px dashed var(--color-neutral-400, #cbd0db);
+  border-radius: 12px;
+}
+
+.sd-kriteria-locked-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-neutral-200, #f0f2f6);
+  color: var(--color-neutral-600, #7e8799);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-kriteria-locked-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #171e2c;
+  margin: 0;
+}
+
+.sd-kriteria-locked-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: var(--color-neutral-700, #555f71);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 400px;
+}
+
+.sd-kriteria-locked-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--luna-orange-500);
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 123, 0, 0.22);
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.sd-kriteria-locked-cta:hover {
+  background: var(--luna-orange-600);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 123, 0, 0.3);
+}
+
 /* AI Badge */
 .sd-ai-badge {
   display: flex;
@@ -1277,6 +1344,15 @@
 .sd-status-option.active {
   background: #f0f5fb;
   font-weight: 600;
+}
+
+.sd-status-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sd-status-option.disabled:hover {
+  background: none;
 }
 
 .sd-status-opt-icon {

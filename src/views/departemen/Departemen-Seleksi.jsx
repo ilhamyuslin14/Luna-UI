@@ -45,7 +45,11 @@ const STATUS_CONFIG = {
 
 
 export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
+  const statusConfigEntries = isFreePlan
+    ? Object.entries(STATUS_CONFIG).filter(([key]) => key === 'rencana' || key === 'aktif')
+    : Object.entries(STATUS_CONFIG);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openStatusIdx, setOpenStatusIdx] = useState(null);
@@ -183,6 +187,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
 
   const updateStatus = (rowId, newStatus) => {
     const label = STATUS_CONFIG[newStatus]?.label || newStatus;
+    const prevStatus = rows.find(r => r.id === rowId)?.status;
     setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
     updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
@@ -190,7 +195,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
       .catch(err => {
         console.error('Gagal update status seleksi:', err);
         showToast('Gagal memperbarui status', err.message);
-        setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: r.status } : r));
+        setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: prevStatus } : r));
       });
   };
 
@@ -329,7 +334,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                         </div>
                         {openStatusIdx === row.id && (
                           <div className="lw-status-dropdown active">
-                            {Object.entries(STATUS_CONFIG).map(([key, s]) => (
+                            {statusConfigEntries.map(([key, s]) => (
                               <div key={key} className="lw-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(row.id, key); }}>
                                 <div className="lw-icon-wrapper"><img src={s.icon} /></div> {s.label}
                               </div>

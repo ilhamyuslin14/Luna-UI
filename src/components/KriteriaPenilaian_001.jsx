@@ -14,6 +14,13 @@ const RefreshIcon = () => (
   </svg>
 );
 
+const LockIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="10.5" width="14" height="9" rx="2" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+  </svg>
+);
+
 const TrashIcon = () => (
   <svg width="14" height="15" viewBox="0 0 14 15" fill="none">
     <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1.5M5.5 7v5M8.5 7v5M2 3.5l.7 9.8a1 1 0 0 0 1 .9h6.6a1 1 0 0 0 1-.9L12 3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -54,7 +61,7 @@ const BobotSelect = ({ value, onChange }) => (
  *   kriteria  — array of { id, kategori, teks, bobot }
  *   onChange  — (newKriteria: array) => void
  */
-export default function KriteriaPenilaian_001({ kriteria, onChange, isGenerating = false, onRefresh }) {
+export default function KriteriaPenilaian_001({ kriteria, onChange, isGenerating = false, onRefresh, isFreePlan = false, navigate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState([]);
   const [inlineEditId, setInlineEditId] = useState(null);
@@ -185,7 +192,7 @@ export default function KriteriaPenilaian_001({ kriteria, onChange, isGenerating
         <span className="sd001-card-title">Kriteria Penilaian</span>
         {!isEditing && (
           <div style={{ display: 'flex', gap: '8px' }}>
-            {onRefresh && (
+            {onRefresh && !isFreePlan && (
               <button className="sd001-edit-btn" onClick={() => setShowRefreshConfirm(true)} title="Generate Ulang Kriteria" style={{ padding: '6px 8px' }}>
                 <RefreshIcon />
               </button>
@@ -298,6 +305,19 @@ export default function KriteriaPenilaian_001({ kriteria, onChange, isGenerating
             <p style={{ fontSize: '0.8rem', color: '#7e8799', margin: '4px 0 0 0' }}>AI sedang menganalisis Job Description...</p>
           </div>
         </div>
+      ) : kriteria.length === 0 && isFreePlan ? (
+        <div className="sd001-kriteria-locked">
+          <div className="sd001-kriteria-locked-icon"><LockIcon /></div>
+          <p className="sd001-kriteria-locked-title">Kriteria Penilaian Terkunci</p>
+          <p className="sd001-kriteria-locked-desc">
+            Paket Free tidak termasuk perumusan kriteria &amp; skoring otomatis oleh AI. Upgrade paket untuk membiarkan AI merangkum kriteria dari Job Description dan menilai kandidat secara otomatis.
+          </p>
+          {navigate && (
+            <button className="sd001-kriteria-locked-cta" onClick={() => navigate('paket-langganan')}>
+              Upgrade Paket
+            </button>
+          )}
+        </div>
       ) : kriteria.length === 0 ? (
         <div className="sd001-kriteria-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3.5rem 1.5rem', textAlign: 'center', backgroundColor: '#f9fafc', borderRadius: '12px', border: '1px dashed #cbd0db', margin: '1rem' }}>
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '16px', color: '#abb2c1' }}>
@@ -310,14 +330,13 @@ export default function KriteriaPenilaian_001({ kriteria, onChange, isGenerating
           </p>
           <button
             className="sd001-edit-save-btn"
-            onClick={startEdit}
+            onClick={() => (onRefresh ? onRefresh() : startEdit())}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '0.45rem 1rem' }}
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
+              <path d="M6.5 0L7.64 4.86L13 6.5L7.64 8.14L6.5 13L5.36 8.14L0 6.5L5.36 4.86L6.5 0Z" fill="currentColor" />
             </svg>
-            Tambah Kriteria
+            Generate Kriteria
           </button>
         </div>
       ) : (

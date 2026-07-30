@@ -195,8 +195,12 @@ const DESKRIPSI_HTML = `<h3 class="sd001-deskripsi-section-title">Role Overview<
 <li><strong>Mindset:</strong> A strong hunter mentality with the ability to sell the company vision.</li>
 </ul>`;
 
-export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Manager' }) {
-  const { companyId } = useAuth();
+export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Manager', navigate }) {
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
+  const statusOptions = isFreePlan
+    ? DROPDOWN_OPTIONS.statusRekrutmen.filter(s => s === 'Rencana' || s === 'Aktif')
+    : DROPDOWN_OPTIONS.statusRekrutmen;
   const [departments, setDepartments] = useState([]);
   const [companyUsers, setCompanyUsers] = useState([]);
   const [picUserId, setPicUserId] = useState('');
@@ -354,7 +358,8 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
       window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: formData.status }));
     } catch (error) {
       console.error(error);
-      showToast('Gagal', 'Gagal menyimpan data.', 'error');
+      setFormData(originalData);
+      showToast('Gagal', error.message || 'Gagal menyimpan data.', 'error');
     }
     setIsEditing(false);
   };
@@ -392,7 +397,7 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
     if (field.key === 'dept') return { type: 'dropdown', options: departments };
     if (field.key === 'remote') return { type: 'dropdown', options: DROPDOWN_OPTIONS.remote };
     if (field.key === 'pendidikan') return { type: 'dropdown', options: DROPDOWN_OPTIONS.pendidikan };
-    if (field.key === 'status') return { type: 'dropdown', options: DROPDOWN_OPTIONS.statusRekrutmen };
+    if (field.key === 'status') return { type: 'dropdown', options: statusOptions };
     if (field.key === 'ikatan') return { type: 'dropdown', options: DROPDOWN_OPTIONS.ikatanKerja };
     if (field.key === 'siklus') return { type: 'dropdown', options: DROPDOWN_OPTIONS.siklusUpah };
     if (field.type === 'dropdown') return { type: 'dropdown', options: DROPDOWN_OPTIONS[field.key] };
@@ -483,18 +488,25 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
                 };
 
                 const handleInlineSave = async (valToSave) => {
+                   const prevVal = formData[field.key];
                    setFormData(prev => ({ ...prev, [field.key]: valToSave }));
                    if (seleksiId && dbKeyMap[field.key]) {
                      const dbCol = dbKeyMap[field.key];
                      const finalVal = field.type === 'date' ? (valToSave || null) : valToSave;
-                     await updateSeleksi(seleksiId, { [dbCol]: finalVal });
-                     showToast('Berhasil', 'Data diperbarui.');
-                     
-                     // If status changes, sync it to Header
-                     if (field.key === 'status') {
-                       window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: valToSave }));
-                     } else {
-                       window.dispatchEvent(new CustomEvent('syncSeleksiData'));
+                     try {
+                       await updateSeleksi(seleksiId, { [dbCol]: finalVal });
+                       showToast('Berhasil', 'Data diperbarui.');
+
+                       // If status changes, sync it to Header
+                       if (field.key === 'status') {
+                         window.dispatchEvent(new CustomEvent('syncSeleksiStatus', { detail: valToSave }));
+                       } else {
+                         window.dispatchEvent(new CustomEvent('syncSeleksiData'));
+                       }
+                     } catch (err) {
+                       console.error(err);
+                       setFormData(prev => ({ ...prev, [field.key]: prevVal }));
+                       showToast('Gagal', err.message || 'Gagal memperbarui data.', 'error');
                      }
                    }
                 };
@@ -618,6 +630,8 @@ export default function SeleksiRingkasan_001({ seleksiId, jabatan = 'Project Man
       <div className="sd001-col-right">
         <KriteriaPenilaian_001
           kriteria={kriteria}
+          isFreePlan={isFreePlan}
+          navigate={navigate}
           onChange={(newKriteria) => {
             setKriteria(newKriteria);
             if (seleksiId) {

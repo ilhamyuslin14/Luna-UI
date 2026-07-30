@@ -317,6 +317,17 @@ serve(async (req) => {
       return jsonResponse({ error: true, message: 'Data seleksiId atau deskripsi kosong.' }, 400)
     }
 
+    // Paket Free tidak termasuk perumusan kriteria otomatis oleh AI. Cek di
+    // sini (server-side), bukan cuma di UI, supaya tidak bisa dilewati
+    // dengan memanggil edge function ini langsung.
+    const { data: seleksiRow } = await supabase.from('seleksi').select('company_id').eq('id', seleksiId).single()
+    if (seleksiRow?.company_id) {
+      const { data: company } = await supabase.from('companies').select('plan').eq('id', seleksiRow.company_id).single()
+      if (company?.plan === 'free') {
+        return jsonResponse({ error: true, message: 'Paket Free tidak mendukung perumusan kriteria otomatis oleh AI.' })
+      }
+    }
+
     const plainText = stripHtml(deskripsi);
 
     const [{ data: configData }, { data: promptData }] = await Promise.all([
