@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PopupKonfirmasi from './PopupKonfirmasi.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const IcBeranda = () => (
   <svg width="16" height="16" viewBox="0 0 12.79 12.79" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,6 +53,14 @@ const planCardVariants = [
     expiry: 'Aktif s.d : 31 Des 2026',
     buttonLabel: 'Pilih Paket',
   },
+  {
+    id: 'free',
+    className: 'plan-card--free',
+    label: 'PAKET SAAT INI',
+    name: 'Free',
+    expiry: 'Aktif s.d : 31 Des 2026',
+    buttonLabel: 'Pilih Paket',
+  },
   { id: 'basic' },
   {
     id: 'plus',
@@ -63,12 +72,18 @@ const planCardVariants = [
 ];
 
 const DEFAULT_PLAN_CARD_INDEX = planCardVariants.findIndex(v => v.id === 'basic');
+const FREE_PLAN_CARD_INDEX = planCardVariants.findIndex(v => v.id === 'free');
 
 export default function Sidebar({ activeMenu, onNavigate }) {
+  const { companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [planCardIndex, setPlanCardIndex] = useState(DEFAULT_PLAN_CARD_INDEX);
-  const activePlanVariant = planCardVariants[planCardIndex];
-  const cyclePlanCard = () => setPlanCardIndex(i => (i + 1) % planCardVariants.length);
+  const activePlanVariant = isFreePlan ? planCardVariants[FREE_PLAN_CARD_INDEX] : planCardVariants[planCardIndex];
+  const cyclePlanCard = () => {
+    if (isFreePlan) return;
+    setPlanCardIndex(i => (i + 1) % planCardVariants.length);
+  };
 
   const menuItems = [
     { id: 'beranda_001', Icon: IcBeranda, label: 'Beranda' },
@@ -102,7 +117,7 @@ export default function Sidebar({ activeMenu, onNavigate }) {
               </button>
             </div>
           ) : (
-            <div className={`plan-card ${activePlanVariant.className}`} onClick={cyclePlanCard}>
+            <div className={`plan-card ${activePlanVariant.className}`} onClick={cyclePlanCard} style={isFreePlan ? { cursor: 'default' } : undefined}>
               <div className="plan-header">
                 <div className="plan-label">
                   <span className="plan-label-dot" />

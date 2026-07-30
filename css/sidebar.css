@@ -78,13 +78,18 @@
 
 /* Trial — "Soft Amber": satu keluarga sama Basic/Plus, tapi glow oranye-nya
    jauh lebih redup (opacity 0.16 vs Basic 0.16-0.20 dua sisi dan Plus 0.35
-   satu sisi terang) — terasa "sekeluarga" tapi jelas belum full tier. */
-.plan-card--trial {
+   satu sisi terang) — terasa "sekeluarga" tapi jelas belum full tier.
+   Free memakai visual yang sama persis dengan Trial (cuma teksnya beda),
+   jadi disatukan di selector yang sama supaya keduanya tidak bisa
+   ketinggalan zaman satu sama lain. */
+.plan-card--trial,
+.plan-card--free {
   background: var(--luna-ink-800);
   border: 1px solid var(--luna-ink-700);
 }
 
-.plan-card--trial::before {
+.plan-card--trial::before,
+.plan-card--free::before {
   content: "";
   position: absolute;
   width: 200px;
@@ -95,7 +100,8 @@
   z-index: 0;
 }
 
-.plan-card--trial .progress-fill {
+.plan-card--trial .progress-fill,
+.plan-card--free .progress-fill {
   background: var(--luna-orange-300);
 }
 
@@ -157,7 +163,8 @@
   z-index: 0;
 }
 
-.plan-card--trial .plan-label {
+.plan-card--trial .plan-label,
+.plan-card--free .plan-label {
   color: var(--luna-orange-300);
 }
 
@@ -165,7 +172,8 @@
   color: #e6a3a3;
 }
 
-.plan-card--trial .plan-label-dot {
+.plan-card--trial .plan-label-dot,
+.plan-card--free .plan-label-dot {
   background: var(--luna-orange-400);
   box-shadow: 0 0 6px 1px rgba(255, 141, 33, 0.5);
 }
@@ -176,6 +184,7 @@
 }
 
 .plan-card--trial .upgrade-btn,
+.plan-card--free .upgrade-btn,
 .plan-card--berakhir .upgrade-btn,
 .plan-card--basic .upgrade-btn {
   color: var(--luna-ink-800);

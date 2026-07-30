@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   const [companyId, setCompanyId] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [companyDetails, setCompanyDetails] = useState({});
+  const [companyPlan, setCompanyPlan] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [otpVerified, setOtpVerified] = useState(true);
@@ -24,6 +25,7 @@ export function AuthProvider({ children }) {
       setCompanyId(null);
       setCompanyName(null);
       setCompanyDetails({});
+      setCompanyPlan(null);
       setUserRole(null);
       setMustChangePassword(false);
       setOtpVerified(true);
@@ -33,7 +35,7 @@ export function AuthProvider({ children }) {
     const [{ data, error }, { data: profile }] = await Promise.all([
       supabase
         .from('company_users')
-        .select('company_id, role, companies(name, industri, ukuran, lokasi)')
+        .select('company_id, role, companies(name, industri, ukuran, lokasi, plan)')
         .eq('user_id', userId)
         .maybeSingle(),
       supabase
@@ -52,11 +54,13 @@ export function AuthProvider({ children }) {
       setUserRole(data.role);
       setCompanyName(data.companies?.name || null);
       setCompanyDetails(data.companies || {});
+      setCompanyPlan(data.companies?.plan || null);
     } else {
       setCompanyId(null);
       setUserRole(null);
       setCompanyName(null);
       setCompanyDetails({});
+      setCompanyPlan(null);
     }
   };
 
@@ -81,6 +85,7 @@ export function AuthProvider({ children }) {
         setCompanyId(null);
         setCompanyName(null);
         setCompanyDetails({});
+        setCompanyPlan(null);
         setUserRole(null);
         setMustChangePassword(false);
         setOtpVerified(true);
@@ -127,6 +132,7 @@ export function AuthProvider({ children }) {
     companyId,
     companyName,
     companyDetails,
+    companyPlan,
     userRole,
     mustChangePassword,
     otpVerified,

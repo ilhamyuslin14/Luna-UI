@@ -62,8 +62,12 @@
 .kp-panel--basic .kp-plan-badge { color: var(--luna-orange-400); }
 .kp-panel--basic .kp-panel-quota-bar > span { background: var(--luna-orange-400); }
 
-/* Trial — glow oranye redup, satu sisi */
-.kp-panel--trial::before {
+/* Trial — glow oranye redup, satu sisi.
+   Free memakai visual yang sama persis dengan Trial (cuma teksnya beda),
+   jadi disatukan di selector yang sama seperti .plan-card--trial/--free
+   di Sidebar.jsx supaya keduanya tidak bisa ketinggalan zaman satu sama lain. */
+.kp-panel--trial::before,
+.kp-panel--free::before {
     content: "";
     position: absolute;
     width: 200px;
@@ -74,12 +78,15 @@
     z-index: -1;
 }
 
-.kp-panel--trial .kp-plan-badge { color: var(--luna-orange-300); }
-.kp-panel--trial .kp-plan-dot {
+.kp-panel--trial .kp-plan-badge,
+.kp-panel--free .kp-plan-badge { color: var(--luna-orange-300); }
+.kp-panel--trial .kp-plan-dot,
+.kp-panel--free .kp-plan-dot {
     background: var(--luna-orange-400);
     box-shadow: 0 0 6px 1px rgba(255, 141, 33, 0.5);
 }
-.kp-panel--trial .kp-panel-quota-bar > span { background: var(--luna-orange-300); }
+.kp-panel--trial .kp-panel-quota-bar > span,
+.kp-panel--free .kp-panel-quota-bar > span { background: var(--luna-orange-300); }
 
 /* Plus — glow oranye terang + inset highlight */
 .kp-panel--plus::before {

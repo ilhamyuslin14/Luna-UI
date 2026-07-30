@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-/* Sama seperti planCardVariants di Sidebar.jsx — belum ada sumber data paket
-   perusahaan yang sebenarnya, jadi disamakan manual di sini biar konsisten.
-   Klik kartu untuk cycle antar tier (demo, sama seperti perilaku di Sidebar). */
-const PLAN_VARIANT_ORDER = ['berakhir', 'trial', 'basic', 'plus'];
+/* Sama seperti planCardVariants di Sidebar.jsx. Untuk perusahaan dengan
+   companyPlan === 'free', kartu ini otomatis terkunci ke varian "free" dan
+   klik-nya dinonaktifkan (lihat isFreePlan di bawah). Varian lain (basic,
+   trial, plus, berakhir) belum tersambung ke data asli, jadi klik kartu
+   tetap cycle antar tier sebagai preview desain. */
+const PLAN_VARIANT_ORDER = ['berakhir', 'trial', 'free', 'basic', 'plus'];
 
 const PLAN_VARIANTS = {
   basic: {
@@ -17,6 +19,12 @@ const PLAN_VARIANTS = {
     className: 'kp-panel--trial',
     label: 'PAKET SAAT INI',
     name: 'Trial',
+    expiry: 'Aktif s.d : 31 Des 2026',
+  },
+  free: {
+    className: 'kp-panel--free',
+    label: 'PAKET SAAT INI',
+    name: 'Free',
     expiry: 'Aktif s.d : 31 Des 2026',
   },
   plus: {
@@ -38,9 +46,13 @@ const PLAN_VARIANTS = {
 const DEFAULT_PLAN_INDEX = PLAN_VARIANT_ORDER.indexOf('basic');
 
 export default function KelolaPengguna({ navigate }) {
-  const { companyName } = useAuth();
+  const { companyName, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   const [planIndex, setPlanIndex] = useState(DEFAULT_PLAN_INDEX);
-  const cyclePlan = () => setPlanIndex(i => (i + 1) % PLAN_VARIANT_ORDER.length);
+  const cyclePlan = () => {
+    if (isFreePlan) return;
+    setPlanIndex(i => (i + 1) % PLAN_VARIANT_ORDER.length);
+  };
 
   const initials = (companyName || 'PT')
     .split(' ')
@@ -50,12 +62,12 @@ export default function KelolaPengguna({ navigate }) {
     .slice(0, 2)
     .toUpperCase();
 
-  const plan = PLAN_VARIANTS[PLAN_VARIANT_ORDER[planIndex]];
+  const plan = isFreePlan ? PLAN_VARIANTS.free : PLAN_VARIANTS[PLAN_VARIANT_ORDER[planIndex]];
 
   return (
     <div className="kp-view">
       <div className="kp-page">
-        <div className={`kp-panel ${plan.className}`} onClick={cyclePlan} style={{ cursor: 'pointer' }}>
+        <div className={`kp-panel ${plan.className}`} onClick={cyclePlan} style={{ cursor: isFreePlan ? 'default' : 'pointer' }}>
           <div className="kp-panel-top">
             <div className="kp-avatar">{initials}</div>
             <div className="kp-company">{companyName || 'Perusahaan Anda'}</div>
