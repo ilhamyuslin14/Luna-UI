@@ -11,6 +11,22 @@ const UploadIcon = () => (
     <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
   </svg>
 );
+const IconLockLarge = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="10.5" width="14" height="9" rx="2" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+  </svg>
+);
+const IconCheck = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+const IconBolt = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
+  </svg>
+);
 const DocIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555f71" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -158,7 +174,8 @@ const isRetryableError = (msg) => {
 };
 
 export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, initialSeleksiId }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   const { startGlobalUpload, globalFiles, clearGlobalUploads, retryGlobalFileById } = useUpload();
   const [phase, setPhase] = useState(() => globalFiles.length > 0 ? 'uploading' : 'drop');
   const [files, setFiles] = useState([]);
@@ -412,6 +429,29 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
           <div className="kt-upload-footer">
             <button className="kt-btn-lihat" onClick={() => navigate('kandidat_001')}>Lihat Kandidat</button>
             <button className="kt-btn-upload-more" onClick={() => onUploadMore ? onUploadMore() : navigate('kandidat-tambah')}>Upload CV Lainnya</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Locked state untuk paket Free (empty-state replacement, bukan dropzone
+  // yang di-disable, biar tidak ada elemen yang "kelihatan bisa diklik" padahal
+  // sebenarnya tidak bisa) ───────────────────────────────────────────────────
+  if (isFreePlan) {
+    return (
+      <div className="kt-content">
+        <div className="kt-upload-card">
+          <div className="kt-locked-panel">
+            <div className="kt-locked-icon"><IconLockLarge /></div>
+            <h3 className="kt-locked-title">Unggah CV Massal butuh paket berlangganan</h3>
+            <p className="kt-locked-desc">Paket Free hanya bisa menambah kandidat satu per satu secara manual. Upgrade untuk unggah puluhan CV sekaligus dan biarkan AI yang memberi skor otomatis.</p>
+            <div className="kt-locked-features">
+              <span><IconCheck /> Skoring AI otomatis</span>
+            </div>
+            <button className="kt-locked-cta" onClick={() => navigate('paket-langganan')}>
+              <IconBolt /> Lihat Paket Berlangganan
+            </button>
           </div>
         </div>
       </div>

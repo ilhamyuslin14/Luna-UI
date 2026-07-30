@@ -245,6 +245,77 @@
   color: var(--luna-ink-900);
 }
 
+/* Locked (free-plan) state for the secondary quick-action card — an overlay
+   layer on top of the existing card, size untouched. Ribbon geometry (top,
+   right, width, rotate, icon translateX) tuned by eye in a design artifact;
+   don't "simplify" these numbers without re-checking the rendered corner. */
+.db001-action-card--locked {
+  position: relative;
+  overflow: hidden;
+}
+
+.db001-action-card--locked .db001-action-name,
+.db001-action-card--locked .db001-action-desc {
+  color: var(--luna-ink-500);
+}
+
+.db001-action-card--locked .db001-action-icon-circle {
+  background: var(--luna-ink-100);
+}
+
+.db001-action-card--locked .db001-action-icon-circle svg path {
+  fill: var(--luna-ink-400);
+}
+
+.db001-lock-tint {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: rgba(10, 9, 8, 0.035);
+  pointer-events: none;
+}
+
+.db001-lock-ribbon {
+  position: absolute;
+  top: 13px;
+  right: -35px;
+  width: 92px;
+  transform: rotate(40deg);
+  background: linear-gradient(90deg, var(--luna-orange-500), var(--luna-orange-600));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  box-shadow: 0 3px 8px rgba(214, 104, 0, 0.35);
+}
+
+.db001-lock-ribbon svg {
+  color: #fff;
+  transform: translateX(-14px);
+}
+
+.db001-lock-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  background: var(--luna-ink-900);
+  color: var(--luna-ink-000);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transform: translateY(100%);
+  transition: transform 0.22s ease;
+}
+
+.db001-action-card--locked:hover .db001-lock-bar {
+  transform: translateY(0);
+}
+
 .db001-action-info {
   flex: 1;
 }

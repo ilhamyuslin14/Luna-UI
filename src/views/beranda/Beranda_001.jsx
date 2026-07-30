@@ -12,8 +12,18 @@ const STATUS_CONFIG = {
   dibatalkan: { icon: '/assets/status/status_dibatalkan.svg', label: 'Dibatalkan' },
 };
 
+function IconLock({ size = 11 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="10.5" width="14" height="9" rx="2" />
+      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+    </svg>
+  );
+}
+
 export default function Beranda_001({ navigate }) {
-  const { companyId } = useAuth();
+  const { companyId, companyPlan } = useAuth();
+  const isFreePlan = companyPlan === 'free';
   const [npsState, setNpsState] = useState('popup');
   const [npsScore, setNpsScore] = useState(null);
   const [npsText, setNpsText] = useState('');
@@ -160,7 +170,11 @@ export default function Beranda_001({ navigate }) {
                   <img src="/assets/group.svg" alt="Add" />
                 </div>
               </div>
-              <div className="db001-action-card secondary" style={{ cursor: 'pointer' }} onClick={() => navigate('kandidat-tambah')}>
+              <div
+                className={`db001-action-card secondary${isFreePlan ? ' db001-action-card--locked' : ''}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(isFreePlan ? 'paket-langganan' : 'kandidat-tambah')}
+              >
                 <div className="db001-action-info">
                   <div className="db001-action-name">Unggah CV Massal</div>
                   <div className="db001-action-desc">Unggah PDF/ZIP ke Warehouse.</div>
@@ -175,6 +189,18 @@ export default function Beranda_001({ navigate }) {
                     </g>
                   </svg>
                 </div>
+                {isFreePlan && (
+                  <>
+                    <div className="db001-lock-tint"></div>
+                    <div className="db001-lock-ribbon">
+                      <IconLock size={14} />
+                    </div>
+                    <div className="db001-lock-bar">
+                      <IconLock size={10} />
+                      Upgrade untuk membuka
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

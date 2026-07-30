@@ -118,6 +118,96 @@
   font-weight: 700;
 }
 
+/* Locked state (paket Free) — empty-state replacement, bukan dropzone
+   yang cuma di-disable, supaya sejak awal jelas ini bukan area upload. */
+.kt-locked-panel {
+  border: 1px dashed var(--color-neutral-400);
+  border-radius: 16px;
+  padding: 48px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.kt-locked-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kt-locked-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  margin: 0;
+}
+
+.kt-locked-desc {
+  font-size: 13.5px;
+  color: var(--color-neutral-700);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 420px;
+}
+
+.kt-locked-features {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  margin: 4px 0 6px;
+}
+
+.kt-locked-features span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kt-locked-features svg {
+  color: var(--luna-orange-500);
+  flex-shrink: 0;
+}
+
+.kt-locked-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--luna-orange-500);
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 12px rgba(255, 123, 0, 0.22);
+}
+
+.kt-locked-cta:hover {
+  background: var(--luna-orange-600);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 123, 0, 0.3);
+}
+
+.kt-locked-cta svg {
+  flex-shrink: 0;
+}
+
 /* Dropzone */
 .kt-dropzone {
   background: #f9fafc;
