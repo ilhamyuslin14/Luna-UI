@@ -55,8 +55,7 @@ export default function OnboardingModal() {
   if (!user || onboardingCompleted) return null;
 
   const rawWa = noWa.replace(/\D/g, '');
-  const isValid = rawWa.length >= 9
-    && industri && (industri !== 'Lainnya' || industriLainnya.trim())
+  const isValid = industri && (industri !== 'Lainnya' || industriLainnya.trim())
     && ukuran
     && lokasi.trim()
     && jabatan && (jabatan !== 'Lainnya' || jabatanLainnya.trim())
@@ -85,7 +84,7 @@ export default function OnboardingModal() {
       const { error: profileErr } = await supabase
         .from('profiles')
         .update({
-          no_wa: rawWa,
+          no_wa: rawWa || null,
           jabatan_perusahaan: finalJabatan,
           pernah_pakai_ats: finalPernahPakaiAts,
           sumber_tahu_luna: finalSumberTahuLuna,
@@ -112,7 +111,7 @@ export default function OnboardingModal() {
 
         <div className="onb-body">
           <div className="onb-field">
-            <label className="onb-label">Nomor WhatsApp</label>
+            <label className="onb-label">Nomor WhatsApp <span className="onb-label-optional">(Opsional)</span></label>
             <div className="onb-phone-wrap">
               <span className="onb-phone-prefix">+62</span>
               <input

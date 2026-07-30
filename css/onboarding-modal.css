@@ -66,6 +66,11 @@
   color: #323b4d;
 }
 
+.onb-label-optional {
+  font-weight: 400;
+  color: #7e8799;
+}
+
 .onb-input,
 .onb-select {
   height: 44px;
