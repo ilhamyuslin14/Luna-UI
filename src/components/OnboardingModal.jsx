@@ -43,12 +43,6 @@ export default function OnboardingModal() {
   const [industriLainnya, setIndustriLainnya] = useState('');
   const [ukuran, setUkuran] = useState('');
   const [lokasi, setLokasi] = useState('');
-  const [jabatan, setJabatan] = useState('');
-  const [jabatanLainnya, setJabatanLainnya] = useState('');
-  const [pernahPakaiAts, setPernahPakaiAts] = useState('');
-  const [pernahPakaiAtsLainnya, setPernahPakaiAtsLainnya] = useState('');
-  const [sumberTahuLuna, setSumberTahuLuna] = useState('');
-  const [sumberTahuLunaLainnya, setSumberTahuLunaLainnya] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -57,10 +51,7 @@ export default function OnboardingModal() {
   const rawWa = noWa.replace(/\D/g, '');
   const isValid = industri && (industri !== 'Lainnya' || industriLainnya.trim())
     && ukuran
-    && lokasi.trim()
-    && jabatan && (jabatan !== 'Lainnya' || jabatanLainnya.trim())
-    && pernahPakaiAts && (pernahPakaiAts !== 'Lainnya' || pernahPakaiAtsLainnya.trim())
-    && sumberTahuLuna && (sumberTahuLuna !== 'Lainnya' || sumberTahuLunaLainnya.trim());
+    && lokasi.trim();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,9 +60,6 @@ export default function OnboardingModal() {
     setErrorMsg('');
     try {
       const finalIndustri = industri === 'Lainnya' ? industriLainnya.trim() : industri;
-      const finalJabatan = jabatan === 'Lainnya' ? jabatanLainnya.trim() : jabatan;
-      const finalPernahPakaiAts = pernahPakaiAts === 'Lainnya' ? pernahPakaiAtsLainnya.trim() : pernahPakaiAts;
-      const finalSumberTahuLuna = sumberTahuLuna === 'Lainnya' ? sumberTahuLunaLainnya.trim() : sumberTahuLuna;
 
       if (companyId) {
         const { error: companyErr } = await supabase
@@ -85,9 +73,6 @@ export default function OnboardingModal() {
         .from('profiles')
         .update({
           no_wa: rawWa || null,
-          jabatan_perusahaan: finalJabatan,
-          pernah_pakai_ats: finalPernahPakaiAts,
-          sumber_tahu_luna: finalSumberTahuLuna,
           onboarding_completed: true,
         })
         .eq('id', user.id);
@@ -150,30 +135,6 @@ export default function OnboardingModal() {
               value={lokasi}
               onChange={e => setLokasi(e.target.value)}
             />
-          </div>
-
-          <div className="onb-field">
-            <label className="onb-label">Jabatan Anda di Perusahaan</label>
-            <ChipGroup options={DROPDOWN_OPTIONS.jabatanPerusahaan} value={jabatan} onChange={setJabatan} />
-            {jabatan === 'Lainnya' && (
-              <LainnyaInput value={jabatanLainnya} onChange={setJabatanLainnya} placeholder="Sebutkan jabatan Anda" />
-            )}
-          </div>
-
-          <div className="onb-field">
-            <label className="onb-label">Aplikasi Rekrutmen yang Pernah Dipakai</label>
-            <ChipGroup options={DROPDOWN_OPTIONS.pernahPakaiAts} value={pernahPakaiAts} onChange={setPernahPakaiAts} />
-            {pernahPakaiAts === 'Lainnya' && (
-              <LainnyaInput value={pernahPakaiAtsLainnya} onChange={setPernahPakaiAtsLainnya} placeholder="Sebutkan aplikasi yang pernah dipakai" />
-            )}
-          </div>
-
-          <div className="onb-field">
-            <label className="onb-label">Tau LUNA dari Mana?</label>
-            <ChipGroup options={DROPDOWN_OPTIONS.sumberTahuLuna} value={sumberTahuLuna} onChange={setSumberTahuLuna} />
-            {sumberTahuLuna === 'Lainnya' && (
-              <LainnyaInput value={sumberTahuLunaLainnya} onChange={setSumberTahuLunaLainnya} placeholder="Ceritakan dari mana Anda tau LUNA" />
-            )}
           </div>
         </div>
 
