@@ -91,9 +91,9 @@ export default function Beranda_001({ navigate }) {
           </div>
         </div>
 
-        <div className="db001-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('seleksi_001')}>
+        <div className="db001-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('lowongan_001')}>
           <div className="db001-stat-card-header">
-            <div className="db001-stat-label">Posisi Aktif</div>
+            <div className="db001-stat-label">Lowongan Aktif</div>
             <div className="db001-stat-arrow">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
@@ -209,30 +209,30 @@ export default function Beranda_001({ navigate }) {
           <div>
             <div className="db001-section-header" style={{ alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <h2 className="db001-section-title">Posisi Terbaru</h2>
+                <h2 className="db001-section-title">Lowongan Terbaru</h2>
                 <p style={{ fontSize: 12, color: 'var(--luna-ink-600)', lineHeight: 1.4, margin: 0, fontWeight: 500 }}>
-                  Setiap posisi adalah profil penilaian AI. Upload CV kandidat ke dalamnya Luna akan otomatis memberi skor dan ranking.
+                  Setiap lowongan dilengkapi dengan kualifikasi AI. Upload CV kandidat ke dalamnya dan Luna akan otomatis memberi skor dan ranking.
                 </p>
               </div>
-              <a href="#" className="db001-view-all-link" style={{ marginTop: 4 }} onClick={(e) => { e.preventDefault(); navigate('seleksi_001'); }}>Lihat Semua</a>
+              <a href="#" className="db001-view-all-link" style={{ marginTop: 4 }} onClick={(e) => { e.preventDefault(); navigate('lowongan_001'); }}>Lihat Semua</a>
             </div>
             <div className="db001-table-container">
               <div className="db001-table-header">
-                <div>Posisi</div>
+                <div>Lowongan</div>
                 <div>Departemen</div>
                 <div>Kandidat Baru</div>
                 <div>Status</div>
               </div>
               {isLoading ? (
                 <div style={{ padding: '24px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
-                  Memuat data posisi...
+                  Memuat data lowongan...
                 </div>
               ) : recentJobs.length > 0 ? (
                 recentJobs.map((row, i) => {
                   const statusKey = (row.status || 'rencana').toLowerCase();
                   const cfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.rencana;
                   return (
-                    <div className="db001-row db001-row--clickable" key={i} onClick={() => navigate('seleksi-detail_001', { seleksiId: row.id, jabatan: row.posisi })}>
+                    <div className="db001-row db001-row--clickable" key={i} onClick={() => navigate('lowongan-detail_001', { seleksiId: row.id, jabatan: row.posisi })}>
                       <div>{row.posisi}</div>
                       <div>{row.dept}</div>
                       <div><span className="db001-cv-badge">{row.kandidatCount} CV</span></div>

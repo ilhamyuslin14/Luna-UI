@@ -5,7 +5,7 @@ import TabNav from '../../components/TabNav.jsx';
 import Toast from '../../components/Toast.jsx';
 import KandidatRingkasan from './Kandidat-Ringkasan.jsx';
 import KandidatResume from './Kandidat-Resume.jsx';
-import KandidatSeleksi from './Kandidat-Seleksi.jsx';
+import KandidatLowongan from './Kandidat-Lowongan.jsx';
 import ScoringProgressWidget from '../../components/ScoringProgressWidget.jsx';
 import { getKandidatById, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { getSeleksi } from '../../services/seleksiService.js';
@@ -298,7 +298,7 @@ export default function KandidatDetail({ kandidat = {}, navigate, back }) {
         )}
         {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} navigate={navigate} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
-        {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}
+        {activeTab === 'seleksi'   && <KandidatLowongan back={back} navigate={navigate} kandidat={k} />}
       </div>
 
       {/* Tambahkan ke Posisi Modal */}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import TabNav from '../../components/TabNav.jsx';
-import DepartemenSeleksi from './Departemen-Seleksi.jsx';
+import DepartemenLowongan from './Departemen-Lowongan.jsx';
 import DepartemenRingkasan from './Departemen-Ringkasan.jsx';
 
 export default function DepartemenDetail({ departemen = 'Human Resource', navigate, back }) {
@@ -31,7 +31,7 @@ export default function DepartemenDetail({ departemen = 'Human Resource', naviga
         {activeTab === 'ringkasan' ? (
           <DepartemenRingkasan departemen={departemen} />
         ) : (
-          <DepartemenSeleksi navigate={navigate} departemen={departemen} onBack={() => back ? back() : navigate('departemen')} />
+          <DepartemenLowongan navigate={navigate} departemen={departemen} onBack={() => back ? back() : navigate('departemen')} />
         )}
       </div>
     </div>

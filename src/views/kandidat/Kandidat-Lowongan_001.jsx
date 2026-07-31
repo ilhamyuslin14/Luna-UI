@@ -7,6 +7,7 @@ import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getScoringByKandidat, updateAlurProses } from '../../services/scoringService.js';
+import { invalidate } from '../../services/dataCache.js';
 import { getAlurSeleksi, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
 
 const FIT_CONFIG = {
@@ -93,7 +94,7 @@ const ChevronDown = () => (
   </svg>
 );
 
-export default function KandidatSeleksi({ back, navigate, kandidat }) {
+export default function KandidatLowongan_001({ back, navigate, kandidat }) {
   const { companyId } = useAuth();
   const [rows, setRows] = useState([]);
   const [alurList, setAlurList] = useState(DEFAULT_ALUR);
@@ -165,7 +166,7 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
     setRows(prev => prev.map(r => r.id === scoringId ? { ...r, alur: level, alurNama: alurNama(level) } : r));
     setOpenAlurRow(null);
     updateAlurProses(scoringId, level)
-      .then(() => showToast('Alur berhasil diubah', `Dipindahkan ke ${alurNama(level)}`))
+      .then(() => { invalidate('karyawan'); showToast('Alur berhasil diubah', `Dipindahkan ke ${alurNama(level)}`); })
       .catch(err => {
         setRows(prev => prev.map(r => r.id === scoringId ? { ...r, alur: row.alur, alurNama: row.alurNama } : r));
         showToast('Gagal memperbarui alur', err.message);
@@ -185,16 +186,16 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
   });
 
   return (
-    <div className="ks-view" onClick={e => {
+    <div className="ks001-view" onClick={e => {
       if (!e.target.closest('.filter-dropdown-container')) setShowFilter(false);
       if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
-      if (!e.target.closest('.ks-alur-wrap')) setOpenAlurRow(null);
+      if (!e.target.closest('.ks001-alur-wrap')) setOpenAlurRow(null);
     }}>
 
       {/* ── Action bar ── */}
-      <div className="ks-action-bar">
+      <div className="ks001-action-bar">
         <BackButton onClick={() => back ? back() : navigate?.('kandidat')} />
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+        <div className="ks001-right-actions" style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
           <SortDropdown
             options={[
               { label: 'Skor Tertinggi', value: 'skor_desc' },
@@ -218,13 +219,13 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
       </div>
 
       {/* ── Table ── */}
-      <div className="ks-table">
-        <div className="ks-table-head">
-          <div className="ks-col-posisi">Posisi</div>
-          <div className="ks-col-departemen">Departemen</div>
-          <div className="ks-col-alur">Alur Seleksi</div>
-          <div className="ks-col-skor">Penilaian</div>
-          <div className="ks-col-action" />
+      <div className="ks001-table">
+        <div className="ks001-table-head">
+          <div className="ks001-col-posisi">Posisi</div>
+          <div className="ks001-col-departemen">Departemen</div>
+          <div className="ks001-col-alur">Tahap Rekrutmen</div>
+          <div className="ks001-col-skor">Penilaian</div>
+          <div className="ks001-col-action" />
         </div>
 
         {isLoading ? (
@@ -236,33 +237,32 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
         ) : pagedRows.map(row => {
           const fit = FIT_CONFIG[row.fit] || FIT_CONFIG.low;
           return (
-            <div className="ks-table-row" key={row.id}>
-              <div className="ks-col-posisi">
-                <span className="ks-posisi-link" onClick={() => navigate?.('seleksi-detail', { seleksiId: row.seleksi_id, jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
+            <div className="ks001-table-row" key={row.id}>
+              <div className="ks001-col-posisi">
+                <span className="ks001-posisi-link" onClick={() => navigate?.('lowongan-detail_001', { seleksiId: row.seleksiId, jabatan: row.posisi, activeTab: 'kandidat' })}>{row.posisi}</span>
               </div>
 
-              <div className="ks-col-departemen" style={{ fontSize: '12px', color: '#555f71' }}>
+              <div className="ks001-col-departemen" style={{ fontSize: '12px', color: '#555f71' }}>
                 {row.departemen}
               </div>
 
-              <div className="ks-col-alur">
-                <div className="ks-alur-wrap">
+              <div className="ks001-col-alur">
+                <div className="ks001-alur-wrap">
                   <button
-                    className="ks-alur-badge"
+                    className="ks001-alur-badge"
                     onClick={e => { e.stopPropagation(); setOpenAlurRow(openAlurRow === row.id ? null : row.id); }}
                   >
                     <span>{row.alurNama}</span>
                     <ChevronDown />
                   </button>
                   {openAlurRow === row.id && (
-                    <div className="ks-alur-dropdown">
-                      {alurList.map(opt => (
+                    <div className="ks001-alur-dropdown">
+                      {alurList.filter(opt => opt.level !== 0).map(opt => (
                         <button
                           key={opt.level}
-                          className={`ks-alur-option${row.alur === opt.level ? ' active' : ''}`}
+                          className={`ks001-alur-option${row.alur === opt.level ? ' active' : ''}`}
                           onClick={e => { e.stopPropagation(); updateAlur(row.id, opt.level); }}
                         >
-                          <span style={{ color: '#9aa3b0', fontSize: 10, marginRight: 6 }}>{opt.level}</span>
                           {opt.nama}
                         </button>
                       ))}
@@ -271,15 +271,15 @@ export default function KandidatSeleksi({ back, navigate, kandidat }) {
                 </div>
               </div>
 
-              <div className="ks-col-skor">
-                <div className="ks-fit-badge" style={{ borderColor: fit.border, cursor: 'pointer' }} onClick={e => { e.stopPropagation(); openPanel(row); }}>
-                  <span className="ks-fit-label">{fit.label}</span>
-                  <span className="ks-fit-chip" style={{ background: fit.chip }}>{row.belumDinilai ? '—' : row.skor}</span>
+              <div className="ks001-col-skor">
+                <div className="ks001-fit-badge" style={{ borderColor: fit.border, cursor: 'pointer' }} onClick={e => { e.stopPropagation(); openPanel(row); }}>
+                  <span className="ks001-fit-label">{fit.label}</span>
+                  <span className="ks001-fit-chip" style={{ background: fit.chip }}>{row.belumDinilai ? '—' : row.skor}</span>
                 </div>
               </div>
 
-              <div className="ks-col-action">
-                <span className="ks-detail-link" onClick={e => { e.stopPropagation(); openPanel(row); }}>Detail Penilaian</span>
+              <div className="ks001-col-action">
+                <span className="ks001-detail-link" onClick={e => { e.stopPropagation(); openPanel(row); }}>Detail Penilaian</span>
               </div>
             </div>
           );

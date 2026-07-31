@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import BackButton from '../../components/BackButton.jsx';
 import PopupKonfirmasiPassword from '../../components/PopupKonfirmasiPassword.jsx';
 import InlineEditRow from '../../components/InlineEditRow.jsx';
 import Toast from '../../components/Toast.jsx';
@@ -12,7 +11,7 @@ const lockIcon         = '/assets/lock.svg';
 const shieldIcon       = '/assets/shield.svg';
 const chevronRightIcon = '/assets/chevron_right.svg';
 
-export default function PenggunaAkunProfil({ navigate }) {
+export default function PenggunaAkunProfil() {
   const { user, companyId, companyName, companyDetails, userRole, refreshCompanyData } = useAuth();
   const [isKeamananExpanded, setIsKeamananExpanded] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
@@ -113,7 +112,6 @@ export default function PenggunaAkunProfil({ navigate }) {
       <div className="pap-wrapper">
 
         <div className="pap-header">
-          <BackButton variant="secondary" onClick={() => navigate('pengaturan')} />
           <h1 className="pap-page-title">Akun dan Profil</h1>
         </div>
 

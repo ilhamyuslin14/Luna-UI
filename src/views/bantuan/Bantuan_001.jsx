@@ -198,7 +198,7 @@ export default function Bantuan_001() {
                       <option value="upload">Kendala Upload File</option>
                       <option value="skoring">Kendala Skoring Kandidat</option>
                       <option value="kriteria">Kendala Membuat Kriteria Penilaian</option>
-                      <option value="seleksi">Kendala Seleksi/Lowongan</option>
+                      <option value="seleksi">Kendala Kelola Lowongan</option>
                       <option value="other">Lainnya</option>
                     </select>
                     <svg className="chevron-down" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

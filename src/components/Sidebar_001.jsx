@@ -1,17 +1,10 @@
 import { useState } from 'react';
 import PopupKonfirmasi from './PopupKonfirmasi.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
 
 const IcBeranda = () => (
   <svg width="16" height="16" viewBox="0 0 12.79 12.79" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M8.46622 0.5H4.32378C2.21197 0.5 0.5 2.21197 0.5 4.32378V8.46622C0.5 10.578 2.21197 12.29 4.32378 12.29H8.46622C10.578 12.29 12.29 10.578 12.29 8.46622V4.32378C12.29 2.21197 10.578 0.5 8.46622 0.5Z" stroke="currentColor" />
     <path d="M3.6367 9.08418V5.83461M6.47331 9.08418V3.70285M9.15314 9.08418V5.00421" stroke="currentColor" strokeLinecap="round" />
-  </svg>
-);
-
-const IcDepartemen = () => (
-  <svg width="16" height="16" viewBox="0 0 13.5 12.8823" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8.07031 0.337891C8.30641 0.273565 8.55009 0.321342 8.74219 0.46875L8.74316 0.469727C8.93738 0.617868 9.04772 0.840617 9.04785 1.08496V3.74805L9.22852 3.83105L12.3379 5.24805L12.3447 5.25098C12.8583 5.47195 13.1903 5.97438 13.1904 6.53223V11.1777C13.1904 11.9469 12.5641 12.5723 11.7949 12.5723H1.70508C0.935933 12.5723 0.309644 11.9469 0.30957 11.1777V3.08008C0.309624 2.45611 0.728456 1.90402 1.32812 1.73633L8.05078 0.342773L8.06055 0.34082L8.07031 0.337891ZM3.35938 9.47266C3.10276 9.47266 2.89471 9.68093 2.89453 9.9375V12.2627H6.38965V9.9375C6.38947 9.68093 6.18142 9.47266 5.9248 9.47266H3.35938ZM9.04785 12.2627H11.7949C12.3932 12.2627 12.8798 11.776 12.8799 11.1777V6.53223C12.8797 6.09841 12.6207 5.70605 12.2217 5.53516L9.4873 4.27832L9.04785 4.07617V12.2627ZM8.21582 0.623047L8.1709 0.631836L1.4375 2.02832L1.42871 2.03027L1.41895 2.0332C0.948508 2.16176 0.620331 2.59117 0.620117 3.0791V11.1768C0.620117 11.775 1.1068 12.2617 1.70508 12.2617H2.58398V9.9375C2.58398 9.51049 2.93236 9.16211 3.35938 9.16211H5.9248C6.35182 9.16211 6.69922 9.51049 6.69922 9.9375V12.2617H8.73828V1.08496C8.73828 0.883409 8.61767 0.764187 8.55859 0.717773L8.55762 0.716797L8.50977 0.68457C8.47249 0.662542 8.42453 0.64073 8.36719 0.628906L8.27441 0.620117C8.25784 0.620123 8.238 0.620258 8.21582 0.623047ZM10.7529 9.7832H11.1758C11.261 9.78339 11.3299 9.85231 11.3301 9.9375C11.3301 10.0228 11.2611 10.0926 11.1758 10.0928H10.7529C10.6675 10.0928 10.5977 10.023 10.5977 9.9375C10.5978 9.85219 10.6676 9.7832 10.7529 9.7832ZM10.7529 7.92285H11.1758C11.2611 7.92304 11.3301 7.99281 11.3301 8.07813C11.3301 8.16347 11.2611 8.23321 11.1758 8.2334H10.7529C10.6675 8.2334 10.5977 8.16359 10.5977 8.07813C10.5977 7.99269 10.6675 7.92285 10.7529 7.92285ZM3.35938 6.17969H5.9248C6.01026 6.17969 6.08008 6.24951 6.08008 6.33496C6.08002 6.42036 6.01022 6.49023 5.9248 6.49023H3.35938C3.27396 6.49023 3.20416 6.42036 3.2041 6.33496C3.2041 6.24951 3.27392 6.17969 3.35938 6.17969ZM3.35938 4.32031H5.9248C6.01026 4.32031 6.08008 4.39013 6.08008 4.47559C6.07986 4.56086 6.01013 4.62988 5.9248 4.62988H3.35938C3.27405 4.62988 3.20432 4.56086 3.2041 4.47559C3.2041 4.39013 3.27392 4.32031 3.35938 4.32031Z" fill="white" stroke="currentColor" strokeWidth="0.619886" />
   </svg>
 );
 
@@ -29,106 +22,29 @@ const IcKandidat = () => (
   </svg>
 );
 
-const IcKaryawan = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-  </svg>
-);
-
-const planCardVariants = [
-  {
-    id: 'berakhir',
-    className: 'plan-card--berakhir',
-    label: 'PAKET SAAT INI',
-    name: 'Berakhir',
-    expiry: 'Berakhir pada : 31 Des 2026',
-    buttonLabel: 'Pilih Paket',
-  },
-  {
-    id: 'trial',
-    className: 'plan-card--trial',
-    label: 'PAKET SAAT INI',
-    name: 'Trial',
-    expiry: 'Aktif s.d : 31 Des 2026',
-    buttonLabel: 'Pilih Paket',
-  },
-  {
-    id: 'free',
-    className: 'plan-card--free',
-    label: 'PAKET SAAT INI',
-    name: 'Free',
-    expiry: 'Aktif s.d : 31 Des 2026',
-    buttonLabel: 'Pilih Paket',
-  },
-  { id: 'basic' },
-  {
-    id: 'plus',
-    className: 'plan-card--plus',
-    label: 'PAKET SAAT INI',
-    name: 'Plus',
-    expiry: 'Aktif s.d : 31 Des 2026',
-  },
-];
-
-const DEFAULT_PLAN_CARD_INDEX = planCardVariants.findIndex(v => v.id === 'basic');
-const FREE_PLAN_CARD_INDEX = planCardVariants.findIndex(v => v.id === 'free');
-
-export default function Sidebar({ activeMenu, onNavigate }) {
-  const { user, profileName, companyName, lowonganCount, kandidatCount } = useAuth() || {};
+export default function Sidebar_001({ activeMenu, onNavigate }) {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  const userName = profileName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Alya Rahman';
-  const companyDisplay = companyName || 'PT Nusantara Tech';
-  const initials = userName.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AR';
 
   const menuItems = [
     { id: 'beranda_002', Icon: IcBeranda, label: 'Beranda' },
-    { id: 'departemen_001', Icon: IcDepartemen, label: 'Departemen' },
-    { id: 'seleksi_001', Icon: IcSeleksi, label: 'Lowongan' },
+    { id: 'lowongan_001', Icon: IcSeleksi, label: 'Lowongan' },
     { id: 'kandidat_001', Icon: IcKandidat, label: 'Kandidat' },
-    { id: 'karyawan', Icon: IcKaryawan, label: 'Karyawan' },
   ];
 
   return (
     <>
       <div className="sidebar-content">
         <div className="sidebar-top">
-          {/* User Profile Header Card */}
-          <div className="sidebar-profile-card">
-            <div className="sidebar-profile-avatar">
-              {user?.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt={userName} />
-              ) : (
-                <span>{initials}</span>
-              )}
-            </div>
-            <div className="sidebar-profile-info">
-              <span className="sidebar-profile-name" title={userName}>{userName}</span>
-              <span className="sidebar-profile-company" title={companyDisplay}>{companyDisplay}</span>
-            </div>
-          </div>
-
-          {/* Quick Stats Summary Card (Clean & Minimalist) */}
-          <div className="sidebar-stats-card">
-            <div className="sidebar-stat-item">
-              <span className="sidebar-stat-num">{lowonganCount ?? 0}</span>
-              <span className="sidebar-stat-label">Lowongan</span>
-            </div>
-            <div className="sidebar-stat-divider"></div>
-            <div className="sidebar-stat-item">
-              <span className="sidebar-stat-num">{kandidatCount ?? 0}</span>
-              <span className="sidebar-stat-label">Kandidat</span>
-            </div>
-          </div>
-
           <div className="sidebar-section">
             <div className="section-title">Menu Utama</div>
             {menuItems.map(item => {
-              const isActive = activeMenu === item.id || 
+              const isActive = activeMenu === item.id ||
                 ((activeMenu === 'beranda' || activeMenu === 'beranda_001' || activeMenu === 'beranda_002') && (item.id === 'beranda_001' || item.id === 'beranda_002')) ||
-                ((activeMenu === 'seleksi-detail' || activeMenu === 'seleksi-detail_001' || activeMenu === 'setup-penilaian' || activeMenu === 'setup-penilaian_001' || activeMenu === 'buat-lowongan') && item.id === 'seleksi_001') || 
-                ((activeMenu === 'departemen-detail' || activeMenu === 'departemen-detail_001') && item.id === 'departemen_001');
+                ((activeMenu === 'seleksi-detail' || activeMenu === 'seleksi-detail_001' || activeMenu === 'seleksi-detail_002' ||
+                  activeMenu === 'lowongan-detail' || activeMenu === 'lowongan-detail_001' || activeMenu === 'lowongan-detail_002' ||
+                  activeMenu === 'setup-penilaian' || activeMenu === 'setup-penilaian_001' ||
+                  activeMenu === 'buat-lowongan' || activeMenu === 'buat-lowongan_001' ||
+                  activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') && item.id === 'lowongan_001');
               return (
                 <a
                   key={item.id}
@@ -154,7 +70,7 @@ export default function Sidebar({ activeMenu, onNavigate }) {
               href="#"
               data-menu="pengaturan"
               className={`menu-item${activeMenu === 'pengaturan' || activeMenu === 'pengguna-akun' || activeMenu === 'paket-langganan' ? ' active' : ''}`}
-              onClick={(e) => { e.preventDefault(); onNavigate('pengaturan'); }}
+              onClick={(e) => { e.preventDefault(); onNavigate('pengguna-akun'); }}
             >
               <div className="menu-item-left">
                 <div className="menu-item-icon-box">
@@ -164,13 +80,14 @@ export default function Sidebar({ activeMenu, onNavigate }) {
                     <path d="M8 17a4 4 0 0 1 8 0"></path>
                   </svg>
                 </div>
-                <span>Kelola Pengguna</span>
+                <span>Akun dan Profil</span>
               </div>
             </a>
           </div>
         </div>
 
         <div className="sidebar-footer">
+
           <a
             id="btn-bantuan"
             href="#"

@@ -384,7 +384,7 @@ export default function SetupPenilaian_001({ navigate }) {
 
       discardedRef.current = true;
       clearDraft();
-      navigate('seleksi-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
+      navigate('lowongan-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
       showToast('Gagal', err.message || 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
     } finally {
@@ -404,13 +404,13 @@ export default function SetupPenilaian_001({ navigate }) {
             </svg>
           </div>
           <div className="sp001-header-text">
-            <h1 className="sp001-header-title">Setup Penilaian</h1>
-            <p className="sp001-header-subtitle">Mulai setup penilaian AI untuk role baru. Luna akan membaca Deskripsi Pekerjaan kamu dan menyiapkan kriteria seleksi otomatis.</p>
+            <h1 className="sp001-header-title">Buat Lowongan Pekerjaan</h1>
+            <p className="sp001-header-subtitle">Mulai buat lowongan pekerjaan baru. Luna akan membaca Deskripsi Pekerjaan Anda dan menyiapkan kriteria kualifikasi AI secara otomatis.</p>
           </div>
         </div>
         <div className="sp001-header-actions">
-          <button className="sp001-btn-cancel" onClick={() => { discardedRef.current = true; clearDraft(); navigate('seleksi_001'); }}>Batal</button>
-          <button className="sp001-btn-primary" onClick={handleSimpan}>Simpan</button>
+          <button className="sp001-btn-cancel" onClick={() => { discardedRef.current = true; clearDraft(); navigate('lowongan_001'); }}>Batal</button>
+          <button className="sp001-btn-primary" onClick={handleSimpan}>Terbitkan Lowongan</button>
         </div>
       </div>
 

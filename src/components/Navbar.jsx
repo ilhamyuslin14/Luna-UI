@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '../context/AuthContext.jsx';
 import { searchUniversal } from '../services/searchService.js';
+import { getRecentActivities, getUnreadActivityCount } from '../services/dashboardService.js';
+import PopupSemuaAktivitas from './PopupSemuaAktivitas.jsx';
 
 const STATUS_STYLE = {
   Rencana: { text: 'var(--luna-ink-700)', bg: '#f4f6fa', border: 'var(--luna-ink-400)' },
@@ -54,27 +56,78 @@ const HINTS = {
   departemen: <span>Cari lowongan berdasarkan <b>nama departemen</b>.</span>,
 };
 
-export default function Navbar({ navigate }) {
-  const { companyId, companyName, user, userRole, logout } = useAuth();
+export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJabatan }) {
+  const { companyId, user, logout } = useAuth();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('kandidat');
   const [results, setResults] = useState({ kandidat: [], seleksi: [], departemen: [] });
+  const [notifications, setNotifications] = useState([]);
+  const [isNotifLoading, setIsNotifLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
   const wrapRef = useRef(null);
   const inputRef = useRef(null);
+  const notifRef = useRef(null);
+  const quickRef = useRef(null);
   const profileRef = useRef(null);
+
+  const profileName = user?.user_metadata?.nama_lengkap || user?.user_metadata?.full_name || 'User';
+  const profileEmail = user?.email || '';
+  const profileInitial = profileName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    if (!companyId) return;
+    let isMounted = true;
+    const fetchNotifs = async () => {
+      setIsNotifLoading(true);
+      try {
+        const data = await getRecentActivities(companyId);
+        if (isMounted) setNotifications(data || []);
+
+        const seenKey = `luna_notif_seen_${companyId}`;
+        let lastSeenAt = localStorage.getItem(seenKey);
+        if (!lastSeenAt) {
+          // First time ever seeing this company's notifications — don't
+          // dump the entire history as "unread", start the watermark now.
+          lastSeenAt = new Date().toISOString();
+          localStorage.setItem(seenKey, lastSeenAt);
+        }
+        const count = await getUnreadActivityCount(companyId, lastSeenAt);
+        if (isMounted) setUnreadCount(count);
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+      } finally {
+        if (isMounted) setIsNotifLoading(false);
+      }
+    };
+    fetchNotifs();
+    return () => { isMounted = false; };
+  }, [companyId]);
 
   useEffect(() => {
     const onDown = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        if (quickRef.current?.contains(e.target) || notifRef.current?.contains(e.target) || profileRef.current?.contains(e.target)) {
+          setOpen(false);
+          setIsClosing(false);
+        } else if (open && !isClosing) {
+          close();
+        }
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (quickRef.current && !quickRef.current.contains(e.target)) setQuickOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
-  }, []);
+  }, [open, isClosing]);
 
   useEffect(() => {
     const q = query.trim();
@@ -100,11 +153,57 @@ export default function Navbar({ navigate }) {
   }, [query, companyId]);
 
   const handleOpen = () => {
+    setQuickOpen(false);
+    setNotifOpen(false);
+    setIsClosing(false);
     setOpen(true);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const close = () => { setOpen(false); setQuery(''); };
+  const close = () => {
+    if (isClosing || !open) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      setOpen(false);
+      setIsClosing(false);
+      setQuery('');
+    }, 180);
+  };
+
+  const toggleQuick = (e) => {
+    e.stopPropagation();
+    setOpen(false);
+    setIsClosing(false);
+    setNotifOpen(false);
+    setProfileOpen(false);
+    setQuickOpen(prev => !prev);
+  };
+
+  const toggleNotif = (e) => {
+    e.stopPropagation();
+    setOpen(false);
+    setIsClosing(false);
+    setQuickOpen(false);
+    setProfileOpen(false);
+    setNotifOpen(prev => {
+      const next = !prev;
+      if (next && companyId) {
+        // Opening the panel counts as "read" — reset the watermark and badge.
+        localStorage.setItem(`luna_notif_seen_${companyId}`, new Date().toISOString());
+        setUnreadCount(0);
+      }
+      return next;
+    });
+  };
+
+  const toggleProfile = (e) => {
+    e.stopPropagation();
+    setOpen(false);
+    setIsClosing(false);
+    setQuickOpen(false);
+    setNotifOpen(false);
+    setProfileOpen(prev => !prev);
+  };
 
   const q = query.trim();
   const hasQuery = q.length >= 2;
@@ -117,18 +216,30 @@ export default function Navbar({ navigate }) {
 
   return (
     <>
+      {/* Darkened Backdrop Overlay when Search is Active */}
+      {(open || isClosing) && (
+        <div className={`srch-overlay${isClosing ? ' closing' : ''}`} onClick={close} />
+      )}
+
+      {/* Brand Logo */}
       <div className="navbar-brand">
         <div className="brand-logo" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src="/assets/logos/luna-logo-clean.png" alt="Luna Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain', borderRadius: '6px' }} />
+          <img 
+            src="/assets/logos/luna-logo-clean.png" 
+            alt="Luna Logo" 
+            style={{ height: '36px', width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+            onClick={() => navigate?.('beranda_002')}
+          />
         </div>
       </div>
 
+      {/* Universal Search Container */}
       <div className="search-container" ref={wrapRef}>
         <div className={`search-wrapper${open ? ' srch-open' : ''}`} onClick={handleOpen}>
           <input
             ref={inputRef}
             className="srch-input"
-            placeholder="Pencarian..."
+            placeholder="Cari kandidat, lowongan, departemen..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             onFocus={handleOpen}
@@ -136,8 +247,8 @@ export default function Navbar({ navigate }) {
           <img src="/assets/group1000006025.svg" className="search-icon" alt="Search" />
         </div>
 
-        {open && (
-          <div className="srch-dropdown">
+        {(open || isClosing) && (
+          <div className={`srch-dropdown${isClosing ? ' closing' : ''}`}>
             {/* Header: tabs */}
             <div className="srch-header">
               <span className="srch-cari-label">Cari:</span>
@@ -175,7 +286,7 @@ export default function Navbar({ navigate }) {
               <>
                 <div className="srch-results-list">
                   {activeTab === 'kandidat' && kandidatResults.map((k, i) => (
-                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('kandidat-detail', { kandidat: { id: k.id, nama_lengkap: k.name } }); close(); }}>
+                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('kandidat-detail_001', { kandidat: { id: k.id, nama_lengkap: k.name } }); close(); }}>
                       <div className="srch-avatar" style={{ background: k.color }}>{k.initials}</div>
                       <div className="srch-result-info">
                         <div className="srch-result-name"><Highlight text={k.name} query={q} /></div>
@@ -187,7 +298,7 @@ export default function Navbar({ navigate }) {
                   {activeTab === 'seleksi' && seleksiResults.map((s, i) => {
                     const st = STATUS_STYLE[s.status] || STATUS_STYLE.Rencana;
                     return (
-                      <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail', { seleksiId: s.id, jabatan: s.name }); close(); }}>
+                      <div key={i} className="srch-result-item" onClick={() => { navigate?.('seleksi-detail_001', { seleksiId: s.id, jabatan: s.name }); close(); }}>
                         <div className="srch-icon-circle srch-icon-blue">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
@@ -203,7 +314,7 @@ export default function Navbar({ navigate }) {
                   })}
 
                   {activeTab === 'departemen' && deptResults.map((d, i) => (
-                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('departemen'); close(); }}>
+                    <div key={i} className="srch-result-item" onClick={() => { navigate?.('departemen_001'); close(); }}>
                       <div className="srch-icon-circle srch-icon-gray">
                         <IcDepartemen />
                       </div>
@@ -238,57 +349,163 @@ export default function Navbar({ navigate }) {
         )}
       </div>
 
+      {/* Right Side Controls — Quick Action Icon CTA & Notification Bell */}
       <div className="navbar-actions">
-        <div className="user-profile-wrapper" ref={profileRef}>
-          <div className="user-profile" onClick={() => setProfileOpen(!profileOpen)}>
-            <div className="user-company-avatar">
-              {companyName ? companyName.charAt(0).toUpperCase() : 'P'}
-            </div>
-            <div className="user-info">
-              <span className="user-name">{companyName || 'Perusahaan'}</span>
-              <div className="user-role-container">
-                <span className="user-role" style={{ textTransform: 'capitalize' }}>
-                  {userRole || 'Staff'}
-                </span>
+        {/* Quick Action Icon CTA (Soft Orange Ghost Tint + Ikon Petir ⚡) */}
+        <div className="nav-quick-wrapper" ref={quickRef}>
+          <button className="nav-quick-btn" onClick={toggleQuick} title="Aksi Cepat Kilat">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </button>
+
+          {quickOpen && (
+            <div className="nav-dropdown nav-compact-dropdown">
+              <div className="nav-compact-group-label">PENDAFTARAN</div>
+              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); navigate?.('buat-lowongan_001'); }}>
+                <div className="nav-compact-icon orange">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <span className="nav-compact-title">Buat Lowongan Baru</span>
+              </div>
+
+              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); navigate?.('seleksi_001'); }}>
+                <div className="nav-compact-icon blue">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
+                </div>
+                <span className="nav-compact-title">Tambahkan Kandidat</span>
+              </div>
+
+              <div className="nav-compact-divider"></div>
+
+              <div className="nav-compact-group-label">MANAJEMEN DATA</div>
+              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); navigate?.('kandidat_001'); }}>
+                <div className="nav-compact-icon green">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <span className="nav-compact-title">Kelola Kandidat</span>
+              </div>
+
+              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); navigate?.('seleksi_001'); }}>
+                <div className="nav-compact-icon purple">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                </div>
+                <span className="nav-compact-title">Lihat Semua Lowongan</span>
               </div>
             </div>
-            <div className={`user-profile-chevron ${profileOpen ? 'open' : ''}`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+          )}
+        </div>
+
+        {/* Notification Bell Button 🔔 */}
+        <div className="nav-notif-wrapper" ref={notifRef}>
+          <button className="nav-notif-btn" onClick={toggleNotif} title="Notifikasi Rekrutmen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            {unreadCount > 0 && (
+              <span className="nav-notif-badge">{unreadCount}</span>
+            )}
+          </button>
+
+          {notifOpen && (
+            <div className="nav-dropdown nav-notif-dropdown">
+              <div className="nav-notif-header">
+                <span>Notifikasi</span>
+                <span className="nav-notif-count">{notifications.length} Aktivitas</span>
+              </div>
+              <div className="nav-notif-list">
+                {isNotifLoading ? (
+                  <div className="nav-notif-empty" style={{ padding: '20px 16px', textAlign: 'center', fontSize: '12px', color: 'var(--luna-ink-400)' }}>
+                    Memuat notifikasi terbaru...
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="nav-notif-empty" style={{ padding: '24px 16px', textAlign: 'center', fontSize: '12px', color: 'var(--luna-ink-400)' }}>
+                    Belum ada aktivitas rekrutmen terbaru.
+                  </div>
+                ) : (
+                  notifications.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="nav-notif-item unread"
+                      onClick={() => {
+                        setNotifOpen(false);
+                        if (item.type === 'seleksi' || item.type === 'scoring') navigate?.('seleksi_001');
+                        else if (item.type === 'kandidat' || item.type === 'upload') navigate?.('kandidat_001');
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="nav-notif-dot"></div>
+                      <div className="nav-notif-content">
+                        <p className="nav-notif-text">{item.text}</p>
+                        <span className="nav-notif-time">{item.time}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              {!isNotifLoading && notifications.length > 0 && (
+                <div
+                  className="nav-notif-footer"
+                  onClick={() => { setNotifOpen(false); setShowAllActivities(true); }}
+                >
+                  Lihat Semua
+                </div>
+              )}
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Profile Badge */}
+        <div className="nav-profile-wrapper" ref={profileRef}>
+          <button className="nav-profile-btn" onClick={toggleProfile} title="Akun Saya">
+            {user?.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt={profileName} />
+            ) : (
+              <span>{profileInitial}</span>
+            )}
+          </button>
 
           {profileOpen && (
-            <div className="profile-dropdown">
+            <div className="nav-dropdown nav-profile-dropdown">
               <div
-                className="pd-header"
-                onClick={() => {
-                  setProfileOpen(false);
-                  navigate('pengaturan'); // Rute ke menu kelola pengguna (profil)
-                }}
+                className="nav-profile-header"
+                onClick={() => { setProfileOpen(false); navigate?.('pengguna-akun'); }}
               >
-                <div className="pd-user-initials">
-                  {(user?.user_metadata?.nama_lengkap || user?.email || 'U').charAt(0).toUpperCase()}
+                <div className="nav-profile-avatar">
+                  {user?.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt={profileName} />
+                  ) : (
+                    <span>{profileInitial}</span>
+                  )}
                 </div>
-                <div className="pd-user-info">
-                  <div className="pd-user-name">{user?.user_metadata?.nama_lengkap || 'User'}</div>
-                  <div className="pd-user-email">{user?.email}</div>
+                <div className="nav-profile-info">
+                  <span className="nav-profile-name">{profileName}</span>
+                  <span className="nav-profile-email">{profileEmail}</span>
                 </div>
               </div>
-              <div className="pd-divider"></div>
-              <button className="pd-logout" onClick={() => logout()}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8 }}>
+
+              <div className="nav-profile-divider"></div>
+
+              <div className="nav-profile-logout" onClick={() => { setProfileOpen(false); logout?.(); }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
                   <line x1="21" y1="12" x2="9" y2="12"></line>
                 </svg>
-                Keluar
-              </button>
+                <span>Keluar</span>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {showAllActivities && (
+        <PopupSemuaAktivitas
+          onClose={() => setShowAllActivities(false)}
+          onNavigate={navigate}
+        />
+      )}
     </>
   );
 }

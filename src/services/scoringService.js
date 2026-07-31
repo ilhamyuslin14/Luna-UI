@@ -30,7 +30,7 @@ export async function getScoringBySeleksi(seleksiId) {
       ai_summary, detail_kriteria, raw_kriteria, created_at,
       kandidat:kandidat_id (
         id, nama_lengkap, jabatan_saat_ini, perusahaan_saat_ini,
-        pengalaman_tahun, linkedin_url, arsip
+        pengalaman_tahun, linkedin_url, domisili, arsip
       ),
       seleksi:seleksi_id(jabatan, departments:department_id(name))
     `)

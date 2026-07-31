@@ -9,21 +9,7 @@ import PopupTidakSesuai from '../../components/PopupTidakSesuai.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getScoringBySeleksi, updateAlurProses, markTidakSesuai } from '../../services/scoringService.js';
-import { invalidate } from '../../services/dataCache.js';
 import { getAlurSeleksi, seedDefaultAlur, DEFAULT_ALUR } from '../../services/alurSeleksiService.js';
-
-const IconPapan = () => (
-  <svg width="14" height="14" viewBox="0 0 12.79 12.79" fill="none">
-    <path d="M8.46622 0.5H4.32378C2.21197 0.5 0.5 2.21197 0.5 4.32378V8.46622C0.5 10.578 2.21197 12.29 4.32378 12.29H8.46622C10.578 12.29 12.29 10.578 12.29 8.46622V4.32378C12.29 2.21197 10.578 0.5 8.46622 0.5Z" stroke="currentColor" />
-    <path d="M3.6367 9.08418V5.83461M6.47331 9.08418V3.70285M9.15314 9.08418V5.00421" stroke="currentColor" strokeLinecap="round" />
-  </svg>
-);
-
-const IconList = () => (
-  <svg width="13" height="13" viewBox="0 0 12 12.1471" fill="none">
-    <path d="M7.78346 0.0789063H7.90162C8.0246 0.0789862 8.14211 0.129039 8.22779 0.217578L11.2874 3.40508C11.3682 3.48895 11.4142 3.60211 11.4143 3.71855V9.25566C11.4252 10.7711 10.2446 12.0093 8.72682 12.0711L3.81666 12.0721C2.29326 12.0376 1.08031 10.7699 1.11354 9.2459V2.78398C1.14883 1.28555 2.38665 0.0789063 3.87428 0.0789063H7.7024C7.71566 0.0777304 7.72889 0.075008 7.74244 0.075C7.75624 0.075 7.76997 0.0776972 7.78346 0.0789063ZM3.87525 0.985156C2.87437 0.985194 2.04334 1.79601 2.01979 2.7957V9.25566C1.99744 10.2904 2.81274 11.1428 3.83717 11.1658H8.70826C9.71636 11.1241 10.5152 10.2864 10.5081 9.25957V4.29375H9.2942C8.18878 4.29073 7.28932 3.38917 7.28932 2.28496V0.985156H3.87525ZM7.63014 7.69219C7.88007 7.69235 8.08326 7.89534 8.08326 8.14531C8.08322 8.39525 7.88005 8.59827 7.63014 8.59844H4.36842C4.11837 8.59844 3.91534 8.39535 3.91529 8.14531C3.91529 7.89523 4.11834 7.69219 4.36842 7.69219H7.63014ZM6.39479 5.42266C6.64469 5.42286 6.84791 5.62583 6.84791 5.87578C6.84787 6.1257 6.64466 6.3287 6.39479 6.32891H4.36744C4.11739 6.32891 3.91436 6.12582 3.91432 5.87578C3.91432 5.6257 4.11736 5.42266 4.36744 5.42266H6.39479ZM8.19557 2.28496C8.19557 2.89143 8.68931 3.38569 9.29518 3.3875H10.0149L8.19557 1.49199V2.28496Z" fill="currentColor" />
-  </svg>
-);
 
 /* ── helpers ─────────────────────────────────────────────── */
 function scoreLevelFromValue(score) {
@@ -120,14 +106,14 @@ const RejectSvg = () => (
 );
 
 const Cb = ({ checked, onChange }) => (
-  <label className="sdk001-cb">
+  <label className="sdk-cb">
     <input type="checkbox" checked={checked} onChange={onChange} />
-    <span className="sdk001-cb-box" />
+    <span className="sdk-cb-box" />
   </label>
 );
 
 /* ── main component ──────────────────────────────────────── */
-export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
+export default function LowonganKandidat({ navigate, back, seleksiId }) {
   const { companyId } = useAuth();
   const [data, setData] = useState([]);
   const [alurList, setAlurList] = useState(DEFAULT_ALUR);
@@ -230,7 +216,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
     setData(prev => prev.map(item => item.scoringId === scoringId ? { ...item, alur: level } : item));
     setAlurOpen(null);
     updateAlurProses(scoringId, level)
-      .then(() => { invalidate('karyawan'); showToast('Alur berhasil diubah', `Kandidat dipindahkan ke ${alurNama(level)}`); })
+      .then(() => showToast('Alur berhasil diubah', `Kandidat dipindahkan ke ${alurNama(level)}`))
       .catch(err => {
         console.error('Gagal update alur:', err);
         setData(prev => prev.map(item => item.scoringId === scoringId ? { ...item, alur: row.alur } : item));
@@ -246,20 +232,23 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
 
   return (
     <div
-      className="sdk001-root"
+      className="sdk-root"
       onClick={(e) => {
         if (!e.target.closest('.filter-dropdown-container')) setShowFilter(false);
         if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
-        if (!e.target.closest('.sdk001-alur-cell')) setAlurOpen(null);
+        if (!e.target.closest('.sdk-alur-cell')) setAlurOpen(null);
         if (!e.target.closest('.bulk-aksi-container')) setShowBulk(false);
-        if (!e.target.closest('.sdk001-board-card-menu') && !e.target.closest('.sdk001-card-dropdown')) setMenuOpen(null);
+        if (!e.target.closest('.sdk-board-card-menu') && !e.target.closest('.sdk-card-dropdown')) setMenuOpen(null);
       }}
     >
       {/* Actions Bar */}
-      <div className="sdk001-actions-bar">
+      <div className="sdk-actions-bar">
         {back && <BackButton onClick={back} />}
-        <div className="sdk001-right-actions" style={!back ? { marginLeft: 'auto' } : {}}>
-          <div className="sdk001-stats-badge">{filteredData.length} kandidat</div>
+        <div className="sdk-right-actions" style={!back ? { marginLeft: 'auto' } : {}}>
+          <div className="sdk-stats-badge">
+            Jumlah Kandidat : <strong>{filteredData.length}</strong>
+          </div>
+          <div className="sdk-bar-divider" />
 
           {selected.size > 0 && (
             <CTABulkAksi
@@ -296,12 +285,12 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
             onToggleOpen={() => { setShowBulk(false); setShowSortDropdown(false); setShowFilter(v => !v); }}
           />
 
-          <div className="sdk001-view-toggle">
-            <button className={`sdk001-view-btn sdk001-view-papan${viewMode === 'board' ? ' active' : ''}`} onClick={() => setViewMode('board')}>
-              <IconPapan /> Papan
+          <div className="sdk-view-toggle">
+            <button className={`sdk-view-btn sdk-view-papan${viewMode === 'board' ? ' active' : ''}`} onClick={() => setViewMode('board')}>
+              <img src="/assets/frame1000006975.svg" alt="" /> Papan
             </button>
-            <button className={`sdk001-view-btn sdk001-view-list${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>
-              <IconList /> List
+            <button className={`sdk-view-btn sdk-view-list${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>
+              <img src="/assets/fi_16116710.svg" alt="" /> List
             </button>
           </div>
         </div>
@@ -310,8 +299,8 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
       {/* List View */}
       {viewMode === 'list' && (
         <>
-          <div className="sdk001-table-container">
-            <table className="sdk001-table">
+          <div className="sdk-table-container">
+            <table className="sdk-table">
               <thead>
                 <tr>
                   <th style={{ width: 44 }}><Cb checked={allSelected} onChange={toggleAll} /></th>
@@ -334,39 +323,39 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                 ) : pagedData.map((k) => (
                   <tr key={k.scoringId}>
                     <td><Cb checked={selected.has(k.scoringId)} onChange={() => toggleRow(k.scoringId)} /></td>
-                    <td className="sdk001-name" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={() => navigate('kandidat-detail_001', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
+                    <td className="sdk-name" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={() => navigate('kandidat-detail', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
                       {k.nama}
                     </td>
                     <td style={{ maxWidth: 250 }}>
-                      <div className="sdk001-jabatan-cell">
-                        <span className="sdk001-jabatan" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</span>
-                        <span className="sdk001-pengalaman">{k.pengalaman}</span>
+                      <div className="sdk-jabatan-cell">
+                        <span className="sdk-jabatan" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</span>
+                        <span className="sdk-pengalaman">{k.pengalaman}</span>
                       </div>
                     </td>
-                    <td className="sdk001-linkedin" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <td className="sdk-linkedin" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {k.linkedin !== '-' ? (
                         <a 
                           href={k.linkedin.startsWith('http') ? k.linkedin : `https://${k.linkedin}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          style={{ color: 'var(--luna-orange-500)', textDecoration: 'none' }}
+                          style={{ color: '#0977be', textDecoration: 'none' }}
                           onClick={e => e.stopPropagation()}
                         >
                           {k.linkedin}
                         </a>
                       ) : '-'}
                     </td>
-                    <td className="sdk001-alur-cell" onClick={e => e.stopPropagation()}>
-                      <div className="sdk001-alur-badge" onClick={() => setAlurOpen(alurOpen === k.scoringId ? null : k.scoringId)}>
+                    <td className="sdk-alur-cell" onClick={e => e.stopPropagation()}>
+                      <div className="sdk-alur-badge" onClick={() => setAlurOpen(alurOpen === k.scoringId ? null : k.scoringId)}>
                         <span>{alurNama(k.alur)}</span>
                         <svg width="6" height="4" viewBox="0 0 6 4" fill="none">
                           <path d="M0.5 0.5L3 3L5.5 0.5" stroke="#323b4d" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                       {alurOpen === k.scoringId && (
-                        <div className="sdk001-alur-dropdown">
+                        <div className="sdk-alur-dropdown">
                           {alurList.filter(opt => opt.level !== 0).map(opt => (
-                            <button key={opt.level} className={`sdk001-alur-option${k.alur === opt.level ? ' active' : ''}`} onClick={() => updateAlur(k.scoringId, opt.level)}>
+                            <button key={opt.level} className={`sdk-alur-option${k.alur === opt.level ? ' active' : ''}`} onClick={() => updateAlur(k.scoringId, opt.level)}>
                               {opt.nama}
                             </button>
                           ))}
@@ -375,21 +364,21 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                     </td>
                     <td>
                       <div
-                        className={`sdk001-skor-badge ${k.skor.level}`}
+                        className={`sdk-skor-badge ${k.skor.level}`}
                         style={{ cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}
                       >
                         <span>{k.skor.label}</span>
-                        <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
+                        <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                       </div>
                     </td>
                     <td>
-                      <button className="sdk001-btn-outline" onClick={(e) => { e.stopPropagation(); setDropTarget(k); setDropModalOpen(true); }}>
+                      <button className="sdk-btn-outline" onClick={(e) => { e.stopPropagation(); setDropTarget(k); setDropModalOpen(true); }}>
                         <RejectSvg /> Tidak Sesuai
                       </button>
                     </td>
                     <td>
-                      <button className="sdk001-detail-btn" onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}>Detail Penilaian</button>
+                      <button className="sdk-detail-btn" onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}>Detail Penilaian</button>
                     </td>
                   </tr>
                 ))}
@@ -430,15 +419,15 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
 
       {/* Board View */}
       {viewMode === 'board' && (
-        <div className="sdk001-board-scroll">
+        <div className="sdk-board-scroll">
           {alurList.map(col => {
             const collapsed = collapsedCols.has(col.level);
             const colItems = filteredData.filter(k => k.alur === col.level);
             return (
-              <div key={col.level} className={`sdk001-board-col${collapsed ? ' collapsed' : ''}`}>
-                <div className="sdk001-board-col-header">
-                  <span className="sdk001-board-col-title">{col.nama}</span>
-                  <button className="sdk001-board-col-collapse" onClick={(e) => { e.stopPropagation(); toggleCol(col.level); }}>
+              <div key={col.level} className={`sdk-board-col${collapsed ? ' collapsed' : ''}`}>
+                <div className="sdk-board-col-header">
+                  <span className="sdk-board-col-title">{col.nama}</span>
+                  <button className="sdk-board-col-collapse" onClick={(e) => { e.stopPropagation(); toggleCol(col.level); }}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: collapsed ? 'none' : 'rotate(180deg)', transition: 'transform 0.2s' }}>
                       <path d="M10 12L6 8L10 4" stroke="#7e8799" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -446,19 +435,12 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                 </div>
                 {!collapsed && (
                   <div
-                    className={`sdk001-board-col-body${dragOverCol === col.level ? ' drag-over' : ''}`}
+                    className={`sdk-board-col-body${dragOverCol === col.level ? ' drag-over' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); setDragOverCol(col.level); }}
                     onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverCol(null); }}
                     onDrop={(e) => {
                       e.preventDefault();
-                      if (draggedScoringId !== null) {
-                        if (col.level === 0) {
-                          setDropTarget({ scoringId: draggedScoringId });
-                          setDropModalOpen(true);
-                        } else {
-                          updateAlur(draggedScoringId, col.level);
-                        }
-                      }
+                      if (draggedScoringId !== null) updateAlur(draggedScoringId, col.level);
                       setDraggedScoringId(null);
                       setDragOverCol(null);
                     }}
@@ -470,7 +452,7 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                       return (
                         <div
                           key={k.scoringId}
-                          className={`sdk001-board-card${draggedScoringId === k.scoringId ? ' dragging' : ''}`}
+                          className={`sdk-board-card${draggedScoringId === k.scoringId ? ' dragging' : ''}`}
                           draggable={k.alur !== 0}
                           onDragStart={(e) => { 
                             if (k.alur === 0) {
@@ -481,10 +463,10 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                             setDraggedScoringId(k.scoringId); 
                           }}
                           onDragEnd={() => { setDraggedScoringId(null); setDragOverCol(null); }}
-                          onClick={() => navigate('kandidat-detail_001', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}
+                          onClick={() => navigate('kandidat-detail', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}
                         >
                           <div style={{ position: 'absolute', top: 6, right: 8 }}>
-                            <button className="sdk001-board-card-menu" onClick={e => {
+                            <button className="sdk-board-card-menu" onClick={e => {
                               e.stopPropagation();
                               if (menuOpen?.idx === k.scoringId) { setMenuOpen(null); return; }
                               const r = e.currentTarget.getBoundingClientRect();
@@ -497,67 +479,67 @@ export default function SeleksiKandidat_001({ navigate, back, seleksiId }) {
                               </svg>
                             </button>
                             {menuOpen?.idx === k.scoringId && (
-                              <div className="sdk001-card-dropdown" onClick={e => e.stopPropagation()} style={{ position: 'fixed', top: menuOpen.top, right: menuOpen.right, zIndex: 100000 }}>
-                                <button className="sdk001-card-dropdown-item" onClick={() => { setMenuOpen(null); setDropTarget(k); setDropModalOpen(true); }}>
+                              <div className="sdk-card-dropdown" onClick={e => e.stopPropagation()} style={{ position: 'fixed', top: menuOpen.top, right: menuOpen.right, zIndex: 100000 }}>
+                                <button className="sdk-card-dropdown-item" onClick={() => { setMenuOpen(null); setDropTarget(k); setDropModalOpen(true); }}>
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                                   Tidak Sesuai
                                 </button>
                               </div>
                             )}
                           </div>
-                          <div className="sdk001-board-card-name">{k.nama}</div>
-                          <div className="sdk001-board-card-job">{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</div>
-                          <div className="sdk001-board-card-exp">{k.pengalaman}</div>
+                          <div className="sdk-board-card-name">{k.nama}</div>
+                          <div className="sdk-board-card-job">{k.jabatan}{k.perusahaan !== '-' ? ` at ${k.perusahaan}` : ''}</div>
+                          <div className="sdk-board-card-exp">{k.pengalaman}</div>
                           <div style={{ position: 'relative' }} onMouseLeave={() => setHoveredScore(null)}>
                             <div
-                              className={`sdk001-skor-badge ${k.skor.level}`}
+                              className={`sdk-skor-badge ${k.skor.level}`}
                               style={{ cursor: 'pointer' }}
                               onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}
                               onMouseEnter={(e) => {
                                 const badgeRect = e.currentTarget.getBoundingClientRect();
-                                const cardEl = e.currentTarget.closest('.sdk001-board-card');
+                                const cardEl = e.currentTarget.closest('.sdk-board-card');
                                 const cardRect = cardEl ? cardEl.getBoundingClientRect() : badgeRect;
                                 setHoveredScore({ idx: k.scoringId, top: badgeRect.bottom, left: cardRect.left, width: cardRect.width });
                               }}
                             >
                               <span>{k.skor.label}</span>
-                              <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
+                              <span className={`sdk-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                             </div>
                             {hoveredScore?.idx === k.scoringId && (
-                              <div className="sdk001-score-popover-wrapper" onClick={e => e.stopPropagation()} style={{ top: hoveredScore.top, left: hoveredScore.left, width: hoveredScore.width }}>
-                                <div className="sdk001-score-popover">
+                              <div className="sdk-score-popover-wrapper" onClick={e => e.stopPropagation()} style={{ top: hoveredScore.top, left: hoveredScore.left, width: hoveredScore.width }}>
+                                <div className="sdk-score-popover">
                                   {k.skor.belumDinilai ? (
-                                    <div className="sdk001-score-locked">
+                                    <div className="sdk-score-locked">
                                       <p>Kandidat ini belum dinilai AI — paket Free tidak termasuk skoring otomatis.</p>
-                                      <button className="sdk001-score-action" onClick={() => navigate('paket-langganan')}>
+                                      <button className="sdk-score-action" onClick={() => navigate('paket-langganan')}>
                                         Upgrade Paket
                                       </button>
                                     </div>
                                   ) : (
-                                  <>
-                                  <div className="sdk001-score-popover-top">
-                                    <div className="sdk001-score-donut" style={{
-                                      background: `conic-gradient(${k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b'} ${k.skor.score}%, #f0f2f6 ${k.skor.score}%)`
-                                    }}>
-                                      <span className="sdk001-score-donut-val" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>{k.skor.score}</span>
-                                      <span className="sdk001-score-donut-lbl" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>
-                                        {k.skor.level === 'high' ? 'High' : k.skor.level === 'moderate' ? 'Moderate' : 'Low'}
-                                      </span>
-                                    </div>
-                                    <div className="sdk001-score-stats">
-                                      <span className="sdk001-stat-pill tinggi">Tinggi: {k.skor.criteriaData?.filter(c => c.level === 'high').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
-                                      <span className="sdk001-stat-pill sedang">Sedang: {k.skor.criteriaData?.filter(c => c.level === 'moderate').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
-                                      <span className="sdk001-stat-pill rendah">Rendah: {(k.skor.criteriaData?.filter(c => c.level === 'low').length ?? 0) + (k.skor.criteriaData?.filter(c => c.level === 'none').length ?? 0)}/{k.skor.criteriaData?.length ?? 0}</span>
-                                    </div>
-                                  </div>
-                                  <button className="sdk001-score-action" onClick={() => setScorePanel({ ...k, seleksiId })}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                                      <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
-                                    </svg>
-                                    Lihat Ringkasan AI
-                                  </button>
-                                  </>
+                                    <>
+                                      <div className="sdk-score-popover-top">
+                                        <div className="sdk-score-donut" style={{
+                                          background: `conic-gradient(${k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b'} ${k.skor.score}%, #f0f2f6 ${k.skor.score}%)`
+                                        }}>
+                                          <span className="sdk-score-donut-val" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>{k.skor.score}</span>
+                                          <span className="sdk-score-donut-lbl" style={{ color: k.skor.level === 'high' ? '#089f32' : k.skor.level === 'moderate' ? '#da8700' : '#fb484b' }}>
+                                            {k.skor.level === 'high' ? 'High' : k.skor.level === 'moderate' ? 'Moderate' : 'Low'}
+                                          </span>
+                                        </div>
+                                        <div className="sdk-score-stats">
+                                          <span className="sdk-stat-pill tinggi">Tinggi: {k.skor.criteriaData?.filter(c => c.level === 'high').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
+                                          <span className="sdk-stat-pill sedang">Sedang: {k.skor.criteriaData?.filter(c => c.level === 'moderate').length ?? 0}/{k.skor.criteriaData?.length ?? 0}</span>
+                                          <span className="sdk-stat-pill rendah">Rendah: {(k.skor.criteriaData?.filter(c => c.level === 'low').length ?? 0) + (k.skor.criteriaData?.filter(c => c.level === 'none').length ?? 0)}/{k.skor.criteriaData?.length ?? 0}</span>
+                                        </div>
+                                      </div>
+                                      <button className="sdk-score-action" onClick={() => setScorePanel({ ...k, seleksiId })}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                                          <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+                                        </svg>
+                                        Lihat Ringkasan AI
+                                      </button>
+                                    </>
                                   )}
                                 </div>
                               </div>

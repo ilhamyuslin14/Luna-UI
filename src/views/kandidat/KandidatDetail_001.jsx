@@ -5,7 +5,7 @@ import TabNav from '../../components/TabNav.jsx';
 import Toast from '../../components/Toast.jsx';
 import KandidatRingkasan from './Kandidat-Ringkasan_001.jsx';
 import KandidatResume from './Kandidat-Resume_001.jsx';
-import KandidatSeleksi from './Kandidat-Seleksi_001.jsx';
+import KandidatLowongan_001 from './Kandidat-Lowongan_001.jsx';
 import ScoringProgressWidget from '../../components/ScoringProgressWidget.jsx';
 import { getKandidatById, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { getSeleksi } from '../../services/seleksiService.js';
@@ -304,7 +304,7 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
         tabs={[
           { id: 'ringkasan', label: 'Ringkasan' },
           { id: 'resume', label: 'Resume' },
-          { id: 'seleksi', label: 'Seleksi' },
+          { id: 'seleksi', label: 'Rekrutmen' },
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
@@ -321,7 +321,7 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
       <div className={`kd001-content-wrapper${(activeTab === 'resume' || activeTab === 'seleksi') ? ' kd001-content-wrapper--viewer' : ''}`}>
         {activeTab === 'ringkasan' && <KandidatRingkasan kandidat={k} onChangeTab={setActiveTab} scoringVersion={scoringVersion} onAddPosisi={() => setPosisiModal(true)} navigate={navigate} />}
         {activeTab === 'resume'    && <KandidatResume kandidat={k} />}
-        {activeTab === 'seleksi'   && <KandidatSeleksi back={back} navigate={navigate} kandidat={k} />}
+        {activeTab === 'seleksi'   && <KandidatLowongan_001 back={back} navigate={navigate} kandidat={k} />}
       </div>
 
       {/* Tambahkan ke Posisi Modal */}

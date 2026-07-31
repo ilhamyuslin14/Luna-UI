@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
-import Sidebar from './components/Sidebar.jsx';
-import TourGuide from './components/TourGuide.jsx';
+import Sidebar_001 from './components/Sidebar_001.jsx';
+import TourGuide_001 from './components/TourGuide_001.jsx';
 import OnboardingModal from './components/OnboardingModal.jsx';
 import UploadProgressWidget from './components/UploadProgressWidget.jsx';
 import GlobalAIPoller from './components/GlobalAIPoller.jsx';
 import Beranda from './views/beranda/Beranda.jsx';
 import Beranda_001 from './views/beranda/Beranda_001.jsx';
-import Seleksi from './views/seleksi/Seleksi.jsx';
-import Seleksi_001 from './views/seleksi/Seleksi_001.jsx';
-import SeleksiDetail from './views/seleksi/SeleksiDetail.jsx';
-import SeleksiDetail_001 from './views/seleksi/SeleksiDetail_001.jsx';
-import SeleksiDetail_002 from './views/seleksi/SeleksiDetail_002.jsx';
+import Beranda_002 from './views/beranda/Beranda_002.jsx';
+import Lowongan from './views/lowongan/Lowongan.jsx';
+import Lowongan_001 from './views/lowongan/Lowongan_001.jsx';
+import LowonganDetail from './views/lowongan/LowonganDetail.jsx';
+import LowonganDetail_001 from './views/lowongan/LowonganDetail_001.jsx';
+import LowonganDetail_002 from './views/lowongan/LowonganDetail_002.jsx';
 import Departemen from './views/departemen/Departemen.jsx';
 import Departemen_001 from './views/departemen/Departemen_001.jsx';
 import Kandidat from './views/kandidat/Kandidat.jsx';
@@ -20,8 +21,9 @@ import Kandidat_001 from './views/kandidat/Kandidat_001.jsx';
 import Karyawan from './views/karyawan/Karyawan.jsx';
 import KelolaPengguna from './views/kelola-pengguna/KelolaPengguna.jsx';
 import KandidatTambah from './views/kandidat/Kandidat-Tambah.jsx';
-import SeleksiTambahKandidat from './views/seleksi/Seleksi-TambahKandidat.jsx';
-import LamanKarir from './views/seleksi/Seleksi-LamanKarir.jsx';
+import LowonganTambahKandidat from './views/lowongan/Lowongan-TambahKandidat.jsx';
+import LamanKarir from './views/lowongan/Lowongan-LamanKarir.jsx';
+import LamanKarir_001 from './views/lowongan/Lowongan-LamanKarir_001.jsx';
 import KandidatDetail from './views/kandidat/KandidatDetail.jsx';
 import KandidatDetail_001 from './views/kandidat/KandidatDetail_001.jsx';
 import DepartemenDetail from './views/departemen/DepartemenDetail.jsx';
@@ -31,8 +33,8 @@ import Bantuan_001 from './views/bantuan/Bantuan_001.jsx';
 import PengaturanAkunProfil from './views/kelola-pengguna/KelolaPengguna-AkunProfil.jsx';
 import PaketLangganan from './views/kelola-pengguna/KelolaPengguna-PaketLangganan.jsx';
 import RingkasanPembayaran from './views/kelola-pengguna/KelolaPengguna-RingkasanPembayaran.jsx';
-import SetupPenilaian from './views/seleksi/Seleksi-SetupPenilaian.jsx';
-import SetupPenilaian_001 from './views/seleksi/Seleksi-SetupPenilaian_001.jsx';
+import SetupPenilaian from './views/lowongan/Lowongan-SetupPenilaian.jsx';
+import SetupPenilaian_001 from './views/lowongan/Lowongan-SetupPenilaian_001.jsx';
 import PengaturanUser from './views/kelola-pengguna/KelolaPengguna-User.jsx';
 import RiwayatTransaksi from './views/kelola-pengguna/KelolaPengguna-RiwayatTransaksi.jsx';
 import MenungguPembayaran from './views/kelola-pengguna/KelolaPengguna-MenungguPembayaran.jsx';
@@ -98,7 +100,8 @@ export default function App() {
 
   const navigate = (menu, params = {}) => {
     setHistoryStack(stack => [...stack, { menu: activeMenu, seleksiId: selectedSeleksiId, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, departemenId: selectedDepartemenId, seleksiActiveTab }]);
-    if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') {
+    if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat' ||
+        menu === 'lowongan-detail' || menu === 'lowongan-detail_001' || menu === 'lowongan-detail_002' || menu === 'lowongan-tambah-kandidat') {
       if (params.seleksiId) setSelectedSeleksiId(params.seleksiId);
       if (params.jabatan) setSeleksiJabatan(params.jabatan);
       if (params.activeTab) setSeleksiActiveTab(params.activeTab);
@@ -115,8 +118,10 @@ export default function App() {
     }
     setActiveMenu(menu);
     updateUrl(menu, {
-      seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
-      jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
+      seleksiId: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat' ||
+        menu === 'lowongan-detail' || menu === 'lowongan-detail_001' || menu === 'lowongan-detail_002' || menu === 'lowongan-tambah-kandidat') ? params.seleksiId || selectedSeleksiId : selectedSeleksiId,
+      jabatan: (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat' ||
+        menu === 'lowongan-detail' || menu === 'lowongan-detail_001' || menu === 'lowongan-detail_002' || menu === 'lowongan-tambah-kandidat') ? params.jabatan || seleksiJabatan : seleksiJabatan,
       kandidat: (menu === 'kandidat-detail' || menu === 'kandidat-detail_001') ? params.kandidat : selectedKandidat,
       filter: menu === 'kandidat' ? params.filter : kandidatFilter,
       departemen: (menu === 'departemen-detail' || menu === 'departemen-detail_001') ? params.departemen : selectedDepartemen,
@@ -144,7 +149,7 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
+  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'lowongan', 'lowongan_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'lowongan-detail', 'lowongan-detail_001', 'lowongan-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'buat-lowongan', 'buat-lowongan_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
   const { user, loading, mustChangePassword, otpVerified } = useAuth();
 
@@ -199,7 +204,11 @@ export default function App() {
     return <LandingPageOTPEmail_001 navigate={navigate} />;
   }
 
-  if (activeMenu === 'laman-karir') {
+  if (activeMenu === 'laman-karir' || activeMenu === 'laman-karir_001') {
+    return <LamanKarir_001 kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
+  }
+
+  if (activeMenu === 'laman-karir_old') {
     return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
@@ -267,20 +276,27 @@ export default function App() {
     switch (activeMenu) {
       case 'beranda': return <Beranda navigate={navigate} />;
       case 'beranda_001': return <Beranda_001 navigate={navigate} />;
+      case 'beranda_002': return <Beranda_002 navigate={navigate} />;
       case 'departemen': return <Departemen navigate={navigate} searchQuery={searchQuery} />;
       case 'departemen_001': return <Departemen_001 navigate={navigate} searchQuery={searchQuery} />;
       case 'departemen-detail': return <DepartemenDetail departemen={selectedDepartemen} navigate={navigate} back={back} />;
       case 'departemen-detail_001': return <DepartemenDetail_001 departemen={selectedDepartemen} departemenId={selectedDepartemenId} navigate={navigate} back={back} />;
-      case 'seleksi': return <Seleksi navigate={navigate} searchQuery={searchQuery} />;
-      case 'seleksi_001': return <Seleksi_001 navigate={navigate} searchQuery={searchQuery} />;
-      case 'seleksi-detail': return <SeleksiDetail seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
-      case 'seleksi-detail_001': return <SeleksiDetail_001 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
-      case 'seleksi-detail_002': return <SeleksiDetail_002 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'seleksi':
+      case 'lowongan': return <Lowongan navigate={navigate} searchQuery={searchQuery} />;
+      case 'seleksi_001':
+      case 'lowongan_001': return <Lowongan_001 navigate={navigate} searchQuery={searchQuery} />;
+      case 'seleksi-detail':
+      case 'lowongan-detail': return <LowonganDetail seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'seleksi-detail_001':
+      case 'lowongan-detail_001': return <LowonganDetail_001 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
+      case 'seleksi-detail_002':
+      case 'lowongan-detail_002': return <LowonganDetail_002 seleksiId={selectedSeleksiId} jabatan={seleksiJabatan} navigate={navigate} back={back} activeTab={seleksiActiveTab} onTabChange={setSeleksiActiveTab} />;
       case 'kandidat': return <Kandidat navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'kandidat_001': return <Kandidat_001 navigate={navigate} searchQuery={searchQuery} filter={kandidatFilter} />;
       case 'karyawan': return <Karyawan navigate={navigate} searchQuery={searchQuery} />;
       case 'kandidat-tambah': return <KandidatTambah navigate={navigate} back={back} />;
-      case 'seleksi-tambah-kandidat': return <SeleksiTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} seleksiId={selectedSeleksiId} />;
+      case 'seleksi-tambah-kandidat':
+      case 'lowongan-tambah-kandidat': return <LowonganTambahKandidat navigate={navigate} back={back} jabatan={seleksiJabatan} seleksiId={selectedSeleksiId} />;
       case 'kandidat-detail': return <KandidatDetail kandidat={selectedKandidat} navigate={navigate} back={back} />;
       case 'kandidat-detail_001': return <KandidatDetail_001 kandidat={selectedKandidat} navigate={navigate} back={back} />;
       case 'pengaturan': return <KelolaPengguna navigate={navigate} />;
@@ -292,9 +308,11 @@ export default function App() {
       case 'pembayaran-berhasil': return <PembayaranBerhasil navigate={navigate} />;
       case 'bantuan': return <Bantuan navigate={navigate} />;
       case 'bantuan_001': return <Bantuan_001 navigate={navigate} />;
-      case 'setup-penilaian': return <SetupPenilaian navigate={navigate} />;
-      case 'setup-penilaian_001': return <SetupPenilaian_001 navigate={navigate} />;
-      default: return <Beranda_001 navigate={navigate} />;
+      case 'setup-penilaian':
+      case 'buat-lowongan': return <SetupPenilaian navigate={navigate} />;
+      case 'setup-penilaian_001':
+      case 'buat-lowongan_001': return <SetupPenilaian_001 navigate={navigate} />;
+      default: return <Beranda_002 navigate={navigate} />;
     }
   };
 
@@ -305,15 +323,15 @@ export default function App() {
   return (
     <div className="app-container">
       <header id="navbar">
-        <Navbar navigate={navigate} />
+        <Navbar navigate={navigate} activeMenu={activeMenu} seleksiJabatan={seleksiJabatan} />
       </header>
       <aside id="sidebar">
-        <Sidebar activeMenu={activeMenu} onNavigate={(menu) => { setHistoryStack([]); navigate(menu); }} />
+        <Sidebar_001 activeMenu={activeMenu} onNavigate={(menu) => { setHistoryStack([]); navigate(menu); }} />
       </aside>
       <main id="content" className={noPadding ? 'no-padding' : ''}>
         {renderView()}
       </main>
-      <TourGuide navigate={navigate} />
+      <TourGuide_001 navigate={navigate} />
       <OnboardingModal />
       <UploadProgressWidget navigate={navigate} />
       <GlobalAIPoller />

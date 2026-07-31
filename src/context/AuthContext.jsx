@@ -15,6 +15,9 @@ export function AuthProvider({ children }) {
   const [companyDetails, setCompanyDetails] = useState({});
   const [companyPlan, setCompanyPlan] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [profileName, setProfileName] = useState(null);
+  const [lowonganCount, setLowonganCount] = useState(0);
+  const [kandidatCount, setKandidatCount] = useState(0);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [otpVerified, setOtpVerified] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
@@ -27,6 +30,9 @@ export function AuthProvider({ children }) {
       setCompanyDetails({});
       setCompanyPlan(null);
       setUserRole(null);
+      setProfileName(null);
+      setLowonganCount(0);
+      setKandidatCount(0);
       setMustChangePassword(false);
       setOtpVerified(true);
       setOnboardingCompleted(true);
@@ -40,7 +46,7 @@ export function AuthProvider({ children }) {
         .maybeSingle(),
       supabase
         .from('profiles')
-        .select('must_change_password, otp_verified, onboarding_completed')
+        .select('nama_lengkap, must_change_password, otp_verified, onboarding_completed')
         .eq('id', userId)
         .maybeSingle(),
     ]);
@@ -48,6 +54,7 @@ export function AuthProvider({ children }) {
     setMustChangePassword(!!profile?.must_change_password);
     setOtpVerified(profile?.otp_verified !== false);
     setOnboardingCompleted(profile?.onboarding_completed !== false);
+    setProfileName(profile?.nama_lengkap || null);
 
     if (data && !error) {
       setCompanyId(data.company_id);
@@ -55,12 +62,23 @@ export function AuthProvider({ children }) {
       setCompanyName(data.companies?.name || null);
       setCompanyDetails(data.companies || {});
       setCompanyPlan(data.companies?.plan || null);
+
+      if (data.company_id) {
+        const [{ count: lCount }, { count: kCount }] = await Promise.all([
+          supabase.from('seleksi').select('*', { count: 'exact', head: true }).eq('company_id', data.company_id),
+          supabase.from('kandidat').select('*', { count: 'exact', head: true }).eq('company_id', data.company_id),
+        ]);
+        setLowonganCount(lCount || 0);
+        setKandidatCount(kCount || 0);
+      }
     } else {
       setCompanyId(null);
       setUserRole(null);
       setCompanyName(null);
       setCompanyDetails({});
       setCompanyPlan(null);
+      setLowonganCount(0);
+      setKandidatCount(0);
     }
   };
 
@@ -134,6 +152,9 @@ export function AuthProvider({ children }) {
     companyDetails,
     companyPlan,
     userRole,
+    profileName,
+    lowonganCount,
+    kandidatCount,
     mustChangePassword,
     otpVerified,
     onboardingCompleted,

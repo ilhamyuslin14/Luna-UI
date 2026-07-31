@@ -7,6 +7,7 @@ import SortDropdown from '../../components/SortDropdown.jsx';
 import Pagination from '../../components/Pagination.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksi, updateSeleksiStatus, getKandidatCountBySeleksi, getMaxAlurBySeleksi, archiveSeleksi, unarchiveSeleksi } from '../../services/seleksiService.js';
+import { getCached, invalidate } from '../../services/dataCache.js';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
 
@@ -44,7 +45,7 @@ const STATUS_CONFIG = {
 };
 
 
-export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
+export default function DepartemenLowongan_001({ navigate, onBack, departemen, departemenId }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   const statusConfigEntries = isFreePlan
@@ -72,16 +73,22 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
       if (!companyId) return;
       try {
         setIsLoading(true);
-        const [data, kandCountMap, maxAlurMap, alur] = await Promise.all([
-          getSeleksi(companyId, { showAll: true }),
-          getKandidatCountBySeleksi(companyId),
-          getMaxAlurBySeleksi(companyId),
-          getAlurSeleksi(companyId),
-        ]);
+        const cacheKey = `seleksi:${companyId}:false:true`;
+        const { data, kandCountMap, maxAlurMap, alur } = await getCached(cacheKey, async () => {
+          const [data, kandCountMap, maxAlurMap, alur] = await Promise.all([
+            getSeleksi(companyId, { showAll: true }),
+            getKandidatCountBySeleksi(companyId),
+            getMaxAlurBySeleksi(companyId),
+            getAlurSeleksi(companyId),
+          ]);
+          return { data, kandCountMap, maxAlurMap, alur };
+        });
         setAlurList(alur);
         
         let rawData = data || [];
-        if (departemen) {
+        if (departemenId) {
+          rawData = rawData.filter(s => s.department_id === departemenId);
+        } else if (departemen) {
           rawData = rawData.filter(s => {
             const deptName = s.departments?.name || s.departemen || '';
             return deptName.toLowerCase() === departemen.toLowerCase();
@@ -96,6 +103,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
           return {
             id: s.id,
             posisi: s.jabatan || '-',
+            levelJabatan: s.level_jabatan || '-',
             dept: s.departments?.name || s.departemen || '-',
             lokasi: s.lokasi || '-',
             status: STATUS_NORMALIZE[s.status] || 'rencana',
@@ -117,7 +125,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
       }
     }
     loadData();
-  }, [companyId]);
+  }, [companyId, departemen, departemenId]);
 
   const toggleFilter = (s) => {
     setActiveFilters(prev => {
@@ -191,7 +199,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
     setRows(prev => prev.map(r => r.id === rowId ? { ...r, status: newStatus } : r));
     setOpenStatusIdx(null);
     updateSeleksiStatus(rowId, STATUS_TO_DB[newStatus] || newStatus)
-      .then(() => showToast('Status berhasil diperbarui', `Status diubah ke ${label}`))
+      .then(() => { invalidate('seleksi'); showToast('Status berhasil diperbarui', `Status diubah ke ${label}`); })
       .catch(err => {
         console.error('Gagal update status seleksi:', err);
         showToast('Gagal memperbarui status', err.message);
@@ -202,22 +210,22 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
 
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
+      style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Inter Tight', sans-serif" }}
       onClick={(e) => {
         if (!e.target.closest('.filter-dropdown-container')) setShowFilterDropdown(false);
         if (!e.target.closest('.sort-dropdown-container')) setShowSortDropdown(false);
         if (!e.target.closest('.bulk-aksi-container')) setShowBulkDropdown(false);
-        if (!e.target.closest('.lw-status-wrapper')) setOpenStatusIdx(null);
+        if (!e.target.closest('.lw001-status-wrapper')) setOpenStatusIdx(null);
       }}
     >
       {/* Actions Bar */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: '64px', flexShrink: 0 }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e5ec', display: 'flex', alignItems: 'center', gap: 14, padding: '0 20px', height: '64px', flexShrink: 0 }}>
         {onBack && (
           <BackButton onClick={onBack} />
         )}
-        <div className="lw-right-actions">
-          <div className="lw-stats-badge">Jumlah Posisi : <strong>{filteredRows.length}</strong></div>
-          <div className="lw-divider" />
+        <div style={{ flex: 1 }} />
+        <div className="lw001-right-actions">
+          <span className="dseleksi001-count-text">{filteredRows.length} lowongan</span>
           {selectedRows.size > 0 && (
             <CTABulkAksi
               count={selectedRows.size}
@@ -241,8 +249,8 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                       setShowBulkDropdown(false);
                       setArchiveModal({
                         ids: [...selectedRows],
-                        title: 'Arsipkan Posisi',
-                        body: `Apakah Anda yakin ingin mengarsipkan ${selectedRows.size} posisi yang dipilih?`,
+                        title: 'Arsipkan Lowongan',
+                        body: `Apakah Anda yakin ingin mengarsipkan ${selectedRows.size} lowongan yang dipilih?`,
                       });
                     },
                   }
@@ -266,7 +274,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
           <FilterDropdown
             groups={[
               { title: 'Status', options: ['Arsip'] },
-              { title: 'Status Posisi', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
+              { title: 'Status Lowongan', options: ['Rencana', 'Aktif', 'Ditahan', 'Selesai', 'Dibatalkan'] },
             ]}
             activeFilters={activeFilters}
             onToggle={toggleFilter}
@@ -277,16 +285,17 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
       </div>
 
       {/* Table */}
-      <div className="lw-table-container" style={{ flex: 1 }}>
-        <table className="lw-table">
+      <div className="lw001-table-container" style={{ flex: 1 }}>
+        <table className="lw001-table">
           <thead>
             <tr>
-              <th width="24"><input type="checkbox" className="lw-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
+              <th width="24"><input type="checkbox" className="lw001-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
               <th width="184">Posisi</th>
+              <th width="110">Level</th>
               <th width="130">Departemen</th>
               <th width="120">Lokasi</th>
               <th width="145">Status</th>
-              <th width="124">Alur Seleksi</th>
+              <th width="124">Tahap Rekrutmen</th>
               <th width="134">Jumlah Kandidat</th>
               <th width="108">Upah Min</th>
               <th width="100">Upah Maks</th>
@@ -296,47 +305,48 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
+              <tr><td colSpan="12" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
             ) : filteredRows.length === 0 ? (
-              <tr><td colSpan="11" style={{ textAlign: 'center', padding: 24, color: '#888' }}>
-                {activeFilters.has('Arsip') ? 'Tidak ada posisi yang diarsipkan.' : 'Belum ada posisi seleksi.'}
+              <tr><td colSpan="12" style={{ textAlign: 'center', padding: 24, color: '#888' }}>
+                {activeFilters.has('Arsip') ? 'Tidak ada lowongan yang diarsipkan.' : 'Belum ada lowongan dibuka.'}
               </td></tr>
             ) : pagedRows.map((row) => {
               const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.rencana;
               return (
-                <tr key={row.id} className={row.arsip ? 'lw-row-archived' : ''}>
-                  <td><input type="checkbox" className="lw-checkbox lw-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} /></td>
+                <tr key={row.id} className={row.arsip ? 'lw001-row-archived' : ''}>
+                  <td><input type="checkbox" className="lw001-checkbox lw001-row-checkbox" checked={selectedRows.has(row.id)} onChange={() => toggleRow(row.id)} /></td>
                   <td
-                    className={`lw-posisi${row.arsip ? '' : ' clickable'}`}
-                    onClick={row.arsip ? undefined : () => navigate('seleksi-detail', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                    className={`lw001-posisi${row.arsip ? '' : ' clickable'}`}
+                    onClick={row.arsip ? undefined : () => navigate('lowongan-detail_001', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                     style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
                   >{row.posisi}</td>
+                  <td>{row.levelJabatan}</td>
                   <td>{row.dept}</td>
                   <td>{row.lokasi}</td>
                   <td>
                     {row.arsip ? (
-                      <div className="lw-status-bubble rencana" style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                        <div className="lw-status-content">
-                          <div className="lw-icon-wrapper"><img src={cfg.icon} /></div>
-                          <span className="lw-status-text">{cfg.label}</span>
+                      <div className="lw001-status-bubble rencana" style={{ opacity: 0.5, pointerEvents: 'none' }}>
+                        <div className="lw001-status-content">
+                          <div className="lw001-icon-wrapper"><img src={cfg.icon} /></div>
+                          <span className="lw001-status-text">{cfg.label}</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="lw-status-wrapper" onClick={(e) => { e.stopPropagation(); setOpenStatusIdx(openStatusIdx === row.id ? null : row.id); }}>
-                        <div className={`lw-status-bubble ${row.status}`}>
-                          <div className="lw-status-content">
-                            <div className="lw-icon-wrapper"><img src={cfg.icon} /></div>
-                            <span className="lw-status-text">{cfg.label}</span>
+                      <div className="lw001-status-wrapper" onClick={(e) => { e.stopPropagation(); setOpenStatusIdx(openStatusIdx === row.id ? null : row.id); }}>
+                        <div className={`lw001-status-bubble ${row.status}`}>
+                          <div className="lw001-status-content">
+                            <div className="lw001-icon-wrapper"><img src={cfg.icon} /></div>
+                            <span className="lw001-status-text">{cfg.label}</span>
                           </div>
                           <svg width="8" height="6" viewBox="0 0 10 6" fill="none">
                             <path d="M1 1L5 5L9 1" stroke="#323b4d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </div>
                         {openStatusIdx === row.id && (
-                          <div className="lw-status-dropdown active">
+                          <div className="lw001-status-dropdown active">
                             {statusConfigEntries.map(([key, s]) => (
-                              <div key={key} className="lw-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(row.id, key); }}>
-                                <div className="lw-icon-wrapper"><img src={s.icon} /></div> {s.label}
+                              <div key={key} className="lw001-status-dropdown-item" data-status={key} onClick={(e) => { e.stopPropagation(); updateStatus(row.id, key); }}>
+                                <div className="lw001-icon-wrapper"><img src={s.icon} /></div> {s.label}
                               </div>
                             ))}
                           </div>
@@ -345,13 +355,13 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                     )}
                   </td>
                   <td>{row.alur}</td>
-                  <td><div className="lw-kandidat-badge">{row.kandidat}</div></td>
+                  <td><div className="lw001-kandidat-badge">{row.kandidat}</div></td>
                   <td>{row.upahMin}</td>
                   <td>{row.upahMaks}</td>
                   <td>{row.tanggal}</td>
                   <td>
                     {row.arsip ? (
-                      <button className="lw-btn-outline" onClick={() => {
+                      <button className="lw001-btn-outline" onClick={() => {
                         setUnarchiveModal({
                           id: row.id,
                           posisi: row.posisi
@@ -363,7 +373,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
                         Tampilkan
                       </button>
                     ) : (
-                      <button className="lw-btn-outline btn-archive" onClick={() => {
+                      <button className="lw001-btn-outline btn-archive" onClick={() => {
                         setArchiveModal({
                           ids: [row.id],
                           title: 'Arsipkan Posisi',
@@ -397,6 +407,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
             setArchiveModal(null);
             try {
               await Promise.all(archiveModal.ids.map(id => archiveSeleksi(id)));
+              invalidate('seleksi');
               setRows(prev => prev.map(r => archiveModal.ids.includes(r.id) ? { ...r, arsip: true } : r));
               setSelectedRows(new Set());
               showToast('Berhasil diarsipkan', `${archiveModal.ids.length} posisi dipindahkan ke arsip`);
@@ -420,6 +431,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
               setUnarchiveModal(null);
               try {
                 await Promise.all(ids.map(id => unarchiveSeleksi(id)));
+                invalidate('seleksi');
                 setRows(prev => prev.map(r => ids.includes(r.id) ? { ...r, arsip: false } : r));
                 setSelectedRows(new Set());
                 showToast('Posisi ditampilkan', `${ids.length} posisi kembali aktif`);
@@ -431,6 +443,7 @@ export default function DepartemenSeleksi({ navigate, onBack, departemen }) {
               setUnarchiveModal(null);
               try {
                 await unarchiveSeleksi(id);
+                invalidate('seleksi');
                 setRows(prev => prev.map(r => r.id === id ? { ...r, arsip: false } : r));
                 showToast('Posisi ditampilkan', `${posisi} kembali aktif`);
               } catch {

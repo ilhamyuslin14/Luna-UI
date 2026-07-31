@@ -186,7 +186,7 @@ const DESKRIPSI_HTML = `<h3 class="sd-deskripsi-section-title">Role Overview</h3
 <li><strong>Mindset:</strong> A strong hunter mentality with the ability to sell the company vision.</li>
 </ul>`;
 
-export default function SeleksiRingkasan({ seleksiId, jabatan = 'Project Manager', navigate }) {
+export default function LowonganRingkasan({ seleksiId, jabatan = 'Project Manager', navigate }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   const statusOptions = isFreePlan

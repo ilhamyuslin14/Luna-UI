@@ -105,7 +105,7 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
   );
 }
 
-export default function SeleksiTambahKandidat({ navigate, back, jabatan, seleksiId }) {
+export default function LowonganTambahKandidat({ navigate, back, jabatan, seleksiId }) {
   const { companyId } = useAuth();
   const [activeTab, setActiveTab] = useState('pilih');
   const [historyData, setHistoryData] = useState(null);
@@ -123,7 +123,7 @@ export default function SeleksiTambahKandidat({ navigate, back, jabatan, seleksi
   return (
     <div className="stk-view">
       <div className="stk-title-bar">
-        <BackButton onClick={() => back ? back() : navigate('seleksi_001')} />
+        <BackButton onClick={() => back ? back() : navigate('lowongan_001')} />
         <h1 className="stk-title">Tambah Kandidat{jabatan ? ` — ${jabatan}` : ''}</h1>
       </div>
 

@@ -4,8 +4,8 @@ import TabNav from '../../components/TabNav.jsx';
 import ToastProgress from '../../components/ToastProgress.jsx';
 import Toast from '../../components/Toast.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
-import SeleksiKandidat from './Seleksi-Kandidat.jsx';
-import SeleksiRingkasan from './Seleksi-Ringkasan.jsx';
+import LowonganKandidat from './Lowongan-Kandidat.jsx';
+import LowonganRingkasan from './Lowongan-Ringkasan.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksiById, updateSeleksi, duplicateSeleksi, archiveSeleksi } from '../../services/seleksiService.js';
 import { slugify } from '../../utils/slug.js';
@@ -53,7 +53,7 @@ const StatusIcon = ({ val, size = 13 }) => {
   return null;
 };
 
-export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
+export default function LowonganDetail({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   
@@ -346,7 +346,7 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
 
       <div className="sd-content">
         {activeTab === 'kandidat' ? (
-          <SeleksiKandidat navigate={navigate} back={back} seleksiId={seleksiId} />
+          <LowonganKandidat navigate={navigate} back={back} seleksiId={seleksiId} />
         ) : (
           <>
             <div style={{ 
@@ -359,7 +359,7 @@ export default function SeleksiDetail({ seleksiId, jabatan: initialJabatan = 'Pr
             }}>
               <BackButton onClick={() => back ? back() : navigate('seleksi')} />
             </div>
-            <SeleksiRingkasan seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} />
+            <LowonganRingkasan seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} />
           </>
         )}
       </div>

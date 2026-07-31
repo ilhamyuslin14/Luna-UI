@@ -4,8 +4,8 @@ import TabNav from '../../components/TabNav.jsx';
 import ToastProgress from '../../components/ToastProgress.jsx';
 import Toast from '../../components/Toast.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
-import SeleksiKandidat_001 from './Seleksi-Kandidat_001.jsx';
-import SeleksiRingkasan_002 from './Seleksi-Ringkasan_002.jsx';
+import LowonganKandidat_001 from './Lowongan-Kandidat_001.jsx';
+import LowonganRingkasan_002 from './Lowongan-Ringkasan_002.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksiById, updateSeleksi, duplicateSeleksi, archiveSeleksi } from '../../services/seleksiService.js';
 import { invalidate } from '../../services/dataCache.js';
@@ -54,7 +54,7 @@ const StatusIcon = ({ val, size = 13 }) => {
   return null;
 };
 
-export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
+export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   
@@ -149,7 +149,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
     try {
       const duplicated = await duplicateSeleksi(seleksiId);
       invalidate('seleksi');
-      navigate('seleksi-detail_002', { seleksiId: duplicated.id, jabatan: duplicated.jabatan, activeTab: 'ringkasan' });
+      navigate('lowongan-detail_001', { seleksiId: duplicated.id, jabatan: duplicated.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
       console.error(err);
       setToast({ message: 'Gagal menduplikat', subMessage: err.message || 'Terjadi kesalahan.', type: 'error' });
@@ -165,7 +165,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
       await archiveSeleksi(seleksiId);
       invalidate('seleksi');
       setShowArchiveConfirm(false);
-      back ? back() : navigate('seleksi_001');
+      back ? back() : navigate('lowongan_001');
     } catch (err) {
       console.error(err);
       setShowArchiveConfirm(false);
@@ -238,7 +238,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
       </div>
 
         <div className="sd001-title-actions">
-          <button className="sd001-header-btn-primary" onClick={() => navigate('seleksi-tambah-kandidat', { seleksiId, jabatan })}>
+          <button className="sd001-header-btn-primary" onClick={() => navigate('lowongan-tambah-kandidat', { seleksiId, jabatan })}>
             <span className="sd001-header-btn-primary-icon">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -258,11 +258,11 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />
               </svg>
-              Buka Laman Karir
+              Buka Halaman Lowongan
             </button>
             {!karilEnabled && (
               <div className="sd001-cta-tooltip">
-                Status rekrutmen harus Aktif untuk mengaktifkan fitur ini
+                Status lowongan harus Aktif untuk mengaktifkan fitur ini
               </div>
             )}
           </div>
@@ -307,7 +307,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                     </svg>
                   </span>
-                  {isDuplicating ? 'Menduplikat…' : 'Duplikat Seleksi'}
+                  {isDuplicating ? 'Menduplikat…' : 'Duplikat Lowongan'}
                 </button>
                 <div style={{ borderTop: '1px solid #f0f2f6', margin: '4px 0' }} />
                 <button
@@ -333,8 +333,8 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
 
       {showArchiveConfirm && (
         <PopupKonfirmasi
-          title="Arsipkan Posisi"
-          body={`Apakah Anda yakin ingin mengarsipkan posisi "${jabatan}"? Posisi yang diarsipkan tidak akan tampil di daftar seleksi aktif.`}
+          title="Arsipkan Lowongan"
+          body={`Apakah Anda yakin ingin mengarsipkan lowongan "${jabatan}"? Lowongan yang diarsipkan tidak akan tampil di daftar lowongan aktif.`}
           confirmLabel={isArchiving ? 'Mengarsipkan…' : 'Arsipkan'}
           onConfirm={handleArchive}
           onClose={() => setShowArchiveConfirm(false)}
@@ -352,7 +352,7 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
 
       <div className="sd001-content">
         {activeTab === 'kandidat' ? (
-          <SeleksiKandidat_001 navigate={navigate} back={back} seleksiId={seleksiId} />
+          <LowonganKandidat_001 navigate={navigate} back={back} seleksiId={seleksiId} />
         ) : (
           <>
             <div style={{ 
@@ -363,9 +363,9 @@ export default function SeleksiDetail_002({ seleksiId, jabatan: initialJabatan =
               alignItems: 'center',
               flexShrink: 0
             }}>
-              <BackButton onClick={() => back ? back() : navigate('seleksi_001')} />
+              <BackButton onClick={() => back ? back() : navigate('lowongan_001')} />
             </div>
-            <SeleksiRingkasan_002 seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} />
+            <LowonganRingkasan_002 seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} />
           </>
         )}
       </div>
