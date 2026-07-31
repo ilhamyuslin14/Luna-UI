@@ -70,7 +70,7 @@ function SandboxWrapper({ navigate }) {
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
-  const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda_001');
+  const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda_002');
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
   const [selectedSeleksiId, setSelectedSeleksiId] = useState(urlParams.get('seleksiId') || '');
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
@@ -164,14 +164,14 @@ export default function App() {
       navigate('landingpage_001');
     } else if (user && authMenus.includes(activeMenu)) {
       // Logged in -> redirect to beranda
-      navigate('beranda_001');
+      navigate('beranda_002');
     }
   }, [user, loading, activeMenu]);
 
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
-      setActiveMenu(params.get('view') || 'beranda_001');
+      setActiveMenu(params.get('view') || 'beranda_002');
       setSeleksiJabatan(params.get('jabatan') || '');
       setSelectedSeleksiId(params.get('seleksiId') || '');
       setLamanKarirKode(params.get('kode') || '');
