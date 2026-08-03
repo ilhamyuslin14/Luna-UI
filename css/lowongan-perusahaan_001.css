@@ -1,0 +1,253 @@
+/* Laman Perusahaan (Company Page) — extends tokens & shared classes from lowongan-laman-karir_001.css */
+
+.lpr-hero {
+  max-width: 1240px;
+  margin: 24px auto 0 auto;
+  padding: 0 24px;
+}
+
+.lpr-hero::before {
+  content: '';
+  display: block;
+}
+
+.lpr-hero-banner {
+  position: relative;
+  height: 200px;
+  border-radius: 20px 20px 0 0;
+  background-color: var(--karir-hero-bg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.lpr-hero-overlay {
+  display: none;
+}
+
+.lpr-hero-content {
+  position: relative;
+  background: var(--karir-hero-bg);
+  border: 1px solid var(--karir-hero-border);
+  border-radius: 20px;
+  padding: 40px 32px 32px;
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: 0 20px 45px rgba(10, 9, 8, 0.25);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lpr-hero-banner + .lpr-hero-content {
+  border-radius: 0 0 20px 20px;
+  border-top: none;
+  margin-top: -1px;
+}
+
+.lpr-hero-content::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -140px;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 123, 0, 0.30), transparent 70%);
+  filter: blur(2px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.lpr-hero-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  border: 3px solid var(--karir-hero-bg);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--karir-primary);
+}
+
+.lpr-hero-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.lpr-hero-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.lpr-hero-tagline {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #FFB76B;
+  margin: 0 0 8px 0;
+}
+
+.lpr-hero-meta {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #CBD5E1;
+  margin: 0 0 20px 0;
+}
+
+.lpr-hero-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lpr-hero-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.lpr-hero-links a:hover {
+  background: rgba(255, 141, 33, 0.18);
+  border-color: rgba(255, 141, 33, 0.4);
+}
+
+/* Video Profil */
+.lpr-video-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0F172A;
+}
+
+.lpr-video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Lowongan Aktif panel (right column) */
+.lpr-job-panel {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 90px;
+  background: var(--karir-card-bg);
+  border: 1px solid var(--karir-border);
+  border-radius: var(--karir-radius);
+  padding: 24px;
+  box-shadow: var(--karir-shadow-lg);
+}
+
+.lpr-job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpr-job-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--karir-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.lpr-job-card:hover {
+  border-color: var(--karir-primary);
+  background: var(--karir-primary-light);
+  transform: translateY(-1px);
+}
+
+.lpr-job-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lpr-job-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--karir-ink-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lpr-job-meta {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  color: var(--karir-ink-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lpr-job-card svg {
+  flex-shrink: 0;
+  color: var(--karir-ink-400);
+  transition: color 0.15s, transform 0.15s;
+}
+
+.lpr-job-card:hover svg {
+  color: var(--karir-primary);
+  transform: translateX(2px);
+}
+
+.lpr-empty {
+  font-size: 13px;
+  color: var(--karir-ink-500);
+  text-align: center;
+  padding: 24px 0;
+}
+
+@media (max-width: 1024px) {
+  .lpr-job-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .lpr-hero-content {
+    padding: 32px 20px 24px;
+  }
+
+  .lpr-hero-name {
+    font-size: 22px;
+  }
+}

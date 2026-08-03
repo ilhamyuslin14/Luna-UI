@@ -24,6 +24,7 @@ import KandidatTambah from './views/kandidat/Kandidat-Tambah.jsx';
 import LowonganTambahKandidat from './views/lowongan/Lowongan-TambahKandidat.jsx';
 import LamanKarir from './views/lowongan/Lowongan-LamanKarir.jsx';
 import LamanKarir_001 from './views/lowongan/Lowongan-LamanKarir_001.jsx';
+import LamanPerusahaan_001 from './views/lowongan/Lowongan-Perusahaan_001.jsx';
 import KandidatDetail from './views/kandidat/KandidatDetail.jsx';
 import KandidatDetail_001 from './views/kandidat/KandidatDetail_001.jsx';
 import DepartemenDetail from './views/departemen/DepartemenDetail.jsx';
@@ -74,6 +75,7 @@ export default function App() {
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
   const [selectedSeleksiId, setSelectedSeleksiId] = useState(urlParams.get('seleksiId') || '');
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
+  const [lamanPerusahaanSlug, setLamanPerusahaanSlug] = useState(urlParams.get('slug') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
   const [kandidatFilter, setKandidatFilter] = useState(urlParams.get('filter') || '');
   const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
@@ -156,7 +158,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'sandbox'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-perusahaan', 'sandbox'];
     const authMenus = ['landingpage-masuk', 'landingpage-daftar', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -175,6 +177,7 @@ export default function App() {
       setSeleksiJabatan(params.get('jabatan') || '');
       setSelectedSeleksiId(params.get('seleksiId') || '');
       setLamanKarirKode(params.get('kode') || '');
+      setLamanPerusahaanSlug(params.get('slug') || '');
       setSelectedKandidat(params.get('kandidat') || null);
       setKandidatFilter(params.get('filter') || '');
       setSelectedDepartemen(params.get('departemen') || null);
@@ -210,6 +213,10 @@ export default function App() {
 
   if (activeMenu === 'laman-karir_old') {
     return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
+  }
+
+  if (activeMenu === 'laman-perusahaan') {
+    return <LamanPerusahaan_001 slug={lamanPerusahaanSlug} />;
   }
 
   if (activeMenu === 'landingpage') {

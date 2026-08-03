@@ -335,6 +335,159 @@
     background: var(--luna-orange-500);
 }
 
+/* ── Profil Perusahaan: Banner & Logo ── */
+.pap-banner-wrap {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #f0f2f6;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.pap-banner-wrap.empty {
+    align-items: center;
+    justify-content: center;
+    border: 1.5px dashed #d4d9e6;
+    background-color: #fafbfc;
+}
+
+.pap-banner-empty-text {
+    font-size: 12px;
+    color: #abb2c1;
+    font-weight: 600;
+}
+
+.pap-banner-upload-btn {
+    margin: 12px;
+    background: rgba(23, 30, 44, 0.65);
+    backdrop-filter: blur(2px);
+    color: #ffffff;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+}
+
+.pap-banner-wrap.empty .pap-banner-upload-btn {
+    position: static;
+    margin: 0;
+    background: var(--luna-orange-400);
+    color: #ffffff;
+}
+
+.pap-banner-wrap.empty {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pap-banner-upload-btn:hover {
+    background: rgba(23, 30, 44, 0.85);
+}
+
+.pap-banner-wrap.empty .pap-banner-upload-btn:hover {
+    background: var(--luna-orange-500);
+}
+
+.pap-banner-upload-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pap-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #f0f2f6;
+}
+
+.pap-logo-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    border: 1px solid #e2e5ec;
+    background-color: #f5f7fa;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #abb2c1;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.pap-logo-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pap-logo-meta-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #323b4d;
+}
+
+.pap-upload-btn-sm {
+    background: #ffffff;
+    border: 1px solid #e2e5ec;
+    color: #323b4d;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.pap-upload-btn-sm:hover {
+    border-color: var(--luna-orange-400);
+    color: var(--luna-orange-500);
+}
+
+.pap-upload-btn-sm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ── Subsection labels (Media Sosial / Galeri) ── */
+.pap-subsection {
+    padding: 4px 20px;
+}
+
+.pap-subsection-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #abb2c1;
+}
+
 /* Keamanan Akun Form */
 .pap-form-container {
     padding: 20px;

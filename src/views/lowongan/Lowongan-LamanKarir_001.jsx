@@ -314,6 +314,9 @@ export default function LamanKarir_001({ kode }) {
 
   const upahStr = formatUpah(seleksiData);
   const companyName = seleksiData.companies?.name || seleksiData.companies?.nama || seleksiData.company_name || null;
+  const companySlug = seleksiData.companies?.slug || null;
+  const companyLogoUrl = seleksiData.companies?.logo_url || null;
+  const companyPageUrl = companySlug ? `/?view=laman-perusahaan&slug=${encodeURIComponent(companySlug)}` : null;
   const pengalamanMin = seleksiData.pengalaman || null;
   const departemenName = seleksiData.departments?.name || null;
   const modelKerjaTipeKerja = [seleksiData.remote, seleksiData.ikatan_kerja].filter(Boolean).join(' · ');
@@ -386,9 +389,11 @@ export default function LamanKarir_001({ kode }) {
 
       {/* Breadcrumb Navigation */}
       <div className="lk-breadcrumb-bar">
-        <a href="/">Beranda</a>
-        <span>/</span>
-        <a href="#">Lowongan Pekerjaan</a>
+        {companyPageUrl ? (
+          <a href={companyPageUrl}>{companyName}</a>
+        ) : (
+          <span>{companyName || 'Lowongan Pekerjaan'}</span>
+        )}
         <span>/</span>
         <span className="active">{seleksiData.jabatan}</span>
       </div>
@@ -434,6 +439,25 @@ export default function LamanKarir_001({ kode }) {
                 </span>
               )}
             </div>
+
+            {companyName && (
+              companyPageUrl ? (
+                <a href={companyPageUrl} className="lk-navy-company-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+                  <div className="lk-navy-company-logo-box">
+                    {companyLogoUrl ? <img src={companyLogoUrl} alt={companyName} /> : companyName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="lk-company-card-name">{companyName}</span>
+                  <span className="lk-company-card-link">Lihat Profil →</span>
+                </a>
+              ) : (
+                <div className="lk-navy-company-card">
+                  <div className="lk-navy-company-logo-box">
+                    {companyLogoUrl ? <img src={companyLogoUrl} alt={companyName} /> : companyName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="lk-company-card-name">{companyName}</span>
+                </div>
+              )
+            )}
           </div>
 
           {/* Modern Professional Non-Flat Detail List Layout */}

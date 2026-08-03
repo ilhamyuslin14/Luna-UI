@@ -246,6 +246,19 @@ export default function InlineEditRow({
         disabled={isSaving}
       />
     );
+  } else if (type === 'textarea') {
+    inputEl = (
+      <textarea
+        className="inline-edit-input inline-edit-textarea"
+        style={{ flex: 1, minWidth: 0, minHeight: '80px', height: 'auto', padding: '10px 12px', lineHeight: 1.5, resize: 'vertical', fontFamily: 'inherit' }}
+        value={tempValue}
+        onChange={e => setTempValue(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); } }}
+        placeholder={placeholder}
+        autoFocus
+        disabled={isSaving}
+      />
+    );
   } else if (type === 'tel') {
     inputEl = (
       <input

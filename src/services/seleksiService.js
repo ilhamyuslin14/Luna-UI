@@ -215,7 +215,7 @@ export async function getSeleksiByKode(kode) {
     .select(`
       *,
       departments:department_id ( name ),
-      companies:company_id ( name )
+      companies:company_id ( name, slug, logo_url, tagline, deskripsi )
     `)
     .eq('kode', kode)
     .limit(1);
@@ -225,6 +225,42 @@ export async function getSeleksiByKode(kode) {
     throw error;
   }
   return data && data.length > 0 ? data[0] : null;
+}
+
+// Halaman publik perusahaan (dibuka dari breadcrumb Laman Karir) — RLS anon
+// cuma izinkan lihat company yang punya minimal 1 seleksi Aktif & tidak arsip.
+export async function getCompanyBySlug(slug) {
+  if (!slug) return null;
+
+  const { data, error } = await supabase
+    .from('companies')
+    .select('id, name, slug, industri, ukuran, lokasi, logo_url, banner_url, tagline, deskripsi, website, media_sosial, video_profil_url')
+    .eq('slug', slug)
+    .limit(1);
+
+  if (error) {
+    console.error('Error fetching company by slug:', error);
+    throw error;
+  }
+  return data && data.length > 0 ? data[0] : null;
+}
+
+export async function getActiveSeleksiByCompany(companyId) {
+  if (!companyId) return [];
+
+  const { data, error } = await supabase
+    .from('seleksi')
+    .select('id, kode, jabatan, lokasi, remote, ikatan_kerja, level_jabatan, departments:department_id ( name )')
+    .eq('company_id', companyId)
+    .eq('arsip', false)
+    .ilike('status', 'aktif')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching active seleksi by company:', error);
+    throw error;
+  }
+  return data || [];
 }
 
 export async function updateSeleksiStatus(id, statusRekrutmen) {

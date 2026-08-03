@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
     const [{ data, error }, { data: profile }] = await Promise.all([
       supabase
         .from('company_users')
-        .select('company_id, role, companies(name, industri, ukuran, lokasi, plan)')
+        .select('company_id, role, companies(*)')
         .eq('user_id', userId)
         .maybeSingle(),
       supabase
