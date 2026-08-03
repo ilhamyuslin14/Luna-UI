@@ -71,7 +71,14 @@
   height: 32px;
   border-radius: 8px;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.2s, color 0.2s;
+}
+
+.sd001-open-karir-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .sd001-open-karir-btn:hover {

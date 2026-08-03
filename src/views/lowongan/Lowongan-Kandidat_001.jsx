@@ -322,17 +322,16 @@ export default function LowonganKandidat_001({ navigate, back, seleksiId }) {
                   <th style={{ width: 140 }}>Domisili</th>
                   <th style={{ width: 160 }}>Tahap Rekrutmen</th>
                   <th style={{ width: 190 }}>Penilaian</th>
-                  <th style={{ width: 130 }}>Aksi</th>
                   <th style={{ width: 130 }}></th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
-                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
+                  <tr><td colSpan="8" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Memuat data...</td></tr>
                 ) : data.length === 0 ? (
-                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Belum ada kandidat pada posisi ini.</td></tr>
+                  <tr><td colSpan="8" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Belum ada kandidat pada posisi ini.</td></tr>
                 ) : listData.length === 0 ? (
-                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Tidak ada kandidat yang sesuai pada posisi ini.</td></tr>
+                  <tr><td colSpan="8" style={{ textAlign: 'center', padding: 24, color: '#888' }}>Tidak ada kandidat yang sesuai pada posisi ini.</td></tr>
                 ) : pagedData.map((k) => (
                   <tr key={k.scoringId}>
                     <td><Cb checked={selected.has(k.scoringId)} onChange={() => toggleRow(k.scoringId)} /></td>
@@ -387,11 +386,6 @@ export default function LowonganKandidat_001({ navigate, back, seleksiId }) {
                         <span>{k.skor.label}</span>
                         <span className={`sdk001-skor-score ${k.skor.level}`}>{k.skor.belumDinilai ? '—' : k.skor.score}</span>
                       </div>
-                    </td>
-                    <td>
-                      <button className="sdk001-btn-outline" onClick={(e) => { e.stopPropagation(); setDropTarget(k); setDropModalOpen(true); }}>
-                        <RejectSvg /> Tidak Sesuai
-                      </button>
                     </td>
                     <td>
                       <button className="sdk001-detail-btn" onClick={(e) => { e.stopPropagation(); setScorePanel({ ...k, seleksiId }); }}>Detail Penilaian</button>

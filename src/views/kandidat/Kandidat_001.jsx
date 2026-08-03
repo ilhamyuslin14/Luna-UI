@@ -11,9 +11,27 @@ import FilterDropdown from '../../components/FilterDropdown.jsx';
 import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 
-const ArchiveSvg = () => (
-  <svg width="12" height="12" viewBox="0 0 9 9" fill="none" style={{ marginRight: 4.5, display: 'inline-flex', alignItems: 'center' }}>
+const ArchiveSvg = ({ style } = {}) => (
+  <svg width="12" height="12" viewBox="0 0 9 9" fill="none" style={{ marginRight: 4.5, display: 'inline-flex', alignItems: 'center', ...style }}>
     <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
+  </svg>
+);
+
+const IconEye = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconDownload = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
+
+const IconSpinner = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="lw001-iaction-spinner">
+    <path d="M21 12a9 9 0 1 1-6.22-8.56" />
   </svg>
 );
 
@@ -65,6 +83,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
   const [isLoadingSeleksi, setIsLoadingSeleksi] = useState(false);
   const [toast, setToast]                   = useState(null);
   const toastTimer                          = useRef(null);
+  const [downloadingId, setDownloadingId]   = useState(null);
   const [page, setPage]                     = useState(1);
   const [perPage, setPerPage]               = useState(25);
 
@@ -193,6 +212,35 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
     });
   };
 
+  /* ── Unduh CV ─────────────────────────────────────────────── */
+  const handleDownloadCv = async (k) => {
+    if (!k.cv_url || downloadingId) return;
+    setDownloadingId(k.id);
+    try {
+      const ext = k.cv_url.split('.').pop().split('?')[0] || 'pdf';
+      const safeName = (k.nama_lengkap || 'Kandidat').replace(/[^a-zA-Z0-9]/g, '_');
+      const filename = `CV_${safeName}.${ext}`;
+
+      const response = await fetch(k.cv_url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed, using fallback', err);
+      window.open(k.cv_url, '_blank');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   /* ── Tambahkan ke Lowongan ────────────────────────────────── */
   const openLowonganModal = () => {
     setShowBulkDropdown(false);
@@ -308,7 +356,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
               <th width="110">Pengalaman</th>
               <th width="190">Domisili</th>
               <th width="150">LinkedIn</th>
-              <th width="100">Aksi</th>
+              <th width="128">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -344,17 +392,39 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                     ) : '-'}
                   </td>
                   <td>
-                    <div className="kan001-actions">
-                      {k.arsip ? (
+                    {k.arsip ? (
+                      <div className="kan001-actions">
                         <button className="lw001-btn-outline btn-show" onClick={() => setUnarchiveModal({ id: k.id, nama: k.nama_lengkap })}>
                           Tampilkan
                         </button>
-                      ) : (
-                        <button className="kan001-btn-outline" onClick={() => openArchiveModal(k.id)}>
-                          <ArchiveSvg /> Arsipkan
+                      </div>
+                    ) : (
+                      <div className="lw001-icon-actions">
+                        <button
+                          className="lw001-iaction-btn"
+                          onClick={() => navigate('kandidat-detail_001', { kandidat: { ...k, nama: k.nama_lengkap } })}
+                        >
+                          <span className="lw001-iaction-tip">Lihat Profil Kandidat</span>
+                          <IconEye />
                         </button>
-                      )}
-                    </div>
+
+                        <button
+                          className="lw001-iaction-btn"
+                          disabled={!k.cv_url || downloadingId === k.id}
+                          onClick={() => handleDownloadCv(k)}
+                        >
+                          <span className="lw001-iaction-tip">
+                            {k.cv_url ? 'Unduh CV' : 'CV belum diunggah'}
+                          </span>
+                          {downloadingId === k.id ? <IconSpinner /> : <IconDownload />}
+                        </button>
+
+                        <button className="lw001-iaction-btn danger" onClick={() => openArchiveModal(k.id)}>
+                          <span className="lw001-iaction-tip">Arsipkan Kandidat</span>
+                          <ArchiveSvg style={{ marginRight: 0, width: 14, height: 14 }} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

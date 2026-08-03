@@ -35,18 +35,15 @@ export default function SortDropdown({ options, activeSort, onSortChange, isOpen
 
   return (
     <div className="filter-dropdown-container sort-dropdown-container" ref={dropdownRef}>
-      <button 
+      <button
         className={`filter-dropdown-btn${(isOpen || isSortActive) ? ' active' : ''}`}
         onClick={onToggleOpen}
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 6 }}
       >
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <SortSvg />
           Urutkan
         </span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }}>
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
       </button>
 
       {isOpen && (

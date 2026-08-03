@@ -10,12 +10,85 @@ import {
 } from '../../services/seleksiService.js';
 import { getAlurSeleksi, DEFAULT_ALUR, alurNamaByLevel } from '../../services/alurSeleksiService.js';
 import { getCached, invalidate } from '../../services/dataCache.js';
+import { slugify } from '../../utils/slug.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
+
+const IconEye = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconLink = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const IconShare = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const IconWhatsApp = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-4.8 7.6 8.5 8.5 0 0 1-8.9-.9L3 21l1.9-4.3a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.4h.3a8.48 8.48 0 0 1 8.2 8v.5z" />
+  </svg>
+);
+
+const IconLinkedIn = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <line x1="7.5" y1="10.5" x2="7.5" y2="16.5" />
+    <circle cx="7.5" cy="7" r="0.6" fill="currentColor" stroke="none" />
+    <path d="M11 16.5v-3.7a2.3 2.3 0 0 1 4.5 0v3.7" />
+    <line x1="11" y1="10.5" x2="11" y2="16.5" />
+  </svg>
+);
+
+const IconInstagram = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconFacebook = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M14 8.5h-1.3c-.9 0-1.7.7-1.7 1.7V12h3l-.4 2.5h-2.6V19" />
+  </svg>
+);
+
+const IconX = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" /><line x1="15.5" y1="8.5" x2="8.5" y2="15.5" />
+  </svg>
+);
+
+const IconTelegram = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const SHARE_PLATFORMS = [
+  { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
 
 const IconPapan = () => (
   <svg width="14" height="14" viewBox="0 0 12.79 12.79" fill="none">
@@ -51,8 +124,8 @@ const STATUS_TO_DB = {
   selesai: 'Selesai', dibatalkan: 'Dibatalkan',
 };
 
-const ArchiveSvg = () => (
-  <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5 }}>
+const ArchiveSvg = ({ style } = {}) => (
+  <svg width="9" height="9" viewBox="0 0 8.25 8.60156" fill="none" style={{ marginRight: 4.5, ...style }}>
     <path fillRule="evenodd" clipRule="evenodd" d="M0 2.25C0 2.19776 0.01068 2.14802 0.0299775 2.10284L0.58824 0.707186C0.759086 0.280069 1.17276 0 1.63278 0H6.61721C7.07723 0 7.49093 0.280069 7.66178 0.707186L8.22004 2.10283C8.23931 2.14802 8.25 2.19776 8.25 2.25V7.47656C8.25 8.0979 7.74634 8.60156 7.125 8.60156H1.125C0.503681 8.60156 0 8.0979 0 7.47656L0 2.25ZM7.32113 1.875H0.928886L1.2846 0.985729C1.34154 0.843356 1.47944 0.75 1.63278 0.75H6.61721C6.77055 0.75 6.90844 0.843356 6.9654 0.985729L7.32113 1.875ZM0.75 2.625V7.47656C0.75 7.68368 0.917895 7.85156 1.125 7.85156H7.125C7.33211 7.85156 7.5 7.68368 7.5 7.47656V2.625H0.75ZM4.125 3.375C4.33211 3.375 4.5 3.54289 4.5 3.75V5.46968L4.98484 4.98484C5.13128 4.8384 5.36872 4.8384 5.51516 4.98484C5.6616 5.13128 5.6616 5.36872 5.51516 5.51516L4.39016 6.64016C4.24372 6.7866 4.00628 6.7866 3.85984 6.64016L2.73483 5.51516C2.58839 5.36872 2.58839 5.13128 2.73483 4.98484C2.88128 4.8384 3.11872 4.8384 3.26517 4.98484L3.75 5.46968V3.75C3.75 3.54289 3.91789 3.375 4.125 3.375Z" fill="currentColor" />
   </svg>
 );
@@ -91,7 +164,7 @@ function buildBoardFromData(alurList, rows, maxAlurMap) {
 }
 
 export default function Lowongan_001({ navigate, searchQuery = '' }) {
-  const { companyId, companyPlan } = useAuth();
+  const { companyId, companyPlan, companyName } = useAuth();
   const isFreePlan = companyPlan === 'free';
   const statusConfigEntries = isFreePlan
     ? Object.entries(STATUS_CONFIG).filter(([key]) => key === 'rencana' || key === 'aktif')
@@ -119,6 +192,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
   const [unarchiveTarget, setUnarchiveTarget] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const [openShareRow, setOpenShareRow] = useState(null);
   const showToast = (message, subMessage) => {
     setToast({ message, subMessage });
     clearTimeout(toastTimer.current);
@@ -167,12 +241,11 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
           lokasi: item.lokasi || '-',
           alur: alurNama,
           kandidat: kandCountMap[item.id] || 0,
-          upahMin: item.upah_min || '-',
-          upahMaks: item.upah_maks || '-',
           tanggal: new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
           rawDate: item.created_at,
           status: STATUS_NORMALIZE[item.status] || 'rencana',
           arsip: item.arsip || false,
+          kode: item.kode || null,
         };
       });
       setRows(formattedRows);
@@ -279,6 +352,48 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
         }
       },
     });
+  };
+
+  const buildKaririUrl = (row) => row.kode
+    ? `${window.location.origin}/?view=laman-karir&perusahaan=${slugify(companyName)}&posisi=${slugify(row.posisi)}&kode=${encodeURIComponent(row.kode)}`
+    : `${window.location.origin}/?view=laman-karir&jabatan=${encodeURIComponent(row.posisi)}`;
+
+  const handleViewLaman = (row) => {
+    if (row.status !== 'aktif') return;
+    window.open(buildKaririUrl(row), '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShare = (platform, row) => {
+    const url = buildKaririUrl(row);
+    const text = `Lowongan ${row.posisi} di ${companyName || 'perusahaan kami'}`;
+    setOpenShareRow(null);
+
+    switch (platform) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'x':
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'telegram':
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'instagram':
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('Link disalin', 'Instagram tidak mendukung share langsung — tempel link ini di bio atau story.');
+        });
+        break;
+      default:
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('Tautan disalin', 'Link laman karier sudah disalin ke clipboard.');
+        });
+    }
   };
 
   const handleRowArchive = (row) => {
@@ -477,6 +592,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
       if (!e.target.closest('.lw001-status-wrapper')) setOpenStatusIdx(null);
       if (!e.target.closest('.lw001-board-card-status-wrap') && !e.target.closest('.lw001-status-dropdown')) setOpenCardStatus(null);
       if (!e.target.closest('.lw001-board-card-menu-wrap') && !e.target.closest('.lw001-board-card-menu-dropdown')) setOpenCardMenu(null);
+      if (!e.target.closest('.lw001-share-menu-wrap')) setOpenShareRow(null);
     }}>
       {ActionsBar({ boardMode: isBoardView })}
 
@@ -621,17 +737,15 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
                 <th width="145">Status</th>
                 <th width="124">Tahap Rekrutmen</th>
                 <th width="134">Jumlah Kandidat</th>
-                <th width="108">Upah Min</th>
-                <th width="100">Upah Maks</th>
                 <th width="106">Tanggal Dibuat</th>
-                <th width="83">Aksi</th>
+                <th width="128">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="12" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data lowongan...</td></tr>
+                <tr><td colSpan="10" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>Memuat data lowongan...</td></tr>
               ) : pagedRows.length === 0 ? (
-                <tr><td colSpan="12" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
+                <tr><td colSpan="10" style={{ textAlign: 'center', padding: '24px', color: '#666' }}>
                   {filterArchiveOnly ? 'Tidak ada lowongan yang diarsipkan.' : 'Belum ada lowongan pekerjaan.'}
                 </td></tr>
               ) : pagedRows.map((row) => {
@@ -680,21 +794,68 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
                     </td>
                     <td>{row.alur}</td>
                     <td><div className="lw001-kandidat-badge">{row.kandidat}</div></td>
-                    <td>{row.upahMin}</td>
-                    <td>{row.upahMaks}</td>
                     <td>{row.tanggal}</td>
                     <td>
-                      <div className="lw001-actions">
-                        {row.arsip ? (
+                      {row.arsip ? (
+                        <div className="lw001-actions">
                           <button className="lw001-btn-outline btn-show" onClick={() => setUnarchiveTarget(row)}>
                             Tampilkan
                           </button>
-                        ) : (
-                          <button className="lw001-btn-outline btn-archive" onClick={() => handleRowArchive(row)}>
-                            <ArchiveSvg /> Arsipkan
+                        </div>
+                      ) : (
+                        <div className="lw001-icon-actions">
+                          <button
+                            className="lw001-iaction-btn"
+                            disabled={row.status !== 'aktif'}
+                            onClick={() => handleViewLaman(row)}
+                          >
+                            <span className="lw001-iaction-tip">
+                              {row.status === 'aktif' ? 'Lihat Laman Karier' : 'Aktifkan status dulu untuk buka laman karier'}
+                            </span>
+                            <IconEye />
                           </button>
-                        )}
-                      </div>
+
+                          <div className="lw001-share-menu-wrap">
+                            <button
+                              className="lw001-iaction-btn"
+                              disabled={row.status !== 'aktif'}
+                              onClick={() => setOpenShareRow(openShareRow === row.id ? null : row.id)}
+                            >
+                              <span className="lw001-iaction-tip">
+                                {row.status === 'aktif' ? 'Bagikan Laman Karier' : 'Aktifkan status dulu untuk bagikan'}
+                              </span>
+                              <IconShare />
+                            </button>
+
+                            {openShareRow === row.id && (
+                              <div className="lw001-share-menu" onClick={(e) => e.stopPropagation()}>
+                                <div className="lw001-share-eyebrow">Bagikan Laman Karier</div>
+                                <div className="lw001-share-linkcard">
+                                  <span className="lw001-share-linkcard-url">{buildKaririUrl(row)}</span>
+                                  <button className="lw001-share-linkcard-copy" onClick={() => handleShare('copy', row)}>
+                                    <IconLink />
+                                    Salin
+                                  </button>
+                                </div>
+                                <div className="lw001-share-divider" />
+                                <div className="lw001-share-grid">
+                                  {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
+                                    <button key={key} className="lw001-share-gridbtn" onClick={() => handleShare(key, row)}>
+                                      <span className="lw001-share-gridbtn-icon"><Icon /></span>
+                                      <span className="lw001-share-gridbtn-label">{label}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <button className="lw001-iaction-btn danger" onClick={() => handleRowArchive(row)}>
+                            <span className="lw001-iaction-tip">Arsipkan Posisi</span>
+                            <ArchiveSvg style={{ marginRight: 0, width: 14, height: 14 }} />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );

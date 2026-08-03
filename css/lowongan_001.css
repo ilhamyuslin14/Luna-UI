@@ -629,6 +629,239 @@
     background: var(--luna-orange-100);
 }
 
+/* Aksi — trio ikon (Lihat Laman Karier / Salin Link / Arsipkan) */
+.lw001-icon-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lw001-iaction-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 9px;
+    border: 1px solid #e2e5ec;
+    background: #ffffff;
+    color: #555f71;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lw001-iaction-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.lw001-iaction-btn:hover {
+    background: var(--luna-orange-050);
+    border-color: var(--luna-orange-200);
+    color: var(--luna-orange-600);
+}
+
+.lw001-iaction-btn.danger:hover {
+    background: #FBEAE9;
+    border-color: #EFC3C0;
+    color: var(--luna-semantic-error);
+}
+
+.lw001-iaction-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.lw001-iaction-btn:disabled:hover {
+    background: #ffffff;
+    border-color: #e2e5ec;
+    color: #555f71;
+}
+
+.lw001-iaction-tip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    background: #15140F;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    max-width: 180px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s, transform 0.12s;
+    z-index: 20;
+}
+
+.lw001-iaction-tip::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #15140F;
+}
+
+.lw001-iaction-btn:hover .lw001-iaction-tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Aksi — menu bagikan (WhatsApp/LinkedIn/Instagram/Facebook/X/Telegram/Salin link) */
+.lw001-share-menu-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.lw001-share-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 284px;
+    background: #ffffff;
+    border: 1px solid #e2e5ec;
+    border-radius: 16px;
+    box-shadow: 0 16px 34px -12px rgba(10, 9, 8, 0.22);
+    padding: 14px;
+    z-index: 50;
+}
+
+.lw001-share-eyebrow {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #b8b5ae;
+    margin-bottom: 10px;
+}
+
+.lw001-share-linkcard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #efeeec;
+    background: #fbfaf8;
+    border-radius: 10px;
+    padding: 8px 8px 8px 12px;
+    margin-bottom: 12px;
+}
+
+.lw001-share-linkcard-url {
+    flex: 1;
+    min-width: 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    color: #5e5c56;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lw001-share-linkcard-copy {
+    flex-shrink: 0;
+    height: 28px;
+    padding: 0 11px;
+    border-radius: 7px;
+    border: none;
+    background: var(--luna-orange-400);
+    color: #ffffff;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.lw001-share-linkcard-copy:hover {
+    background: var(--luna-orange-500);
+}
+
+.lw001-share-linkcard-copy svg {
+    width: 11px;
+    height: 11px;
+}
+
+.lw001-share-divider {
+    height: 1px;
+    background: #efeeec;
+    margin: 0 0 12px;
+}
+
+.lw001-share-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px 4px;
+}
+
+.lw001-share-gridbtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 4px;
+    border-radius: 11px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.lw001-share-gridbtn:hover {
+    background: var(--luna-orange-050);
+}
+
+.lw001-share-gridbtn-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #f2f1ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555f71;
+    transition: background 0.15s, color 0.15s;
+}
+
+.lw001-share-gridbtn:hover .lw001-share-gridbtn-icon {
+    background: var(--luna-orange-100);
+    color: var(--luna-orange-600);
+}
+
+.lw001-share-gridbtn-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+.lw001-share-gridbtn-label {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #5e5c56;
+}
+
+.lw001-iaction-spinner {
+    animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lw001-iaction-spinner {
+        animation: none;
+    }
+}
+
 /* Pagination */
 .lw001-pagination {
     background: #ffffff;

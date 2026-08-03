@@ -54,6 +54,78 @@ const StatusIcon = ({ val, size = 13 }) => {
   return null;
 };
 
+const IconEye = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconShare = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const IconLink = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const IconWhatsApp = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-4.8 7.6 8.5 8.5 0 0 1-8.9-.9L3 21l1.9-4.3a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.4h.3a8.48 8.48 0 0 1 8.2 8v.5z" />
+  </svg>
+);
+
+const IconLinkedIn = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <line x1="7.5" y1="10.5" x2="7.5" y2="16.5" />
+    <circle cx="7.5" cy="7" r="0.6" fill="currentColor" stroke="none" />
+    <path d="M11 16.5v-3.7a2.3 2.3 0 0 1 4.5 0v3.7" />
+    <line x1="11" y1="10.5" x2="11" y2="16.5" />
+  </svg>
+);
+
+const IconInstagram = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconFacebook = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M14 8.5h-1.3c-.9 0-1.7.7-1.7 1.7V12h3l-.4 2.5h-2.6V19" />
+  </svg>
+);
+
+const IconX = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" /><line x1="15.5" y1="8.5" x2="8.5" y2="15.5" />
+  </svg>
+);
+
+const IconTelegram = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const SHARE_PLATFORMS = [
+  { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
+
 export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
@@ -65,7 +137,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
   const [seleksiKode, setSeleksiKode] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const [showTitleMenu, setShowTitleMenu] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
@@ -133,13 +205,36 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
     }
   };
 
-  const handleCopyLink = () => {
-    if (!karilEnabled) return;
-    navigator.clipboard.writeText(kaririUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-    setShowTitleMenu(false);
+  const handleShareAction = (platform) => {
+    const text = `Lowongan ${jabatan} di ${companyName || 'perusahaan kami'}`;
+    setShowShareMenu(false);
+
+    switch (platform) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${kaririUrl}`)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(kaririUrl)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(kaririUrl)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'x':
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(kaririUrl)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'telegram':
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(kaririUrl)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'instagram':
+        navigator.clipboard.writeText(kaririUrl).then(() => {
+          setToast({ message: 'Link disalin', subMessage: 'Instagram tidak mendukung share langsung — tempel link ini di bio atau story.' });
+        });
+        break;
+      default:
+        navigator.clipboard.writeText(kaririUrl).then(() => {
+          setToast({ message: 'Tautan disalin', subMessage: 'Link laman karier sudah disalin ke clipboard.' });
+        });
+    }
   };
 
   const handleDuplicate = async () => {
@@ -176,7 +271,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
   };
 
   return (
-    <div className="sd001-view" onClick={() => { setShowStatusDrop(false); setShowTitleMenu(false); }}>
+    <div className="sd001-view" onClick={() => { setShowStatusDrop(false); setShowTitleMenu(false); setShowShareMenu(false); }}>
       {/* ── Title Bar ─────────────────────────────────── */}
       <div className="sd001-title-bar">
         <div className="sd001-title-content" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
@@ -253,11 +348,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
               className={`sd001-open-karir-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}`}
               onClick={() => karilEnabled && window.open(kaririUrl, '_blank')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
+              <IconEye />
               Buka Halaman Lowongan
             </button>
             {!karilEnabled && (
@@ -267,7 +358,45 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
             )}
           </div>
 
-          {/* Menu titik-tiga: Salin Tautan + Duplikat Seleksi */}
+          {/* Bagikan Laman Karir */}
+          <div className="sd001-cta-tip-wrap" onClick={e => e.stopPropagation()}>
+            <button
+              className={`sd001-open-karir-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}`}
+              onClick={() => karilEnabled && setShowShareMenu(v => !v)}
+            >
+              <IconShare />
+              Bagikan Laman Karier
+            </button>
+            {!karilEnabled && (
+              <div className="sd001-cta-tooltip">
+                Status lowongan harus Aktif untuk mengaktifkan fitur ini
+              </div>
+            )}
+
+            {showShareMenu && (
+              <div className="lw001-share-menu" onClick={e => e.stopPropagation()}>
+                <div className="lw001-share-eyebrow">Bagikan Laman Karier</div>
+                <div className="lw001-share-linkcard">
+                  <span className="lw001-share-linkcard-url">{kaririUrl}</span>
+                  <button className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy')}>
+                    <IconLink />
+                    Salin
+                  </button>
+                </div>
+                <div className="lw001-share-divider" />
+                <div className="lw001-share-grid">
+                  {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
+                    <button key={key} className="lw001-share-gridbtn" onClick={() => handleShareAction(key)}>
+                      <span className="lw001-share-gridbtn-icon"><Icon /></span>
+                      <span className="lw001-share-gridbtn-label">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Menu titik-tiga: Duplikat Seleksi + Arsipkan */}
           <div className="sd001-share-wrap" onClick={e => e.stopPropagation()}>
             <button
               className={`sd001-title-menu-btn${showTitleMenu ? ' active' : ''}`}
@@ -280,21 +409,6 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
 
             {showTitleMenu && (
               <div className="sd001-share-dropdown">
-                <button
-                  className="sd001-share-option"
-                  onClick={handleCopyLink}
-                  disabled={!karilEnabled}
-                  style={!karilEnabled ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
-                  title={!karilEnabled ? 'Status rekrutmen harus Aktif untuk mengaktifkan fitur ini' : undefined}
-                >
-                  <span className="sd001-share-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                    </svg>
-                  </span>
-                  {copied ? 'Disalin!' : 'Salin Tautan'}
-                </button>
                 <button
                   className="sd001-share-option"
                   onClick={handleDuplicate}

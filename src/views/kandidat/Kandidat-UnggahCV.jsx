@@ -479,7 +479,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                 <div className="kt-dropzone-meta">
                   <span>Tipe file yang didukung: PDF, DOC, DOCX, TXT, MD, JSON</span>
                   <span className="kt-dot" />
-                  <span>Maks 25 file dan ukuran 5 Mb/file</span>
+                  <span>Ukuran 10 Mb/file</span>
                 </div>
               </div>
             </div>
