@@ -1,5 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { logSignupIntent } from '../../services/analyticsService.js';
+
+const IconBriefcase = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
+const IconUserSearch = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="8" r="3.5" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+    <circle cx="18" cy="16" r="2.5" /><line x1="20.5" y1="18.5" x2="22" y2="20" />
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="11" /><line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
 
 function getPasswordStrength(pw) {
   if (!pw) return 0;
@@ -49,12 +69,20 @@ function PasswordStrengthBar({ password }) {
 }
 
 export default function LandingPageDaftar_001({ navigate }) {
+  const [role, setRole] = useState(null); // null | 'hr'
+  const [showPelamarInfo, setShowPelamarInfo] = useState(false);
   const [nama, setNama] = useState('');
   const [perusahaan, setPerusahaan] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const handleChooseRole = (chosen) => {
+    logSignupIntent(chosen);
+    if (chosen === 'pelamar') setShowPelamarInfo(true);
+    else setRole('hr');
+  };
 
   useEffect(() => {
     document.body.style.overflow = 'auto';
@@ -142,12 +170,33 @@ export default function LandingPageDaftar_001({ navigate }) {
               <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" style={{ height: 'auto', width: '56px', position: 'relative', zIndex: 2 }} />
             </div>
             <div className="lpm-heading-text">
-              <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
-              <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
+              <h2 className="lpm-title">{role === 'hr' ? 'Mulai Perjalanan Anda' : 'Selamat Datang di LUNA'}</h2>
+              <p className="lpm-subtitle">
+                {role === 'hr' ? 'Daftar untuk menikmati trial 14 hari gratis.' : 'Pilih peran Anda untuk melanjutkan pendaftaran.'}
+              </p>
             </div>
           </div>
 
-          {errorMsg && (
+          {!role && (
+            <div className="lpd-role-choice">
+              <button type="button" className="lpd-role-card" onClick={() => handleChooseRole('hr')}>
+                <span className="lpd-role-icon"><IconBriefcase /></span>
+                <span className="lpd-role-text">
+                  <span className="lpd-role-title">Saya HR / Perusahaan</span>
+                  <span className="lpd-role-desc">Pasang lowongan dan kelola kandidat di LUNA.</span>
+                </span>
+              </button>
+              <button type="button" className="lpd-role-card" onClick={() => handleChooseRole('pelamar')}>
+                <span className="lpd-role-icon"><IconUserSearch /></span>
+                <span className="lpd-role-text">
+                  <span className="lpd-role-title">Saya Pencari Kerja</span>
+                  <span className="lpd-role-desc">Cari &amp; lamar pekerjaan lewat link lowongan.</span>
+                </span>
+              </button>
+            </div>
+          )}
+
+          {role === 'hr' && errorMsg && (
             <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
               <span>{errorMsg}</span>
@@ -155,6 +204,7 @@ export default function LandingPageDaftar_001({ navigate }) {
           )}
 
           {/* Form */}
+          {role === 'hr' && (
           <form className="lpm-form" onSubmit={handleSubmit}>
 
             {/* Nama Lengkap */}
@@ -255,8 +305,26 @@ export default function LandingPageDaftar_001({ navigate }) {
               </button>
             </p>
           </form>
+          )}
         </div>
       </div>
+
+      {showPelamarInfo && (
+        <div className="lpd-modal-overlay" onClick={() => setShowPelamarInfo(false)}>
+          <div className="lpd-modal-card" onClick={e => e.stopPropagation()}>
+            <div className="lpd-modal-icon"><IconInfo /></div>
+            <h3 className="lpd-modal-title">Akun LUNA untuk Tim HR &amp; Perekrut</h3>
+            <p className="lpd-modal-desc">
+              Akun LUNA digunakan oleh HR dan perusahaan untuk memasang lowongan serta mengelola kandidat.
+              Sebagai pencari kerja, Anda tidak perlu membuat akun — cukup buka tautan lowongan yang
+              dibagikan oleh perusahaan untuk mengirimkan lamaran secara langsung.
+            </p>
+            <button type="button" className="lpd-modal-btn" onClick={() => navigate?.('landingpage_003')}>
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

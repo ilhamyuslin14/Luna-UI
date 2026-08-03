@@ -56,40 +56,6 @@ function IconX() {
   );
 }
 
-function IconLock() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="10.5" width="14" height="9" rx="2" />
-      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
-    </svg>
-  );
-}
-
-const FREE_FEATURES = [
-  '1 lowongan aktif, dipilih sendiri',
-  'Halaman lowongan + link berbagi',
-  'Kandidat melamar, CV tersimpan',
-  'Pipeline hiring penuh',
-];
-
-const BASIC_FEATURES = [
-  <>Kapasitas <b>15</b> lowongan aktif</>,
-  <>Database <b>5.000</b> kandidat</>,
-  'LUNA AI Candidate Scoring',
-  'AI Requirement Generator',
-  'Dashboard rekrutmen terpusat',
-  'Dukungan teknis standar',
-];
-
-const PLUS_FEATURES = [
-  <>Lowongan aktif <b>tidak terbatas</b></>,
-  <>Database kandidat <b>tidak terbatas</b></>,
-  'LUNA AI Candidate Scoring',
-  'AI Requirement Generator',
-  'Dashboard rekrutmen terpusat',
-  'Dukungan prioritas 24/7',
-];
-
 const COMPARISON_ROWS = [
   { label: 'Menampilkan detail lowongan', googleForm: false, jobPortal: true },
   { label: 'Halaman atas nama perusahaan sendiri', googleForm: false, jobPortal: true },
@@ -131,8 +97,6 @@ const FAQ_ITEMS = [
 
 export default function LandingPage_003({ navigate }) {
   const goDaftar = () => navigate?.('landingpage-daftar_001');
-  const [billing, setBilling] = useState('yearly');
-  const isYearly = billing === 'yearly';
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
@@ -147,7 +111,7 @@ export default function LandingPage_003({ navigate }) {
           <span className="lp003-nav-tagline">Portal Karier Mandiri</span>
         </div>
         <button className="lp003-nav-cta" onClick={goDaftar}>
-          Buat Portal Karier – Gratis
+          Mulai Gratis
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
         </button>
       </header>
@@ -158,7 +122,7 @@ export default function LandingPage_003({ navigate }) {
           <h1 className="lp003-hero-title">Portal Karier Mandiri untuk Seluruh Proses Rekrutmen</h1>
           <p className="lp003-hero-subtitle">Buat halaman lowongan atas nama perusahaan Anda, sebarkan linknya ke mana pun. Setiap pelamar yang masuk otomatis dinilai dan langsung masuk pipeline rekrutmen.</p>
           <button className="lp003-btn lp003-btn-primary lp003-btn-lg" onClick={goDaftar}>
-            Buat Portal Karier – Gratis
+            Mulai Gratis
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </button>
         </div>
@@ -179,7 +143,7 @@ export default function LandingPage_003({ navigate }) {
             </div>
             <div className="lp003-hero-link-pill">
               <IconShare name="link" />
-              <span>luna.id/karir/perusahaan-anda</span>
+              <span>lunasys.ai/karir/perusahaan-anda</span>
             </div>
           </div>
         </div>
@@ -302,7 +266,7 @@ export default function LandingPage_003({ navigate }) {
                 <svg className="lp003-flow-share-svg" viewBox="0 0 260 170"><path d="M60 85 L 205 30" /><path d="M60 85 L 215 85" /><path d="M60 85 L 205 140" /></svg>
                 <div className="lp003-flow-share-pill">
                   <IconShare name="link" />
-                  <span>luna.id/karir/anda</span>
+                  <span>lunasys.ai/karir</span>
                 </div>
                 <div className="lp003-flow-share-node lp003-flow-share-node-hot" style={{ left: 195, top: 14 }}><IconShare name="whatsapp" /></div>
                 <div className="lp003-flow-share-node" style={{ left: 205, top: 69 }}><IconShare name="instagram" /></div>
@@ -450,95 +414,6 @@ export default function LandingPage_003({ navigate }) {
         </div>
       </section>
 
-      {/* ── 6. Harga ── */}
-      <section className="lp003-harga" id="harga">
-        <div className="lp003-harga-head">
-          <div className="lp003-harga-eyebrow">Harga</div>
-          <h2 className="lp003-harga-title">Skalakan rekrutmen tanpa biaya tersembunyi</h2>
-          <p className="lp003-harga-sub">Mulai gratis, upgrade kapan saja begitu volume hiring bertambah.</p>
-        </div>
-
-        <div className="lp003-billing-toggle-wrap">
-          <div className="lp003-billing-toggle" data-billing={billing}>
-            <div className="lp003-billing-thumb" />
-            <button
-              className={`lp003-billing-btn${!isYearly ? ' active' : ''}`}
-              onClick={() => setBilling('monthly')}
-            >
-              Bulanan
-            </button>
-            <button
-              className={`lp003-billing-btn${isYearly ? ' active' : ''}`}
-              onClick={() => setBilling('yearly')}
-            >
-              Tahunan <span className="lp003-billing-save">Hemat 20%</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="lp003-harga-grid">
-          <div className="lp003-plan-card">
-            <div>
-              <div className="lp003-plan-name">Free</div>
-              <p className="lp003-plan-tagline">Untuk mulai merekrut tanpa biaya — cocok kalau volume lowongan masih kecil.</p>
-            </div>
-            <div>
-              <div className="lp003-plan-price-row"><span className="lp003-plan-price">Rp 0</span></div>
-              <span className="lp003-plan-price-unit">berlaku selamanya</span>
-            </div>
-            <button className="lp003-plan-cta lp003-plan-cta-outline" onClick={goDaftar}>Mulai Gratis</button>
-            <ul className="lp003-plan-features">
-              {FREE_FEATURES.map((f, i) => (
-                <li key={i}><span className="lp003-plan-check"><IconCheck /></span>{f}</li>
-              ))}
-              <li className="is-locked"><span className="lp003-plan-lock"><IconLock /></span>Parsing CV &amp; skor AI otomatis</li>
-            </ul>
-          </div>
-
-          <div className="lp003-plan-card">
-            <div>
-              <div className="lp003-plan-name">Basic</div>
-              <p className="lp003-plan-tagline">Standardisasi proses hiring dengan AI untuk startup &amp; tim menengah.</p>
-            </div>
-            <div>
-              <div className="lp003-plan-price-row">
-                <span className="lp003-plan-price">{isYearly ? 'Rp 190.000' : 'Rp 250.000'}</span>
-                <span className="lp003-plan-price-unit">/ pengguna / bulan</span>
-              </div>
-              {isYearly && <span className="lp003-plan-billed-note">Ditagih tahunan (Total Rp 2.280.000)</span>}
-            </div>
-            <button className="lp003-plan-cta lp003-plan-cta-outline" onClick={goDaftar}>Pilih Paket</button>
-            <ul className="lp003-plan-features">
-              {BASIC_FEATURES.map((f, i) => (
-                <li key={i}><span className="lp003-plan-check"><IconCheck /></span>{f}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lp003-plan-card is-plus">
-            <span className="lp003-plan-badge">✨ Terpopuler</span>
-            <div>
-              <div className="lp003-plan-name">Plus</div>
-              <p className="lp003-plan-tagline">Infrastruktur akuisisi talenta tanpa batas untuk scale-up masif.</p>
-            </div>
-            <div>
-              <div className="lp003-plan-price-row">
-                {isYearly && <span className="lp003-plan-price-strike">Rp 490.000</span>}
-                <span className="lp003-plan-price">{isYearly ? 'Rp 390.000' : 'Rp 490.000'}</span>
-                <span className="lp003-plan-price-unit">/ pengguna / bulan</span>
-              </div>
-              {isYearly && <span className="lp003-plan-billed-note">Ditagih tahunan (Total Rp 4.680.000)</span>}
-            </div>
-            <button className="lp003-plan-cta lp003-plan-cta-solid" onClick={goDaftar}>Pilih Paket</button>
-            <ul className="lp003-plan-features">
-              {PLUS_FEATURES.map((f, i) => (
-                <li key={i}><span className="lp003-plan-check"><IconCheck /></span>{f}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
       {/* ── 7. FAQ ── */}
       <section className="lp003-faq">
         <div className="lp003-faq-head">
@@ -571,7 +446,7 @@ export default function LandingPage_003({ navigate }) {
           <div className="lp003-cta-quiet-eyebrow">Siap mulai?</div>
           <h2 className="lp003-cta-quiet-title">Mulai portal karier Anda hari ini</h2>
           <button className="lp003-cta-quiet-btn" onClick={goDaftar}>
-            Buat Portal Karier – Gratis
+            Mulai Gratis
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </button>
           <div className="lp003-cta-quiet-micro">
@@ -594,7 +469,6 @@ export default function LandingPage_003({ navigate }) {
               <div className="lp003-footer-col-links">
                 <span onClick={() => document.getElementById('fitur')?.scrollIntoView({ behavior: 'smooth' })}>Fitur</span>
                 <span onClick={() => document.getElementById('perbandingan')?.scrollIntoView({ behavior: 'smooth' })}>Perbandingan</span>
-                <span onClick={() => document.getElementById('harga')?.scrollIntoView({ behavior: 'smooth' })}>Harga</span>
               </div>
             </div>
             <div className="lp003-footer-col">

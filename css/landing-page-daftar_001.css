@@ -25,3 +25,156 @@
   border-color: var(--luna-orange-400);
   box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.1);
 }
+
+/* ── Step 1: pilihan HR vs Pencari Kerja ── */
+.lpd-role-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.lpd-role-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1.5px solid var(--luna-ink-200);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.lpd-role-card:hover {
+  border-color: var(--luna-orange-400);
+  background: var(--luna-orange-050);
+  transform: translateY(-1px);
+}
+
+.lpd-role-icon {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lpd-role-card:hover .lpd-role-icon {
+  background: var(--luna-orange-100);
+}
+
+.lpd-role-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lpd-role-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--luna-ink-900);
+}
+
+.lpd-role-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--luna-ink-500);
+  line-height: 1.4;
+}
+
+/* ── Popup: penjelasan untuk pencari kerja ── */
+.lpd-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 9, 8, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: lpd-fade-in 0.15s ease-out;
+}
+
+.lpd-modal-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 36px 32px 32px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(10, 9, 8, 0.22);
+  animation: lpd-scale-in 0.18s ease-out;
+}
+
+.lpd-modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.lpd-modal-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+  line-height: 1.35;
+  margin: 0 0 10px;
+}
+
+.lpd-modal-desc {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--luna-ink-500);
+  margin: 0 0 26px;
+}
+
+.lpd-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 10px;
+  background: var(--luna-orange-400);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lpd-modal-btn:hover {
+  background: var(--luna-orange-500);
+}
+
+@keyframes lpd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lpd-scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lpd-modal-overlay,
+  .lpd-modal-card {
+    animation: none;
+  }
+}
