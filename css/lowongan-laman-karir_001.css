@@ -211,89 +211,197 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   gap: 24px;
 }
 
-/* Ink Glow Premium Hero Banner — Luna's real dark ink + orange glow (matches the "Plus" plan card in dashboard) */
-.lk-navy-hero-card {
-  background: var(--karir-hero-bg);
-  border-radius: 20px;
-  padding: 36px 40px;
-  color: #FFFFFF;
-  box-shadow: 0 20px 45px rgba(10, 9, 8, 0.25);
+/* Modern Enterprise Job Hero Card Showcase */
+.lk-job-hero-card {
+  background-color: #FFFFFF;
+  background-image: 
+    radial-gradient(circle at 92% 12%, rgba(255, 141, 33, 0.09) 0%, transparent 45%),
+    radial-gradient(circle at 5% 90%, rgba(37, 99, 235, 0.03) 0%, transparent 40%),
+    radial-gradient(#E2E8F0 0.8px, transparent 0.8px);
+  background-size: 100% 100%, 100% 100%, 18px 18px;
+  border: 1px solid #E2E8F0;
+  border-radius: 22px;
+  padding: 32px 36px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border: 1px solid var(--karir-hero-border);
 }
 
-.lk-navy-hero-card::after {
+/* Top Gradient Accent Bar */
+.lk-job-hero-card::before {
   content: '';
   position: absolute;
-  right: -90px;
-  bottom: -110px;
-  width: 280px;
-  height: 280px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--karir-primary) 0%, #FF8D21 45%, rgba(255, 141, 33, 0.15) 100%);
+  border-radius: 22px 22px 0 0;
+  z-index: 3;
+}
+
+/* Background Glowing Mesh Blob */
+.lk-job-hero-card::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 123, 0, 0.38), transparent 70%);
-  filter: blur(2px);
-  z-index: -1;
+  background: radial-gradient(circle, rgba(255, 141, 33, 0.15) 0%, rgba(255, 141, 33, 0.03) 50%, transparent 70%);
+  filter: blur(10px);
+  z-index: 1;
   pointer-events: none;
 }
 
-.lk-navy-hero-info {
-  flex: 1;
-  z-index: 2;
+.lk-job-hero-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.lk-hero-top-badge-row {
+.lk-job-company-logo-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 16px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.lk-job-company-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.lk-job-company-logo-wrap span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--karir-primary);
+}
+
+.lk-job-hero-meta-head {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lk-job-company-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lk-job-company-link {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--karir-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.lk-job-company-link:hover {
+  color: #D96A00;
+  text-decoration: underline;
+}
+
+.lk-job-company-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--karir-ink-700);
+}
+
+.lk-job-main-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+  margin: 0;
+  letter-spacing: -0.4px;
 }
 
 .lk-active-hiring-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 20px;
   font-family: 'Inter Tight', sans-serif;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  background: transparent;
-  color: var(--karir-primary);
+  background: rgba(255, 141, 33, 0.1);
+  color: #D96A00;
+  border: 1px solid rgba(255, 141, 33, 0.2);
 }
 
 .lk-active-hiring-badge .dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--karir-primary);
-  box-shadow: 0 0 8px 1px rgba(255, 123, 0, 0.8);
+  background: #22C55E;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
 }
 
-.lk-navy-job-title {
-  font-size: 30px;
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.2;
-  margin: 0 0 12px 0;
-  letter-spacing: -0.5px;
-}
-
-.lk-navy-company-row {
+.lk-job-hero-details-strip {
   display: flex;
   align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
-  gap: 16px;
-  font-size: 14px;
-  color: #CBD5E1;
-  font-weight: 500;
+  padding-top: 18px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.lk-job-detail-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lk-job-detail-pill svg {
+  color: #64748B;
+}
+
+.lk-job-salary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #FFF7ED;
+  border: 1px solid #FFEDD5;
+  color: #EA580C;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.lk-job-salary-pill svg {
+  color: #EA580C;
 }
 
 .lk-navy-company-row span {
@@ -347,10 +455,10 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
 
 /* White Elevated Company Logo Card */
 .lk-navy-company-card {
-  width: 136px;
+  width: 156px;
   background: #FFFFFF;
-  border-radius: 18px;
-  padding: 16px 12px;
+  border-radius: 20px;
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -366,44 +474,43 @@ a.lk-navy-company-card:hover {
 }
 
 .lk-navy-company-logo-box {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  background: #F8FAFC;
-  padding: 6px;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: transparent;
+  border: none !important;
+  padding: 0;
+  box-shadow: none !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 800;
   color: var(--karir-primary);
+  overflow: hidden;
 }
 
 .lk-navy-company-logo-box img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: 14px;
+  border: none !important;
 }
 
 .lk-company-card-name {
-  font-size: 11.5px;
-  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--karir-ink-900);
   line-height: 1.3;
-  margin-bottom: 4px;
+  margin-bottom: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.lk-company-card-link {
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--karir-primary);
 }
 
 .lk-company-rating {

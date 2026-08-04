@@ -86,6 +86,18 @@
   color: white;
 }
 
+.sd001-open-karir-btn.sd001-icon-only-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+}
+
+.sd001-open-karir-btn.sd001-icon-only-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
 .sd001-header-btn-primary {
   display: inline-flex;
   align-items: center;

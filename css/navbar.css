@@ -678,27 +678,87 @@
 .nav-notif-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--luna-ink-050);
-  transition: background 0.12s ease;
+  border-bottom: 1px solid #F1F5F9;
+  background: #FFFFFF;
+  transition: all 0.15s ease;
+  position: relative;
 }
 
+/* UNREAD ITEM (Aktivitas Baru) */
 .nav-notif-item.unread {
-  background: rgba(255, 141, 33, 0.03);
+  background: #FFF7ED !important;
+  border-left: 4px solid #EA580C !important;
 }
 
-.nav-notif-item:hover {
-  background: var(--luna-ink-050);
+.nav-notif-item.unread:hover {
+  background: #FFEDD5 !important;
+}
+
+.nav-notif-item.unread .nav-notif-dot {
+  background: #EA580C !important;
+  box-shadow: 0 0 8px rgba(234, 88, 12, 0.7) !important;
+}
+
+.nav-notif-item.unread .nav-notif-text {
+  font-weight: 800 !important;
+  color: #0F172A !important;
+}
+
+.nav-notif-item.unread .nav-notif-time {
+  color: #C2410C !important;
+  font-weight: 700 !important;
+}
+
+/* READ ITEM (Aktivitas Sudah Dilihat) */
+.nav-notif-item.read {
+  background: #FFFFFF !important;
+  border-left: 4px solid transparent !important;
+}
+
+.nav-notif-item.read:hover {
+  background: #F8FAFC !important;
+}
+
+.nav-notif-item.read .nav-notif-dot {
+  background: #CBD5E1 !important;
+  box-shadow: none !important;
+}
+
+.nav-notif-item.read .nav-notif-text {
+  font-weight: 500 !important;
+  color: #64748B !important;
+}
+
+.nav-notif-item.read .nav-notif-time {
+  color: #94A3B8 !important;
+  font-weight: 400 !important;
+}
+
+/* BARU Badge Pill */
+.nav-notif-badge-new {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #C2410C;
+  background: #FFEDD5;
+  border: 1px solid #FDBA74;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .nav-notif-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--luna-orange-500);
   margin-top: 5px;
   flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 
 .nav-notif-text {

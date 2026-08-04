@@ -123,6 +123,9 @@ export async function createActivityLog(logData) {
     .select()
     .single();
   if (error) throw error;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
+  }
   return data;
 }
 
@@ -134,6 +137,9 @@ export async function updateActivityLog(id, updateData) {
     .select()
     .single();
   if (error) throw error;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
+  }
   return data;
 }
 

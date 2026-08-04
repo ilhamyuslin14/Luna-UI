@@ -11,6 +11,9 @@ export async function markTidakSesuai(scoringId, alasan, alasanDetail = '') {
     })
     .eq('id', scoringId);
   if (error) throw error;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
+  }
 }
 
 export async function updateAlurProses(scoringId, alurLevel) {
@@ -19,6 +22,9 @@ export async function updateAlurProses(scoringId, alurLevel) {
     .update({ alur_proses: alurLevel, updated_at: new Date().toISOString() })
     .eq('id', scoringId);
   if (error) throw error;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
+  }
 }
 
 export async function getScoringBySeleksi(seleksiId) {
@@ -93,6 +99,10 @@ export async function runScoring(kandidatId, seleksiId, companyId) {
     throw new Error(data.message || 'Gagal menjalankan scoring.');
   }
 
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
+  }
+
   return data.scoring;
 }
 
@@ -108,6 +118,10 @@ export async function runRescore(scoringId, kandidatId, seleksiId, companyId) {
   if (data?.error) {
     console.error('[runRescore] Error dari AI/Server:', data.message);
     throw new Error(data.message || 'Gagal menjalankan ulang scoring.');
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('luna:activity_updated'));
   }
 
   return data.scoring;

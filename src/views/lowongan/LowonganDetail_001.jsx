@@ -361,11 +361,12 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
           {/* Bagikan Laman Karir */}
           <div className="sd001-cta-tip-wrap" onClick={e => e.stopPropagation()}>
             <button
-              className={`sd001-open-karir-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}`}
+              className={`sd001-open-karir-btn sd001-icon-only-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}`}
               onClick={() => karilEnabled && setShowShareMenu(v => !v)}
+              title="Bagikan Laman Karier"
+              aria-label="Bagikan Laman Karier"
             >
               <IconShare />
-              Bagikan Laman Karier
             </button>
             {!karilEnabled && (
               <div className="sd001-cta-tooltip">

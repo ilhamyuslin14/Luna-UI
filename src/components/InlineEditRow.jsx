@@ -1,6 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
 import { ID_REGIONS } from '../utils/idRegions.js';
 
+export const ID_INDUSTRIES = [
+  'Teknologi Informasi & Software',
+  'Keuangan, Perbankan & FinTech',
+  'Pemasaran, Periklanan & PR',
+  'Manufaktur & Industri Berat',
+  'Kesehatan, Farmasi & Medis',
+  'Pendidikan & Pelatihan',
+  'E-commerce & Ritel',
+  'FMCG (Consumer Goods)',
+  'Logistik, Transportasi & Rantai Pasok',
+  'Properti, Konstruksi & Real Estate',
+  'Layanan Profesional & Konsultan',
+  'Media, Hiburan & Penyiaran',
+  'Kreatif, Desain & Seni',
+  'Perhotelan, Pariwisata & Kuliner',
+  'Energi, Minyak & Gas',
+  'Pertanian, Perkebunan & Perikanan',
+  'Otomotif & Transportasi',
+  'Telekomunikasi',
+  'Nirlaba & Organisasi Sosial',
+  'Lainnya'
+];
+
 const ChevronDown = () => (
   <svg width="8" height="5" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, pointerEvents: 'none' }}>
     <path d="M1 1L5 5L9 1"/>
@@ -74,7 +97,7 @@ export default function InlineEditRow({
 
   const finalDisplayValue = displayValue !== undefined ? displayValue : value;
 
-  // ── Location autocomplete handlers ──
+  // ── Location & Industry autocomplete handlers ──
   const handleLocationChange = (query) => {
     setTempValue(query);
     if (!query.trim()) { setSuggestions([]); return; }
@@ -82,8 +105,15 @@ export default function InlineEditRow({
     setSuggestions(ID_REGIONS.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8));
   };
 
+  const handleIndustryChange = (query) => {
+    setTempValue(query);
+    if (query.trim().length < 2) { setSuggestions([]); return; }
+    const q = query.toLowerCase();
+    setSuggestions(ID_INDUSTRIES.filter(ind => ind.toLowerCase().includes(q)).slice(0, 8).map(name => ({ name, type: 'industry' })));
+  };
+
   const handleLocationSelect = async (s) => {
-    const val = s.type === 'city' && s.province ? `${s.name}, ${s.province}` : s.name;
+    const val = s.type === 'industry' ? s.name : (s.type === 'city' && s.province ? `${s.name}, ${s.province}` : s.name);
     setSuggestions([]);
     setTempValue(val);
     setIsSaving(true);
@@ -91,7 +121,10 @@ export default function InlineEditRow({
     finally { setIsSaving(false); }
   };
 
-  const showLocDropdown = type === 'location' && isEditing && tempValue.trim().length >= 1;
+  const showLocDropdown = (type === 'location' || type === 'industry') && isEditing && (
+    (type === 'industry' && tempValue.trim().length >= 2) ||
+    (type === 'location' && tempValue.trim().length >= 1)
+  );
   const locInputRect    = showLocDropdown && inputRef.current ? inputRef.current.getBoundingClientRect() : null;
 
   // ── Label with tooltip ──
@@ -144,7 +177,9 @@ export default function InlineEditRow({
           >
             {finalDisplayValue ? (
               <>
-                <span className="inline-edit-text">{finalDisplayValue}</span>
+                <span className="inline-edit-text" style={type === 'textarea' ? { whiteSpace: 'pre-line', lineHeight: '1.6', display: 'block', padding: '4px 0' } : undefined}>
+                  {finalDisplayValue}
+                </span>
                 <svg className="inline-edit-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
                 </svg>
@@ -179,6 +214,21 @@ export default function InlineEditRow({
         onChange={e => handleLocationChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Ketik nama kota atau provinsi..."
+        autoFocus
+        disabled={isSaving}
+      />
+    );
+  } else if (type === 'industry') {
+    inputEl = (
+      <input
+        ref={inputRef}
+        type="text"
+        className="inline-edit-input"
+        style={{ flex: 1, minWidth: 0, height: '32px', margin: 0 }}
+        value={tempValue}
+        onChange={e => handleIndustryChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder || 'Ketik nama industri (min. 2 huruf)...'}
         autoFocus
         disabled={isSaving}
       />
@@ -346,7 +396,9 @@ export default function InlineEditRow({
           }}
         >
           {suggestions.length === 0 ? (
-            <div style={{ padding: '10px 12px', fontSize: 13, color: '#abb2c1' }}>Tidak ada kota/daerah ditemukan</div>
+            <div style={{ padding: '10px 12px', fontSize: 13, color: '#abb2c1' }}>
+              {type === 'industry' ? 'Tidak ada industri ditemukan' : 'Tidak ada kota/daerah ditemukan'}
+            </div>
           ) : suggestions.map((s, i) => (
             <div
               key={i}
@@ -361,7 +413,7 @@ export default function InlineEditRow({
             >
               <span>{s.name}{s.province ? `, ${s.province}` : ''}</span>
               <span style={{ fontSize: 10, color: '#abb2c1', flexShrink: 0 }}>
-                {s.type === 'city' ? 'Kota/Kab' : 'Provinsi'}
+                {s.type === 'industry' ? 'Industri' : (s.type === 'city' ? 'Kota/Kab' : 'Provinsi')}
               </span>
             </div>
           ))}

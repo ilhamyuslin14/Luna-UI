@@ -234,7 +234,7 @@ export async function getCompanyBySlug(slug) {
 
   const { data, error } = await supabase
     .from('companies')
-    .select('id, name, slug, industri, ukuran, lokasi, logo_url, banner_url, tagline, deskripsi, website, media_sosial, video_profil_url')
+    .select('*')
     .eq('slug', slug)
     .limit(1);
 

@@ -70,6 +70,15 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
   const [notifications, setNotifications] = useState([]);
   const [isNotifLoading, setIsNotifLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [initialWatermark, setInitialWatermark] = useState(null);
+  const [readNotifKeys, setReadNotifKeys] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`luna_read_notifs_${companyId}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [showAllActivities, setShowAllActivities] = useState(false);
 
   const wrapRef = useRef(null);
@@ -85,8 +94,8 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
   useEffect(() => {
     if (!companyId) return;
     let isMounted = true;
+
     const fetchNotifs = async () => {
-      setIsNotifLoading(true);
       try {
         const data = await getRecentActivities(companyId);
         if (isMounted) setNotifications(data || []);
@@ -94,11 +103,11 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
         const seenKey = `luna_notif_seen_${companyId}`;
         let lastSeenAt = localStorage.getItem(seenKey);
         if (!lastSeenAt) {
-          // First time ever seeing this company's notifications — don't
-          // dump the entire history as "unread", start the watermark now.
           lastSeenAt = new Date().toISOString();
           localStorage.setItem(seenKey, lastSeenAt);
         }
+        if (isMounted) setInitialWatermark(lastSeenAt);
+
         const count = await getUnreadActivityCount(companyId, lastSeenAt);
         if (isMounted) setUnreadCount(count);
       } catch (err) {
@@ -107,9 +116,30 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
         if (isMounted) setIsNotifLoading(false);
       }
     };
+
     fetchNotifs();
-    return () => { isMounted = false; };
+
+    // Auto update on activity_updated custom event + gentle 10s background polling
+    const handleUpdate = () => fetchNotifs();
+    window.addEventListener('luna:activity_updated', handleUpdate);
+    const timer = setInterval(fetchNotifs, 10000);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('luna:activity_updated', handleUpdate);
+      clearInterval(timer);
+    };
   }, [companyId]);
+
+  const closeNotifDropdown = () => {
+    setNotifOpen(false);
+    if (companyId) {
+      const nowIso = new Date().toISOString();
+      localStorage.setItem(`luna_notif_seen_${companyId}`, nowIso);
+      setInitialWatermark(nowIso);
+      setUnreadCount(0);
+    }
+  };
 
   useEffect(() => {
     const onDown = (e) => {
@@ -121,13 +151,15 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
           close();
         }
       }
-      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        if (notifOpen) closeNotifDropdown();
+      }
       if (quickRef.current && !quickRef.current.contains(e.target)) setQuickOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
-  }, [open, isClosing]);
+  }, [open, isClosing, notifOpen, companyId]);
 
   useEffect(() => {
     const q = query.trim();
@@ -154,7 +186,7 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
 
   const handleOpen = () => {
     setQuickOpen(false);
-    setNotifOpen(false);
+    if (notifOpen) closeNotifDropdown();
     setIsClosing(false);
     setOpen(true);
     setTimeout(() => inputRef.current?.focus(), 0);
@@ -174,7 +206,7 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
     e.stopPropagation();
     setOpen(false);
     setIsClosing(false);
-    setNotifOpen(false);
+    if (notifOpen) closeNotifDropdown();
     setProfileOpen(false);
     setQuickOpen(prev => !prev);
   };
@@ -185,15 +217,31 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
     setIsClosing(false);
     setQuickOpen(false);
     setProfileOpen(false);
-    setNotifOpen(prev => {
-      const next = !prev;
-      if (next && companyId) {
-        // Opening the panel counts as "read" — reset the watermark and badge.
-        localStorage.setItem(`luna_notif_seen_${companyId}`, new Date().toISOString());
-        setUnreadCount(0);
-      }
-      return next;
+    if (notifOpen) {
+      closeNotifDropdown();
+    } else {
+      setNotifOpen(true);
+    }
+  };
+
+  const markNotifAsRead = (key) => {
+    if (!key) return;
+    setReadNotifKeys(prev => {
+      if (prev.includes(key)) return prev;
+      const updated = [...prev, key];
+      if (companyId) localStorage.setItem(`luna_read_notifs_${companyId}`, JSON.stringify(updated));
+      return updated;
     });
+  };
+
+  const markAllAsRead = () => {
+    const allKeys = notifications.map((item, idx) => item.id || item.dateStr || `${item.type}_${item.timestamp}_${idx}`);
+    setReadNotifKeys(allKeys);
+    if (companyId) {
+      localStorage.setItem(`luna_read_notifs_${companyId}`, JSON.stringify(allKeys));
+      localStorage.setItem(`luna_notif_seen_${companyId}`, new Date().toISOString());
+    }
+    setUnreadCount(0);
   };
 
   const toggleProfile = (e) => {
@@ -424,24 +472,38 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
                     Belum ada aktivitas rekrutmen terbaru.
                   </div>
                 ) : (
-                  notifications.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="nav-notif-item unread"
-                      onClick={() => {
-                        setNotifOpen(false);
-                        if (item.type === 'seleksi' || item.type === 'scoring') navigate?.('seleksi_001');
-                        else if (item.type === 'kandidat' || item.type === 'upload') navigate?.('kandidat_001');
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div className="nav-notif-dot"></div>
-                      <div className="nav-notif-content">
-                        <p className="nav-notif-text">{item.text}</p>
-                        <span className="nav-notif-time">{item.time}</span>
+                  notifications.map((item, idx) => {
+                    const itemKey = item.id || item.dateStr || `${item.type}_${item.timestamp}_${idx}`;
+                    const isRead = readNotifKeys.includes(itemKey);
+                    const itemTime = new Date(item.dateStr || item.timestamp || 0).getTime();
+                    const watermarkTime = initialWatermark ? new Date(initialWatermark).getTime() : 0;
+                    const isNewByTime = watermarkTime > 0 && itemTime > watermarkTime;
+                    const isNewByCount = idx < unreadCount;
+                    const isUnread = !isRead && (isNewByCount || isNewByTime);
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`nav-notif-item ${isUnread ? 'unread' : 'read'}`}
+                        onClick={() => {
+                          markNotifAsRead(itemKey);
+                          closeNotifDropdown();
+                          if (item.type === 'seleksi' || item.type === 'scoring') navigate?.('seleksi_001');
+                          else if (item.type === 'kandidat' || item.type === 'upload') navigate?.('kandidat_001');
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="nav-notif-dot"></div>
+                        <div className="nav-notif-content" style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                            <p className="nav-notif-text" style={{ flex: 1 }}>{item.text}</p>
+                            {isUnread && <span className="nav-notif-badge-new">BARU</span>}
+                          </div>
+                          <span className="nav-notif-time">{item.time}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
               {!isNotifLoading && notifications.length > 0 && (

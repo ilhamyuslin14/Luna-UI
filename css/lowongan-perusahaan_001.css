@@ -1,150 +1,254 @@
-/* Laman Perusahaan (Company Page) — extends tokens & shared classes from lowongan-laman-karir_001.css */
+/* ── Laman Perusahaan (Modern Professional Company Career Page) ── */
 
-.lpr-hero {
+.lpr-page-wrap {
+  background-color: #F8FAFC !important;
+  min-height: 100vh;
+}
+
+.lpr-btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #334155;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.lpr-btn-share:hover {
+  border-color: var(--luna-orange-400);
+  color: var(--luna-orange-400);
+  box-shadow: 0 4px 12px rgba(255, 141, 33, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ── Hero Showcase Card ── */
+.lpr-hero-card {
   max-width: 1240px;
-  margin: 24px auto 0 auto;
+  margin: 16px auto 0 auto;
   padding: 0 24px;
 }
 
-.lpr-hero::before {
-  content: '';
-  display: block;
-}
-
-.lpr-hero-banner {
-  position: relative;
-  height: 200px;
-  border-radius: 20px 20px 0 0;
-  background-color: var(--karir-hero-bg);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.lpr-hero-overlay {
-  display: none;
-}
-
-.lpr-hero-content {
-  position: relative;
-  background: var(--karir-hero-bg);
-  border: 1px solid var(--karir-hero-border);
-  border-radius: 20px;
-  padding: 40px 32px 32px;
-  text-align: center;
+.lpr-hero-body {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border: 1px solid #334155;
+  border-radius: 24px;
+  padding: 32px 36px;
   color: #FFFFFF;
-  box-shadow: 0 20px 45px rgba(10, 9, 8, 0.25);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+  position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.lpr-hero-banner + .lpr-hero-content {
-  border-radius: 0 0 20px 20px;
-  border-top: none;
-  margin-top: -1px;
-}
-
-.lpr-hero-content::after {
+.lpr-hero-body::after {
   content: '';
   position: absolute;
-  left: 50%;
-  bottom: -140px;
-  transform: translateX(-50%);
-  width: 320px;
-  height: 280px;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 123, 0, 0.30), transparent 70%);
-  filter: blur(2px);
-  z-index: -1;
+  background: radial-gradient(circle, rgba(255, 141, 33, 0.25), transparent 70%);
   pointer-events: none;
+  z-index: -1;
 }
 
-.lpr-hero-logo {
-  width: 84px;
-  height: 84px;
-  border-radius: 20px;
+.lpr-hero-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.lpr-hero-logo-wrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 16px;
   background: #FFFFFF;
-  border: 3px solid var(--karir-hero-bg);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
-  margin: 0 auto 16px;
+  padding: 2px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 30px;
-  font-weight: 800;
-  color: var(--karir-primary);
 }
 
-.lpr-hero-logo img {
+.lpr-hero-logo-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 8px;
-  box-sizing: border-box;
+  border-radius: 14px;
 }
 
-.lpr-hero-name {
-  font-size: 28px;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.5px;
-}
-
-.lpr-hero-tagline {
-  font-size: 14.5px;
-  font-weight: 500;
-  color: #FFB76B;
-  margin: 0 0 8px 0;
-}
-
-.lpr-hero-meta {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #CBD5E1;
-  margin: 0 0 20px 0;
-}
-
-.lpr-hero-links {
+.lpr-hero-logo-initials {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  background: linear-gradient(135deg, #FF8D21 0%, #E0700B 100%);
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  border-radius: 14px;
 }
 
-.lpr-hero-links a {
+.lpr-hero-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.lpr-hero-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.lpr-hero-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.lpr-verified-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  border-radius: 30px;
+  gap: 5px;
+  background: rgba(255, 141, 33, 0.15);
+  border: 1px solid rgba(255, 141, 33, 0.35);
+  color: #FFA34D;
   font-family: 'Inter Tight', sans-serif;
   font-size: 12px;
   font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.lpr-legal-badge {
+  display: inline-flex;
+  align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #E2E8F0;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.lpr-hero-meta-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.lpr-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #CBD5E1;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.lpr-meta-item svg {
+  color: var(--luna-orange-400);
+}
+
+.lpr-hero-links-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lpr-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #F1F5F9;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
   text-decoration: none;
-  backdrop-filter: blur(8px);
-  transition: background 0.15s, border-color 0.15s;
+  transition: all 0.15s ease;
 }
 
-.lpr-hero-links a:hover {
-  background: rgba(255, 141, 33, 0.18);
+.lpr-link-pill:hover {
+  background: rgba(255, 141, 33, 0.2);
   border-color: rgba(255, 141, 33, 0.4);
+  color: #FFFFFF;
+  transform: translateY(-1px);
 }
 
-/* Video Profil */
+/* ── Content Section Cards ── */
+.lpr-section-box {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.lpr-desc-content {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #334155;
+}
+
+.lpr-desc-content p {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.lpr-desc-content ul, .lpr-desc-content ol {
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.lpr-desc-content li {
+  margin-bottom: 6px;
+}
+
+/* ── Video Embed ── */
 .lpr-video-wrap {
   position: relative;
   width: 100%;
   padding-top: 56.25%;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0F172A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-top: 12px;
 }
 
 .lpr-video-wrap iframe {
@@ -155,22 +259,66 @@
   border: none;
 }
 
-/* Lowongan Aktif panel (right column) */
+/* ── Lowongan Aktif Sidebar Panel ── */
 .lpr-job-panel {
   position: -webkit-sticky;
   position: sticky;
   top: 90px;
-  background: var(--karir-card-bg);
-  border: 1px solid var(--karir-border);
-  border-radius: var(--karir-radius);
-  padding: 24px;
-  box-shadow: var(--karir-shadow-lg);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.lpr-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.lpr-job-count-badge {
+  background: rgba(255, 141, 33, 0.12);
+  color: var(--luna-orange-400);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.lpr-search-box {
+  margin-bottom: 14px;
+}
+
+.lpr-search-input {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  color: #0F172A;
+  outline: none;
+  background: #F8FAFC;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.lpr-search-input:focus {
+  background: #FFFFFF;
+  border-color: var(--luna-orange-400);
+  box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
 .lpr-job-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .lpr-job-card {
@@ -179,23 +327,25 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  border: 1px solid var(--karir-border);
-  border-radius: 12px;
+  border: 1px solid #F1F5F9;
+  border-radius: 14px;
+  background: #F8FAFC;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  transition: all 0.15s ease;
 }
 
 .lpr-job-card:hover {
-  border-color: var(--karir-primary);
-  background: var(--karir-primary-light);
-  transform: translateY(-1px);
+  border-color: var(--luna-orange-400);
+  background: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(255, 141, 33, 0.14);
+  transform: translateY(-2px);
 }
 
 .lpr-job-card-main {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -203,39 +353,121 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: var(--karir-ink-900);
+  color: #0F172A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.lpr-job-meta {
+.lpr-job-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lpr-tag-dept {
   font-family: 'Inter Tight', sans-serif;
-  font-size: 11.5px;
-  color: var(--karir-ink-500);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--luna-orange-400);
+  background: rgba(255, 141, 33, 0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
-.lpr-job-card svg {
+.lpr-tag-type {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #E2E8F0;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.lpr-tag-loc {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.lpr-job-apply-cta {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  transition: all 0.15s ease;
   flex-shrink: 0;
-  color: var(--karir-ink-400);
-  transition: color 0.15s, transform 0.15s;
 }
 
-.lpr-job-card:hover svg {
-  color: var(--karir-primary);
-  transform: translateX(2px);
+.lpr-job-card:hover .lpr-job-apply-cta {
+  background: var(--luna-orange-400);
+  border-color: var(--luna-orange-400);
+  color: #FFFFFF;
+}
+
+/* ── Ringkasan Info Card ── */
+.lpr-info-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.lpr-info-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 14px 0;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 10px;
+}
+
+.lpr-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpr-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+}
+
+.lpr-info-label {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.lpr-info-val {
+  color: #0F172A;
+  font-weight: 700;
+  text-align: right;
 }
 
 .lpr-empty {
+  font-family: 'Inter Tight', sans-serif;
   font-size: 13px;
-  color: var(--karir-ink-500);
+  color: #64748B;
   text-align: center;
   padding: 24px 0;
+  margin: 0;
 }
 
+/* Responsive Breakpoints */
 @media (max-width: 1024px) {
   .lpr-job-panel {
     position: static;
@@ -243,11 +475,26 @@
 }
 
 @media (max-width: 640px) {
-  .lpr-hero-content {
-    padding: 32px 20px 24px;
+  .lpr-hero-body {
+    padding: 24px 20px;
   }
 
-  .lpr-hero-name {
-    font-size: 22px;
+  .lpr-hero-top-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .lpr-hero-name-row {
+    justify-content: center;
+  }
+
+  .lpr-hero-meta-bar {
+    justify-content: center;
+  }
+
+  .lpr-hero-links-strip {
+    justify-content: center;
   }
 }
+

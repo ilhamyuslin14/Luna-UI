@@ -3,9 +3,74 @@ import { getSeleksiByKode } from '../../services/seleksiService.js';
 import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
 import '../../../css/lowongan-laman-karir_001.css';
+import '../../../css/lowongan-perusahaan_001.css';
+import '../../../css/lowongan_001.css';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILE_SIZE_MB = 10;
+
+// Icons
+const IconLink = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const IconShare = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const IconWhatsApp = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-4.8 7.6 8.5 8.5 0 0 1-8.9-.9L3 21l1.9-4.3a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.4h.3a8.48 8.48 0 0 1 8.2 8v.5z" />
+  </svg>
+);
+
+const IconLinkedIn = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <line x1="7.5" y1="10.5" x2="7.5" y2="16.5" /><circle cx="7.5" cy="7" r="0.6" fill="currentColor" stroke="none" />
+    <path d="M11 16.5v-3.7a2.3 2.3 0 0 1 4.5 0v3.7" /><line x1="11" y1="10.5" x2="11" y2="16.5" />
+  </svg>
+);
+
+const IconInstagram = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconFacebook = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M14 8.5h-1.3c-.9 0-1.7.7-1.7 1.7V12h3l-.4 2.5h-2.6V19" />
+  </svg>
+);
+
+const IconX = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" /><line x1="15.5" y1="8.5" x2="8.5" y2="15.5" />
+  </svg>
+);
+
+const IconTelegram = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const SHARE_PLATFORMS = [
+  { key: 'wa', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
 
 function isValidUrl(str) {
   if (!str) return true;
@@ -99,12 +164,14 @@ function formatPengalaman(val) {
 
 function formatUpah(data) {
   if (!data) return null;
-  if (data.upah_min || data.upah_maks) {
-    const min = stripRupiahPrefix(data.upah_min) || '-';
-    const maks = stripRupiahPrefix(data.upah_maks) || '-';
-    return `${min} – ${maks}${data.siklus_upah ? ' / ' + data.siklus_upah : ''}`;
+  const min = data.upah_min || data.gaji_min || null;
+  const maks = data.upah_maks || data.gaji_maks || null;
+  if (min || maks) {
+    const minStr = stripRupiahPrefix(min) || '-';
+    const maksStr = stripRupiahPrefix(maks) || '-';
+    return `${minStr} – ${maksStr}${data.siklus_upah ? ' / ' + data.siklus_upah : ''}`;
   }
-  if (data.gaji) return stripRupiahPrefix(data.gaji);
+  if (data.gaji || data.upah) return stripRupiahPrefix(data.gaji || data.upah);
   return null;
 }
 
@@ -138,6 +205,7 @@ export default function LamanKarir_001({ kode }) {
   const [dragOver, setDragOver] = useState(false);
   const [linkedinError, setLinkedinError] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -179,6 +247,37 @@ export default function LamanKarir_001({ kode }) {
     if (name === 'linkedin') setLinkedinError(value ? !isValidUrl(value) : false);
   };
 
+  const handleShareAction = (platform) => {
+    const pageUrl = window.location.href;
+    const shareText = `Lowongan ${seleksiData?.jabatan || ''}${seleksiData?.companies?.name ? ' - ' + seleksiData.companies.name : ''}`;
+
+    if (platform === 'copy') {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(pageUrl);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 2500);
+      }
+      setShowShareMenu(false);
+      return;
+    }
+
+    let url = '';
+    if (platform === 'wa') {
+      url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + '\n' + pageUrl)}`;
+    } else if (platform === 'linkedin') {
+      url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
+    } else if (platform === 'facebook') {
+      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+    } else if (platform === 'telegram') {
+      url = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`;
+    }
+
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setShowShareMenu(false);
+    }
+  };
+
   const handlePhoneChange = (e) => {
     const filtered = e.target.value.replace(/[^0-9+\-\s]/g, '');
     if (filtered.replace(/[^0-9]/g, '').length <= 14) {
@@ -186,87 +285,105 @@ export default function LamanKarir_001({ kode }) {
     }
   };
 
-  const acceptFile = (file) => {
+  const handleFileChange = (file) => {
+    setFileError('');
     if (!file) return;
+
     if (file.size > MAX_FILE_SIZE) {
-      setFileError(`Ukuran file maksimal ${MAX_FILE_SIZE_MB}MB.`);
+      setFileError(`Ukuran file melebihi batas maksimal ${MAX_FILE_SIZE_MB}MB.`);
       return;
     }
-    setFileError('');
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf', 'doc', 'docx'].includes(ext)) {
+      setFileError('Format file tidak didukung. Harap unggah file PDF, DOC, atau DOCX.');
+      return;
+    }
+
     setCvFile(file);
   };
 
-  const handleFileDrop = (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    acceptFile(e.dataTransfer.files?.[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileChange(e.dataTransfer.files[0]);
+    }
   };
 
   const handleFileInput = (e) => {
-    acceptFile(e.target.files?.[0]);
-  };
-
-  const handleShare = () => {
-    try {
-      navigator.clipboard.writeText(window.location.href);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-    } catch (e) {}
+    handleFileChange(e.target.files?.[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (linkedinError || fileError || !cvFile || !seleksiData) return;
+    if (!cvFile) {
+      setFileError('Harap unggah file CV Anda.');
+      return;
+    }
+
+    if (form.linkedin && !isValidUrl(form.linkedin)) {
+      setLinkedinError(true);
+      return;
+    }
 
     setSubmitState('uploading');
     setSubmitErrorMsg(null);
-    setProgressText('Mempersiapkan berkas…');
+    setProgressText('Mengunggah & menganalisis CV Anda...');
 
-    const batchId = `pb-${Date.now()}`;
-
+    let logId = null;
     try {
-      const onProgress = (_progress, text) => setProgressText(text || '');
-      const kandidat = await uploadAndExtractCV(seleksiData.company_id, cvFile, seleksiData.jabatan, onProgress, 'public');
+      const log = await createActivityLog({
+        company_id: seleksiData.company_id,
+        nama_file: cvFile.name,
+        tipe_aktivitas: 'upload_and_scoring',
+        upload_status: 'memproses',
+        source: 'Portal Karir',
+        posisi_nama: seleksiData?.jabatan || null,
+      });
+      logId = log?.id;
 
-      const contactUpdates = {};
-      if (form.nama) contactUpdates.nama_lengkap = form.nama;
-      if (form.email) contactUpdates.email = form.email;
-      if (form.phone) contactUpdates.phone = form.phone;
-      if (form.linkedin) contactUpdates.linkedin_url = form.linkedin;
-      if (kandidat?.id && Object.keys(contactUpdates).length > 0) {
-        await updateKandidat(kandidat.id, contactUpdates).catch(() => {});
+      const { kandidatId, parsedData, resumeUrl, cvFullText } = await uploadAndExtractCV(
+        cvFile,
+        seleksiData.company_id,
+        (msg) => setProgressText(msg)
+      );
+
+      const updates = {};
+      if (form.nama.trim()) updates.nama = form.nama.trim();
+      if (form.email.trim()) updates.email = form.email.trim();
+      if (form.phone.trim()) updates.telepon = form.phone.trim();
+      if (form.linkedin.trim()) updates.linkedin = form.linkedin.trim();
+
+      if (Object.keys(updates).length > 0) {
+        await updateKandidat(kandidatId, updates);
       }
 
-      let logId = null;
-      try {
-        const log = await createActivityLog({
-          batch_id: batchId,
-          company_id: seleksiData.company_id,
-          nama_file: cvFile.name,
-          tipe_aktivitas: 'upload_and_scoring',
-          upload_status: 'berhasil',
-          scoring_status: 'menunggu',
-          kandidat_id: kandidat?.id || null,
-          source: 'Portal Karir',
-          posisi_nama: seleksiData.jabatan || null,
-        });
-        logId = log?.id;
-      } catch (e) {}
+      setProgressText('Menilai kualifikasi Anda dengan kebutuhan posisi...');
 
-      if (kandidat?.id && seleksiData?.id) {
-        runScoring(kandidat.id, seleksiData.id, seleksiData.company_id).then(() => {
-          if (logId) updateActivityLog(logId, { scoring_status: 'berhasil' }).catch(()=>{});
-        }).catch((err) => {
-          if (logId) updateActivityLog(logId, { scoring_status: 'gagal', scoring_fail_reason: err.message }).catch(()=>{});
+      const scoringResult = await runScoring({
+        companyId: seleksiData.company_id,
+        seleksiId: seleksiData.id,
+        kandidatId,
+        cvText: cvFullText || '',
+        cvPath: resumeUrl,
+        rawExtracted: parsedData,
+      });
+
+      if (logId) {
+        await updateActivityLog(logId, {
+          kandidat_id: kandidatId,
+          upload_status: 'sukses',
+          skor_match: scoringResult?.skor_match ?? null,
+          rekomendasi: scoringResult?.rekomendasi ?? null,
         });
       }
 
       setSubmitState('success');
     } catch (err) {
-      let logId = null;
+      console.error('Error submitting application:', err);
       try {
         const log = await createActivityLog({
-          batch_id: batchId,
           company_id: seleksiData.company_id,
           nama_file: cvFile.name,
           tipe_aktivitas: 'upload_and_scoring',
@@ -329,12 +446,6 @@ export default function LamanKarir_001({ kode }) {
             <div className="lk-brand">
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
-              {companyName && (
-                <div className="lk-header-company-name">
-                  <span className="dot"></span>
-                  <span>{companyName}</span>
-                </div>
-              )}
             </div>
           </div>
         </header>
@@ -355,7 +466,7 @@ export default function LamanKarir_001({ kode }) {
   }
 
   return (
-    <div className="lk-page-wrapper">
+    <div className="lk-page-wrapper" onClick={() => setShowShareMenu(false)}>
       {/* Toast Alert Feedback */}
       {showToast && (
         <div className="lk-toast">
@@ -366,23 +477,44 @@ export default function LamanKarir_001({ kode }) {
 
       {/* Top Clean Professional Header Navbar */}
       <header className="lk-header">
-        <div className="lk-header-container">
+        <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="lk-brand">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
-            {companyName && (
-              <div className="lk-header-company-name">
-                <span className="dot"></span>
-                <span>{companyName}</span>
-              </div>
-            )}
           </div>
 
-          <div className="lk-header-actions">
-            <button type="button" className="lk-btn-share" onClick={handleShare}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <button
+              type="button"
+              className={`lpr-btn-share${showShareMenu ? ' active' : ''}`}
+              onClick={() => setShowShareMenu(v => !v)}
+              title="Bagikan Laman Karir"
+            >
+              <IconShare />
               <span>Bagikan</span>
             </button>
+
+            {showShareMenu && (
+              <div className="lw001-share-menu" style={{ right: 0, top: 'calc(100% + 8px)', zIndex: 100 }} onClick={e => e.stopPropagation()}>
+                <div className="lw001-share-eyebrow">BAGIKAN LAMAN KARIR</div>
+                <div className="lw001-share-linkcard">
+                  <span className="lw001-share-linkcard-url">{window.location.href}</span>
+                  <button type="button" className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy')}>
+                    <IconLink />
+                    {showToast ? 'Tersalin' : 'Salin'}
+                  </button>
+                </div>
+                <div className="lw001-share-divider" />
+                <div className="lw001-share-grid">
+                  {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
+                    <button key={key} type="button" className="lw001-share-gridbtn" onClick={() => handleShareAction(key)}>
+                      <span className="lw001-share-gridbtn-icon"><Icon /></span>
+                      <span className="lw001-share-gridbtn-label">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -402,62 +534,65 @@ export default function LamanKarir_001({ kode }) {
       <div className="lk-main-container">
         {/* Left Column: Job Details & Requirements (65%) */}
         <div className="lk-left-col">
-          {/* Ink Glow Premium Hero — Luna's real dark ink + orange glow, matches the "Plus" plan card */}
-          <div className="lk-navy-hero-card">
-            <div className="lk-navy-hero-info">
-              <div className="lk-hero-top-badge-row">
-                <span className="lk-active-hiring-badge"><span className="dot"></span>Lowongan Aktif</span>
+          {/* Modern Enterprise Job Hero Showcase */}
+          <div className="lk-job-hero-card">
+            <div className="lk-job-hero-top-row">
+              <div className="lk-job-company-logo-wrap">
+                {companyPageUrl ? (
+                  <a href={companyPageUrl} title={`Lihat profil ${companyName || ''}`}>
+                    {companyLogoUrl ? <img src={companyLogoUrl} alt={companyName || ''} /> : <span>{(companyName || '?').charAt(0).toUpperCase()}</span>}
+                  </a>
+                ) : (
+                  companyLogoUrl ? <img src={companyLogoUrl} alt={companyName || ''} /> : <span>{(companyName || '?').charAt(0).toUpperCase()}</span>
+                )}
               </div>
 
-              <h1 className="lk-navy-job-title">{seleksiData.jabatan}</h1>
-
-              <div className="lk-navy-company-row">
+              <div className="lk-job-hero-meta-head">
                 {companyName && (
-                  <span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                    {companyName}
-                  </span>
+                  <div className="lk-job-company-name-row">
+                    {companyPageUrl ? (
+                      <a href={companyPageUrl} className="lk-job-company-link">
+                        {companyName}
+                      </a>
+                    ) : (
+                      <span className="lk-job-company-title">{companyName}</span>
+                    )}
+                    <span className="lk-active-hiring-badge">
+                      <span className="dot"></span> Lowongan Aktif
+                    </span>
+                  </div>
                 )}
-                {seleksiData.lokasi && (
-                  <span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    {seleksiData.lokasi}
-                  </span>
-                )}
-                {modelKerjaTipeKerja && (
-                  <span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                    {modelKerjaTipeKerja}
-                  </span>
-                )}
-              </div>
 
-              {upahStr && (
-                <span className="lk-navy-salary-badge">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                  <b>Rp {upahStr}</b>
-                </span>
-              )}
+                <h1 className="lk-job-main-title">{seleksiData.jabatan}</h1>
+              </div>
             </div>
 
-            {companyName && (
-              companyPageUrl ? (
-                <a href={companyPageUrl} className="lk-navy-company-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                  <div className="lk-navy-company-logo-box">
-                    {companyLogoUrl ? <img src={companyLogoUrl} alt={companyName} /> : companyName.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="lk-company-card-name">{companyName}</span>
-                  <span className="lk-company-card-link">Lihat Profil →</span>
-                </a>
-              ) : (
-                <div className="lk-navy-company-card">
-                  <div className="lk-navy-company-logo-box">
-                    {companyLogoUrl ? <img src={companyLogoUrl} alt={companyName} /> : companyName.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="lk-company-card-name">{companyName}</span>
+            <div className="lk-job-hero-details-strip">
+              {seleksiData.lokasi && (
+                <div className="lk-job-detail-pill">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>{seleksiData.lokasi}</span>
                 </div>
-              )
-            )}
+              )}
+              {seleksiData.remote && (
+                <div className="lk-job-detail-pill">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  <span>{seleksiData.remote}</span>
+                </div>
+              )}
+              {seleksiData.ikatan_kerja && seleksiData.ikatan_kerja !== seleksiData.remote && (
+                <div className="lk-job-detail-pill">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                  <span>{seleksiData.ikatan_kerja}</span>
+                </div>
+              )}
+              {upahStr && (
+                <div className="lk-job-salary-pill">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+                  <span>Rp {upahStr}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Modern Professional Non-Flat Detail List Layout */}
@@ -488,10 +623,12 @@ export default function LamanKarir_001({ kode }) {
                 <span className="lk-detail-row-value">{seleksiData.ikatan_kerja || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
-                <span className="lk-detail-row-label">Upah / Gaji</span>
-                <span className="lk-detail-row-value">{upahStr ? `Rp ${upahStr}` : '-'}</span>
-              </div>
+              {upahStr && (
+                <div className="lk-detail-row">
+                  <span className="lk-detail-row-label">Upah / Gaji</span>
+                  <span className="lk-detail-row-value" style={{ color: '#EA580C', fontWeight: '700' }}>Rp {upahStr}</span>
+                </div>
+              )}
 
               <div className="lk-detail-row">
                 <span className="lk-detail-row-label">Min. Pendidikan</span>
@@ -510,12 +647,9 @@ export default function LamanKarir_001({ kode }) {
 
               <div className="lk-detail-row">
                 <span className="lk-detail-row-label">Tanggal Buka</span>
-                <span className="lk-detail-row-value">{seleksiData.created_at ? formatTanggal(seleksiData.created_at) : '-'}</span>
-              </div>
-
-              <div className="lk-detail-row">
-                <span className="lk-detail-row-label">Target On-Boarding</span>
-                <span className="lk-detail-row-value">{seleksiData.tgl_onboard ? formatTanggal(seleksiData.tgl_onboard) : '-'}</span>
+                <span className="lk-detail-row-value">
+                  {formatTanggal(seleksiData.tgl_onboard || seleksiData.target_onboarding || seleksiData.target_date || seleksiData.created_at)}
+                </span>
               </div>
             </div>
           </div>
@@ -589,7 +723,7 @@ export default function LamanKarir_001({ kode }) {
                     className={`lk-drop-zone ${dragOver ? 'drag-over' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                     onDragLeave={() => setDragOver(false)}
-                    onDrop={handleFileDrop}
+                    onDrop={handleDrop}
                     onClick={() => document.getElementById('lk-cv-input_001').click()}
                   >
                     <div className="lk-drop-icon">
