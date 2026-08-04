@@ -1,17 +1,6 @@
 import { useState } from 'react';
 
 /* ── Icons (placeholder — dipakai sampai aset visual dari Odon siap) ── */
-function IconPageLink() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <rect x="4" y="3" width="12" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M7 8h6M7 11.5h6M7 15h3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M16 15.5a3.5 3.5 0 1 0 4-3.46" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="m17.5 14.5 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function IconScore() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -19,6 +8,25 @@ function IconScore() {
       <path d="M7 9h6M7 12.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       <circle cx="17.5" cy="17" r="4" fill="#fff" stroke="currentColor" strokeWidth="1.6" />
       <path d="m15.9 17 1 1 2-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconDownload() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4v11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="m7.5 11 4.5 4.5L16.5 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 18.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconEye() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -57,15 +65,14 @@ function IconX() {
 }
 
 const COMPARISON_ROWS = [
-  { label: 'Menampilkan detail lowongan', googleForm: false, jobPortal: true },
-  { label: 'Halaman atas nama perusahaan sendiri', googleForm: false, jobPortal: true },
-  { label: 'Pelamar tanpa buat akun', googleForm: false, jobPortal: false },
-  { label: 'Ubah otomatis CV PDF jadi teks', googleForm: false, jobPortal: false },
-  { label: 'Skor kecocokan kandidat otomatis', googleForm: false, jobPortal: false },
-  { label: 'Pipeline hiring', googleForm: false, jobPortal: false },
-  { label: 'Applicant tracking system lengkap', googleForm: false, jobPortal: false },
+  { label: 'Halaman atas nama perusahaan sendiri', googleForm: false, jobPortal: false },
+  { label: 'Pelamar melamar tanpa buat akun', googleForm: true, jobPortal: false },
+  { label: 'Semua CV bisa diunduh, data milik Anda', googleForm: true, jobPortal: false },
+  { label: 'CV dibaca otomatis jadi teks', googleForm: false, jobPortal: false },
+  { label: 'Pelamar dinilai dan diurutkan otomatis', googleForm: false, jobPortal: false },
+  { label: 'Alur dari lamaran sampai diterima', googleForm: false, jobPortal: false },
   { label: 'Bisa ditemukan di Google', googleForm: false, jobPortal: true },
-  { label: 'Tersedia paket gratis', googleForm: true, jobPortal: false },
+  { label: 'Lowongan & pelamar tanpa batas, gratis', googleForm: true, jobPortal: false },
 ];
 
 const FAQ_ITEMS = [
@@ -97,6 +104,7 @@ const FAQ_ITEMS = [
 
 export default function LandingPage_003({ navigate }) {
   const goDaftar = () => navigate?.('landingpage-daftar_001');
+  const goMasuk = () => navigate?.('landingpage-masuk_001');
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
@@ -110,40 +118,79 @@ export default function LandingPage_003({ navigate }) {
           <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lp003-nav-logo" />
           <span className="lp003-nav-tagline">Portal Karier Mandiri</span>
         </div>
-        <button className="lp003-nav-cta" onClick={goDaftar}>
-          Mulai Gratis
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-        </button>
+        <div className="lp003-nav-right">
+          <button className="lp003-nav-login" onClick={goMasuk}>Masuk</button>
+          <button className="lp003-nav-cta" onClick={goDaftar}>
+            Mulai Gratis
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+        </div>
       </header>
 
       {/* ── 1. Hero ── */}
       <section className="lp003-hero">
         <div className="lp003-hero-copy">
-          <h1 className="lp003-hero-title">Portal Karier Mandiri untuk Seluruh Proses Rekrutmen</h1>
-          <p className="lp003-hero-subtitle">Buat halaman lowongan atas nama perusahaan Anda, sebarkan linknya ke mana pun. Setiap pelamar yang masuk otomatis dinilai dan langsung masuk pipeline rekrutmen.</p>
+          <span className="lp003-hero-dash" />
+          <h1 className="lp003-hero-title">Portal Karier Paling Ramah Usaha Kecil. <span className="lp003-hero-title-accent">Gratis.</span></h1>
+          <p className="lp003-hero-subtitle">Buat halaman lowongan atas nama perusahaan Anda, sebarkan linknya ke mana pun. Setiap pelamar yang masuk otomatis dinilai dan langsung masuk alur rekrutmen.</p>
           <button className="lp003-btn lp003-btn-primary lp003-btn-lg" onClick={goDaftar}>
             Mulai Gratis
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </button>
+          <div className="lp003-hero-micro">
+            <span className="lp003-hero-micro-item"><IconCheck /> Tanpa biaya apapun</span>
+            <span className="lp003-hero-micro-item"><IconCheck /> Lowongan &amp; pelamar tanpa batas</span>
+          </div>
         </div>
 
         <div className="lp003-hero-visual">
           <div className="lp003-hero-panel">
-            <div className="lp003-hero-mock">
+            <div className="lp003-hero-mock lp003-hero-mock-job">
               <div className="lp003-hero-mock-bar">
                 <span /><span /><span />
+                <span className="lp003-hero-mock-url">karir.lunasys.ai/kiranadigital</span>
               </div>
-              <div className="lp003-hero-mock-body">
-                <div className="lp003-hero-mock-line lp003-mock-w60" />
-                <div className="lp003-hero-mock-line lp003-mock-w40" />
-                <div className="lp003-hero-mock-chip" />
-                <div className="lp003-hero-mock-line lp003-mock-w80" />
-                <div className="lp003-hero-mock-line lp003-mock-w70" />
+
+              <div className="lp003-hero-mock-jobhead">
+                <img src="/assets/logos/luna-logo-clean.png" alt="" className="lp003-hero-mock-jobhead-logo" />
+                <span className="lp003-hero-mock-jobhead-by">Diposting oleh <strong>Kirana Digital</strong></span>
+              </div>
+
+              <div className="lp003-hero-mock-jobbody">
+                <span className="lp003-hero-mock-status">LOWONGAN AKTIF</span>
+                <h4 className="lp003-hero-mock-jobtitle">Admin Marketing</h4>
+                <div className="lp003-hero-mock-tags">
+                  <span>Jakarta Selatan</span>
+                  <span>Penuh waktu</span>
+                  <span>Rp 5–6,5 jt</span>
+                  <span className="lp003-hero-mock-tag-id">LUN-6690</span>
+                </div>
+
+                <div className="lp003-hero-mock-desc">
+                  <p className="lp003-hero-mock-desc-title">Deskripsi pekerjaan</p>
+                  <p className="lp003-hero-mock-desc-text">Mengelola konten, membalas pesan pelanggan, dan merapikan data penjualan harian.</p>
+                  <ul className="lp003-hero-mock-desc-list">
+                    <li>Terbiasa dengan Instagram, WhatsApp Business, dan Excel</li>
+                    <li>Rapi, teliti, dan enak diajak komunikasi</li>
+                  </ul>
+                </div>
+
+                <div className="lp003-hero-mock-form">
+                  <p className="lp003-hero-mock-form-title">Lamar posisi ini</p>
+                  <span className="lp003-hero-mock-input">Nama lengkap</span>
+                  <div className="lp003-hero-mock-input-row">
+                    <span className="lp003-hero-mock-input">Email</span>
+                    <span className="lp003-hero-mock-input">WhatsApp</span>
+                  </div>
+                  <div className="lp003-hero-mock-upload">UNGGAH CV</div>
+                  <div className="lp003-hero-mock-submit">Kirim lamaran</div>
+                </div>
               </div>
             </div>
+
             <div className="lp003-hero-link-pill">
               <IconShare name="link" />
-              <span>lunasys.ai/karir/perusahaan-anda</span>
+              <span>karir.lunasys.ai/kiranadigital</span>
             </div>
           </div>
         </div>
@@ -152,42 +199,78 @@ export default function LandingPage_003({ navigate }) {
       {/* ── 2. Fitur utama ── */}
       <section className="lp003-fitur" id="fitur">
         <div className="lp003-fitur-head">
-          <div className="lp003-fitur-eyebrow">Fitur Utama</div>
-          <h2 className="lp003-fitur-title-main">Satu alur kerja, dari lowongan tayang sampai kandidat terpilih</h2>
-          <p className="lp003-fitur-sub">Tidak perlu pindah-pindah tools — posting, penyaringan otomatis, dan pipeline kandidat ada di tempat yang sama.</p>
+          <div className="lp003-fitur-eyebrow-row">
+            <span className="lp003-fitur-eyebrow">Fitur Utama</span>
+          </div>
+          <h2 className="lp003-fitur-title-main">Halaman sendiri, pelamar sendiri, data sendiri</h2>
+          <p className="lp003-fitur-sub">Satu alur kerja — posting, penyaringan otomatis, dan alur rekrutmen kandidat di tempat yang sama.</p>
         </div>
 
         <div className="lp003-bento">
 
           <div className="lp003-bento-cell lp003-bento-a">
-            <span className="lp003-bento-tag">Paling membedakan</span>
-            <h3>Pipeline rekrutmen dari awal sampai akhir</h3>
-            <p>Kelola kandidat dari tahap awal sampai akhir dalam satu papan. Tidak ada yang tercecer di chat atau spreadsheet.</p>
-            <div className="lp003-mock lp003-bento-mock">
-              <div className="lp003-mock-bar"><span /><span /><span /></div>
-              <div className="lp003-mockC-body">
-                <div className="lp003-mockC-col">
-                  <div className="lp003-mockC-col-head" />
-                  <div className="lp003-mockC-card" />
-                  <div className="lp003-mockC-card" />
-                  <div className="lp003-mockC-card" />
-                  <div className="lp003-mockC-card" />
+            <span className="lp003-bento-tag lp003-bento-tag-dark">Paling membedakan</span>
+            <h3>Halaman lowongan atas nama perusahaan Anda</h3>
+            <p>Bukan menumpang nama portal. Link dengan nama perusahaan Anda dan bebas disebar ke mana pun.</p>
+
+            <div className="lp003-mock lp003-bento-mock-job">
+              <div className="lp003-bjob-bar">
+                <span /><span /><span />
+                <span className="lp003-bjob-url">karir.lunasys.ai/kopirimba</span>
+              </div>
+
+              <div className="lp003-bjob-head">
+                <img src="/assets/logos/luna-logo-clean.png" alt="" className="lp003-bjob-head-logo" />
+                <span className="lp003-bjob-head-by">Diposting oleh <strong>Kopi Rimba</strong></span>
+              </div>
+
+              <div className="lp003-bjob-body">
+                <span className="lp003-bjob-status">LOWONGAN AKTIF</span>
+                <h4 className="lp003-bjob-title">Barista</h4>
+                <div className="lp003-bjob-tags">
+                  <span>Bandung</span>
+                  <span>Penuh waktu</span>
+                  <span>Rp 3,5–4,5 jt</span>
+                  <span className="lp003-bjob-tag-id">LUN-2041</span>
                 </div>
-                <div className="lp003-mockC-col">
-                  <div className="lp003-mockC-col-head" />
-                  <div className="lp003-mockC-card lp003-mockC-accent" />
-                  <div className="lp003-mockC-card" />
-                  <div className="lp003-mockC-card" />
+
+                <div className="lp003-bjob-desc">
+                  <p className="lp003-bjob-desc-title">Deskripsi pekerjaan</p>
+                  <p className="lp003-bjob-desc-text">Meracik minuman, melayani pelanggan, dan menjaga kedai kami di Dago tetap rapi.</p>
+                  <ul className="lp003-bjob-desc-list">
+                    <li>Siap kerja shift, termasuk akhir pekan</li>
+                    <li>Ramah ke pelanggan, teliti soal kebersihan</li>
+                    <li>Pengalaman barista jadi nilai plus, bukan syarat</li>
+                    <li>Lulusan SMA/SMK ke atas, usia 18–30 tahun</li>
+                  </ul>
+
+                  <p className="lp003-bjob-desc-title lp003-bjob-desc-title-sp">Yang kami tawarkan</p>
+                  <ul className="lp003-bjob-desc-list">
+                    <li>Gaji tetap, bonus tip, dan makan siang</li>
+                    <li>Pelatihan meracik kopi dari kepala barista</li>
+                    <li>BPJS setelah tiga bulan masa percobaan</li>
+                  </ul>
+
+                  <div className="lp003-bjob-meta">
+                    <span><b>Jam kerja</b> Shift, 8 jam</span>
+                    <span><b>Lokasi</b> Dago, Bandung</span>
+                    <span><b>Mulai</b> Secepatnya</span>
+                  </div>
                 </div>
-                <div className="lp003-mockC-col">
-                  <div className="lp003-mockC-col-head" />
-                  <div className="lp003-mockC-card" />
-                  <div className="lp003-mockC-card" />
+
+                <div className="lp003-bjob-form">
+                  <p className="lp003-bjob-form-title">Lamar posisi ini</p>
+                  <div className="lp003-bjob-form-row">
+                    <span className="lp003-bjob-input">Nama lengkap</span>
+                    <span className="lp003-bjob-input">WhatsApp</span>
+                  </div>
+                  <div className="lp003-bjob-upload">UNGGAH CV</div>
+                  <div className="lp003-bjob-submit">Kirim lamaran</div>
                 </div>
-                <div className="lp003-mockC-col">
-                  <div className="lp003-mockC-col-head" />
-                  <div className="lp003-mockC-card lp003-mockC-accent" />
-                  <div className="lp003-mockC-card" />
+
+                <div className="lp003-bjob-footer">
+                  <span>Diposting 2 hari lalu · Ditutup 30 September</span>
+                  <span className="lp003-bjob-footer-url">karir.lunasys.ai</span>
                 </div>
               </div>
             </div>
@@ -195,31 +278,48 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-bento-cell lp003-bento-b">
             <div className="lp003-bento-icon-row">
-              <div className="lp003-bento-icon"><IconPageLink /></div>
-              <h3>Halaman lowongan dan aplikasi lamaran</h3>
+              <div className="lp003-bento-icon"><IconDownload /></div>
+              <h3>Data pelamar milik Anda</h3>
             </div>
-            <p>Buat lowongan, publish, dan sebarkan link. Pelamar mengisi data dan mengunggah CV langsung di laman Anda.</p>
-            <div className="lp003-mock lp003-bento-mock-sm">
-              <div className="lp003-mockA-body">
-                <div className="lp003-mockA-chips"><div className="lp003-mockA-chip" /><div className="lp003-mockA-chip" /></div>
-                <div className="lp003-mockA-line" style={{ width: '80%' }} />
-                <div className="lp003-mockA-drop">⬆ Unggah CV</div>
-              </div>
+            <p>Semua CV bisa diunduh kapan saja. Tidak dikunci, tidak perlu bayar untuk membukanya.</p>
+
+            <div className="lp003-mockD-list">
+              <div className="lp003-mockD-row"><span className="lp003-mockD-name">Nadia_Prameswari_CV.pdf</span><span className="lp003-mockD-size">412 KB</span></div>
+              <div className="lp003-mockD-row"><span className="lp003-mockD-name">Bagas_Rahmadi_CV.pdf</span><span className="lp003-mockD-size">288 KB</span></div>
+              <div className="lp003-mockD-row"><span className="lp003-mockD-name">Sari_Widuri_CV.pdf</span><span className="lp003-mockD-size">356 KB</span></div>
             </div>
+            <div className="lp003-bento-dashed-btn"><IconDownload /> Unduh semua CV</div>
           </div>
 
           <div className="lp003-bento-cell lp003-bento-c">
             <div className="lp003-bento-icon-row">
               <div className="lp003-bento-icon"><IconScore /></div>
-              <h3>Scoring otomatis kesesuaian kandidat</h3>
+              <h3>Pelamar otomatis dinilai dan diurutkan</h3>
             </div>
-            <p>Setiap CV yang masuk otomatis dibaca, dianalisis, dan diberi skor kesesuaian dengan kriteria lowongan Anda.</p>
-            <div className="lp003-mock lp003-bento-mock-sm">
-              <div className="lp003-mockB-body">
-                <div className="lp003-mockB-row"><div className="lp003-mockB-avatar" /><div className="lp003-mockB-line" style={{ maxWidth: '60%' }} /><div className="lp003-mockB-score lp003-score-hi">92</div></div>
-                <div className="lp003-mockB-row"><div className="lp003-mockB-avatar" /><div className="lp003-mockB-line" style={{ maxWidth: '45%' }} /><div className="lp003-mockB-score lp003-score-mid">68</div></div>
+            <p>Setiap CV dibaca dan diberi skor kesesuaian dengan kriteria lowongan Anda.</p>
+
+            <div className="lp003-mockE-list">
+              <div className="lp003-mockE-head">
+                <span>3 Pelamar</span>
+                <span className="lp003-mockE-head-sub">Diurutkan skor</span>
+              </div>
+              <div className="lp003-mockE-row">
+                <span className="lp003-mockE-avatar">NP</span>
+                <span className="lp003-mockE-name">Nadia Prameswari</span>
+                <span className="lp003-mockE-score lp003-score-hi">92</span>
+              </div>
+              <div className="lp003-mockE-row">
+                <span className="lp003-mockE-avatar">BR</span>
+                <span className="lp003-mockE-name">Bagas Rahmadi</span>
+                <span className="lp003-mockE-score lp003-score-hi">85</span>
+              </div>
+              <div className="lp003-mockE-row">
+                <span className="lp003-mockE-avatar">SW</span>
+                <span className="lp003-mockE-name">Sari Widuri</span>
+                <span className="lp003-mockE-score lp003-score-mid">68</span>
               </div>
             </div>
+            <div className="lp003-bento-dashed-btn"><IconEye /> Lihat Detail Penilaian</div>
           </div>
 
         </div>
@@ -227,8 +327,11 @@ export default function LandingPage_003({ navigate }) {
 
       {/* ── 3. Langkah ── */}
       <section className="lp003-langkah">
+        <div className="lp003-langkah-inner">
         <div className="lp003-langkah-head">
-          <div className="lp003-langkah-eyebrow">Cara Kerja</div>
+          <div className="lp003-langkah-eyebrow-row">
+            <span className="lp003-langkah-eyebrow">Cara Kerja</span>
+          </div>
           <h2 className="lp003-langkah-title-main">Anda pasang, LUNA menyaring, Anda putuskan</h2>
           <p className="lp003-langkah-sub">Dua langkah untuk memulai, dua langkah berjalan otomatis — lalu tinggal Anda proses kandidat terbaiknya.</p>
         </div>
@@ -237,7 +340,7 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-zig-row">
             <div className="lp003-zig-text">
-              <div className="lp003-step-eyebrow lp003-tag-you"><span className="lp003-step-dot-mark" />Langkah 1 — Anda</div>
+              <div className="lp003-step-eyebrow">Langkah 1 — Anda</div>
               <h3>Buat lowongan</h3>
               <p>Isi detail posisi, kriteria, dan syaratnya. Laman lowongan langsung jadi.</p>
             </div>
@@ -256,7 +359,7 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-zig-row lp003-zig-row-flip">
             <div className="lp003-zig-text">
-              <div className="lp003-step-eyebrow lp003-tag-you"><span className="lp003-step-dot-mark" />Langkah 2 — Anda</div>
+              <div className="lp003-step-eyebrow">Langkah 2 — Anda</div>
               <h3>Sebarkan linknya</h3>
               <p>Bagikan ke WhatsApp, LinkedIn, Instagram, atau grup mana pun. Satu link untuk semua channel.</p>
             </div>
@@ -277,7 +380,7 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-zig-row">
             <div className="lp003-zig-text">
-              <div className="lp003-step-eyebrow lp003-tag-auto"><span className="lp003-step-dot-mark" />Langkah 3 — Otomatis</div>
+              <div className="lp003-step-eyebrow">Langkah 3 — Otomatis</div>
               <h3>Pelamar melamar di laman Anda</h3>
               <p>Isi data, unggah CV, selesai. Tidak perlu buat akun.</p>
             </div>
@@ -298,7 +401,7 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-zig-row lp003-zig-row-flip">
             <div className="lp003-zig-text">
-              <div className="lp003-step-eyebrow lp003-tag-auto"><span className="lp003-step-dot-mark" />Langkah 4 — Otomatis</div>
+              <div className="lp003-step-eyebrow">Langkah 4 — Otomatis</div>
               <h3>Kandidat masuk sudah terskor</h3>
               <p>CV dibaca dan dinilai secara otomatis berdasarkan kesesuaian dengan kriteria lowongan Anda.</p>
             </div>
@@ -315,7 +418,7 @@ export default function LandingPage_003({ navigate }) {
 
           <div className="lp003-zig-row">
             <div className="lp003-zig-text">
-              <div className="lp003-step-eyebrow lp003-tag-you"><span className="lp003-step-dot-mark" />Langkah 5 — Anda</div>
+              <div className="lp003-step-eyebrow">Langkah 5 — Anda</div>
               <h3>Proses kandidat lewat pipeline</h3>
               <p>Geser kandidat sesuai tahapannya — wawancara, offer, sampai diterima. Semua dalam satu papan, tanpa pindah aplikasi.</p>
             </div>
@@ -342,6 +445,7 @@ export default function LandingPage_003({ navigate }) {
             </div>
           </div>
 
+        </div>
         </div>
       </section>
 
@@ -373,8 +477,8 @@ export default function LandingPage_003({ navigate }) {
       <section className="lp003-cmp" id="perbandingan">
         <div className="lp003-cmp-head">
           <div className="lp003-cmp-eyebrow">Perbandingan</div>
-          <h2 className="lp003-cmp-title">Bagaimana LUNA dibandingkan dengan cara lama</h2>
-          <p className="lp003-cmp-sub">Google Form tidak punya pipeline. Job portal tidak bisa baca CV otomatis. LUNA punya keduanya, dari satu link.</p>
+          <h2 className="lp003-cmp-title">Dibanding cara lama</h2>
+          <p className="lp003-cmp-sub">Google Form tidak punya alur. Job portal mengunci data pelamar Anda. LUNA punya keduanya, dari satu link.</p>
         </div>
 
         <div className="lp003-cmp-table-wrap">
@@ -382,30 +486,27 @@ export default function LandingPage_003({ navigate }) {
             <thead>
               <tr>
                 <th className="lp003-cmp-th-param">Parameter</th>
-                <th>Google Form</th>
+                <th className="lp003-cmp-th-luna">LUNA</th>
                 <th>Job Portal</th>
-                <th className="lp003-cmp-th-luna">
-                  <span className="lp003-cmp-luna-badge">Direkomendasikan</span>
-                  LUNA
-                </th>
+                <th>Google Form</th>
               </tr>
             </thead>
             <tbody>
               {COMPARISON_ROWS.map((row) => (
                 <tr key={row.label}>
                   <td className="lp003-cmp-td-param">{row.label}</td>
-                  <td>
-                    <span className={row.googleForm ? 'lp003-icon-yes' : 'lp003-icon-no'}>
-                      {row.googleForm ? <IconCheck /> : <IconX />}
-                    </span>
+                  <td className="lp003-cmp-td-luna">
+                    <span className="lp003-icon-yes"><IconCheck /></span>
                   </td>
                   <td>
                     <span className={row.jobPortal ? 'lp003-icon-yes' : 'lp003-icon-no'}>
                       {row.jobPortal ? <IconCheck /> : <IconX />}
                     </span>
                   </td>
-                  <td className="lp003-cmp-td-luna">
-                    <span className="lp003-icon-yes"><IconCheck /></span>
+                  <td>
+                    <span className={row.googleForm ? 'lp003-icon-yes' : 'lp003-icon-no'}>
+                      {row.googleForm ? <IconCheck /> : <IconX />}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -416,27 +517,29 @@ export default function LandingPage_003({ navigate }) {
 
       {/* ── 7. FAQ ── */}
       <section className="lp003-faq">
-        <div className="lp003-faq-head">
-          <div className="lp003-faq-eyebrow">FAQ</div>
-          <h2 className="lp003-faq-title">Masih ada pertanyaan?</h2>
-          <p className="lp003-faq-sub">Kalau belum ketemu jawabannya, tim kami siap bantu.</p>
-        </div>
+        <div className="lp003-faq-split">
+          <div className="lp003-faq-head">
+            <div className="lp003-faq-eyebrow">FAQ</div>
+            <h2 className="lp003-faq-title">Masih ada pertanyaan?</h2>
+            <p className="lp003-faq-sub">Kalau belum ketemu jawabannya, tim kami siap bantu.</p>
+          </div>
 
-        <div className="lp003-faq-acc">
-          {FAQ_ITEMS.map((item, i) => {
-            const isOpen = openFaq === i;
-            return (
-              <div className={`lp003-faq-item${isOpen ? ' open' : ''}`} key={item.q}>
-                <button className="lp003-faq-q" onClick={() => setOpenFaq(isOpen ? -1 : i)}>
-                  <span>{item.q}</span>
-                  <span className="lp003-faq-q-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                  </span>
-                </button>
-                <div className="lp003-faq-a"><div className="lp003-faq-a-inner">{item.a}</div></div>
-              </div>
-            );
-          })}
+          <div className="lp003-faq-acc">
+            {FAQ_ITEMS.map((item, i) => {
+              const isOpen = openFaq === i;
+              return (
+                <div className={`lp003-faq-item${isOpen ? ' open' : ''}`} key={item.q}>
+                  <button className="lp003-faq-q" onClick={() => setOpenFaq(isOpen ? -1 : i)}>
+                    <span>{item.q}</span>
+                    <span className="lp003-faq-q-icon">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                    </span>
+                  </button>
+                  <div className="lp003-faq-a"><div className="lp003-faq-a-inner">{item.a}</div></div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
