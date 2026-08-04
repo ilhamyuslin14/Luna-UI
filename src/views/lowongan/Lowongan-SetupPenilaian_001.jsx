@@ -171,7 +171,7 @@ export default function SetupPenilaian_001({ navigate }) {
   }, []);
 
   const [form, setForm] = useState(() => ({
-    jabatan: '', levelJabatan: '', departemen: '', lokasi: '', statusRekrutmen: '', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: '',
+    jabatan: '', levelJabatan: '', departemen: '', lokasi: '', statusRekrutmen: 'Aktif', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: '',
     ...(draftRef.current?.form || {}),
   }));
 

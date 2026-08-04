@@ -1,0 +1,843 @@
+/* Styles for Sebar (Sebar Lowongan) View */
+.sebar-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #1E293B;
+}
+
+/* Hero Banner (mirrors Beranda's hero card, minus the CTA) */
+.sebar-hero-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF8F2 50%, #FFF2E5 100%);
+  border: 1px solid rgba(255, 141, 33, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(255, 141, 33, 0.06);
+  overflow: hidden;
+}
+
+.sebar-hero-glow {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 141, 33, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.sebar-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 640px;
+  z-index: 1;
+}
+
+.sebar-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 141, 33, 0.1);
+  color: #C2410C;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.sebar-hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FF7B00;
+}
+
+.sebar-hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.sebar-hero-subtitle {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tabs */
+.sebar-tabs {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 24px;
+}
+
+.sebar-tab-btn {
+  background: none;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748B;
+  padding: 10px 0 14px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.sebar-tab-btn:hover {
+  color: #0F172A;
+}
+
+.sebar-tab-btn.active {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.sebar-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #FF7B00;
+  border-radius: 2px;
+}
+
+/* Info Tip Card (rail-accented, lead + detail) */
+.sebar-tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #FFF9F4;
+  border-left: 3px solid #FF7B00;
+  border-radius: 4px 12px 12px 4px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+}
+
+.sebar-tip-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #EA580C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sebar-tip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sebar-tip-lead {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.sebar-tip-detail {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #64748B;
+}
+
+/* Search */
+.sebar-search-row {
+  margin-bottom: 20px;
+}
+
+.sebar-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 380px;
+}
+
+.sebar-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.sebar-search-input {
+  width: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  color: #1E293B;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 36px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sebar-search-input::placeholder {
+  color: #94A3B8;
+}
+
+.sebar-search-input:focus {
+  outline: none;
+  border-color: #FF7B00;
+  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.12);
+}
+
+.sebar-search-clear {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.sebar-search-clear:hover {
+  color: #334155;
+}
+
+/* Pagination */
+.sebar-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.sebar-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sebar-page-btn:hover:not(:disabled) {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+}
+
+.sebar-page-btn:disabled {
+  color: #CBD5E1;
+  cursor: not-allowed;
+}
+
+.sebar-page-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+/* Job Cards Container */
+.sebar-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Compact Modern Sebar Card */
+.sebar-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.sebar-card:hover {
+  border-color: rgba(255, 141, 33, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 141, 33, 0.08);
+  transform: translateY(-1.5px);
+}
+
+.sebar-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sebar-card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Hover hint bar at the bottom of the card */
+.sebar-card-hover-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  padding-top: 0;
+  transition: color 0.15s ease;
+}
+
+.sebar-card:hover .sebar-card-hover-hint {
+  color: #EA580C;
+}
+
+.sebar-card-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sebar-card-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+  border: 1px solid rgba(255, 141, 33, 0.2);
+  color: #EA580C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sebar-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sebar-card-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sebar-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sebar-card-status-badge {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  text-transform: capitalize;
+}
+
+.sebar-card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sebar-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sebar-card-meta-item.highlight-candidates {
+  color: #EA580C;
+  font-weight: 700;
+}
+
+.sebar-card-meta-dot {
+  color: #CBD5E1;
+  font-size: 9px;
+}
+
+.sebar-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FF8D21 0%, #EA580C 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 9px;
+  padding: 7px 15px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.22);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sebar-copy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(234, 88, 12, 0.32);
+  background: linear-gradient(135deg, #FF9933 0%, #F97316 100%);
+}
+
+.sebar-copy-btn.copied {
+  background: #10B981;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+}
+
+/* Card Footer Row with CTAs */
+.sebar-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+  flex-wrap: wrap;
+}
+
+.sebar-toggle-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #EA580C;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 0.15s ease;
+}
+
+.sebar-toggle-text:hover {
+  color: #C2410C;
+}
+
+.sebar-card-footer-ctas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Tooltip Icon CTA Buttons */
+.sebar-icon-cta-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sebar-icon-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sebar-icon-action-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.sebar-icon-action-btn.primary-subtle {
+  background: #FFF7ED;
+  border-color: rgba(255, 141, 33, 0.3);
+  color: #EA580C;
+}
+
+.sebar-icon-action-btn.primary-subtle:hover {
+  background: #FFEDD5;
+  border-color: #FF7B00;
+  color: #C2410C;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+}
+
+.sebar-icon-cta-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #0F172A;
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  z-index: 10;
+}
+
+.sebar-icon-cta-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: #0F172A transparent transparent transparent;
+}
+
+.sebar-icon-cta-wrap:hover .sebar-icon-cta-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Preview Box */
+.sebar-preview-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px 22px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #334155;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sebar-preview-link {
+  font-family: 'JetBrains Mono', monospace;
+  color: #EA580C;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 10px;
+  word-break: break-all;
+}
+
+.sebar-preview-sep {
+  color: #CBD5E1;
+  font-size: 13px;
+  margin: 0 0 14px 0;
+}
+
+/* Partner accounts section (Titip di akun lain / Akun Mitra) */
+.sebar-partner-section {
+  margin-top: 16px;
+}
+
+.sebar-divider {
+  height: 1px;
+  background: #E2E8F0;
+  margin: 32px 0 24px 0;
+}
+
+.sebar-partner-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.2px;
+}
+
+.sebar-platform-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sebar-platform-group {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+  transition: all 0.2s ease;
+}
+
+.sebar-platform-group:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.sebar-platform-header {
+  width: 100%;
+  background: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sebar-platform-header:hover {
+  background: #F8FAFC;
+}
+
+.sebar-platform-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sebar-platform-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sebar-platform-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.sebar-platform-badge {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.sebar-platform-chevron {
+  color: #94A3B8;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sebar-platform-chevron.open {
+  transform: rotate(180deg);
+  color: #0F172A;
+}
+
+.sebar-platform-accounts {
+  background: #FAFAFA;
+  border-top: 1px solid #F1F5F9;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sebar-platform-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.sebar-platform-account-row:hover {
+  border-color: rgba(255, 141, 33, 0.35);
+  box-shadow: 0 3px 10px rgba(255, 141, 33, 0.06);
+}
+
+.sebar-platform-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sebar-platform-account-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sebar-platform-account-meta {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.sebar-platform-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sebar-platform-open-btn:hover {
+  border-color: #FF7B00;
+  background: #FFF7ED;
+  color: #EA580C;
+  transform: translateY(-1px);
+}
+
+.sebar-platform-empty {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  color: #94A3B8;
+  padding: 8px 4px;
+  margin: 0;
+}
+
+.sebar-toggle-text {
+  background: none;
+  border: none;
+  color: #EA580C;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.15s ease;
+}
+
+.sebar-toggle-text:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+/* Empty State */
+.sebar-empty {
+  text-align: center;
+  padding: 48px 20px;
+  background: #F8FAFC;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 16px;
+}
+
+.sebar-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: #94A3B8;
+  margin-bottom: 12px;
+}
+
+.sebar-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 6px 0;
+}
+
+.sebar-empty-sub {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+}
+
+/* Toast */
+.sebar-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+  animation: toast-in 0.2s ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive 2-column fallback for tablet/mobile */
+@media (max-width: 1024px) {
+  .sebar-mitra-grid-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .sebar-partner-section {
+    position: static;
+  }
+}

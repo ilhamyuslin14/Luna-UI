@@ -36,6 +36,7 @@ import PaketLangganan from './views/kelola-pengguna/KelolaPengguna-PaketLanggana
 import RingkasanPembayaran from './views/kelola-pengguna/KelolaPengguna-RingkasanPembayaran.jsx';
 import SetupPenilaian from './views/lowongan/Lowongan-SetupPenilaian.jsx';
 import SetupPenilaian_001 from './views/lowongan/Lowongan-SetupPenilaian_001.jsx';
+import Sebar_001 from './views/sebar/Sebar_001.jsx';
 import PengaturanUser from './views/kelola-pengguna/KelolaPengguna-User.jsx';
 import RiwayatTransaksi from './views/kelola-pengguna/KelolaPengguna-RiwayatTransaksi.jsx';
 import MenungguPembayaran from './views/kelola-pengguna/KelolaPengguna-MenungguPembayaran.jsx';
@@ -319,6 +320,8 @@ export default function App() {
       case 'buat-lowongan': return <SetupPenilaian navigate={navigate} />;
       case 'setup-penilaian_001':
       case 'buat-lowongan_001': return <SetupPenilaian_001 navigate={navigate} />;
+      case 'sebar':
+      case 'sebar_001': return <Sebar_001 navigate={navigate} />;
       default: return <Beranda_002 navigate={navigate} />;
     }
   };

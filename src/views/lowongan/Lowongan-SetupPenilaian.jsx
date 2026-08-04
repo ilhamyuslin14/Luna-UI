@@ -154,7 +154,7 @@ export default function SetupPenilaian({ navigate }) {
   }, []);
 
   const [form, setForm] = useState({
-    jabatan: '', departemen: '', lokasi: '', statusRekrutmen: '', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: ''
+    jabatan: '', departemen: '', lokasi: '', statusRekrutmen: 'Aktif', jumlahRekrut: '', ikatanKerja: '', upahMin: '', upahMax: '', siklusUpah: '', tglMulai: '', tglOnboarding: '', pendidikan: '', pengalaman: '', deskripsi: ''
   });
 
   const editorRef = useRef(null);

@@ -4,6 +4,57 @@ import { getDashboardMetrics, getRecentJobs, getRecentActivities } from '../../s
 import { getCached } from '../../services/dataCache.js';
 import '../../../css/beranda_002.css';
 
+const IconWhatsApp = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+  </svg>
+);
+
+const IconLinkedIn = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const IconInstagram = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconFacebook = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const IconX = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const IconTelegram = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const SHARE_PLATFORMS = [
+  { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
+
 export default function Beranda_002({ navigate }) {
   const { user, profileName, companyName, companyId } = useAuth() || {};
   const userName = profileName || user?.user_metadata?.full_name || 'HR Team';
@@ -15,6 +66,54 @@ export default function Beranda_002({ navigate }) {
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
+
+  const [openShareData, setOpenShareData] = useState(null);
+  const [toastMsg, setToastMsg] = useState(null);
+
+  useEffect(() => {
+    const closePop = () => setOpenShareData(null);
+    document.addEventListener('click', closePop);
+    window.addEventListener('scroll', closePop, true);
+    return () => {
+      document.removeEventListener('click', closePop);
+      window.removeEventListener('scroll', closePop, true);
+    };
+  }, []);
+
+  const buildKaririUrl = (job) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const kode = job.slug || job.kode || job.id || 'k7bx2m';
+    return `${origin}/?view=laman-karir_001&kode=${kode}`;
+  };
+
+  const handleShare = (platform, job) => {
+    const url = buildKaririUrl(job);
+    const text = `Lowongan ${job.posisi} di ${job.departemen || job.dept || 'perusahaan kami'}. Daftarkan diri Anda di: ${url}`;
+
+    if (platform === 'copy') {
+      navigator.clipboard.writeText(url);
+      setToastMsg('Link Laman Karier berhasil disalin!');
+      setTimeout(() => setToastMsg(null), 2500);
+      setOpenShareData(null);
+      return;
+    }
+
+    let shareUrl = '';
+    if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    else if (platform === 'linkedin') shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    else if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    else if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    else if (platform === 'telegram') shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    else if (platform === 'instagram') {
+      navigator.clipboard.writeText(url);
+      setToastMsg('Link disalin, silakan buka Instagram');
+      setTimeout(() => setToastMsg(null), 2500);
+      shareUrl = 'https://www.instagram.com/';
+    }
+
+    if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer');
+    setOpenShareData(null);
+  };
 
   const handleScroll = () => {
     if (!sliderRef.current) return;
@@ -70,7 +169,7 @@ export default function Beranda_002({ navigate }) {
       e.preventDefault();
       return;
     }
-    navigate('lowongan-detail_001', { id: job.id, jabatan: job.posisi });
+    navigate('lowongan-detail_001', { seleksiId: job.id, jabatan: job.posisi });
   };
 
   const [metrics, setMetrics] = useState({
@@ -159,7 +258,7 @@ export default function Beranda_002({ navigate }) {
           </div>
 
           {/* Tile 2 */}
-          <div className="db002-action-tile" onClick={() => navigate('lowongan_001')}>
+          <div className="db002-action-tile" onClick={() => navigate('sebar_001')}>
             <div className="db002-tile-header">
               <div className="db002-tile-icon-box">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -177,7 +276,7 @@ export default function Beranda_002({ navigate }) {
               <p className="db002-tile-desc">Sebarkan link karir lowongan Anda ke berbagai media & kanal.</p>
             </div>
             <div className="db002-tile-footer">
-              <span>Lihat Lowongan</span>
+              <span>Sebarkan Sekarang</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
@@ -297,9 +396,51 @@ export default function Beranda_002({ navigate }) {
                           <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                         </svg>
                       </div>
-                      <span className={`db002-status-pill ${job.status === 'Aktif' ? 'status-active' : 'status-draft'}`}>
-                        {job.status || 'Aktif'}
-                      </span>
+
+                      {/* Right Header Controls: Status Pill + Share CTA Popover */}
+                      <div className="db002-header-right">
+                        <span className={`db002-status-pill ${job.status === 'Aktif' ? 'status-active' : 'status-draft'}`}>
+                          {job.status || 'Aktif'}
+                        </span>
+
+                        <div className="db002-share-wrap" onClick={e => e.stopPropagation()}>
+                          <button
+                            className="db002-share-btn"
+                            title="Bagikan Laman Karier"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (openShareData?.job?.id === job.id) {
+                                setOpenShareData(null);
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const popoverHeight = 230;
+                                const spaceBelow = window.innerHeight - rect.bottom;
+                                const spaceAbove = rect.top;
+                                const showAbove = spaceBelow < popoverHeight && spaceAbove > spaceBelow;
+
+                                const top = showAbove
+                                  ? Math.max(10, rect.top - popoverHeight - 6)
+                                  : Math.min(window.innerHeight - popoverHeight - 10, rect.bottom + 6);
+
+                                setOpenShareData({
+                                  job,
+                                  top,
+                                  right: Math.max(16, window.innerWidth - rect.right),
+                                  showAbove
+                                });
+                              }
+                            }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="18" cy="5" r="3"></circle>
+                              <circle cx="6" cy="12" r="3"></circle>
+                              <circle cx="18" cy="19" r="3"></circle>
+                              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     <h3 className="db002-pipeline-title" title={job.posisi}>{job.posisi}</h3>
                     <div className="db002-pipeline-tags">
@@ -378,6 +519,46 @@ export default function Beranda_002({ navigate }) {
           </div>
         )}
       </div>
+
+      {/* Fixed Share Popover (Floating above all overflow boundaries) */}
+      {openShareData && (
+        <div
+          className="db002-share-popover"
+          style={{
+            position: 'fixed',
+            top: openShareData.top,
+            right: openShareData.right,
+            zIndex: 9999
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="db002-share-eyebrow">BAGIKAN LAMAN KARIER</div>
+          <div className="db002-share-linkcard">
+            <span className="db002-share-url">{buildKaririUrl(openShareData.job)}</span>
+            <button className="db002-share-copy-btn" onClick={() => handleShare('copy', openShareData.job)}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              Salin
+            </button>
+          </div>
+          <div className="db002-share-divider"></div>
+          <div className="db002-share-grid">
+            {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
+              <button key={key} className="db002-share-gridbtn" onClick={() => handleShare(key, openShareData.job)}>
+                <span className="db002-share-gridicon"><Icon /></span>
+                <span className="db002-share-gridlabel">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="sebar-toast">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          {toastMsg}
+        </div>
+      )}
     </div>
   );
 }

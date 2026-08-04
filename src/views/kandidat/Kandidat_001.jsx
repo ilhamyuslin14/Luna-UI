@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import JSZip from 'jszip';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useUpload } from '../../context/UploadContext.jsx';
 import { getKandidat, getDirekrutKandidat, archiveKandidat, unarchiveKandidat } from '../../services/kandidatService.js';
@@ -32,6 +33,14 @@ const IconDownload = () => (
 const IconSpinner = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="lw001-iaction-spinner">
     <path d="M21 12a9 9 0 1 1-6.22-8.56" />
+  </svg>
+);
+
+const IconDownloadSmall = ({ spinning } = {}) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className={spinning ? 'lw001-iaction-spinner' : undefined}>
+    {spinning
+      ? <path d="M21 12a9 9 0 1 1-6.22-8.56" />
+      : <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>}
   </svg>
 );
 
@@ -84,6 +93,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
   const [toast, setToast]                   = useState(null);
   const toastTimer                          = useRef(null);
   const [downloadingId, setDownloadingId]   = useState(null);
+  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [page, setPage]                     = useState(1);
   const [perPage, setPerPage]               = useState(25);
 
@@ -241,6 +251,77 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
     }
   };
 
+  /* ── Unduh CV (bulk, dikemas jadi satu .zip) ─────────────────── */
+  const handleBulkDownloadCv = async (ids) => {
+    if (isBulkDownloading) return;
+    const targets = kandidatData.filter(k => ids.includes(k.id) && k.cv_url);
+
+    if (targets.length === 0) {
+      showToast('Belum ada CV', 'Kandidat yang dipilih belum punya CV yang diunggah');
+      return;
+    }
+
+    setIsBulkDownloading(true);
+    try {
+      const zip = new JSZip();
+      const usedNames = new Set();
+      let failCount = 0;
+
+      await Promise.all(targets.map(async (k) => {
+        try {
+          const response = await fetch(k.cv_url);
+          if (!response.ok) throw new Error('Network response was not ok');
+          const blob = await response.blob();
+
+          const ext = k.cv_url.split('.').pop().split('?')[0] || 'pdf';
+          const safeName = (k.nama_lengkap || 'Kandidat').replace(/[^a-zA-Z0-9]/g, '_');
+          let filename = `${safeName}.${ext}`;
+          let suffix = 2;
+          while (usedNames.has(filename)) {
+            filename = `${safeName}_${suffix}.${ext}`;
+            suffix += 1;
+          }
+          usedNames.add(filename);
+          zip.file(filename, blob);
+        } catch (err) {
+          console.error(`Gagal mengunduh CV ${k.nama_lengkap}:`, err);
+          failCount += 1;
+        }
+      }));
+
+      const successCount = targets.length - failCount;
+      if (successCount === 0) {
+        showToast('Gagal mengunduh', 'Semua CV gagal diambil, coba lagi');
+        return;
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const blobUrl = window.URL.createObjectURL(zipBlob);
+      const dateStr = new Date().toISOString().slice(0, 10);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `CV_Kandidat_${dateStr}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      showToast(
+        'CV berhasil diunduh',
+        failCount > 0
+          ? `${successCount} CV dikemas dalam satu ZIP, ${failCount} gagal diambil`
+          : `${successCount} CV dikemas dalam satu file ZIP`
+      );
+      setSelectedRows(new Set());
+    } catch (err) {
+      console.error('Bulk download failed', err);
+      showToast('Gagal mengunduh', 'Terjadi kesalahan saat mengemas file CV');
+    } finally {
+      setIsBulkDownloading(false);
+    }
+  };
+
   /* ── Tambahkan ke Lowongan ────────────────────────────────── */
   const openLowonganModal = () => {
     setShowBulkDropdown(false);
@@ -291,6 +372,12 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
               actions={
                 activeFilters.has('Arsip') ? [
                   {
+                    icon: <IconDownloadSmall spinning={isBulkDownloading} />,
+                    label: isBulkDownloading ? 'Mengemas CV...' : 'Unduh CV Terpilih',
+                    onClick: () => { setShowBulkDropdown(false); handleBulkDownloadCv([...selectedRows]); },
+                  },
+                  { type: 'divider' },
+                  {
                     icon: <ArchiveSvg style={{ transform: 'rotate(180deg)' }} />,
                     label: 'Tampilkan',
                     onClick: () => { setShowBulkDropdown(false); setUnarchiveModal({ isBulk: true }); },
@@ -300,6 +387,12 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                     icon: <svg width="9" height="9" viewBox="0 0 9 8.745" fill="none"><path d="M7.875 2.25H6.75V1.6875C6.75 1.06641 6.24609 0.5625 5.625 0.5625H3.375C2.75391 0.5625 2.25 1.06641 2.25 1.6875V2.25H1.125C0.503906 2.25 0 2.75391 0 3.375V7.3125C0 7.93359 0.503906 8.4375 1.125 8.4375H7.875C8.49609 8.4375 9 7.93359 9 7.3125V3.375C9 2.75391 8.49609 2.25 7.875 2.25ZM3 1.6875C3 1.47891 3.16875 1.3125 3.375 1.3125H5.625C5.83125 1.3125 6 1.47891 6 1.6875V2.25H3V1.6875ZM8.25 7.3125C8.25 7.51875 8.08125 7.6875 7.875 7.6875H1.125C0.91875 7.6875 0.75 7.51875 0.75 7.3125V5.25H8.25V7.3125ZM8.25 4.5H0.75V3.375C0.75 3.16875 0.91875 3 1.125 3H7.875C8.08125 3 8.25 3.16875 8.25 3.375V4.5Z" fill="currentColor" /></svg>,
                     label: 'Tambahkan ke Lowongan',
                     onClick: openLowonganModal,
+                  },
+                  { type: 'divider' },
+                  {
+                    icon: <IconDownloadSmall spinning={isBulkDownloading} />,
+                    label: isBulkDownloading ? 'Mengemas CV...' : 'Unduh CV Terpilih',
+                    onClick: () => { setShowBulkDropdown(false); handleBulkDownloadCv([...selectedRows]); },
                   },
                   { type: 'divider' },
                   {

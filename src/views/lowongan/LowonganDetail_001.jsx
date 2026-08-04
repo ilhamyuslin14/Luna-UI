@@ -129,7 +129,7 @@ const SHARE_PLATFORMS = [
 export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan = 'Project Manager', navigate, back, activeTab = 'ringkasan', onTabChange }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
-  
+
   const [recruitStatus, setRecruitStatus] = useState('rencana');
   const [jabatan, setJabatan] = useState(initialJabatan);
   const [lokasi, setLokasi] = useState('');
@@ -276,61 +276,61 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
       <div className="sd001-title-bar">
         <div className="sd001-title-content" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           <div className="sd001-title-group">
-          <h1 className="sd001-title">{jabatan}</h1>
+            <h1 className="sd001-title">{jabatan}</h1>
 
-          {/* Status badge + dropdown */}
-          <div className="sd001-status-wrap" onClick={e => e.stopPropagation()}>
-            <button
-              className={`sd001-status-badge${showStatusDrop ? ' open' : ''}`}
-              style={{ color: currentOpt.text, background: currentOpt.bg, borderColor: currentOpt.border }}
-              onClick={() => setShowStatusDrop(v => !v)}
-            >
-              <StatusIcon val={recruitStatus} size={12} />
-              {currentOpt.label}
-              <svg width="7" height="5" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="M1 1L5 5L9 1" />
-              </svg>
-            </button>
+            {/* Status badge + dropdown */}
+            <div className="sd001-status-wrap" onClick={e => e.stopPropagation()}>
+              <button
+                className={`sd001-status-badge${showStatusDrop ? ' open' : ''}`}
+                style={{ color: currentOpt.text, background: currentOpt.bg, borderColor: currentOpt.border }}
+                onClick={() => setShowStatusDrop(v => !v)}
+              >
+                <StatusIcon val={recruitStatus} size={12} />
+                {currentOpt.label}
+                <svg width="7" height="5" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M1 1L5 5L9 1" />
+                </svg>
+              </button>
 
-            {showStatusDrop && (
-              <div className="sd001-status-dropdown">
-                {STATUS_OPTS.map(opt => {
-                  const isLocked = isFreePlan && opt.val !== 'rencana' && opt.val !== 'aktif';
-                  const color = isLocked ? '#b8b5ae' : opt.text;
-                  return (
-                    <button
-                      key={opt.val}
-                      className={`sd001-status-option${recruitStatus === opt.val ? ' active' : ''}${isLocked ? ' disabled' : ''}`}
-                      style={{ '--opt-color': color }}
-                      onClick={() => {
-                        if (isLocked) {
-                          setToast({ message: 'Perlu paket berlangganan', subMessage: `Status "${opt.label}" hanya tersedia di paket berbayar.`, type: 'error' });
-                          return;
-                        }
-                        handleStatusChange(opt.val);
-                      }}
-                    >
-                      <span className="sd001-status-opt-icon" style={{ color }}>
-                        <StatusIcon val={opt.val} size={13} />
-                      </span>
-                      <span style={{ color }}>{opt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+              {showStatusDrop && (
+                <div className="sd001-status-dropdown">
+                  {STATUS_OPTS.map(opt => {
+                    const isLocked = isFreePlan && opt.val !== 'rencana' && opt.val !== 'aktif';
+                    const color = isLocked ? '#b8b5ae' : opt.text;
+                    return (
+                      <button
+                        key={opt.val}
+                        className={`sd001-status-option${recruitStatus === opt.val ? ' active' : ''}${isLocked ? ' disabled' : ''}`}
+                        style={{ '--opt-color': color }}
+                        onClick={() => {
+                          if (isLocked) {
+                            setToast({ message: 'Perlu paket berlangganan', subMessage: `Status "${opt.label}" hanya tersedia di paket berbayar.`, type: 'error' });
+                            return;
+                          }
+                          handleStatusChange(opt.val);
+                        }}
+                      >
+                        <span className="sd001-status-opt-icon" style={{ color }}>
+                          <StatusIcon val={opt.val} size={13} />
+                        </span>
+                        <span style={{ color }}>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Lokasi & Departemen Meta */}
+          {(departemen && departemen !== '-' || lokasi && lokasi !== '-') && (
+            <div style={{ marginTop: '4px', fontSize: '11px', color: '#7e8799' }}>
+              {departemen && departemen !== '-' && <span>{departemen}</span>}
+              {departemen && departemen !== '-' && lokasi && lokasi !== '-' && <span style={{ margin: '0 6px', color: '#cbd0db' }}>|</span>}
+              {lokasi && lokasi !== '-' && <span style={{ fontWeight: 600, color: '#555f71' }}>{lokasi}</span>}
+            </div>
+          )}
         </div>
-        
-        {/* Lokasi & Departemen Meta */}
-        {(departemen && departemen !== '-' || lokasi && lokasi !== '-') && (
-          <div style={{ marginTop: '4px', fontSize: '11px', color: '#7e8799' }}>
-            {departemen && departemen !== '-' && <span>{departemen}</span>}
-            {departemen && departemen !== '-' && lokasi && lokasi !== '-' && <span style={{ margin: '0 6px', color: '#cbd0db' }}>|</span>}
-            {lokasi && lokasi !== '-' && <span style={{ fontWeight: 600, color: '#555f71' }}>{lokasi}</span>}
-          </div>
-        )}
-      </div>
 
         <div className="sd001-title-actions">
           <button className="sd001-header-btn-primary" onClick={() => navigate('lowongan-tambah-kandidat', { seleksiId, jabatan })}>
@@ -349,7 +349,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
               onClick={() => karilEnabled && window.open(kaririUrl, '_blank')}
             >
               <IconEye />
-              Buka Halaman Lowongan
+              Buka Halaman
             </button>
             {!karilEnabled && (
               <div className="sd001-cta-tooltip">
@@ -470,11 +470,11 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
           <LowonganKandidat_001 navigate={navigate} back={back} seleksiId={seleksiId} />
         ) : (
           <>
-            <div style={{ 
-              margin: '-20px -20px -16px -20px', 
-              padding: '0 30px', 
-              height: 64, 
-              display: 'flex', 
+            <div style={{
+              margin: '-20px -20px -16px -20px',
+              padding: '0 30px',
+              height: 64,
+              display: 'flex',
               alignItems: 'center',
               flexShrink: 0
             }}>

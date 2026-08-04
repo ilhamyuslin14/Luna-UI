@@ -479,3 +479,216 @@
         width: 100%;
     }
 }
+
+/* WhatsApp Floating Widget (Bantuan Page) */
+.bantuan-wa-widget-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* Floating Trigger Button */
+.bantuan-wa-float-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 18px 10px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.38);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.bantuan-wa-float-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.48);
+}
+
+.bantuan-wa-float-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bantuan-wa-badge-dot {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: #EF4444;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  animation: wa-pulse 2s infinite;
+}
+
+@keyframes wa-pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Chat Popup Box */
+.bantuan-wa-popup-box {
+  width: 320px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  animation: wa-popup-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wa-popup-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.bantuan-wa-popup-header {
+  background: linear-gradient(135deg, #075E54 0%, #128C7E 100%);
+  color: #FFFFFF;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bantuan-wa-header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bantuan-wa-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bantuan-wa-header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.bantuan-wa-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.bantuan-wa-status {
+  font-size: 11px;
+  color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bantuan-wa-online-dot {
+  width: 6px;
+  height: 6px;
+  background: #25D366;
+  border-radius: 50%;
+}
+
+.bantuan-wa-close-btn {
+  background: none;
+  border: none;
+  color: #E2E8F0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.bantuan-wa-close-btn:hover {
+  color: #FFFFFF;
+}
+
+.bantuan-wa-popup-body {
+  padding: 16px;
+  background: #E5DDD5;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 0);
+  background-size: 10px 10px;
+  min-height: 100px;
+}
+
+.bantuan-wa-chat-bubble {
+  background: #FFFFFF;
+  border-radius: 0 12px 12px 12px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #1E293B;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.bantuan-wa-chat-bubble p {
+  margin: 0 0 6px 0;
+}
+
+.bantuan-wa-chat-bubble p:last-of-type {
+  margin-bottom: 0;
+}
+
+.bantuan-wa-chat-time {
+  display: block;
+  font-size: 10px;
+  color: #94A3B8;
+  text-align: right;
+  margin-top: 6px;
+}
+
+.bantuan-wa-popup-footer {
+  padding: 12px 16px;
+  background: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+}
+
+.bantuan-wa-start-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+  transition: all 0.15s ease;
+}
+
+.bantuan-wa-start-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.35);
+}

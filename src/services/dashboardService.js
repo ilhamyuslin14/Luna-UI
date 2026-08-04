@@ -160,6 +160,7 @@ export async function getRecentJobs(companyId) {
 
       return {
         id: s.id,
+        kode: s.kode,
         posisi: s.jabatan,
         dept: s.departments?.name || s.departemen || '-',
         departemen: s.departments?.name || s.departemen || '-',
@@ -169,6 +170,7 @@ export async function getRecentJobs(companyId) {
         kandidatCount: cnt,
         jumlahKandidat: cnt,
         stages: stages,
+        kriteria: s.kriteria,
         createdAt: s.created_at
       };
     });
