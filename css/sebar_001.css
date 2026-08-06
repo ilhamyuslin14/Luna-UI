@@ -594,144 +594,226 @@
   letter-spacing: -0.2px;
 }
 
-.sebar-platform-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sebar-platform-group {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
-  transition: all 0.2s ease;
-}
-
-.sebar-platform-group:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-}
-
-.sebar-platform-header {
-  width: 100%;
-  background: #FFFFFF;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.sebar-platform-header:hover {
-  background: #F8FAFC;
-}
-
-.sebar-platform-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sebar-platform-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sebar-platform-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #0F172A;
-}
-
-.sebar-platform-badge {
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: 20px;
-  background: #F1F5F9;
-  color: #64748B;
-}
-
-.sebar-platform-chevron {
-  color: #94A3B8;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.sebar-platform-chevron.open {
-  transform: rotate(180deg);
-  color: #0F172A;
-}
-
-.sebar-platform-accounts {
-  background: #FAFAFA;
-  border-top: 1px solid #F1F5F9;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sebar-platform-account-row {
+/* Modern Data Table: Daftar Akun Mitra */
+.sebar-partner-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 14px;
-  background: #FFFFFF;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sebar-partner-subheading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: #64748B;
+  margin: 4px 0 0 0;
+}
+
+.sebar-partner-count-badge {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #EA580C;
+  background: #FFF7ED;
+  border: 1px solid #FFEDD5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* Filter Bar & Search Box */
+.sebar-table-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sebar-table-platform-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sebar-platform-tab-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
   border: 1px solid #E2E8F0;
-  border-radius: 10px;
+  background: #FFFFFF;
+  color: #64748B;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.sebar-platform-account-row:hover {
-  border-color: rgba(255, 141, 33, 0.35);
-  box-shadow: 0 3px 10px rgba(255, 141, 33, 0.06);
+.sebar-platform-tab-item:hover {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+  color: #0F172A;
 }
 
-.sebar-platform-account-info {
+.sebar-platform-tab-item.active {
+  background: #0F172A;
+  border-color: #0F172A;
+  color: #FFFFFF;
+}
+
+.sebar-tab-icon {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  align-items: center;
 }
 
-.sebar-platform-account-name {
+.sebar-tab-count {
+  font-size: 11px;
+  opacity: 0.75;
+  font-weight: 700;
+}
+
+.sebar-table-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  padding: 6px 12px;
+  width: 280px;
+  color: #64748B;
+  transition: border-color 0.15s ease;
+}
+
+.sebar-table-search-box:focus-within {
+  border-color: #EA580C;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.sebar-table-search-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  color: #0F172A;
+  background: transparent;
+}
+
+.sebar-search-clear-btn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+/* Table Card & Responsive Table */
+.sebar-table-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+}
+
+.sebar-table-responsive-wrapper {
+  overflow-x: auto;
+}
+
+.sebar-modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.sebar-modern-table th {
+  background: #F8FAFC;
+  padding: 12px 18px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #E2E8F0;
+  white-space: nowrap;
+}
+
+.sebar-modern-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+
+.sebar-modern-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sebar-modern-table tbody tr:hover td {
+  background: #F8FAFC;
+}
+
+/* Badges inside table */
+.sebar-table-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.sebar-table-account-name {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   color: #0F172A;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: block;
 }
 
-.sebar-platform-account-meta {
+.sebar-table-account-category {
   font-family: 'Inter Tight', sans-serif;
-  font-size: 11.5px;
+  font-size: 12px;
   color: #64748B;
   font-weight: 500;
 }
 
-.sebar-platform-open-btn {
+.sebar-table-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F0FDF4;
+  color: #166534;
+  border: 1px solid #DCFCE7;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.sebar-table-action-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -739,23 +821,43 @@
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.15s ease;
-  flex-shrink: 0;
 }
 
-.sebar-platform-open-btn:hover {
-  border-color: #FF7B00;
+.sebar-table-action-btn:hover {
+  border-color: #EA580C;
   background: #FFF7ED;
   color: #EA580C;
   transform: translateY(-1px);
 }
 
-.sebar-platform-empty {
+.sebar-table-empty-td {
+  padding: 40px 20px !important;
+  text-align: center;
+}
+
+.sebar-table-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sebar-table-empty-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin: 4px 0 0 0;
+}
+
+.sebar-table-empty-sub {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 12.5px;
-  color: #94A3B8;
-  padding: 8px 4px;
+  color: #64748B;
   margin: 0;
 }
+
+
 
 .sebar-toggle-text {
   background: none;

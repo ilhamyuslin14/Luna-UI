@@ -109,6 +109,16 @@ const PARTNER_ACCOUNTS = [
   },
 ];
 
+const ALL_PARTNER_ACCOUNTS = PARTNER_ACCOUNTS.flatMap(p =>
+  p.accounts.map(acc => ({
+    ...acc,
+    platform: p.platform,
+    Icon: p.Icon,
+    color: p.color,
+    bg: p.bg
+  }))
+);
+
 export default function Sebar_001({ onNavigate, navigate }) {
   const nav = navigate || onNavigate;
   const { companyId, companyName, profileName } = useAuth() || {};
@@ -117,10 +127,22 @@ export default function Sebar_001({ onNavigate, navigate }) {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedCards, setExpandedCards] = useState({});
   const [copiedId, setCopiedId] = useState(null);
-  const [expandedPlatforms, setExpandedPlatforms] = useState({ Facebook: true });
   const [toastMsg, setToastMsg] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  // Table filter & search state for Akun Mitra
+  const [selectedPartnerPlatform, setSelectedPartnerPlatform] = useState('Semua');
+  const [partnerSearchQuery, setPartnerSearchQuery] = useState('');
+
+  const filteredPartnerAccounts = ALL_PARTNER_ACCOUNTS.filter(acc => {
+    const matchesPlatform = selectedPartnerPlatform === 'Semua' || acc.platform === selectedPartnerPlatform;
+    const matchesSearch = partnerSearchQuery.trim() === '' ||
+      acc.name.toLowerCase().includes(partnerSearchQuery.toLowerCase()) ||
+      (acc.category && acc.category.toLowerCase().includes(partnerSearchQuery.toLowerCase())) ||
+      acc.platform.toLowerCase().includes(partnerSearchQuery.toLowerCase());
+    return matchesPlatform && matchesSearch;
+  });
 
   const namaPerusahaan = companyName || 'PT Arkademi Daya Indonesia';
   const namaPengirim = profileName || 'Tim Rekrutmen';
@@ -286,9 +308,9 @@ export default function Sebar_001({ onNavigate, navigate }) {
   const currentPage = Math.min(page, totalPages);
   const pagedJobs = searchedJobs.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
-  const renderJobCard = (job, mode) => {
+  const renderJobCard = (job, mode, isFirstCard = false) => {
     const key = `${job.id}:${mode}`;
-    const isExpanded = expandedCards[key] === true;
+    const isExpanded = expandedCards[key] !== undefined ? expandedCards[key] : isFirstCard;
     const isCopied = copiedId === key;
     const karirLink = getKarirLink(job);
     const posisi = job.posisi || job.jabatan || 'Lowongan';
@@ -500,7 +522,7 @@ export default function Sebar_001({ onNavigate, navigate }) {
             <p className="sebar-empty-title">Tidak ada lowongan yang cocok dengan "{searchQuery.trim()}"</p>
           </div>
         ) : (
-          pagedJobs.map((job) => renderJobCard(job, mode))
+          pagedJobs.map((job, index) => renderJobCard(job, mode, index === 0))
         )}
       </div>
 
@@ -594,67 +616,139 @@ export default function Sebar_001({ onNavigate, navigate }) {
 
           <div className="sebar-partner-section">
             <div className="sebar-divider" />
-            <h2 className="sebar-partner-heading">Daftar Akun Mitra</h2>
+            <div className="sebar-partner-header-row">
+              <div>
+                <h2 className="sebar-partner-heading">Daftar Akun Mitra</h2>
+                <p className="sebar-partner-subheading">Kumpulan akun & komunitas loker publik terverifikasi untuk sebar lowongan secara luas</p>
+              </div>
+              <span className="sebar-partner-count-badge">{filteredPartnerAccounts.length} Akun Mitra</span>
+            </div>
 
-            <div className="sebar-tip-card">
-              <span className="sebar-tip-icon">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 16v-4M12 8h.01"></path>
+            {/* Filter Bar & Search Input */}
+            <div className="sebar-table-filter-bar">
+              <div className="sebar-table-platform-tabs">
+                <button
+                  className={`sebar-platform-tab-item ${selectedPartnerPlatform === 'Semua' ? 'active' : ''}`}
+                  onClick={() => setSelectedPartnerPlatform('Semua')}
+                >
+                  Semua ({ALL_PARTNER_ACCOUNTS.length})
+                </button>
+                {PARTNER_ACCOUNTS.filter(p => (p.accounts || []).length > 0).map(p => {
+                  const count = p.accounts.length;
+                  const isActive = selectedPartnerPlatform === p.platform;
+                  const Icon = p.Icon;
+                  return (
+                    <button
+                      key={p.platform}
+                      className={`sebar-platform-tab-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setSelectedPartnerPlatform(p.platform)}
+                    >
+                      <span className="sebar-tab-icon" style={{ color: isActive ? '#FFFFFF' : p.color }}>
+                        <Icon />
+                      </span>
+                      <span>{p.platform}</span>
+                      <span className="sebar-tab-count">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="sebar-table-search-box">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-              </span>
-              <div className="sebar-tip-body">
-                <span className="sebar-tip-lead">Hubungi admin sebelum kirim lowongan</span>
-                <span className="sebar-tip-detail">Daftar akun di bawah biasa menerima kiriman lowongan gratis. Daftar ini akan terus kami perbarui.</span>
+                <input
+                  type="text"
+                  placeholder="Cari nama akun / komunitas mitra..."
+                  value={partnerSearchQuery}
+                  onChange={(e) => setPartnerSearchQuery(e.target.value)}
+                />
+                {partnerSearchQuery && (
+                  <button className="sebar-search-clear-btn" onClick={() => setPartnerSearchQuery('')}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="sebar-platform-list">
-              {PARTNER_ACCOUNTS.map(({ platform, Icon, color, bg, accounts }) => {
-                const isOpen = expandedPlatforms[platform] !== false; // open by default unless explicitly collapsed
-                return (
-                  <div key={platform} className="sebar-platform-group">
-                    <button className="sebar-platform-header" onClick={() => togglePlatform(platform)}>
-                      <div className="sebar-platform-header-left">
-                        <div className="sebar-platform-icon-box" style={{ background: bg, color: color }}>
-                          <Icon />
-                        </div>
-                        <span className="sebar-platform-title">{platform}</span>
-                        <span className="sebar-platform-badge">
-                          {accounts.length > 0 ? `${accounts.length} Akun Terverifikasi` : 'Segera Hadir'}
-                        </span>
-                      </div>
-                      <svg
-                        className={`sebar-platform-chevron ${isOpen ? 'open' : ''}`}
-                        width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-                      >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
-                    </button>
-                    {isOpen && (
-                      <div className="sebar-platform-accounts">
-                        {accounts.length > 0 ? (
-                          accounts.map((acc) => (
-                            <div key={acc.name} className="sebar-platform-account-row">
-                              <div className="sebar-platform-account-info">
-                                <span className="sebar-platform-account-name">{acc.name}</span>
-                                {acc.category && <span className="sebar-platform-account-meta">{acc.category}</span>}
+            {/* Modern Data Table */}
+            <div className="sebar-table-card">
+              <div className="sebar-table-responsive-wrapper">
+                <table className="sebar-modern-table">
+                  <thead>
+                    <tr>
+                      <th>PLATFORM</th>
+                      <th>NAMA AKUN MITRA</th>
+                      <th>KATEGORI & JANGKAUAN</th>
+                      <th>STATUS VERIFIKASI</th>
+                      <th style={{ textAlign: 'right' }}>AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPartnerAccounts.length > 0 ? (
+                      filteredPartnerAccounts.map((acc, index) => {
+                        const Icon = acc.Icon;
+                        return (
+                          <tr key={`${acc.platform}-${acc.name}-${index}`}>
+                            <td>
+                              <div className="sebar-table-platform-badge" style={{ background: acc.bg, color: acc.color, borderColor: `${acc.color}22` }}>
+                                <Icon />
+                                <span>{acc.platform}</span>
                               </div>
-                              <a className="sebar-platform-open-btn" href={acc.url} target="_blank" rel="noreferrer">
+                            </td>
+                            <td>
+                              <span className="sebar-table-account-name">{acc.name}</span>
+                            </td>
+                            <td>
+                              <span className="sebar-table-account-category">{acc.category || '-'}</span>
+                            </td>
+                            <td>
+                              <span className="sebar-table-verified-badge">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Terverifikasi
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <a
+                                href={acc.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="sebar-table-action-btn"
+                              >
                                 <span>Buka Akun</span>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                  <polyline points="15 3 21 3 21 9"></polyline>
+                                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
                               </a>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="sebar-platform-empty">Belum ada akun mitra untuk platform ini.</p>
-                        )}
-                      </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="sebar-table-empty-td">
+                          <div className="sebar-table-empty-box">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="11" cy="11" r="8"></circle>
+                              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <p className="sebar-table-empty-title">Akun mitra tidak ditemukan</p>
+                            <p className="sebar-table-empty-sub">Coba kata kunci pencarian lain atau pilih tab platform yang berbeda.</p>
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                  </div>
-                );
-              })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </>

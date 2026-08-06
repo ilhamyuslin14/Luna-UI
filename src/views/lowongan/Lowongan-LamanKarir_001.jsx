@@ -331,9 +331,11 @@ export default function LamanKarir_001({ kode }) {
     setSubmitErrorMsg(null);
     setProgressText('Mengunggah & menganalisis CV Anda...');
 
+    const batchId = `pb-${Date.now()}`;
     let logId = null;
     try {
       const log = await createActivityLog({
+        batch_id: batchId,
         company_id: seleksiData.company_id,
         nama_file: cvFile.name,
         tipe_aktivitas: 'upload_and_scoring',
@@ -343,39 +345,43 @@ export default function LamanKarir_001({ kode }) {
       });
       logId = log?.id;
 
-      const { kandidatId, parsedData, resumeUrl, cvFullText } = await uploadAndExtractCV(
-        cvFile,
+      const kandidat = await uploadAndExtractCV(
         seleksiData.company_id,
-        (msg) => setProgressText(msg)
+        cvFile,
+        seleksiData.jabatan,
+        (msg) => setProgressText(msg),
+        'public'
       );
 
       const updates = {};
-      if (form.nama.trim()) updates.nama = form.nama.trim();
+      if (form.nama.trim()) updates.nama_lengkap = form.nama.trim();
       if (form.email.trim()) updates.email = form.email.trim();
-      if (form.phone.trim()) updates.telepon = form.phone.trim();
-      if (form.linkedin.trim()) updates.linkedin = form.linkedin.trim();
+      if (form.phone.trim()) updates.phone = form.phone.trim();
+      if (form.linkedin.trim()) updates.linkedin_url = form.linkedin.trim();
 
-      if (Object.keys(updates).length > 0) {
-        await updateKandidat(kandidatId, updates);
+      if (kandidat?.id && Object.keys(updates).length > 0) {
+        await updateKandidat(kandidat.id, updates);
       }
 
       setProgressText('Menilai kualifikasi Anda dengan kebutuhan posisi...');
 
-      const scoringResult = await runScoring({
-        companyId: seleksiData.company_id,
-        seleksiId: seleksiData.id,
-        kandidatId,
-        cvText: cvFullText || '',
-        cvPath: resumeUrl,
-        rawExtracted: parsedData,
-      });
+      // CV sudah tersimpan di titik ini — kalau scoring AI gagal, jangan
+      // gagalkan submission-nya juga, cukup catat di activity log.
+      let scoringStatus = 'gagal';
+      if (kandidat?.id && seleksiData?.id) {
+        try {
+          await runScoring(kandidat.id, seleksiData.id, seleksiData.company_id);
+          scoringStatus = 'berhasil';
+        } catch (scoreErr) {
+          console.error('Scoring gagal:', scoreErr);
+        }
+      }
 
       if (logId) {
         await updateActivityLog(logId, {
-          kandidat_id: kandidatId,
-          upload_status: 'sukses',
-          skor_match: scoringResult?.skor_match ?? null,
-          rekomendasi: scoringResult?.rekomendasi ?? null,
+          kandidat_id: kandidat?.id || null,
+          upload_status: 'berhasil',
+          scoring_status: scoringStatus,
         });
       }
 
@@ -384,6 +390,7 @@ export default function LamanKarir_001({ kode }) {
       console.error('Error submitting application:', err);
       try {
         const log = await createActivityLog({
+          batch_id: batchId,
           company_id: seleksiData.company_id,
           nama_file: cvFile.name,
           tipe_aktivitas: 'upload_and_scoring',

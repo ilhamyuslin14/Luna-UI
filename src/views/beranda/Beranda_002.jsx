@@ -181,6 +181,11 @@ export default function Beranda_002({ navigate }) {
   const [recentJobs, setRecentJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Baru dianggap "kembali" kalau sudah pernah punya lowongan atau kandidat —
+  // sebelum metrics selesai dimuat ini default false, jadi user baru gak
+  // sempat kelihatan sapaan "Kembali" yang salah.
+  const hasActivity = metrics.totalKandidat > 0 || metrics.lowonganAktif > 0;
+
   useEffect(() => {
     if (!companyId) return;
     setIsLoading(true);
@@ -210,7 +215,7 @@ export default function Beranda_002({ navigate }) {
             {companyDisplay}
           </div>
           <h1 className="db002-hero-title">
-            Selamat Datang Kembali, {userName}!
+            Selamat Datang{hasActivity ? ' Kembali' : ''}, {userName}!
           </h1>
           <p className="db002-hero-subtitle">
             Mari mulai rekrutmen hari ini. Langkah pertama adalah membuat lowongan pekerjaan baru untuk mendapatkan talenta terbaik.
