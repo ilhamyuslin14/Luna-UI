@@ -56,7 +56,7 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
   const [showCreateChoice, setShowCreateChoice] = useState(false);
 
   const { query, setQuery, isLoading, activeTab, setActiveTab, results } = useUniversalSearch(companyId);
-  const { notifications, isNotifLoading, unreadCount, readNotifKeys, markSeen, markNotifAsRead, markAllAsRead } = useNotifications(companyId);
+  const { notifications, isNotifLoading, unreadCount, initialWatermark, readNotifKeys, markSeen, markNotifAsRead, markAllAsRead } = useNotifications(companyId);
 
   const wrapRef = useRef(null);
   const inputRef = useRef(null);

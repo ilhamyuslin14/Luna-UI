@@ -138,7 +138,7 @@ const EditableContent = React.memo(
   () => true
 );
 
-export default function SetupPenilaian_001({ navigate }) {
+export default function LowonganSetupPenilaian_001({ navigate }) {
   const { companyId, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   const statusOptions = isFreePlan

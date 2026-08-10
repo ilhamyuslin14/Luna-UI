@@ -60,7 +60,7 @@ function getApplyErrorInfo(msg) {
   return { title: 'Gagal Mengirim Lamaran', desc: msg };
 }
 
-export default function LamanKarir({ kode }) {
+export default function LowonganLamanKarir({ kode }) {
   const [pageState, setPageState] = useState('loading'); // loading | ready | not-found
   const [seleksiData, setSeleksiData] = useState(null);
 

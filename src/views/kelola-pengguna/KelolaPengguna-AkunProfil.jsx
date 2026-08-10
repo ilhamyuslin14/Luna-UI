@@ -104,7 +104,7 @@ const EditableContent = memo(
   () => true
 );
 
-export default function PenggunaAkunProfil() {
+export default function KelolaPenggunaAkunProfil() {
   const { user, companyId, companyName, companyDetails, userRole, refreshCompanyData } = useAuth();
   const [isKeamananExpanded, setIsKeamananExpanded] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);

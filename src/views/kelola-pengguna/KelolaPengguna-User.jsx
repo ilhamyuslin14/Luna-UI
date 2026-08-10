@@ -25,7 +25,7 @@ function formatRole(role) {
   return role === 'owner' ? 'Owner' : 'Admin';
 }
 
-export default function PengaturanUser({ navigate }) {
+export default function KelolaPenggunaUser({ navigate }) {
   const { user, companyId, userRole } = useAuth();
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
