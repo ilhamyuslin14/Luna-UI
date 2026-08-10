@@ -131,7 +131,7 @@ export default function Sidebar_001({ activeMenu, onNavigate }) {
           title="Keluar dari Akun?"
           body="Apakah Anda yakin ingin keluar?"
           confirmLabel="Keluar"
-          onConfirm={() => { setShowLogoutModal(false); onNavigate('landingpage_001'); }}
+          onConfirm={() => { setShowLogoutModal(false); onNavigate('landingpage_003'); }}
           onClose={() => setShowLogoutModal(false)}
         />
       )}

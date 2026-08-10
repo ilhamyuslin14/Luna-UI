@@ -135,6 +135,10 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
       result = result.filter(k => !k.arsip);
     }
 
+    if (activeFilters.has('Portal Karier')) {
+      result = result.filter(k => k.sumber === 'public');
+    }
+
     const pengalamanActive = PENGALAMAN_OPTS.filter(f => activeFilters.has(f));
     if (pengalamanActive.length > 0) {
       result = result.filter(k => {
@@ -419,6 +423,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
           <FilterDropdown
             groups={[
               { title: 'Status', options: ['Arsip'] },
+              { title: 'Sumber', options: ['Portal Karier'] },
               { title: 'Pengalaman', options: ['0-2 Tahun', '2-5 tahun', '5-10 tahun', '>10 tahun'] },
               { title: 'Jabatan', options: ['Intern', 'Junior', 'Staff', 'Senior', 'Supervisor', 'Manager', 'Head of', 'General Manager', 'Advisor'] },
             ]}
@@ -466,8 +471,20 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                   <td
                     className={`kan001-name${k.arsip ? '' : ' kan001-name-link'}`}
                     onClick={k.arsip ? undefined : () => navigate('kandidat-detail_001', { kandidat: { ...k, nama: k.nama_lengkap } })}
-                    style={{ maxWidth: 250, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', ...(k.arsip ? { cursor: 'default', opacity: 0.5 } : {}) }}
-                  >{k.nama_lengkap || 'Belum ada nama'}</td>
+                    style={{ maxWidth: 250, ...(k.arsip ? { cursor: 'default', opacity: 0.5 } : {}) }}
+                  >
+                    <span className="kan001-name-cell">
+                      <span className="kan001-name-text">{k.nama_lengkap || 'Belum ada nama'}</span>
+                      {k.sumber === 'public' && (
+                        <span className="kan001-src-badge">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.4 2.7 3.6 6 3.6 9s-1.2 6.3-3.6 9c-2.4-2.7-3.6-6-3.6-9s1.2-6.3 3.6-9z" />
+                          </svg>
+                          <span className="kan001-src-badge-tip">Melamar mandiri via Portal Karier</span>
+                        </span>
+                      )}
+                    </span>
+                  </td>
                   <td style={{ maxWidth: 250 }}>
                     <div className="kan001-jabatan-container">
                       <div className="kan001-jabatan" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.jabatan_saat_ini || '-'}</div>

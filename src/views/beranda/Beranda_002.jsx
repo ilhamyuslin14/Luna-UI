@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getDashboardMetrics, getRecentJobs, getRecentActivities } from '../../services/dashboardService.js';
-import { getCached } from '../../services/dataCache.js';
+import useBerandaData from '../../hooks/beranda/useBerandaData.js';
+import PopupPilihanBuatLowongan from '../../components/PopupPilihanBuatLowongan.jsx';
 import '../../../css/beranda_002.css';
 
 const IconWhatsApp = () => (
@@ -60,6 +60,8 @@ export default function Beranda_002({ navigate }) {
   const userName = profileName || user?.user_metadata?.full_name || 'HR Team';
   const companyDisplay = companyName || 'Perusahaan Anda';
 
+  const { metrics, recentJobs, isLoading, hasActivity, buildKaririUrl, shareToPlatform } = useBerandaData(companyId);
+
   const sliderRef = useRef(null);
   const [activeDot, setActiveDot] = useState(0);
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -69,6 +71,7 @@ export default function Beranda_002({ navigate }) {
 
   const [openShareData, setOpenShareData] = useState(null);
   const [toastMsg, setToastMsg] = useState(null);
+  const [showCreateChoice, setShowCreateChoice] = useState(false);
 
   useEffect(() => {
     const closePop = () => setOpenShareData(null);
@@ -80,38 +83,12 @@ export default function Beranda_002({ navigate }) {
     };
   }, []);
 
-  const buildKaririUrl = (job) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const kode = job.slug || job.kode || job.id || 'k7bx2m';
-    return `${origin}/?view=laman-karir_001&kode=${kode}`;
-  };
-
   const handleShare = (platform, job) => {
-    const url = buildKaririUrl(job);
-    const text = `Lowongan ${job.posisi} di ${job.departemen || job.dept || 'perusahaan kami'}. Daftarkan diri Anda di: ${url}`;
-
-    if (platform === 'copy') {
-      navigator.clipboard.writeText(url);
-      setToastMsg('Link Laman Karier berhasil disalin!');
+    const result = shareToPlatform(platform, job);
+    if (result?.message) {
+      setToastMsg(result.message);
       setTimeout(() => setToastMsg(null), 2500);
-      setOpenShareData(null);
-      return;
     }
-
-    let shareUrl = '';
-    if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    else if (platform === 'linkedin') shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-    else if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    else if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    else if (platform === 'telegram') shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-    else if (platform === 'instagram') {
-      navigator.clipboard.writeText(url);
-      setToastMsg('Link disalin, silakan buka Instagram');
-      setTimeout(() => setToastMsg(null), 2500);
-      shareUrl = 'https://www.instagram.com/';
-    }
-
-    if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer');
     setOpenShareData(null);
   };
 
@@ -172,38 +149,6 @@ export default function Beranda_002({ navigate }) {
     navigate('lowongan-detail_001', { seleksiId: job.id, jabatan: job.posisi });
   };
 
-  const [metrics, setMetrics] = useState({
-    totalKandidat: 0,
-    lowonganAktif: 0,
-    direkrut: 0,
-    rataKecocokan: 0
-  });
-  const [recentJobs, setRecentJobs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Baru dianggap "kembali" kalau sudah pernah punya lowongan atau kandidat —
-  // sebelum metrics selesai dimuat ini default false, jadi user baru gak
-  // sempat kelihatan sapaan "Kembali" yang salah.
-  const hasActivity = metrics.totalKandidat > 0 || metrics.lowonganAktif > 0;
-
-  useEffect(() => {
-    if (!companyId) return;
-    setIsLoading(true);
-    getCached(`beranda_002:${companyId}`, async () => {
-      const [m, jobs] = await Promise.all([
-        getDashboardMetrics(companyId),
-        getRecentJobs(companyId),
-      ]);
-      return { metrics: m, recentJobs: jobs };
-    })
-      .then(data => {
-        setMetrics(data.metrics || {});
-        setRecentJobs(data.recentJobs || []);
-      })
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
-  }, [companyId]);
-
   return (
     <div className="db002-view">
       {/* Hero Action Banner */}
@@ -222,9 +167,9 @@ export default function Beranda_002({ navigate }) {
           </p>
         </div>
         <div className="db002-hero-action">
-          <button 
-            className="db002-btn-cta-primary" 
-            onClick={() => navigate('buat-lowongan_001')}
+          <button
+            className="db002-btn-cta-primary"
+            onClick={() => setShowCreateChoice(true)}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -239,7 +184,7 @@ export default function Beranda_002({ navigate }) {
       <div className="db002-flow-section">
         <div className="db002-tiles-grid">
           {/* Tile 1 */}
-          <div className="db002-action-tile" onClick={() => navigate('buat-lowongan_001')}>
+          <div className="db002-action-tile" onClick={() => setShowCreateChoice(true)}>
             <div className="db002-tile-header">
               <div className="db002-tile-icon-box">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -518,7 +463,7 @@ export default function Beranda_002({ navigate }) {
             </div>
             <p className="db002-empty-title">Belum ada lowongan pekerjaan dibuka</p>
             <p className="db002-empty-desc">Buat lowongan pekerjaan pertama Anda sekarang untuk mulai menerima lamaran kandidat.</p>
-            <button className="db002-btn-cta-primary" style={{ marginTop: 6 }} onClick={() => navigate('buat-lowongan_001')}>
+            <button className="db002-btn-cta-primary" style={{ marginTop: 6 }} onClick={() => setShowCreateChoice(true)}>
               + Buat Lowongan Pekerjaan Baru
             </button>
           </div>
@@ -563,6 +508,14 @@ export default function Beranda_002({ navigate }) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           {toastMsg}
         </div>
+      )}
+
+      {showCreateChoice && (
+        <PopupPilihanBuatLowongan
+          onClose={() => setShowCreateChoice(false)}
+          onPilihPanduan={() => { setShowCreateChoice(false); navigate('buat-lowongan-panduan_001'); }}
+          onPilihForm={() => { setShowCreateChoice(false); navigate('buat-lowongan_001'); }}
+        />
       )}
     </div>
   );

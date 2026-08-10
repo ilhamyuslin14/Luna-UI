@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
+import useIsMobile from './hooks/useIsMobile.js';
+import MobileApp from './mobile/MobileApp.jsx';
 import Navbar from './components/Navbar.jsx';
 import Sidebar_001 from './components/Sidebar_001.jsx';
 import TourGuide_001 from './components/TourGuide_001.jsx';
@@ -36,6 +38,7 @@ import PaketLangganan from './views/kelola-pengguna/KelolaPengguna-PaketLanggana
 import RingkasanPembayaran from './views/kelola-pengguna/KelolaPengguna-RingkasanPembayaran.jsx';
 import SetupPenilaian from './views/lowongan/Lowongan-SetupPenilaian.jsx';
 import SetupPenilaian_001 from './views/lowongan/Lowongan-SetupPenilaian_001.jsx';
+import LowonganBuatPanduan_001 from './views/lowongan/Lowongan-BuatPanduan_001.jsx';
 import Sebar_001 from './views/sebar/Sebar_001.jsx';
 import PengaturanUser from './views/kelola-pengguna/KelolaPengguna-User.jsx';
 import RiwayatTransaksi from './views/kelola-pengguna/KelolaPengguna-RiwayatTransaksi.jsx';
@@ -71,6 +74,7 @@ function SandboxWrapper({ navigate }) {
 }
 
 export default function App() {
+  const isMobile = useIsMobile();
   const urlParams = new URLSearchParams(window.location.search);
   const [activeMenu, setActiveMenu] = useState(urlParams.get('view') || 'beranda_002');
   const [seleksiJabatan, setSeleksiJabatan] = useState(urlParams.get('jabatan') || '');
@@ -152,7 +156,7 @@ export default function App() {
 
   window.switchMenu = navigate;
 
-  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'lowongan', 'lowongan_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'lowongan-detail', 'lowongan-detail_001', 'lowongan-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'buat-lowongan', 'buat-lowongan_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
+  const noPadding = ['departemen', 'departemen_001', 'seleksi', 'seleksi_001', 'lowongan', 'lowongan_001', 'kandidat', 'kandidat_001', 'karyawan', 'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002', 'lowongan-detail', 'lowongan-detail_001', 'lowongan-detail_002', 'kandidat-detail', 'kandidat-detail_001', 'departemen-detail', 'departemen-detail_001', 'bantuan', 'bantuan_001', 'pengguna-akun', 'paket-langganan', 'setup-penilaian', 'setup-penilaian_001', 'buat-lowongan', 'buat-lowongan_001', 'buat-lowongan-panduan_001', 'pengaturan-user', 'riwayat-transaksi', 'menunggu-pembayaran', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'pembayaran-berhasil'].includes(activeMenu);
 
   const { user, loading, mustChangePassword, otpVerified } = useAuth();
 
@@ -164,7 +168,7 @@ export default function App() {
 
     if (!user && !publicMenus.includes(activeMenu)) {
       // Not logged in -> redirect to landing page
-      navigate('landingpage_001');
+      navigate('landingpage_003');
     } else if (user && authMenus.includes(activeMenu)) {
       // Logged in -> redirect to beranda
       navigate('beranda_002');
@@ -320,6 +324,7 @@ export default function App() {
       case 'buat-lowongan': return <SetupPenilaian navigate={navigate} />;
       case 'setup-penilaian_001':
       case 'buat-lowongan_001': return <SetupPenilaian_001 navigate={navigate} />;
+      case 'buat-lowongan-panduan_001': return <LowonganBuatPanduan_001 navigate={navigate} back={back} />;
       case 'sebar':
       case 'sebar_001': return <Sebar_001 navigate={navigate} />;
       default: return <Beranda_002 navigate={navigate} />;
@@ -328,6 +333,10 @@ export default function App() {
 
   if (window.location.pathname === '/sandbox') {
     return <SandboxWrapper navigate={navigate} />;
+  }
+
+  if (isMobile) {
+    return <MobileApp navigate={navigate} activeMenu={activeMenu} />;
   }
 
   return (

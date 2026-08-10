@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '../context/AuthContext.jsx';
-import { searchUniversal } from '../services/searchService.js';
-import { getRecentActivities, getUnreadActivityCount } from '../services/dashboardService.js';
+import useUniversalSearch from '../hooks/navbar/useUniversalSearch.js';
+import useNotifications from '../hooks/navbar/useNotifications.js';
+import Highlight from './Highlight.jsx';
 import PopupSemuaAktivitas from './PopupSemuaAktivitas.jsx';
+import PopupPilihanBuatLowongan from './PopupPilihanBuatLowongan.jsx';
 
 const STATUS_STYLE = {
   Rencana: { text: 'var(--luna-ink-700)', bg: '#f4f6fa', border: 'var(--luna-ink-400)' },
@@ -11,19 +13,6 @@ const STATUS_STYLE = {
   Ditahan: { text: 'var(--luna-semantic-warning)', bg: '#FAF2E7', border: '#ECD0AB' },
   Selesai: { text: '#089f32', bg: '#edfcf2', border: '#3cd266' },
 };
-
-function Highlight({ text, query }) {
-  if (!query || query.length < 2) return <>{text}</>;
-  const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <strong>{text.slice(idx, idx + query.length)}</strong>
-      {text.slice(idx + query.length)}
-    </>
-  );
-}
 
 const IcKandidat = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
@@ -63,23 +52,11 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
   const [profileOpen, setProfileOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('kandidat');
-  const [results, setResults] = useState({ kandidat: [], seleksi: [], departemen: [] });
-  const [notifications, setNotifications] = useState([]);
-  const [isNotifLoading, setIsNotifLoading] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [initialWatermark, setInitialWatermark] = useState(null);
-  const [readNotifKeys, setReadNotifKeys] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`luna_read_notifs_${companyId}`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
   const [showAllActivities, setShowAllActivities] = useState(false);
+  const [showCreateChoice, setShowCreateChoice] = useState(false);
+
+  const { query, setQuery, isLoading, activeTab, setActiveTab, results } = useUniversalSearch(companyId);
+  const { notifications, isNotifLoading, unreadCount, readNotifKeys, markSeen, markNotifAsRead, markAllAsRead } = useNotifications(companyId);
 
   const wrapRef = useRef(null);
   const inputRef = useRef(null);
@@ -91,54 +68,9 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
   const profileEmail = user?.email || '';
   const profileInitial = profileName.charAt(0).toUpperCase();
 
-  useEffect(() => {
-    if (!companyId) return;
-    let isMounted = true;
-
-    const fetchNotifs = async () => {
-      try {
-        const data = await getRecentActivities(companyId);
-        if (isMounted) setNotifications(data || []);
-
-        const seenKey = `luna_notif_seen_${companyId}`;
-        let lastSeenAt = localStorage.getItem(seenKey);
-        if (!lastSeenAt) {
-          lastSeenAt = new Date().toISOString();
-          localStorage.setItem(seenKey, lastSeenAt);
-        }
-        if (isMounted) setInitialWatermark(lastSeenAt);
-
-        const count = await getUnreadActivityCount(companyId, lastSeenAt);
-        if (isMounted) setUnreadCount(count);
-      } catch (err) {
-        console.error('Error fetching notifications:', err);
-      } finally {
-        if (isMounted) setIsNotifLoading(false);
-      }
-    };
-
-    fetchNotifs();
-
-    // Auto update on activity_updated custom event + gentle 10s background polling
-    const handleUpdate = () => fetchNotifs();
-    window.addEventListener('luna:activity_updated', handleUpdate);
-    const timer = setInterval(fetchNotifs, 10000);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener('luna:activity_updated', handleUpdate);
-      clearInterval(timer);
-    };
-  }, [companyId]);
-
   const closeNotifDropdown = () => {
     setNotifOpen(false);
-    if (companyId) {
-      const nowIso = new Date().toISOString();
-      localStorage.setItem(`luna_notif_seen_${companyId}`, nowIso);
-      setInitialWatermark(nowIso);
-      setUnreadCount(0);
-    }
+    markSeen();
   };
 
   useEffect(() => {
@@ -160,29 +92,6 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, [open, isClosing, notifOpen, companyId]);
-
-  useEffect(() => {
-    const q = query.trim();
-    if (q.length < 2) {
-      setResults({ kandidat: [], seleksi: [], departemen: [] });
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    const timer = setTimeout(async () => {
-      try {
-        const data = await searchUniversal(companyId, q);
-        setResults(data);
-      } catch (err) {
-        console.error('Search error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query, companyId]);
 
   const handleOpen = () => {
     setQuickOpen(false);
@@ -222,26 +131,6 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
     } else {
       setNotifOpen(true);
     }
-  };
-
-  const markNotifAsRead = (key) => {
-    if (!key) return;
-    setReadNotifKeys(prev => {
-      if (prev.includes(key)) return prev;
-      const updated = [...prev, key];
-      if (companyId) localStorage.setItem(`luna_read_notifs_${companyId}`, JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const markAllAsRead = () => {
-    const allKeys = notifications.map((item, idx) => item.id || item.dateStr || `${item.type}_${item.timestamp}_${idx}`);
-    setReadNotifKeys(allKeys);
-    if (companyId) {
-      localStorage.setItem(`luna_read_notifs_${companyId}`, JSON.stringify(allKeys));
-      localStorage.setItem(`luna_notif_seen_${companyId}`, new Date().toISOString());
-    }
-    setUnreadCount(0);
   };
 
   const toggleProfile = (e) => {
@@ -410,7 +299,7 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
           {quickOpen && (
             <div className="nav-dropdown nav-compact-dropdown">
               <div className="nav-compact-group-label">PENDAFTARAN</div>
-              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); navigate?.('buat-lowongan_001'); }}>
+              <div className="nav-compact-item" onClick={() => { setQuickOpen(false); setShowCreateChoice(true); }}>
                 <div className="nav-compact-icon orange">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </div>
@@ -566,6 +455,14 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
         <PopupSemuaAktivitas
           onClose={() => setShowAllActivities(false)}
           onNavigate={navigate}
+        />
+      )}
+
+      {showCreateChoice && (
+        <PopupPilihanBuatLowongan
+          onClose={() => setShowCreateChoice(false)}
+          onPilihPanduan={() => { setShowCreateChoice(false); navigate?.('buat-lowongan-panduan_001'); }}
+          onPilihForm={() => { setShowCreateChoice(false); navigate?.('buat-lowongan_001'); }}
         />
       )}
     </>

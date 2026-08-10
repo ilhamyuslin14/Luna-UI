@@ -92,6 +92,50 @@
   flex-shrink: 0;
 }
 
+/* Penanda kandidat yang melamar mandiri lewat Portal Karier (kolom `sumber` = 'public') */
+.kd001-src-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0c7c88;
+  font-weight: 600;
+  cursor: default;
+}
+
+.kd001-src-chip-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  background: #15140F;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 7px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+  z-index: 5;
+}
+
+.kd001-src-chip-tip::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #15140F;
+}
+
+.kd001-src-chip:hover .kd001-src-chip-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .kd001-back-btn {
   display: inline-flex;
   align-items: center;
@@ -140,12 +184,11 @@
   background: var(--luna-orange-400);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
   font-family: 'Inter Tight', sans-serif;
-  padding: 0 14px 0 8px;
-  height: 32px;
+  padding: 8px 16px 8px 8px;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s;
@@ -173,11 +216,11 @@
   background: none;
   border: 1px solid var(--color-neutral-300);
   color: var(--color-neutral-700);
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
   font-family: 'Inter Tight', sans-serif;
-  padding: 7px 14px;
+  padding: 8px 14px;
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.2s, color 0.2s;

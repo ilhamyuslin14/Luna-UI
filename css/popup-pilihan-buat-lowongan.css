@@ -1,0 +1,120 @@
+.blp-modal {
+  background: var(--luna-ink-000);
+  border-radius: 20px;
+  padding: 30px 32px 26px;
+  width: 620px;
+  max-width: 90vw;
+  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.08);
+  animation: cm-modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.blp-head {
+  margin-bottom: 22px;
+}
+
+.blp-head h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+  margin: 0 0 6px;
+}
+
+.blp-head p {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px;
+  color: var(--luna-ink-600);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.blp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.blp-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border: 1.5px solid var(--luna-ink-200);
+  border-radius: 16px;
+  padding: 20px 18px;
+  background: var(--luna-ink-000);
+  cursor: pointer;
+  position: relative;
+  font-family: 'Inter Tight', sans-serif;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.blp-card:hover {
+  border-color: var(--luna-orange-300);
+  box-shadow: 0 10px 24px rgba(255, 123, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.blp-card.primary {
+  border-color: var(--luna-orange-300);
+  background: var(--luna-orange-050);
+}
+
+.blp-flag {
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  background: var(--luna-orange-500);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.blp-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  background: var(--luna-ink-100);
+  color: var(--luna-ink-600);
+}
+
+.blp-card.primary .blp-icon {
+  background: linear-gradient(135deg, var(--luna-orange-400), var(--luna-orange-500));
+  color: #fff;
+}
+
+.blp-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.blp-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--luna-ink-900);
+  margin-bottom: 6px;
+}
+
+.blp-desc {
+  font-size: 12px;
+  color: var(--luna-ink-600);
+  line-height: 1.55;
+}
+
+.blp-cancel {
+  display: block;
+  margin: 20px auto 0;
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--luna-ink-400);
+  font-family: 'Inter Tight', sans-serif;
+  cursor: pointer;
+}

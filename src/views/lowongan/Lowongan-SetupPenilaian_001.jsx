@@ -339,7 +339,7 @@ export default function SetupPenilaian_001({ navigate }) {
   const handleSimpan = async () => {
     if (!companyId) return;
     const htmlDeskripsi = editorRef.current ? editorRef.current.innerHTML : form.deskripsi;
-    if (!form.jabatan || !form.departemen || !form.statusRekrutmen || !htmlDeskripsi) {
+    if (!form.jabatan || !form.statusRekrutmen || !htmlDeskripsi) {
       showToast('Lengkapi Form', 'Harap isi semua field wajib (*)', 'error');
       return;
     }
@@ -353,7 +353,7 @@ export default function SetupPenilaian_001({ navigate }) {
       const isSufficientDesc = !isFreePlan && meetsDescLength;
 
       const dataBaru = await createSeleksi(companyId, {
-        department_id: form.departemen,
+        department_id: form.departemen || null,
         jabatan: form.jabatan,
         level_jabatan: form.levelJabatan,
         lokasi: form.lokasi,
@@ -479,7 +479,7 @@ export default function SetupPenilaian_001({ navigate }) {
 
           {/* Departemen */}
           <div className="sp001-field">
-            <label className="sp001-label">Departemen <span className="sp001-req">*</span></label>
+            <label className="sp001-label">Departemen <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></label>
             <div className="sp001-select-wrapper">
               <select className="sp001-select" style={{ color: form.departemen ? '#171e2c' : '#abb2c1' }} value={form.departemen} onChange={handleDepartemenChange}>
                 <option value="" disabled>Pilih Departemen</option>

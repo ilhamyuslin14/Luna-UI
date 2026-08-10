@@ -459,6 +459,71 @@
     text-decoration: underline;
 }
 
+.kan001-name-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.kan001-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Penanda kandidat yang melamar mandiri lewat Portal Karier (kolom `sumber` = 'public') */
+.kan001-src-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #e3f4f5;
+    border: 1px solid #bfe4e6;
+    color: #0c7c88;
+    cursor: default;
+}
+
+.kan001-src-badge-tip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    background: #15140F;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 7px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s, transform 0.12s;
+    z-index: 20;
+}
+
+.kan001-src-badge-tip::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #15140F;
+}
+
+.kan001-src-badge:hover .kan001-src-badge-tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 .kan001-jabatan-container {
     display: flex;
     flex-direction: column;

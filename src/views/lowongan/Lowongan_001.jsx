@@ -13,6 +13,7 @@ import { getCached, invalidate } from '../../services/dataCache.js';
 import { slugify } from '../../utils/slug.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
+import PopupPilihanBuatLowongan from '../../components/PopupPilihanBuatLowongan.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import SortDropdown from '../../components/SortDropdown.jsx';
@@ -191,6 +192,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
   const [archiveModal, setArchiveModal] = useState(null);
   const [unarchiveTarget, setUnarchiveTarget] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showCreateChoice, setShowCreateChoice] = useState(false);
   const toastTimer = useRef(null);
   const [openShareRow, setOpenShareRow] = useState(null);
   const showToast = (message, subMessage) => {
@@ -572,7 +574,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
             <IconList /> List
           </button>
         </div>
-        <button className="lw001-btn-primary" onClick={() => navigate('setup-penilaian_001')}>
+        <button className="lw001-btn-primary" onClick={() => setShowCreateChoice(true)}>
           <span className="lw001-btn-primary-icon">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
@@ -895,6 +897,14 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
       )}
 
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
+
+      {showCreateChoice && (
+        <PopupPilihanBuatLowongan
+          onClose={() => setShowCreateChoice(false)}
+          onPilihPanduan={() => { setShowCreateChoice(false); navigate('buat-lowongan-panduan_001'); }}
+          onPilihForm={() => { setShowCreateChoice(false); navigate('setup-penilaian_001'); }}
+        />
+      )}
     </div>
   );
 }

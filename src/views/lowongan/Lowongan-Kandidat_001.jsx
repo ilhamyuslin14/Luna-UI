@@ -83,6 +83,7 @@ function mapScoringRow(s) {
     kandidatId: s.kandidat?.id || s.kandidat_id,
     nama_lengkap: s.kandidat?.nama_lengkap || '-',
     nama: s.kandidat?.nama_lengkap || '-',
+    sumber: s.kandidat?.sumber || '',
     jabatan: s.kandidat?.jabatan_saat_ini || '-',
     jabatanDilamar: s.seleksi?.jabatan || '-',
     departemen: s.seleksi?.departments?.name || '',
@@ -335,8 +336,18 @@ export default function LowonganKandidat_001({ navigate, back, seleksiId }) {
                 ) : pagedData.map((k) => (
                   <tr key={k.scoringId}>
                     <td><Cb checked={selected.has(k.scoringId)} onChange={() => toggleRow(k.scoringId)} /></td>
-                    <td className="sdk001-name" style={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={() => navigate('kandidat-detail_001', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
-                      {k.nama}
+                    <td className="sdk001-name" style={{ maxWidth: 220 }} onClick={() => navigate('kandidat-detail_001', { kandidat: { id: k.kandidatId, nama_lengkap: k.nama } })}>
+                      <span className="sdk001-name-cell">
+                        <span className="sdk001-name-text">{k.nama}</span>
+                        {k.sumber === 'public' && (
+                          <span className="sdk001-src-badge">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.4 2.7 3.6 6 3.6 9s-1.2 6.3-3.6 9c-2.4-2.7-3.6-6-3.6-9s1.2-6.3 3.6-9z" />
+                            </svg>
+                            <span className="sdk001-src-badge-tip">Melamar mandiri via Portal Karier</span>
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td style={{ maxWidth: 250 }}>
                       <div className="sdk001-jabatan-cell">

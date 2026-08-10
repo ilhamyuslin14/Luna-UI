@@ -111,18 +111,12 @@ export async function getRecentJobs(companyId) {
 
     const seleksiIds = seleksi.map(s => s.id);
 
-    // 1. Get candidate IDs & stage from scoring table
+    // Kandidat terhubung ke lowongan lewat tabel scoring (scoring.kandidat_id +
+    // scoring.seleksi_id) — tabel kandidat sendiri tidak punya kolom seleksi_id.
     const { data: scoringData } = await supabase
       .from('scoring')
       .select('seleksi_id, kandidat_id, alur_proses, kandidat:kandidat_id(arsip)')
       .in('seleksi_id', seleksiIds);
-
-    // 2. Get candidate IDs from kandidat table directly
-    const { data: kandidatData } = await supabase
-      .from('kandidat')
-      .select('id, seleksi_id, arsip')
-      .in('seleksi_id', seleksiIds)
-      .eq('arsip', false);
 
     const countMap = {};
     const stageMap = {};
@@ -138,17 +132,6 @@ export async function getRecentJobs(companyId) {
         if (alur >= 8) stageMap[s.seleksi_id].hired += 1;
         else if (alur > 1) stageMap[s.seleksi_id].interview += 1;
         else stageMap[s.seleksi_id].baru += 1;
-      }
-    });
-
-    (kandidatData || []).forEach(k => {
-      if (k.arsip) return;
-      if (!countMap[k.seleksi_id]) countMap[k.seleksi_id] = new Set();
-      if (!stageMap[k.seleksi_id]) stageMap[k.seleksi_id] = { baru: 0, interview: 0, hired: 0 };
-
-      if (k.id && !countMap[k.seleksi_id].has(k.id)) {
-        countMap[k.seleksi_id].add(k.id);
-        stageMap[k.seleksi_id].baru += 1;
       }
     });
 

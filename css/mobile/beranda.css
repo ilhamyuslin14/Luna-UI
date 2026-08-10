@@ -1,0 +1,554 @@
+/* Mobile Beranda — mdb002- prefix, terpisah dari css/beranda_002.css (desktop) */
+
+.mdb002-hero {
+  margin: 14px 14px 0;
+  background: linear-gradient(135deg, var(--luna-orange-500) 0%, var(--luna-orange-400) 100%);
+  border-radius: 18px;
+  padding: 18px 18px 20px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.mdb002-hero::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 140px;
+  height: 140px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
+.mdb002-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.mdb002-hero-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.mdb002-hero h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  line-height: 1.3;
+  position: relative;
+}
+
+.mdb002-hero p {
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.92);
+  position: relative;
+}
+
+.mdb002-hero-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  background: #ffffff;
+  color: var(--luna-orange-600);
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  position: relative;
+  cursor: pointer;
+}
+
+.mdb002-hero-cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Langkah cepat ── */
+.mdb002-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mdb002-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 14px;
+  padding: 12px;
+  position: relative;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mdb002-step-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.mdb002-step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mdb002-step-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--luna-ink-900);
+  margin-bottom: 2px;
+}
+
+.mdb002-step-desc {
+  font-size: 11.5px;
+  color: var(--luna-ink-400);
+  line-height: 1.4;
+}
+
+.mdb002-step-chevron {
+  color: var(--luna-ink-300);
+  flex-shrink: 0;
+}
+
+.mdb002-step-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Langkah 1 — titik masuk paling awal & paling penting, dibedakan dari langkah lain */
+.mdb002-step.primary {
+  background: linear-gradient(135deg, var(--luna-orange-500) 0%, var(--luna-orange-400) 100%);
+  border-color: transparent;
+  padding: 15px 13px;
+  box-shadow: 0 10px 22px rgba(255, 123, 0, 0.3);
+}
+
+.mdb002-step.primary .mdb002-step-num {
+  width: 38px;
+  height: 38px;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.mdb002-step.primary .mdb002-step-title {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.mdb002-step.primary .mdb002-step-desc {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mdb002-step.primary .mdb002-step-chevron {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mdb002-step-flag {
+  position: absolute;
+  top: -8px;
+  right: 14px;
+  background: #ffffff;
+  color: var(--luna-orange-600);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Ringkasan metrik ── */
+.mdb002-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mdb002-metric-card {
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 14px;
+  padding: 13px;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mdb002-metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.mdb002-metric-icon.orange {
+  background: var(--luna-orange-050);
+  color: var(--luna-orange-600);
+}
+
+.mdb002-metric-icon.dark {
+  background: var(--luna-ink-100);
+  color: var(--luna-ink-700);
+}
+
+.mdb002-metric-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mdb002-metric-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.mdb002-metric-label {
+  font-size: 11px;
+  color: var(--luna-ink-400);
+  font-weight: 600;
+}
+
+/* ── Lowongan terbaru ── */
+.mdb002-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.mdb002-job-card {
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.mdb002-job-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mdb002-job-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--luna-ink-900);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 190px;
+}
+
+.mdb002-job-meta {
+  font-size: 11.5px;
+  color: var(--luna-ink-400);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mdb002-job-meta-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--luna-ink-300);
+}
+
+.mdb002-job-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mdb002-status-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #edfcf2;
+  color: #089f32;
+  white-space: nowrap;
+}
+
+.mdb002-status-pill.draft {
+  background: var(--luna-ink-100);
+  color: var(--luna-ink-600);
+}
+
+.mdb002-share-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--luna-ink-050);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--luna-ink-500);
+  flex-shrink: 0;
+}
+
+.mdb002-share-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mdb002-job-stages {
+  display: flex;
+  gap: 14px;
+  padding: 10px 0;
+  margin: 8px 0;
+  border-top: 1px solid var(--luna-ink-050);
+  border-bottom: 1px solid var(--luna-ink-050);
+}
+
+.mdb002-stage {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--luna-ink-500);
+  font-weight: 600;
+}
+
+.mdb002-stage-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mdb002-stage-dot.blue { background: #2563eb; }
+.mdb002-stage-dot.orange { background: var(--luna-orange-500); }
+.mdb002-stage-dot.green { background: #089f32; }
+
+.mdb002-job-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mdb002-job-total {
+  font-size: 11.5px;
+  color: var(--luna-ink-500);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mdb002-job-total svg {
+  width: 13px;
+  height: 13px;
+  color: var(--luna-ink-300);
+}
+
+.mdb002-job-manage {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--luna-orange-600);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.mdb002-job-manage svg {
+  width: 12px;
+  height: 12px;
+}
+
+.mdb002-empty {
+  margin: 0 16px;
+  text-align: center;
+  padding: 28px 18px;
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 16px;
+}
+
+.mdb002-empty p {
+  font-size: 12.5px;
+  color: var(--luna-ink-400);
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+/* ── Section header — punya Beranda sendiri, bukan dipakai bareng halaman lain ── */
+.mdb002-section {
+  padding: 20px 16px 0;
+}
+
+.mdb002-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.mdb002-section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+}
+
+.mdb002-section-link {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--luna-orange-600);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.mdb002-section-link svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* ── Isi bottom sheet share Beranda — dipasang di dalam .msh-sheet (shell.css) ── */
+.mdb002-sheet-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--luna-ink-400);
+  margin-bottom: 10px;
+}
+
+.mdb002-sheet-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--luna-ink-050);
+  border-radius: 11px;
+  padding: 10px 11px;
+  margin-bottom: 14px;
+}
+
+.mdb002-sheet-link span {
+  flex: 1;
+  font-size: 11.5px;
+  color: var(--luna-ink-500);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdb002-sheet-copy {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--luna-orange-600);
+  background: var(--luna-orange-050);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.mdb002-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.mdb002-share-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+.mdb002-share-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--luna-ink-050);
+  color: var(--luna-ink-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mdb002-share-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mdb002-share-item span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--luna-ink-500);
+}
+
+/* ── Toast ringan khusus Beranda ── */
+.mdb002-toast {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 10px));
+  background: var(--luna-ink-800);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-align: center;
+  z-index: 50;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
