@@ -82,7 +82,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
                 <textarea
                   className="mblw-free-input"
-                  rows={2}
+                  rows={1}
                   placeholder={data.placeholder}
                   value={current.text}
                   onChange={e => setText(e.target.value)}

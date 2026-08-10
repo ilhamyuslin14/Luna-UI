@@ -85,7 +85,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
 
                   <textarea
                     className="blw-free-input"
-                    rows={2}
+                    rows={1}
                     placeholder={data.placeholder}
                     value={current.text}
                     onChange={e => setText(e.target.value)}
