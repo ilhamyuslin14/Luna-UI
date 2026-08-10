@@ -56,7 +56,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
               {step === 'loading-next' ? (
                 <div className="blw-loading">
                   <div className="blw-spinner" />
-                  AI sedang menyiapkan pertanyaan berikutnya...
+                  Menyiapkan pertanyaan berikutnya...
                 </div>
               ) : (
                 <>
@@ -110,7 +110,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
         <div className="blw-body" style={{ height: '100%' }}>
           <div className="blw-loading">
             <div className="blw-spinner" />
-            AI sedang menyusun deskripsi lowongan dari jawaban Anda...
+            Menyusun deskripsi lowongan dari jawaban Anda...
           </div>
         </div>
       )}
@@ -118,7 +118,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
       {step === 'summary' && (
         <>
           <div className="blw-sum-top">
-            <span className="blw-sum-eyebrow"><IconAi />Disusun oleh AI dari {total} jawaban Anda</span>
+            <span className="blw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {total} jawaban Anda</span>
             <h2>Deskripsi Lowongan Siap</h2>
             <p>Tinjau hasilnya di bawah — bisa diminta ulang, atau langsung diterbitkan.</p>
           </div>

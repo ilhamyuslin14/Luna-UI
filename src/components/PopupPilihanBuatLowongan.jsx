@@ -18,14 +18,14 @@ export default function PopupPilihanBuatLowongan({ onClose, onPilihPanduan, onPi
       <div className="blp-modal" onClick={e => e.stopPropagation()}>
         <div className="blp-head">
           <h2>Bagaimana Anda ingin membuat lowongan?</h2>
-          <p>Pilih cara yang paling nyaman — bisa dibantu AI lewat obrolan singkat, atau isi sendiri lewat form lengkap.</p>
+          <p>Pilih cara yang paling nyaman — dipandu lewat obrolan singkat, atau isi sendiri lewat form lengkap.</p>
         </div>
         <div className="blp-grid">
           <button className="blp-card primary" onClick={onPilihPanduan}>
             <span className="blp-flag">Baru</span>
             <span className="blp-icon"><IconPanduan /></span>
-            <span className="blp-title">Buat dengan Panduan AI</span>
-            <span className="blp-desc">Jawab beberapa pertanyaan singkat, AI bantu susun deskripsi &amp; kualifikasi pekerjaan yang lengkap dan rapi.</span>
+            <span className="blp-title">Buat dengan Bantuan Luna</span>
+            <span className="blp-desc">Jawab beberapa pertanyaan singkat untuk menyusun deskripsi &amp; kualifikasi pekerjaan yang lengkap dan rapi.</span>
           </button>
           <button className="blp-card" onClick={onPilihForm}>
             <span className="blp-icon"><IconForm /></span>

@@ -51,7 +51,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
           <div className="mblw-body">
             {step === 'loading-next' ? (
-              <div className="mblw-loading"><div className="mblw-spinner" />AI sedang menyiapkan pertanyaan berikutnya...</div>
+              <div className="mblw-loading"><div className="mblw-spinner" />Menyiapkan pertanyaan berikutnya...</div>
             ) : (
               <>
                 {currentQ > 0 && (
@@ -101,7 +101,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
       {step === 'loading-summary' && (
         <div className="mblw-body" style={{ display: 'flex' }}>
-          <div className="mblw-loading"><div className="mblw-spinner" />AI sedang menyusun deskripsi lowongan dari jawaban Anda...</div>
+          <div className="mblw-loading"><div className="mblw-spinner" />Menyusun deskripsi lowongan dari jawaban Anda...</div>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
             <button className="mblw-close" onClick={onClose}><IconClose /></button>
           </div>
           <div className="mblw-sum-body">
-            <span className="mblw-sum-eyebrow"><IconAi />Disusun oleh AI dari {total} jawaban Anda</span>
+            <span className="mblw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {total} jawaban Anda</span>
             <h2 className="mblw-sum-title">Deskripsi Lowongan Siap</h2>
             <div className="mblw-sum-card">
               <div className="mblw-sum-job-title">{GENERATED_RESULT.jobTitle}</div>

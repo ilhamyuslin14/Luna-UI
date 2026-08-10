@@ -23,14 +23,14 @@ export default function MobileBuatLowonganChoice({ open, onClose, onPilihPanduan
         <div className="msh-sheet-handle" />
         <div className="mblp-head">
           <h2>Bagaimana Anda ingin membuat lowongan?</h2>
-          <p>Bisa dibantu AI lewat obrolan singkat, atau isi sendiri lewat form lengkap.</p>
+          <p>Dipandu lewat obrolan singkat, atau isi sendiri lewat form lengkap.</p>
         </div>
         <button className="mblp-row primary" onClick={onPilihPanduan}>
           <span className="mblp-row-flag">Baru</span>
           <span className="mblp-row-icon"><IconPanduan /></span>
           <span className="mblp-row-body">
-            <span className="mblp-row-title">Buat dengan Panduan AI</span>
-            <span className="mblp-row-desc">AI bantu susun deskripsi lewat tanya-jawab singkat</span>
+            <span className="mblp-row-title">Buat dengan Bantuan Luna</span>
+            <span className="mblp-row-desc">Susun deskripsi lewat tanya-jawab singkat</span>
           </span>
           <span className="mblp-row-chevron"><IconChevron /></span>
         </button>
