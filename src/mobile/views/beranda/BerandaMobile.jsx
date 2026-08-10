@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import useBerandaData from '../../../hooks/beranda/useBerandaData.js';
-import MobileBuatLowonganChoice from '../../components/MobileBuatLowonganChoice.jsx';
-import MobileBuatLowonganQA from '../../components/MobileBuatLowonganQA.jsx';
+import MobileBuatLowonganChoice from '../lowongan/MobileBuatLowonganChoice.jsx';
+import MobileBuatLowonganQA from '../lowongan/MobileBuatLowonganQA.jsx';
 import '../../../../css/mobile/beranda.css';
 
 const IconPlus = () => (

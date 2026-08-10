@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import useBerandaData from '../../hooks/beranda/useBerandaData.js';
 import PopupPilihanBuatLowongan from '../../components/PopupPilihanBuatLowongan.jsx';
-import '../../../css/beranda_002.css';
+import '../../../css/beranda/beranda_002.css';
 
 const IconWhatsApp = () => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

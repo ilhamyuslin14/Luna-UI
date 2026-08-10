@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getCompanyBySlug, getActiveSeleksiByCompany } from '../../services/seleksiService.js';
-import '../../../css/lowongan-laman-karir_001.css';
-import '../../../css/lowongan-perusahaan_001.css';
-import '../../../css/lowongan_001.css';
+import '../../../css/lowongan/lowongan-laman-karir_001.css';
+import '../../../css/lowongan/lowongan-perusahaan_001.css';
+import '../../../css/lowongan/lowongan_001.css';
 
 function formatDeskripsiToHtml(text) {
   if (!text) return '';

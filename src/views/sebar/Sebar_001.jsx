@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { getSeleksi } from '../../services/seleksiService.js';
 import { supabase } from '../../config/supabase.js';
 import { slugify } from '../../utils/slug.js';
-import '../../../css/sebar_001.css';
+import '../../../css/sebar/sebar_001.css';
 
 const PER_PAGE = 4;
 
@@ -160,17 +160,12 @@ export default function Sebar_001({ onNavigate, navigate }) {
         if (activeJobs.length > 0) {
           const seleksiIds = activeJobs.map(s => s.id);
 
-          // Query candidate counts from scoring table
+          // Kandidat terhubung ke lowongan lewat tabel scoring (scoring.kandidat_id +
+          // scoring.seleksi_id) — tabel kandidat sendiri tidak punya kolom seleksi_id.
           const { data: scoringData } = await supabase
             .from('scoring')
             .select('seleksi_id, kandidat_id, kandidat:kandidat_id(arsip)')
             .in('seleksi_id', seleksiIds);
-
-          // Query candidate counts from kandidat table
-          const { data: kandidatData } = await supabase
-            .from('kandidat')
-            .select('id, seleksi_id, arsip')
-            .eq('company_id', companyId);
 
           const countMap = {};
           seleksiIds.forEach(id => { countMap[id] = new Set(); });
@@ -179,13 +174,6 @@ export default function Sebar_001({ onNavigate, navigate }) {
             if (s.kandidat?.arsip) return;
             if (s.kandidat_id && countMap[s.seleksi_id]) {
               countMap[s.seleksi_id].add(s.kandidat_id);
-            }
-          });
-
-          (kandidatData || []).forEach(k => {
-            if (k.arsip) return;
-            if (k.seleksi_id && countMap[k.seleksi_id]) {
-              countMap[k.seleksi_id].add(k.id);
             }
           });
 

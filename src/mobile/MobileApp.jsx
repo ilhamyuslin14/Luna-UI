@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import useNotifications from '../hooks/navbar/useNotifications.js';
 import PopupKonfirmasi from '../components/PopupKonfirmasi.jsx';
-import BerandaMobile from './views/beranda/Beranda_002.jsx';
+import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
 

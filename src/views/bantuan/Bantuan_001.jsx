@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { supabase } from '../../config/supabase.js';
-import '../../../css/bantuan_001.css';
+import '../../../css/bantuan/bantuan_001.css';
 
 export default function Bantuan_001() {
   const { user, profileName, companyName, companyDetails, companyId, refreshCompanyData } = useAuth() || {};

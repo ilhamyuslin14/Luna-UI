@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import useBuatLowonganPanduan, { GENERATED_RESULT } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
+import useBuatLowonganPanduan, { GENERATED_RESULT } from '../../../hooks/lowongan/useBuatLowonganPanduan.js';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
