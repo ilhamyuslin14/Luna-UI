@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const EXIT_DURATION = 180;
 
-export default function PopupKonfirmasi({ title, body, confirmLabel = 'Konfirmasi', onConfirm, onClose }) {
+export default function PopupKonfirmasi({ title, body, confirmLabel = 'Konfirmasi', danger = false, onConfirm, onClose }) {
   const [closing, setClosing] = useState(false);
 
   const dismiss = (action) => {
@@ -20,7 +20,7 @@ export default function PopupKonfirmasi({ title, body, confirmLabel = 'Konfirmas
         </div>
         <div className="cm-footer">
           <button className="cm-btn-cancel" onClick={() => dismiss(onClose)}>Batal</button>
-          <button className="cm-btn-confirm" onClick={() => dismiss(onConfirm)}>{confirmLabel}</button>
+          <button className={`cm-btn-confirm${danger ? ' danger' : ''}`} onClick={() => dismiss(onConfirm)}>{confirmLabel}</button>
         </div>
       </div>
     </div>

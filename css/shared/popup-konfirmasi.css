@@ -120,3 +120,11 @@
 .cm-btn-confirm:hover {
   background: var(--luna-orange-500);
 }
+
+.cm-btn-confirm.danger {
+  background: #C2312F;
+}
+
+.cm-btn-confirm.danger:hover {
+  background: #A82824;
+}
