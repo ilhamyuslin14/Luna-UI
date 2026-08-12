@@ -115,7 +115,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
           </div>
           <div className="blw-top">
             <button className="blw-close" onClick={handleCancel}><IconClose />Batalkan</button>
-            <span className="blw-progress-label">{String(currentQ + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+            <span className="blw-progress-label">Pertanyaan {currentQ + 1} dari {total}</span>
           </div>
 
           <div className={`blw-body${step === 'loading-next' ? ' blw-body-center' : ''}`}>

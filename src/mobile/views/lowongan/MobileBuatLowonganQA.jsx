@@ -156,7 +156,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
             <div className="mblw-rail"><div className="mblw-rail-fill" style={{ width: `${((currentQ + 1) / total) * 100}%` }} /></div>
             <div className="mblw-top">
               <button className="mblw-close" onClick={onClose}><IconClose /></button>
-              <span className="mblw-progress-label">{String(currentQ + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+              <span className="mblw-progress-label">Pertanyaan {currentQ + 1} dari {total}</span>
             </div>
 
             <div className="mblw-body">
