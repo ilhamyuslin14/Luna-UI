@@ -269,6 +269,11 @@
   margin-bottom: 8px;
 }
 
+.mdb002-job-title-wrap {
+  cursor: pointer;
+  min-width: 0;
+}
+
 .mdb002-job-title {
   font-size: 14.5px;
   font-weight: 700;

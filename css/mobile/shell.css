@@ -31,10 +31,12 @@
 }
 
 .msh-brand-logo {
-  height: 28px;
-  width: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   object-fit: contain;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .msh-topbar-right {
@@ -197,6 +199,13 @@
   left: 0;
   right: 0;
   bottom: 0;
+  /* Dibatasi ke 2/3 layar — konten yang lebih panjang scroll di dalam sheet
+     ini sendiri (overflow-y: auto di bawah), bukan dorong sheet-nya makin
+     tinggi. Berlaku sebagai default semua bottom sheet kecuali di-override
+     lebih kecil lagi per halaman (mis. .mss-sheet, .mkd001-entry-sheet). */
+  max-height: 67vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #ffffff;
   border-radius: 22px 22px 0 0;
   padding: 8px 18px calc(20px + env(safe-area-inset-bottom, 10px));
@@ -547,7 +556,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: 78%;
+  max-height: 67vh;
   background: #ffffff;
   border-radius: 22px 22px 0 0;
   transform: translateY(100%);
@@ -610,6 +619,8 @@
 }
 
 .msh-notif-list {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 6px 10px;
 }
@@ -712,3 +723,67 @@
   flex-shrink: 0;
   font-family: inherit;
 }
+
+/* ── Toast — dipakai lebih dari satu fitur (Lowongan list, Lowongan detail),
+   makanya digenericin di shell.css, sama seperti .msh-sheet ── */
+.msh-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 10px));
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-left: 4px solid #14b541;
+  border-radius: 12px;
+  padding: 12px 10px 12px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  z-index: 250;
+  animation: msh-toast-in 0.25s ease;
+}
+
+.msh-toast.error { border-left-color: #ef4444; }
+.msh-toast.warning { border-left-color: #f59e0b; }
+
+@keyframes msh-toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msh-toast-icon { flex-shrink: 0; margin-top: 1px; }
+.msh-toast-icon svg { width: 16px; height: 16px; }
+
+.msh-toast-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msh-toast-message {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--luna-ink-900);
+  line-height: 1.4;
+}
+
+.msh-toast-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--luna-ink-400);
+  line-height: 1.5;
+}
+
+.msh-toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 3px;
+  color: var(--luna-ink-300);
+  display: flex;
+}
+
+.msh-toast-close svg { width: 10px; height: 10px; }

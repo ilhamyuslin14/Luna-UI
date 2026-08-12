@@ -54,11 +54,19 @@ const IconInstagram = () => (
 const IconTelegram = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
 );
+const IconFacebook = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
+);
+const IconX = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+);
 
 const SHARE_PLATFORMS = [
   { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
   { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
   { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
   { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
 ];
 
@@ -158,7 +166,7 @@ export default function BerandaMobile({ navigate }) {
             {recentJobs.slice(0, 6).map(job => (
               <div className="mdb002-job-card" key={job.id}>
                 <div className="mdb002-job-top">
-                  <div>
+                  <div className="mdb002-job-title-wrap" onClick={() => navigate('lowongan-detail_001', { seleksiId: job.id, jabatan: job.posisi })}>
                     <div className="mdb002-job-title">{job.posisi}</div>
                     <div className="mdb002-job-meta">
                       {job.departemen || job.dept || 'Umum'}

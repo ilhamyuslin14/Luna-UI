@@ -128,9 +128,11 @@ export async function getRecentJobs(companyId) {
       
       if (s.kandidat_id) {
         countMap[s.seleksi_id].add(s.kandidat_id);
+        // Wawancara mulai level 4 (Penjadwalan Wawancara) — Terseleksi &
+        // Diajukan (level 2-3) masih dihitung Baru.
         const alur = s.alur_proses ?? 0;
         if (alur >= 8) stageMap[s.seleksi_id].hired += 1;
-        else if (alur > 1) stageMap[s.seleksi_id].interview += 1;
+        else if (alur >= 4) stageMap[s.seleksi_id].interview += 1;
         else stageMap[s.seleksi_id].baru += 1;
       }
     });
