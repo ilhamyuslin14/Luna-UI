@@ -1,0 +1,22 @@
+/* Indikator huruf mengambang ala toast (fast-scroll position indicator) —
+   mai- prefix, dipakai bareng lewat src/mobile/components/MobileAlphaIndex.jsx */
+
+.mai-bubble {
+  position: fixed;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(21, 20, 15, 0.86);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  z-index: 41;
+  pointer-events: none;
+}
