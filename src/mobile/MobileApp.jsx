@@ -4,6 +4,7 @@ import useNotifications from '../hooks/navbar/useNotifications.js';
 import PopupKonfirmasi from '../components/PopupKonfirmasi.jsx';
 import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import LowonganMobile from './views/lowongan/LowonganMobile.jsx';
+import LowonganDetailMobile from './views/lowongan/LowonganDetailMobile.jsx';
 import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
@@ -90,7 +91,7 @@ function DummyPage({ menu }) {
   );
 }
 
-export default function MobileApp({ navigate, activeMenu }) {
+export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab }) {
   const { user, logout, companyId } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -136,9 +137,18 @@ export default function MobileApp({ navigate, activeMenu }) {
         </div>
       </div>
 
-      <div className={`msh-content${['beranda_002', 'lowongan_001', 'buat-lowongan_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
+      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
+          : activeMenu === 'lowongan-detail_001' ? (
+            <LowonganDetailMobile
+              navigate={navigate}
+              back={back}
+              seleksiId={selectedSeleksiId}
+              jabatan={seleksiJabatan}
+              activeTab={seleksiActiveTab}
+            />
+          )
           : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
           : <DummyPage menu={activeMenu} />}
       </div>

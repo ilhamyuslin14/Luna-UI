@@ -336,7 +336,16 @@ export default function App() {
   }
 
   if (isMobile) {
-    return <MobileApp navigate={navigate} activeMenu={activeMenu} />;
+    return (
+      <MobileApp
+        navigate={navigate}
+        back={back}
+        activeMenu={activeMenu}
+        selectedSeleksiId={selectedSeleksiId}
+        seleksiJabatan={seleksiJabatan}
+        seleksiActiveTab={seleksiActiveTab}
+      />
+    );
   }
 
   return (

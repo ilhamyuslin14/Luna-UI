@@ -1,0 +1,122 @@
+/* MobileScoreDetailSheet — mss- prefix. Dipakai lebih dari satu halaman
+   (Kandidat Detail & Lowongan Detail → tab Kandidat), jadi digenericin jadi
+   komponen + CSS sendiri, sama seperti .msh-sheet dipisah ke shell.css dulu.
+   File ini sengaja berdiri sendiri (tidak bergantung ke kandidat-detail.css
+   atau file page lain) supaya amannya konsisten dgn prinsip "per file". */
+
+.mss-sheet-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--luna-ink-900); margin-bottom: 4px; }
+.mss-sheet-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--luna-ink-400); margin: 16px 0 8px; }
+.mss-sheet-label.first { margin-top: 0; }
+.mss-empty { padding: 20px 14px; text-align: center; font-size: 12px; color: var(--luna-ink-400); line-height: 1.5; }
+
+.mss-select-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 4px;
+  border-bottom: 1px solid var(--luna-ink-050); width: 100%; background: none; border-left: none; border-right: none; border-top: none;
+  font-family: inherit; text-align: left;
+}
+.mss-select-opt:last-child { border-bottom: none; }
+.mss-select-opt-label { font-size: 13.5px; font-weight: 700; color: var(--luna-ink-800); flex: 1; }
+.mss-select-opt-check { color: var(--luna-orange-500); flex-shrink: 0; }
+.mss-select-opt-check svg { width: 13px; height: 13px; }
+
+/* sheet skor — dibatasi ke ~2/3 layar (lebih kecil dari batas default
+   .msh-sheet 85vh) karena kontennya padat (gauge + rangkuman + kriteria);
+   bagian atas (gauge/skor) tetap kelihatan & sisanya di-scroll di dalam */
+.msh-sheet.mss-sheet { max-height: 67vh; }
+
+/* bar loading mengambang — nempel di atas begitu penilaian ulang jalan,
+   supaya kelihatan jelas ada proses berjalan (bukan cuma tombol disabled)
+   sebelum gauge & rincian kriteria berubah tiba-tiba */
+.mss-rescore-bar { position: relative; height: 3px; background: var(--luna-orange-050); border-radius: 999px; overflow: hidden; margin: 4px -18px 14px; }
+.mss-rescore-bar span {
+  position: absolute; top: 0; left: -40%; height: 100%; width: 40%; background: var(--luna-orange-500); border-radius: 999px;
+  animation: mss-rescore-slide 1.1s ease-in-out infinite;
+}
+@keyframes mss-rescore-slide { 0% { left: -40%; } 100% { left: 100%; } }
+
+.mss-spin { display: inline-flex; animation: mss-spin 0.9s linear infinite; }
+@keyframes mss-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.mss-posisi-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--luna-ink-900); margin-bottom: 14px; display: flex; align-items: baseline; gap: 8px; }
+.mss-dept { font-family: inherit; font-size: 10.5px; font-weight: 700; color: var(--luna-ink-500); background: var(--luna-ink-050); padding: 3px 9px; border-radius: 999px; }
+
+.mss-gauge-row { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+.mss-gauge-wrap { position: relative; width: 92px; height: 92px; flex-shrink: 0; }
+.mss-gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mss-gauge-label { font-size: 8.5px; font-weight: 800; letter-spacing: 0.04em; color: var(--luna-ink-400); }
+.mss-gauge-score { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; line-height: 1.1; }
+.mss-dist-col { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.mss-dist-chip { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--luna-ink-700); }
+.mss-dist-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.mss-dist-chip.high .mss-dist-dot { background: var(--fit-high, #089F32); }
+.mss-dist-chip.moderate .mss-dist-dot { background: var(--fit-moderate, #FD800C); }
+.mss-dist-chip.low .mss-dist-dot { background: var(--fit-low, #FB484B); }
+
+.mss-summary { font-size: 12px; line-height: 1.6; color: var(--luna-ink-600); background: var(--luna-ink-050); border-radius: 12px; padding: 12px; margin-bottom: 4px; }
+
+.mss-krit-item { display: flex; align-items: flex-start; gap: 9px; padding: 10px 0; border-bottom: 1px solid var(--luna-ink-050); }
+.mss-krit-item:last-child { border: none; }
+.mss-krit-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.mss-krit-dot.high { background: var(--fit-high, #089F32); }
+.mss-krit-dot.moderate { background: var(--fit-moderate, #FD800C); }
+.mss-krit-dot.low { background: var(--fit-low, #FB484B); }
+.mss-krit-dot.none { background: var(--fit-none, #7E8799); }
+.mss-krit-text { font-size: 12px; font-weight: 700; color: var(--luna-ink-800); }
+.mss-krit-desc { font-size: 11px; color: var(--luna-ink-500); line-height: 1.5; margin-top: 2px; }
+
+/* CTA penuh-lebar untuk state "belum dinilai" — beda konteks dari footer
+   3-tombol di bawah, jadi tetap pakai teks bukan ikon saja */
+.mss-rescore-full {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; background: var(--luna-orange-500);
+  color: #ffffff; border-radius: 12px; padding: 13px; font-size: 13px; font-weight: 800; border: none; font-family: inherit;
+}
+.mss-rescore-full svg { width: 14px; height: 14px; }
+.mss-rescore-full:disabled { opacity: 0.6; }
+.mss-locked { text-align: center; padding: 24px 10px; }
+.mss-locked p { font-size: 12px; color: var(--luna-ink-500); line-height: 1.55; margin: 8px 0 14px; }
+
+.mss-footer { display: flex; align-items: stretch; gap: 8px; margin-top: 18px; }
+.mss-alur-btn {
+  flex: 1; min-width: 0; height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  background: var(--luna-ink-050); color: var(--luna-ink-700); border-radius: 12px; padding: 0 14px;
+  font-size: 12.5px; font-weight: 700; border: none; font-family: inherit;
+}
+.mss-alur-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mss-alur-btn svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--luna-ink-400); }
+.mss-alur-btn:disabled { opacity: 0.5; }
+
+.mss-icon-btn {
+  position: relative; flex-shrink: 0; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+  border-radius: 12px; border: none;
+}
+.mss-icon-btn svg { width: 17px; height: 17px; }
+.mss-icon-btn.rescore { background: var(--luna-orange-500); color: #ffffff; }
+.mss-icon-btn.rescore:disabled { opacity: 0.6; }
+.mss-icon-btn.reject { background: var(--luna-ink-050); color: #C2312F; }
+.mss-icon-btn.reject:disabled { opacity: 0.5; }
+
+.mss-holdtip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--luna-ink-900); color: #ffffff; font-size: 10.5px; font-weight: 700; padding: 6px 10px;
+  border-radius: 8px; white-space: nowrap; pointer-events: none; z-index: 5;
+}
+.mss-holdtip::after {
+  content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--luna-ink-900);
+}
+
+/* alur sheet — dibuka DI ATAS sheet skor (nested), jadi overlay & sheet-nya
+   perlu z-index lebih tinggi dari .msh-sheet (201) supaya scrim gelapnya
+   ikut menutupi sheet skor di bawahnya, bukan cuma konten di belakangnya */
+.msh-sheet-overlay.mss-alur-overlay { z-index: 211; }
+.msh-sheet.mss-alur-sheet {
+  z-index: 212;
+  max-height: 33vh;
+  overflow: hidden;
+  background: var(--luna-ink-050);
+  display: flex;
+  flex-direction: column;
+}
+.mss-alur-list { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.mss-alur-sheet .mss-select-opt { background: #ffffff; border-radius: 10px; padding: 12px 12px; margin-bottom: 6px; border-bottom: none; }
+.mss-alur-sheet .mss-select-opt:last-child { margin-bottom: 0; }

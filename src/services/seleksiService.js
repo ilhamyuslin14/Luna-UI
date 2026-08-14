@@ -87,6 +87,20 @@ export async function getMaxAlurBySeleksi(companyId) {
   return maxMap;
 }
 
+export async function getMaxAlurForSeleksi(seleksiId) {
+  if (!seleksiId) return null;
+  const { data } = await supabase
+    .from('scoring')
+    .select('alur_proses')
+    .eq('seleksi_id', seleksiId);
+
+  let max = null;
+  (data || []).forEach(s => {
+    if (s.alur_proses != null && (max == null || s.alur_proses > max)) max = s.alur_proses;
+  });
+  return max;
+}
+
 export async function createSeleksi(companyId, data) {
   if (!companyId) throw new Error('company_id is required');
 
