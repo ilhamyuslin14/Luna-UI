@@ -6,6 +6,7 @@ import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import LowonganMobile from './views/lowongan/LowonganMobile.jsx';
 import LowonganDetailMobile from './views/lowongan/LowonganDetailMobile.jsx';
 import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx';
+import SebarMobile from './views/sebar/SebarMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
 
@@ -137,7 +138,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         </div>
       </div>
 
-      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
+      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'sebar_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
           : activeMenu === 'lowongan-detail_001' ? (
@@ -150,6 +151,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
             />
           )
           : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
+          : activeMenu === 'sebar_001' ? <SebarMobile navigate={navigate} />
           : <DummyPage menu={activeMenu} />}
       </div>
 
