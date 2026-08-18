@@ -82,6 +82,7 @@ export default function App() {
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
   const [lamanPerusahaanSlug, setLamanPerusahaanSlug] = useState(urlParams.get('slug') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
+  const [kandidatOverlay, setKandidatOverlay] = useState(null);
   const [kandidatFilter, setKandidatFilter] = useState(urlParams.get('filter') || '');
   const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
   const [selectedDepartemenId, setSelectedDepartemenId] = useState(urlParams.get('departemenId') || null);
@@ -106,14 +107,17 @@ export default function App() {
   };
 
   const navigate = (menu, params = {}) => {
-    setHistoryStack(stack => [...stack, { menu: activeMenu, seleksiId: selectedSeleksiId, jabatan: seleksiJabatan, kandidat: selectedKandidat, departemen: selectedDepartemen, departemenId: selectedDepartemenId, seleksiActiveTab }]);
+    setHistoryStack(stack => [...stack, { menu: activeMenu, seleksiId: selectedSeleksiId, jabatan: seleksiJabatan, kandidat: selectedKandidat, kandidatOverlay, departemen: selectedDepartemen, departemenId: selectedDepartemenId, seleksiActiveTab }]);
     if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat' ||
         menu === 'lowongan-detail' || menu === 'lowongan-detail_001' || menu === 'lowongan-detail_002' || menu === 'lowongan-tambah-kandidat') {
       if (params.seleksiId) setSelectedSeleksiId(params.seleksiId);
       if (params.jabatan) setSeleksiJabatan(params.jabatan);
       if (params.activeTab) setSeleksiActiveTab(params.activeTab);
     }
-    if (menu === 'kandidat-detail' || menu === 'kandidat-detail_001') setSelectedKandidat(params.kandidat || null);
+    if (menu === 'kandidat-detail' || menu === 'kandidat-detail_001') {
+      setSelectedKandidat(params.kandidat || null);
+      setKandidatOverlay(params.overlay || null);
+    }
     if (menu === 'departemen-detail' || menu === 'departemen-detail_001') {
       setSelectedDepartemen(params.departemen || null);
       setSelectedDepartemenId(params.departemenId || null);
@@ -146,6 +150,7 @@ export default function App() {
     setSeleksiJabatan(prev.jabatan);
     setSelectedSeleksiId(prev.seleksiId);
     setSelectedKandidat(prev.kandidat);
+    setKandidatOverlay(prev.kandidatOverlay || null);
     setSelectedDepartemen(prev.departemen);
     setSelectedDepartemenId(prev.departemenId);
     setSeleksiActiveTab(prev.seleksiActiveTab);
@@ -344,6 +349,8 @@ export default function App() {
         selectedSeleksiId={selectedSeleksiId}
         seleksiJabatan={seleksiJabatan}
         seleksiActiveTab={seleksiActiveTab}
+        selectedKandidat={selectedKandidat}
+        kandidatOverlay={kandidatOverlay}
       />
     );
   }

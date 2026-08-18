@@ -6,6 +6,9 @@ import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import LowonganMobile from './views/lowongan/LowonganMobile.jsx';
 import LowonganDetailMobile from './views/lowongan/LowonganDetailMobile.jsx';
 import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx';
+import KandidatMobile from './views/kandidat/KandidatMobile.jsx';
+import KandidatTambahMobile from './views/kandidat/KandidatTambahMobile.jsx';
+import KandidatDetailMobile from './views/kandidat/KandidatDetailMobile.jsx';
 import SebarMobile from './views/sebar/SebarMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
@@ -92,7 +95,7 @@ function DummyPage({ menu }) {
   );
 }
 
-export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab }) {
+export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab, selectedKandidat, kandidatOverlay }) {
   const { user, logout, companyId } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -138,7 +141,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         </div>
       </div>
 
-      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'sebar_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
+      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'sebar_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
           : activeMenu === 'lowongan-detail_001' ? (
@@ -151,6 +154,16 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
             />
           )
           : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
+          : activeMenu === 'kandidat_001' ? <KandidatMobile navigate={navigate} />
+          : activeMenu === 'kandidat-tambah' ? <KandidatTambahMobile navigate={navigate} back={back} />
+          : activeMenu === 'kandidat-detail_001' ? (
+            <KandidatDetailMobile
+              navigate={navigate}
+              back={back}
+              kandidat={selectedKandidat}
+              overlay={kandidatOverlay}
+            />
+          )
           : activeMenu === 'sebar_001' ? <SebarMobile navigate={navigate} />
           : <DummyPage menu={activeMenu} />}
       </div>
