@@ -787,3 +787,45 @@
 }
 
 .msh-toast-close svg { width: 10px; height: 10px; }
+
+/* ── Scoring widget — global, dipasang di MobileApp.jsx supaya tetap
+   kelihatan lintas halaman. Ditaruh LEBIH TINGGI dari .msh-toast (bukan
+   posisi bottom yang sama) supaya keduanya tidak numpuk saat toast
+   "ditambahkan" muncul bareng widget ini baru mulai jalan ── */
+.msh-scoring-widget {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(78px + env(safe-area-inset-bottom, 10px) + 24px);
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  z-index: 240;
+  overflow: hidden;
+  animation: msh-toast-in 0.25s ease;
+}
+
+.msh-scoring-bar { height: 3px; width: 100%; background: var(--luna-ink-100); }
+.msh-scoring-bar span {
+  display: block; height: 100%; background: #0977be; border-radius: 999px; transition: width 0.4s ease;
+}
+.msh-scoring-bar span.done { background: #14b541; }
+.msh-scoring-bar span.warn { background: #f59e0b; }
+
+.msh-scoring-row { display: flex; align-items: center; gap: 10px; padding: 11px 12px; }
+
+.msh-scoring-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: #0977be; }
+.msh-scoring-icon svg { width: 17px; height: 17px; }
+.msh-scoring-icon.done { color: #14b541; }
+.msh-scoring-icon.warn { color: #f59e0b; }
+
+.msh-scoring-spin { animation: msh-scoring-spin 0.9s linear infinite; }
+@keyframes msh-scoring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.msh-scoring-text { flex: 1; min-width: 0; }
+.msh-scoring-title { font-size: 12.5px; font-weight: 700; color: var(--luna-ink-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msh-scoring-sub { font-size: 10.5px; color: var(--luna-ink-400); margin-top: 2px; }
+
+.msh-scoring-close { flex-shrink: 0; background: none; border: none; padding: 3px; color: var(--luna-ink-300); display: flex; }
+.msh-scoring-close svg { width: 11px; height: 11px; }

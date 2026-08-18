@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import useNotifications from '../hooks/navbar/useNotifications.js';
 import PopupKonfirmasi from '../components/PopupKonfirmasi.jsx';
@@ -6,8 +6,17 @@ import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import LowonganMobile from './views/lowongan/LowonganMobile.jsx';
 import LowonganDetailMobile from './views/lowongan/LowonganDetailMobile.jsx';
 import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx';
+import KandidatMobile from './views/kandidat/KandidatMobile.jsx';
+import KandidatTambahMobile from './views/kandidat/KandidatTambahMobile.jsx';
+import LowonganTambahKandidatMobile from './views/lowongan/LowonganTambahKandidatMobile.jsx';
+import KandidatDetailMobile from './views/kandidat/KandidatDetailMobile.jsx';
+import SebarMobile from './views/sebar/SebarMobile.jsx';
+import AkunProfilMobile from './views/akun-profil/AkunProfilMobile.jsx';
+import BantuanMobile from './views/bantuan/BantuanMobile.jsx';
+import SemuaAktivitasMobile from './views/notifikasi/SemuaAktivitasMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
+import MobileScoringWidget from './components/MobileScoringWidget.jsx';
 
 const IcBeranda = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -64,6 +73,25 @@ const TABS = [
   { menu: 'kandidat_001', label: 'Kandidat', Icon: IcKandidat },
 ];
 
+// Sub-halaman yang secara navigasi masih "milik" tab Lowongan (drill-down dari
+// daftar/detail lowongan) — sama seperti daftar activeMenu di Sidebar_001.jsx
+// desktop, supaya tab bawah tetap nyala saat user masuk lebih dalam.
+const LOWONGAN_RELATED_MENUS = [
+  'lowongan-detail', 'lowongan-detail_001', 'lowongan-detail_002',
+  'seleksi-detail', 'seleksi-detail_001', 'seleksi-detail_002',
+  'setup-penilaian', 'setup-penilaian_001', 'buat-lowongan', 'buat-lowongan_001',
+  'buat-lowongan-panduan_001', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat',
+];
+
+const KANDIDAT_RELATED_MENUS = [
+  'kandidat-detail', 'kandidat-detail_001', 'kandidat-tambah',
+];
+
+const isTabActive = (activeMenu, menu) =>
+  activeMenu === menu ||
+  (menu === 'lowongan_001' && LOWONGAN_RELATED_MENUS.includes(activeMenu)) ||
+  (menu === 'kandidat_001' && KANDIDAT_RELATED_MENUS.includes(activeMenu));
+
 const PAGE_LABELS = {
   beranda_002: 'Beranda',
   lowongan_001: 'Lowongan',
@@ -75,6 +103,7 @@ const PAGE_LABELS = {
   seleksi_001: 'Lowongan',
   'seleksi-detail_001': 'Detail Lowongan',
   'kandidat-detail_001': 'Detail Kandidat',
+  'semua-aktivitas_001': 'Semua Aktivitas',
 };
 
 function DummyPage({ menu }) {
@@ -91,14 +120,26 @@ function DummyPage({ menu }) {
   );
 }
 
-export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab }) {
+export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab, seleksiOverlay, selectedKandidat, kandidatOverlay, shellPanel, openShellPanel }) {
   const { user, logout, companyId } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  // Pencarian global dibuka lewat history entry (openShellPanel/back), bukan
+  // local state — supaya swipe-back native menutup panel ini (sekali), bukan
+  // pop halaman sebelumnya sementara panel tetap menempel terus-menerus.
+  const searchOpen = shellPanel === 'search';
   const [notifOpen, setNotifOpen] = useState(false);
 
   const notif = useNotifications(companyId);
+
+  // `.msh-content` adalah satu-satunya container scroll yang dipakai bareng
+  // semua halaman (children-nya diganti, div-nya sendiri tidak remount) —
+  // jadi scrollTop dari halaman sebelumnya kebawa terus kalau tidak di-reset
+  // manual tiap kali "halaman" (menu/id) yang ditampilkan berubah.
+  const contentRef = useRef(null);
+  useEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0;
+  }, [activeMenu, selectedSeleksiId, selectedKandidat]);
 
   const profileName = user?.user_metadata?.nama_lengkap || user?.user_metadata?.full_name || 'User';
   const profileEmail = user?.email || '';
@@ -107,6 +148,12 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
   const closeNotif = () => {
     setNotifOpen(false);
     notif.markSeen();
+  };
+
+  const viewAllActivities = () => {
+    setNotifOpen(false);
+    notif.markSeen();
+    navigate('semua-aktivitas_001');
   };
 
   const goTo = (menu) => {
@@ -124,7 +171,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
           onClick={() => navigate('beranda_002')}
         />
         <div className="msh-topbar-right">
-          <button className="msh-icon-btn" title="Cari" onClick={() => setSearchOpen(true)}>
+          <button className="msh-icon-btn" title="Cari" onClick={() => openShellPanel('search')}>
             <IcSearch />
           </button>
           <button className="msh-icon-btn" title="Notifikasi" onClick={() => setNotifOpen(true)}>
@@ -137,7 +184,10 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         </div>
       </div>
 
-      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
+      <div
+        ref={contentRef}
+        className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001', 'pengguna-akun', 'bantuan_001', 'semua-aktivitas_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}
+      >
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
           : activeMenu === 'lowongan-detail_001' ? (
@@ -147,9 +197,41 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
               seleksiId={selectedSeleksiId}
               jabatan={seleksiJabatan}
               activeTab={seleksiActiveTab}
+              overlay={seleksiOverlay}
             />
           )
           : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
+          : activeMenu === 'kandidat_001' ? <KandidatMobile navigate={navigate} />
+          : activeMenu === 'kandidat-tambah' ? <KandidatTambahMobile navigate={navigate} back={back} />
+          : (activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') ? (
+            <LowonganTambahKandidatMobile
+              navigate={navigate}
+              back={back}
+              seleksiId={selectedSeleksiId}
+              jabatan={seleksiJabatan}
+            />
+          )
+          : activeMenu === 'kandidat-detail_001' ? (
+            <KandidatDetailMobile
+              navigate={navigate}
+              back={back}
+              kandidat={selectedKandidat}
+              overlay={kandidatOverlay}
+            />
+          )
+          : activeMenu === 'sebar_001' ? <SebarMobile navigate={navigate} />
+          : activeMenu === 'pengguna-akun' ? <AkunProfilMobile />
+          : activeMenu === 'bantuan_001' ? <BantuanMobile />
+          : activeMenu === 'semua-aktivitas_001' ? (
+            <SemuaAktivitasMobile
+              navigate={navigate}
+              back={back}
+              unreadCount={notif.unreadCount}
+              readNotifKeys={notif.readNotifKeys}
+              markNotifAsRead={notif.markNotifAsRead}
+              markAllAsRead={notif.markAllAsRead}
+            />
+          )
           : <DummyPage menu={activeMenu} />}
       </div>
 
@@ -157,7 +239,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         {TABS.map(({ menu, label, Icon }) => (
           <button
             key={menu}
-            className={`msh-tab${activeMenu === menu ? ' active' : ''}`}
+            className={`msh-tab${isTabActive(activeMenu, menu) ? ' active' : ''}`}
             onClick={() => goTo(menu)}
           >
             <Icon />
@@ -200,10 +282,11 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         />
       )}
 
-      <MobileSearch open={searchOpen} onClose={() => setSearchOpen(false)} navigate={navigate} />
+      <MobileSearch open={searchOpen} onClose={back} navigate={navigate} />
       <MobileNotifications
         open={notifOpen}
         onClose={closeNotif}
+        onViewAll={viewAllActivities}
         navigate={navigate}
         notifications={notif.notifications}
         isNotifLoading={notif.isNotifLoading}
@@ -212,6 +295,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         markNotifAsRead={notif.markNotifAsRead}
         markAllAsRead={notif.markAllAsRead}
       />
+      <MobileScoringWidget />
     </div>
   );
 }

@@ -1,0 +1,41 @@
+/* Mobile Semua Aktivitas — sa- prefix, dibuka dari tombol "Lihat Semua
+   Aktivitas" di MobileNotifications.jsx. Padanan mobile dari
+   PopupSemuaAktivitas.jsx (desktop, prefix psa-). */
+
+.sa-head {
+  position: sticky; top: 0; z-index: 2; background: #fff; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 12px;
+  border-bottom: 1px solid var(--luna-ink-100); display: flex; align-items: center; gap: 10px;
+}
+.sa-back { width: 30px; height: 30px; border-radius: 9px; background: var(--luna-ink-050); border: none; display: flex; align-items: center; justify-content: center; color: var(--luna-ink-700); flex-shrink: 0; }
+.sa-back svg { width: 14px; height: 14px; }
+.sa-head-text { min-width: 0; }
+.sa-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16.5px; font-weight: 800; color: var(--luna-ink-900); line-height: 1.2; }
+.sa-sub { font-size: 10.5px; color: var(--luna-ink-400); margin-top: 1px; }
+.sa-mark-all { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--luna-orange-600); background: none; border: none; flex-shrink: 0; font-family: inherit; }
+
+.sa-daterow { padding: 14px 14px 6px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--luna-ink-400); }
+
+.sa-list { padding: 0 14px 8px; }
+.sa-item { display: flex; align-items: flex-start; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--luna-ink-050); width: 100%; text-align: left; background: none; border-left: none; border-right: none; border-top: none; font-family: inherit; }
+.sa-item:last-child { border-bottom: none; }
+.sa-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sa-icon svg { width: 15px; height: 15px; }
+.sa-icon.seleksi { background: var(--luna-orange-050); color: var(--luna-orange-600); }
+.sa-icon.scoring { background: #EFF6FF; color: #0977BE; }
+.sa-icon.kandidat { background: #F5F0FF; color: #7C3AED; }
+.sa-icon.upload { background: #ECFDF5; color: var(--fit-high, #089F32); }
+.sa-body { min-width: 0; flex: 1; padding-top: 1px; }
+.sa-text { font-size: 12.5px; line-height: 1.5; color: var(--luna-ink-800); font-weight: 600; }
+.sa-time { font-size: 10.5px; color: var(--luna-ink-400); margin-top: 3px; display: block; }
+.sa-unread-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--luna-orange-500); flex-shrink: 0; margin-top: 6px; }
+
+.sa-footer { padding: 16px 14px 28px; text-align: center; }
+.sa-loadmore { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--luna-ink-700); background: var(--luna-ink-050); border: none; border-radius: 999px; padding: 10px 18px; font-family: inherit; }
+.sa-loadmore svg { width: 11px; height: 11px; }
+.sa-done { font-size: 11px; color: var(--luna-ink-300); font-weight: 600; }
+
+.sa-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 70px 30px; }
+.sa-empty-icon { width: 62px; height: 62px; border-radius: 20px; background: var(--luna-ink-050); color: var(--luna-ink-300); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.sa-empty-icon svg { width: 26px; height: 26px; }
+.sa-empty h3 { font-size: 14px; font-weight: 800; color: var(--luna-ink-800); margin: 0 0 6px; }
+.sa-empty p { font-size: 11.5px; color: var(--luna-ink-400); line-height: 1.55; margin: 0; max-width: 240px; }

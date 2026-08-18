@@ -171,7 +171,24 @@ function TambahkanKePosisiModal({ onClose, kandidatId, scoringJobs, onStartScori
 }
 
 /* ── Main component ─────────────────────────────────────── */
-export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
+function getWhatsAppUrl(phone) {
+  if (!phone) return null;
+  let cleaned = String(phone).trim().replace(/[^0-9+]/g, '');
+  if (!cleaned || cleaned === '-' || cleaned === '0') return null;
+
+  if (cleaned.startsWith('+')) {
+    cleaned = cleaned.substring(1);
+  } else if (cleaned.startsWith('0')) {
+    cleaned = '62' + cleaned.substring(1);
+  } else if (!cleaned.startsWith('62')) {
+    cleaned = '62' + cleaned;
+  }
+
+  if (cleaned.length < 8) return null;
+  return `https://api.whatsapp.com/send?phone=${cleaned}`;
+}
+
+export default function KandidatDetail_001({ kandidat, navigate, back, isPopup = false }) {
   const { companyId }                   = useAuth();
   const [activeTab, setActiveTab]       = useState('ringkasan');
   const [archiveModal, setArchiveModal] = useState(false);
@@ -291,6 +308,27 @@ export default function KandidatDetail_001({ kandidat = {}, navigate, back }) {
                       Melamar mandiri{k.created_at ? ` · ${new Date(k.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
                     </span>
                   </span>
+                </>
+              )}
+
+              {getWhatsAppUrl(k.phone || k.telepon || k.no_telp || k.no_hp) && (
+                <>
+                  <span className="kd001-meta-dot" />
+                  <a
+                    href={getWhatsAppUrl(k.phone || k.telepon || k.no_telp || k.no_hp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="kd001-wa-chip"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 11.5a8.38 8.38 0 0 1-4.8 7.6 8.5 8.5 0 0 1-8.9-.9L3 21l1.9-4.3a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.4h.3a8.48 8.48 0 0 1 8.2 8v.5z" />
+                    </svg>
+                    <span>WhatsApp</span>
+                    <span className="kd001-wa-chip-tip">
+                      Hubungi kandidat via WhatsApp ({k.phone || k.telepon || k.no_telp || k.no_hp})
+                    </span>
+                  </a>
                 </>
               )}
             </div>

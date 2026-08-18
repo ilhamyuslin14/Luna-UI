@@ -72,9 +72,12 @@ export default function MobileSearch({ open, onClose, navigate }) {
   const seleksiResults = results.seleksi || [];
   const deptResults = results.departemen || [];
 
+  // Navigasi ke hasil pencarian meng-GANTI entry history milik panel ini
+  // (replace: true), bukan menumpuk entry baru di atasnya — jadi tidak perlu
+  // (dan tidak boleh) panggil onClose()/back() sesudahnya, karena itu akan
+  // langsung membatalkan navigasi yang baru saja terjadi.
   const goTo = (menu, params) => {
-    navigate(menu, params);
-    onClose();
+    navigate(menu, params, { replace: true });
   };
 
   return (

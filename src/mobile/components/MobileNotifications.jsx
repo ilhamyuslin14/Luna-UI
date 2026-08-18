@@ -1,6 +1,7 @@
 export default function MobileNotifications({
   open,
   onClose,
+  onViewAll,
   navigate,
   notifications,
   isNotifLoading,
@@ -12,7 +13,7 @@ export default function MobileNotifications({
   const handleItemClick = (item, key) => {
     markNotifAsRead(key);
     onClose();
-    if (item.type === 'seleksi' || item.type === 'scoring') navigate('seleksi_001');
+    if (item.type === 'seleksi' || item.type === 'scoring') navigate('lowongan_001');
     else if (item.type === 'kandidat' || item.type === 'upload') navigate('kandidat_001');
   };
 
@@ -60,7 +61,7 @@ export default function MobileNotifications({
           )}
         </div>
         {!isNotifLoading && notifications.length > 0 && (
-          <button className="msh-notif-footer" onClick={onClose}>Lihat Semua Aktivitas</button>
+          <button className="msh-notif-footer" onClick={onViewAll}>Lihat Semua Aktivitas</button>
         )}
       </div>
     </>

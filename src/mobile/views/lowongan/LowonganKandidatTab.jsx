@@ -33,7 +33,7 @@ const QUICK_CHIPS = [
 // Diajukan (level 2-3) masih dihitung Baru.
 const stageCategory = (alur) => (alur >= 8 ? 'hired' : alur >= 4 ? 'wawancara' : 'baru');
 
-export default function LowonganKandidatTab({ seleksiId, jabatan, navigate }) {
+export default function LowonganKandidatTab({ seleksiId, jabatan, navigate, back, overlay }) {
   const { companyId, companyPlan } = useAuth() || {};
   const isFreePlan = companyPlan === 'free';
 
@@ -51,16 +51,15 @@ export default function LowonganKandidatTab({ seleksiId, jabatan, navigate }) {
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [rejectTarget, setRejectTarget] = useState(null); // { ids: [...], isBulk }
 
-  // TODO: pindah ke pola history-based overlay (swipe-back menutup sheet ini
-  // saja) begitu mekanisme navigasi baru di App.jsx sudah settle — untuk
-  // sekarang state lokal biasa, tombol close tetap berfungsi normal.
+  // Sheet skor dibuka lewat history entry (sama seperti Kandidat Detail)
+  // supaya swipe-back menutup sheet ini, bukan lompat ke luar tab Kandidat.
   const [fitDetailItem, setFitDetailItem] = useState(null);
-  const [fitDetailOpen, setFitDetailOpen] = useState(false);
+  const fitDetailOpen = overlay === 'penilaian';
   const openScoreSheet = (item) => {
     setFitDetailItem(item);
-    setFitDetailOpen(true);
+    navigate('lowongan-detail_001', { seleksiId, jabatan, activeTab: 'kandidat', overlay: 'penilaian' });
   };
-  const closeScoreSheet = () => setFitDetailOpen(false);
+  const closeScoreSheet = () => back();
 
   const hasActiveFilters = activeFilters.size > 0;
   const alurNama = (level) => alurList.find(a => a.level === level)?.nama ?? '-';

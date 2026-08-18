@@ -1,10 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import JSZip from 'jszip';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { useUpload } from '../../context/UploadContext.jsx';
-import { getKandidat, getDirekrutKandidat, archiveKandidat, unarchiveKandidat } from '../../services/kandidatService.js';
-import { getSeleksi } from '../../services/seleksiService.js';
-import { getCached, invalidate } from '../../services/dataCache.js';
+import { useState } from 'react';
+import useKandidatData, { getPeriodeText } from '../../hooks/kandidat/useKandidatData.js';
 import Pagination from '../../components/Pagination.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import CTABulkAksi from '../../components/CTABulkAksi.jsx';
@@ -44,153 +39,28 @@ const IconDownloadSmall = ({ spinning } = {}) => (
   </svg>
 );
 
-const getPeriodeText = (k) => {
-  try {
-    let exps = [];
-    if (Array.isArray(k.pengalaman_kerja)) {
-      exps = k.pengalaman_kerja;
-    } else if (typeof k.pengalaman_kerja === 'string' && k.pengalaman_kerja.trim().startsWith('[')) {
-      exps = JSON.parse(k.pengalaman_kerja);
-    }
-    
-    if (exps && exps.length > 0) {
-      // Find the most recent or matching current job, or just first
-      const exp = exps[0];
-      const formatDate = (ds) => {
-        if (!ds || ds === 'Present') return ds === 'Present' ? 'Sekarang' : '';
-        const d = new Date(ds);
-        if (isNaN(d.getTime())) return ds;
-        return d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
-      };
-      const start = formatDate(exp.start);
-      const end = formatDate(exp.end);
-      if (start && end) return `${start} – ${end}`;
-      if (start) return `${start} – Sekarang`;
-    }
-  } catch(e) {}
-  return k.periode || '-';
-};
-
 export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }) {
-  const { companyId } = useAuth();
-  const { enqueueScoringJob } = useUpload();
+  const {
+    isLoading, kandidatData,
+    activeFilters, toggleFilter,
+    activeSort, setActiveSort,
+    page, setPage, perPage, setPerPage,
+    filteredData, pagedData, totalPages,
+    toast, setToast, showToast,
+    archiveModal, setArchiveModal, openArchiveModal, doArchive,
+    unarchiveModal, setUnarchiveModal, doUnarchive,
+    downloadingId, handleDownloadCv,
+    isBulkDownloading, handleBulkDownloadCv,
+    lowonganModal, openLowonganModal, closeLowonganModal,
+    lowonganSearchQuery, setLowonganSearchQuery,
+    seleksiList, isLoadingSeleksi, filteredSeleksiList,
+    handleTambahkanKeLowongan,
+  } = useKandidatData({ filter, searchQuery });
 
-  const [kandidatData, setKandidatData]     = useState([]);
-  const [isLoading, setIsLoading]           = useState(true);
-  const [selectedRows, setSelectedRows]     = useState(new Set());
+  const [selectedRows, setSelectedRows] = useState(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [showSortDropdown, setShowSortDropdown]     = useState(false);
-  const [activeFilters, setActiveFilters]   = useState(new Set());
-  const [activeSort, setActiveSort]         = useState('nama_asc');
-  const [showBulkDropdown, setShowBulkDropdown]     = useState(false);
-  const [archiveModal, setArchiveModal]     = useState(null);
-  const [unarchiveModal, setUnarchiveModal] = useState(null);
-  const [lowonganModal, setLowonganModal]   = useState(false);
-  const [lowonganSearchQuery, setLowonganSearchQuery] = useState('');
-  const [seleksiList, setSeleksiList]       = useState([]);
-  const [selectedSeleksi, setSelectedSeleksi] = useState(null);
-  const [isLoadingSeleksi, setIsLoadingSeleksi] = useState(false);
-  const [toast, setToast]                   = useState(null);
-  const toastTimer                          = useRef(null);
-  const [downloadingId, setDownloadingId]   = useState(null);
-  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
-  const [page, setPage]                     = useState(1);
-  const [perPage, setPerPage]               = useState(25);
-
-  useEffect(() => {
-    let mounted = true;
-    const cacheKey = filter === 'direkrut' ? `kandidat:direkrut:${companyId}` : `kandidat:${companyId}`;
-    const fetchFn = filter === 'direkrut' ? () => getDirekrutKandidat(companyId) : () => getKandidat(companyId);
-    setIsLoading(true);
-    getCached(cacheKey, fetchFn)
-      .then(data => { if (mounted) setKandidatData(data || []); })
-      .catch(err => { if (mounted) console.error(err); })
-      .finally(() => { if (mounted) setIsLoading(false); });
-    return () => { mounted = false; };
-  }, [companyId, filter]);
-
-  useEffect(() => { setPage(1); }, [activeFilters]);
-
-  const showToast = (message, subMessage) => {
-    setToast({ message, subMessage });
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 4000);
-  };
-
-  const toggleFilter = (s) => {
-    setActiveFilters(prev => { const n = new Set(prev); n.has(s) ? n.delete(s) : n.add(s); return n; });
-  };
-
-  const PENGALAMAN_OPTS = ['0-2 Tahun', '2-5 tahun', '5-10 tahun', '>10 tahun'];
-  const JABATAN_OPTS    = ['Intern', 'Junior', 'Staff', 'Senior', 'Supervisor', 'Manager', 'Head of', 'General Manager', 'Advisor'];
-
-  const filteredData = useMemo(() => {
-    let result = kandidatData;
-
-    const statusActive = ['Aktif', 'Arsip'].filter(f => activeFilters.has(f));
-    if (statusActive.length === 1) {
-      if (statusActive[0] === 'Arsip') result = result.filter(k => k.arsip === true);
-      else result = result.filter(k => !k.arsip);
-    } else if (statusActive.length === 0) {
-      result = result.filter(k => !k.arsip);
-    }
-
-    if (activeFilters.has('Portal Karier')) {
-      result = result.filter(k => k.sumber === 'public');
-    }
-
-    const pengalamanActive = PENGALAMAN_OPTS.filter(f => activeFilters.has(f));
-    if (pengalamanActive.length > 0) {
-      result = result.filter(k => {
-        const tahun = parseFloat(k.pengalaman_tahun) || 0;
-        return pengalamanActive.some(f => {
-          if (f === '0-2 Tahun')  return tahun >= 0 && tahun <= 2;
-          if (f === '2-5 tahun')  return tahun > 2  && tahun <= 5;
-          if (f === '5-10 tahun') return tahun > 5  && tahun <= 10;
-          if (f === '>10 tahun')  return tahun > 10;
-          return false;
-        });
-      });
-    }
-
-    const jabatanActive = JABATAN_OPTS.filter(f => activeFilters.has(f));
-    if (jabatanActive.length > 0) {
-      result = result.filter(k => {
-        const jabatan = (k.jabatan_saat_ini || '').toLowerCase();
-        return jabatanActive.some(f => jabatan.includes(f.toLowerCase()));
-      });
-    }
-
-    if (searchQuery.trim()) {
-      const sq = searchQuery.toLowerCase().trim();
-      result = result.filter(k => 
-        (k.nama_lengkap || '').toLowerCase().includes(sq) ||
-        (k.jurusan || '').toLowerCase().includes(sq) ||
-        (k.domisili || '').toLowerCase().includes(sq)
-      );
-    }
-
-    // Apply Sorting
-    result = [...result].sort((a, b) => {
-      switch (activeSort) {
-        case 'nama_asc':
-          return (a.nama_lengkap || '').localeCompare(b.nama_lengkap || '');
-        case 'nama_desc':
-          return (b.nama_lengkap || '').localeCompare(a.nama_lengkap || '');
-        case 'date_desc':
-          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-        case 'date_asc':
-          return new Date(a.created_at || 0) - new Date(b.created_at || 0);
-        default:
-          return 0;
-      }
-    });
-
-    return result;
-  }, [kandidatData, activeFilters, searchQuery, activeSort]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
-  const pagedData  = filteredData.slice((page - 1) * perPage, page * perPage);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showBulkDropdown, setShowBulkDropdown] = useState(false);
 
   const selectAll = pagedData.length > 0 && pagedData.every(k => selectedRows.has(k.id));
   const toggleSelectAll = () => {
@@ -205,156 +75,20 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
     setSelectedRows(next);
   };
 
-  /* ── Archive ──────────────────────────────────────────────── */
-  const doArchive = async (ids) => {
-    const idArr = Array.isArray(ids) ? ids : [ids];
-    await archiveKandidat(idArr);
-    invalidate('kandidat');
-    setKandidatData(prev => prev.map(k => idArr.includes(k.id) ? { ...k, arsip: true } : k));
-    setSelectedRows(prev => { const n = new Set(prev); idArr.forEach(id => n.delete(id)); return n; });
-    showToast('Berhasil diarsipkan', `${idArr.length} kandidat dipindahkan ke arsip`);
-  };
+  const openArchiveModalAndClose = (ids) => { setShowBulkDropdown(false); openArchiveModal(ids); };
 
-  const openArchiveModal = (ids) => {
-    const idArr = Array.isArray(ids) ? ids : [ids];
-    setArchiveModal({
-      title: 'Arsipkan Kandidat',
-      body: idArr.length === 1
-        ? 'Apakah Anda yakin ingin mengarsipkan kandidat ini?'
-        : `Apakah Anda yakin ingin mengarsipkan ${idArr.length} kandidat yang dipilih?`,
-      ids: idArr,
-    });
-  };
-
-  /* ── Unduh CV ─────────────────────────────────────────────── */
-  const handleDownloadCv = async (k) => {
-    if (!k.cv_url || downloadingId) return;
-    setDownloadingId(k.id);
-    try {
-      const ext = k.cv_url.split('.').pop().split('?')[0] || 'pdf';
-      const safeName = (k.nama_lengkap || 'Kandidat').replace(/[^a-zA-Z0-9]/g, '_');
-      const filename = `CV_${safeName}.${ext}`;
-
-      const response = await fetch(k.cv_url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error('Download failed, using fallback', err);
-      window.open(k.cv_url, '_blank');
-    } finally {
-      setDownloadingId(null);
-    }
-  };
-
-  /* ── Unduh CV (bulk, dikemas jadi satu .zip) ─────────────────── */
-  const handleBulkDownloadCv = async (ids) => {
-    if (isBulkDownloading) return;
-    const targets = kandidatData.filter(k => ids.includes(k.id) && k.cv_url);
-
-    if (targets.length === 0) {
-      showToast('Belum ada CV', 'Kandidat yang dipilih belum punya CV yang diunggah');
-      return;
-    }
-
-    setIsBulkDownloading(true);
-    try {
-      const zip = new JSZip();
-      const usedNames = new Set();
-      let failCount = 0;
-
-      await Promise.all(targets.map(async (k) => {
-        try {
-          const response = await fetch(k.cv_url);
-          if (!response.ok) throw new Error('Network response was not ok');
-          const blob = await response.blob();
-
-          const ext = k.cv_url.split('.').pop().split('?')[0] || 'pdf';
-          const safeName = (k.nama_lengkap || 'Kandidat').replace(/[^a-zA-Z0-9]/g, '_');
-          let filename = `${safeName}.${ext}`;
-          let suffix = 2;
-          while (usedNames.has(filename)) {
-            filename = `${safeName}_${suffix}.${ext}`;
-            suffix += 1;
-          }
-          usedNames.add(filename);
-          zip.file(filename, blob);
-        } catch (err) {
-          console.error(`Gagal mengunduh CV ${k.nama_lengkap}:`, err);
-          failCount += 1;
-        }
-      }));
-
-      const successCount = targets.length - failCount;
-      if (successCount === 0) {
-        showToast('Gagal mengunduh', 'Semua CV gagal diambil, coba lagi');
-        return;
-      }
-
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const blobUrl = window.URL.createObjectURL(zipBlob);
-      const dateStr = new Date().toISOString().slice(0, 10);
-
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `CV_Kandidat_${dateStr}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-
-      showToast(
-        'CV berhasil diunduh',
-        failCount > 0
-          ? `${successCount} CV dikemas dalam satu ZIP, ${failCount} gagal diambil`
-          : `${successCount} CV dikemas dalam satu file ZIP`
-      );
-      setSelectedRows(new Set());
-    } catch (err) {
-      console.error('Bulk download failed', err);
-      showToast('Gagal mengunduh', 'Terjadi kesalahan saat mengemas file CV');
-    } finally {
-      setIsBulkDownloading(false);
-    }
-  };
-
-  /* ── Tambahkan ke Lowongan ────────────────────────────────── */
-  const openLowonganModal = () => {
+  const handleBulkDownloadAndClear = async (ids) => {
     setShowBulkDropdown(false);
-    setSelectedSeleksi(null);
-    setLowonganModal(true);
-    setIsLoadingSeleksi(true);
-    getSeleksi(companyId)
-      .then(rows => setSeleksiList((rows || []).filter(s => !s.arsip)))
-      .catch(() => showToast('Gagal memuat', 'Gagal memuat daftar lowongan'))
-      .finally(() => setIsLoadingSeleksi(false));
+    const ok = await handleBulkDownloadCv(ids);
+    if (ok) setSelectedRows(new Set());
   };
 
-  const handleTambahkanKeLowongan = (seleksi) => {
-    if (!seleksi) return;
-    const ids = [...selectedRows];
-    ids.forEach(kandidatId => {
-      const k = kandidatData.find(c => c.id === kandidatId);
-      enqueueScoringJob(kandidatId, seleksi.id, seleksi.jabatan, k?.nama_lengkap || '', companyId);
-    });
-    setLowonganModal(false);
+  const openLowonganModalAndClose = () => { setShowBulkDropdown(false); openLowonganModal(); };
+
+  const handleTambahkanKeLowonganAndClear = (seleksi) => {
+    handleTambahkanKeLowongan(seleksi, [...selectedRows]);
     setSelectedRows(new Set());
-    setLowonganSearchQuery('');
-    showToast('Kandidat ditambahkan', `${ids.length} kandidat sedang dinilai untuk ${seleksi.jabatan}`);
   };
-
-  const filteredSeleksiList = seleksiList.filter(s => 
-    (s.jabatan || '').toLowerCase().includes(lowonganSearchQuery.toLowerCase()) ||
-    (s.departments?.name || s.departemen || '').toLowerCase().includes(lowonganSearchQuery.toLowerCase())
-  );
 
   return (
     <div className="kan001-view" onClick={e => {
@@ -378,7 +112,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                   {
                     icon: <IconDownloadSmall spinning={isBulkDownloading} />,
                     label: isBulkDownloading ? 'Mengemas CV...' : 'Unduh CV Terpilih',
-                    onClick: () => { setShowBulkDropdown(false); handleBulkDownloadCv([...selectedRows]); },
+                    onClick: () => handleBulkDownloadAndClear([...selectedRows]),
                   },
                   { type: 'divider' },
                   {
@@ -390,19 +124,19 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                   {
                     icon: <svg width="9" height="9" viewBox="0 0 9 8.745" fill="none"><path d="M7.875 2.25H6.75V1.6875C6.75 1.06641 6.24609 0.5625 5.625 0.5625H3.375C2.75391 0.5625 2.25 1.06641 2.25 1.6875V2.25H1.125C0.503906 2.25 0 2.75391 0 3.375V7.3125C0 7.93359 0.503906 8.4375 1.125 8.4375H7.875C8.49609 8.4375 9 7.93359 9 7.3125V3.375C9 2.75391 8.49609 2.25 7.875 2.25ZM3 1.6875C3 1.47891 3.16875 1.3125 3.375 1.3125H5.625C5.83125 1.3125 6 1.47891 6 1.6875V2.25H3V1.6875ZM8.25 7.3125C8.25 7.51875 8.08125 7.6875 7.875 7.6875H1.125C0.91875 7.6875 0.75 7.51875 0.75 7.3125V5.25H8.25V7.3125ZM8.25 4.5H0.75V3.375C0.75 3.16875 0.91875 3 1.125 3H7.875C8.08125 3 8.25 3.16875 8.25 3.375V4.5Z" fill="currentColor" /></svg>,
                     label: 'Tambahkan ke Lowongan',
-                    onClick: openLowonganModal,
+                    onClick: openLowonganModalAndClose,
                   },
                   { type: 'divider' },
                   {
                     icon: <IconDownloadSmall spinning={isBulkDownloading} />,
                     label: isBulkDownloading ? 'Mengemas CV...' : 'Unduh CV Terpilih',
-                    onClick: () => { setShowBulkDropdown(false); handleBulkDownloadCv([...selectedRows]); },
+                    onClick: () => handleBulkDownloadAndClear([...selectedRows]),
                   },
                   { type: 'divider' },
                   {
                     icon: <ArchiveSvg />,
                     label: 'Arsipkan',
-                    onClick: () => { setShowBulkDropdown(false); openArchiveModal([...selectedRows]); },
+                    onClick: () => openArchiveModalAndClose([...selectedRows]),
                   },
                 ]
               }
@@ -559,8 +293,11 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
           confirmLabel="Arsipkan"
           onConfirm={async () => {
             setArchiveModal(null);
-            try { await doArchive(archiveModal.ids); }
-            catch { showToast('Gagal mengarsipkan', 'Terjadi kesalahan, coba lagi'); }
+            try {
+              const idArr = await doArchive(archiveModal.ids);
+              setSelectedRows(prev => { const n = new Set(prev); idArr.forEach(id => n.delete(id)); return n; });
+            }
+            catch { showToast('Gagal mengarsipkan', 'Terjadi kesalahan, coba lagi', 'error'); }
           }}
           onClose={() => setArchiveModal(null)}
         />
@@ -578,24 +315,20 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
               const ids = [...selectedRows];
               setUnarchiveModal(null);
               try {
-                await Promise.all(ids.map(id => unarchiveKandidat(id)));
-                invalidate('kandidat');
-                setKandidatData(prev => prev.map(k => ids.includes(k.id) ? { ...k, arsip: false } : k));
+                await doUnarchive(ids);
                 setSelectedRows(new Set());
                 showToast('Kandidat ditampilkan', `${ids.length} kandidat kembali aktif`);
               } catch {
-                showToast('Gagal', 'Tidak dapat menampilkan kandidat');
+                showToast('Gagal', 'Tidak dapat menampilkan kandidat', 'error');
               }
             } else {
               const { id, nama } = unarchiveModal;
               setUnarchiveModal(null);
               try {
-                await unarchiveKandidat(id);
-                invalidate('kandidat');
-                setKandidatData(prev => prev.map(k => k.id === id ? { ...k, arsip: false } : k));
+                await doUnarchive(id);
                 showToast('Kandidat ditampilkan', `${nama} kembali aktif`);
               } catch {
-                showToast('Gagal', 'Tidak dapat menampilkan kandidat');
+                showToast('Gagal', 'Tidak dapat menampilkan kandidat', 'error');
               }
             }
           }}
@@ -605,9 +338,9 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
 
       {/* Tambahkan ke Lowongan modal */}
       {lowonganModal && (
-        <div className="kd001-posisi-overlay" onClick={() => setLowonganModal(false)}>
+        <div className="kd001-posisi-overlay" onClick={closeLowonganModal}>
           <div className="kd001-posisi-modal" onClick={e => e.stopPropagation()}>
-            <button className="kd001-posisi-close" onClick={() => setLowonganModal(false)}>
+            <button className="kd001-posisi-close" onClick={closeLowonganModal}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#555f71" strokeWidth="2" strokeLinecap="round">
                 <line x1="1" y1="1" x2="13" y2="13"/>
                 <line x1="13" y1="1" x2="1" y2="13"/>
@@ -655,7 +388,7 @@ export default function Kandidat_001({ navigate, searchQuery = '', filter = '' }
                         </div>
                         <button
                           className="kd001-posisi-tambah-btn"
-                          onClick={() => handleTambahkanKeLowongan(s)}
+                          onClick={() => handleTambahkanKeLowonganAndClear(s)}
                         >
                           Tambahkan
                         </button>

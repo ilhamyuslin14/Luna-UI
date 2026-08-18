@@ -1,53 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import BackButton from '../../components/BackButton.jsx';
 import TabNav from '../../components/TabNav.jsx';
 import KandidatUnggahCV from '../kandidat/Kandidat-UnggahCV.jsx';
 import KandidatRiwayatUnggah from '../kandidat/Kandidat-RiwayatUnggah.jsx';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { useUpload } from '../../context/UploadContext.jsx';
-import { getKandidat } from '../../services/kandidatService.js';
-import { getScoringBySeleksi } from '../../services/scoringService.js';
-import Toast from '../../components/Toast.jsx';
+import usePilihKandidat, { getInisial } from '../../hooks/lowongan/usePilihKandidat.js';
 
 const AVATAR_COLORS = ['#f042a1', '#0977be', '#089f32', '#f8aa01', '#fb484b', '#8b5cf6', '#06b6d4'];
 
-const getInisial = (nama) => {
-  const parts = (nama || '').trim().split(/\s+/);
-  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  return (parts[0]?.[0] || '?').toUpperCase();
-};
-
-function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
-  const { enqueueScoringJob } = useUpload();
-  const [kandidatList, setKandidatList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [added, setAdded] = useState(new Set());
-
-  useEffect(() => {
-    if (!companyId) return;
-    getKandidat(companyId)
-      .then(rows => setKandidatList(rows || []))
-      .catch(() => setKandidatList([]))
-      .finally(() => setIsLoading(false));
-  }, [companyId]);
-
-  // Pre-mark kandidat yang sudah ada scoring di posisi ini
-  useEffect(() => {
-    if (!seleksiId) return;
-    getScoringBySeleksi(seleksiId)
-      .then(rows => {
-        const ids = new Set((rows || []).map(s => s.kandidat?.id || s.kandidat_id).filter(Boolean));
-        setAdded(ids);
-      })
-      .catch(() => {});
-  }, [seleksiId]);
-
-  const handleTambah = (k) => {
-    setAdded(prev => new Set([...prev, k.id]));
-    if (seleksiId && k.id && companyId) {
-      enqueueScoringJob(k.id, seleksiId, jabatan, k.nama_lengkap || '', companyId);
-    }
-  };
+function PilihKandidatTab({ seleksiId, jabatan }) {
+  const { isLoading, kandidatList, availableList, handleTambah } = usePilihKandidat(seleksiId, jabatan);
 
   if (isLoading) {
     return (
@@ -64,10 +25,6 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
       </div>
     );
   }
-
-  const availableList = kandidatList
-    .filter(k => !added.has(k.id) && !k.arsip)
-    .sort((a, b) => (a.nama_lengkap || '').localeCompare(b.nama_lengkap || ''));
 
   if (availableList.length === 0) {
     return (
@@ -106,7 +63,6 @@ function PilihKandidatTab({ seleksiId, companyId, jabatan, onTambah }) {
 }
 
 export default function LowonganTambahKandidat({ navigate, back, jabatan, seleksiId }) {
-  const { companyId } = useAuth();
   const [activeTab, setActiveTab] = useState('pilih');
   const [historyData, setHistoryData] = useState(null);
 
@@ -141,7 +97,6 @@ export default function LowonganTambahKandidat({ navigate, back, jabatan, seleks
         <PilihKandidatTab
           jabatan={jabatan}
           seleksiId={seleksiId}
-          companyId={companyId}
         />
       )}
 

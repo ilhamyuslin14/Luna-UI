@@ -55,7 +55,9 @@ export default function Sidebar_001({ activeMenu, onNavigate }) {
                   activeMenu === 'lowongan-detail' || activeMenu === 'lowongan-detail_001' || activeMenu === 'lowongan-detail_002' ||
                   activeMenu === 'setup-penilaian' || activeMenu === 'setup-penilaian_001' ||
                   activeMenu === 'buat-lowongan' || activeMenu === 'buat-lowongan_001' ||
-                  activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') && item.id === 'lowongan_001');
+                  activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') && item.id === 'lowongan_001') ||
+                ((activeMenu === 'kandidat-detail' || activeMenu === 'kandidat-detail_001' ||
+                  activeMenu === 'kandidat-tambah') && item.id === 'kandidat_001');
               return (
                 <a
                   key={item.id}

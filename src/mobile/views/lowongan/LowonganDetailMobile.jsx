@@ -105,7 +105,7 @@ function displayValue(key, data, departmentName) {
   return data[key] || null;
 }
 
-export default function LowonganDetailMobile({ seleksiId, jabatan: initialJabatan = '', navigate, back, activeTab: initialTab = 'ringkasan' }) {
+export default function LowonganDetailMobile({ seleksiId, jabatan: initialJabatan = '', navigate, back, activeTab: initialTab = 'ringkasan', overlay = null }) {
   const { companyId, companyPlan, companyName } = useAuth() || {};
   const {
     isLoading, isFreePlan, statusOptions,
@@ -137,17 +137,18 @@ export default function LowonganDetailMobile({ seleksiId, jabatan: initialJabata
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
-  // TODO: pindah ke pola history-based overlay (swipe-back menutup panel ini
-  // saja) begitu mekanisme navigasi baru di App.jsx sudah settle — untuk
-  // sekarang state lokal biasa, tombol close tetap berfungsi normal.
-  const [qrOpen, setQrOpen] = useState(false);
-  const openQr = () => karilEnabled && setQrOpen(true);
-  const closeQr = () => setQrOpen(false);
+  // QR di-buka lewat history entry baru (bukan local state) supaya gesture
+  // "swipe back" native (yang men-trigger popstate, sama seperti tombol back
+  // fisik) menutup panel ini dan kembali ke laman detail — bukan lompat lebih
+  // jauh ke daftar Lowongan seperti sebelumnya.
+  const qrOpen = overlay === 'qr';
+  const openQr = () => karilEnabled && navigate('lowongan-detail_001', { seleksiId, jabatan, activeTab, overlay: 'qr' });
+  const closeQr = () => back();
 
-  const [descEditorOpen, setDescEditorOpen] = useState(false);
+  const descEditorOpen = overlay === 'deskripsi';
   const descEditorRef = useRef(null);
-  const openDescEditor = () => setDescEditorOpen(true);
-  const closeDescEditor = () => setDescEditorOpen(false);
+  const openDescEditor = () => navigate('lowongan-detail_001', { seleksiId, jabatan, activeTab, overlay: 'deskripsi' });
+  const closeDescEditor = () => back();
   const saveDescDraft = () => {
     if (descEditorRef.current) saveDeskripsi(descEditorRef.current.innerHTML);
     closeDescEditor();
@@ -259,7 +260,7 @@ export default function LowonganDetailMobile({ seleksiId, jabatan: initialJabata
       </div>
 
       {activeTab === 'kandidat' ? (
-        <LowonganKandidatTab seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} back={back} />
+        <LowonganKandidatTab seleksiId={seleksiId} jabatan={jabatan} navigate={navigate} back={back} overlay={overlay} />
       ) : isLoading ? (
         <div className="mld001-body">
           <div className="msh-skel" style={{ height: 220 }} />

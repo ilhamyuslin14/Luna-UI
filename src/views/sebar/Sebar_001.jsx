@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getSeleksi } from '../../services/seleksiService.js';
-import { supabase } from '../../config/supabase.js';
-import { slugify } from '../../utils/slug.js';
+import useSebarData from '../../hooks/sebar/useSebarData.js';
 import '../../../css/sebar/sebar_001.css';
 
 const PER_PAGE = 4;
@@ -48,154 +46,33 @@ const IconThreads = () => (
   </svg>
 );
 
-const PARTNER_ACCOUNTS = [
-  {
-    platform: 'Facebook',
-    Icon: IconFacebook,
-    color: '#1877F2',
-    bg: '#EFF6FF',
-    accounts: [
-      { name: 'Lowongan Kerja Surabaya Sidoarjo', category: 'Grup Publik • 120rb+ Anggota', url: 'https://facebook.com/groups/lowongankerjasurabayasidoarjo' },
-      { name: 'Info Loker Bandung Raya', category: 'Grup Publik • 85rb+ Anggota', url: 'https://facebook.com/infolokerbandungraya' },
-      { name: 'Info Lowongan Kerja Jabodetabek', category: 'Grup Publik • 210rb+ Anggota', url: 'https://facebook.com/groups/lokerjabodetabek' },
-    ],
-  },
-  {
-    platform: 'Instagram',
-    Icon: IconInstagram,
-    color: '#E1306C',
-    bg: '#FDF2F8',
-    accounts: [
-      { name: 'Loker.Nasional', category: 'Komunitas IG • 340rb+ Pengikut', url: 'https://instagram.com' },
-      { name: 'InfoLoker.Bandung', category: 'Komunitas IG • 95rb+ Pengikut', url: 'https://instagram.com' },
-    ],
-  },
-  {
-    platform: 'Telegram',
-    Icon: IconTelegram,
-    color: '#0088CC',
-    bg: '#F0F9FF',
-    accounts: [
-      { name: 'Channel Info Loker Indonesia', category: 'Channel • 50rb+ Pelanggan', url: 'https://t.me' },
-      { name: 'Grup HRD & Pencari Kerja', category: 'Grup Telegram • 28rb+ Anggota', url: 'https://t.me' },
-    ],
-  },
-  {
-    platform: 'WhatsApp',
-    Icon: IconWhatsApp,
-    color: '#25D366',
-    bg: '#F0FDF4',
-    accounts: [
-      { name: 'Grup Broadcast Loker Jabar', category: 'Komunitas WA • 1.2rb+ Anggota', url: 'https://wa.me' },
-    ],
-  },
-  {
-    platform: 'X / Twitter',
-    Icon: IconX,
-    color: '#0F172A',
-    bg: '#F8FAFC',
-    accounts: [
-      { name: 'Workfess (@workfess)', category: 'Base Twitter • 450rb+ Pengikut', url: 'https://x.com' },
-    ],
-  },
-  {
-    platform: 'Threads',
-    Icon: IconThreads,
-    color: '#0F172A',
-    bg: '#F8FAFC',
-    accounts: [
-      { name: 'Diskusi Karir Indonesia', category: 'Komunitas Threads', url: 'https://threads.net' },
-    ],
-  },
-];
-
-const ALL_PARTNER_ACCOUNTS = PARTNER_ACCOUNTS.flatMap(p =>
-  p.accounts.map(acc => ({
-    ...acc,
-    platform: p.platform,
-    Icon: p.Icon,
-    color: p.color,
-    bg: p.bg
-  }))
-);
+const PLATFORM_ICONS = {
+  Facebook: IconFacebook,
+  Instagram: IconInstagram,
+  Telegram: IconTelegram,
+  WhatsApp: IconWhatsApp,
+  'X / Twitter': IconX,
+  Threads: IconThreads,
+};
 
 export default function Sebar_001({ onNavigate, navigate }) {
   const nav = navigate || onNavigate;
   const { companyId, companyName, profileName } = useAuth() || {};
+  const {
+    isLoading, jobs, searchQuery, setSearchQuery,
+    namaPerusahaan, namaPengirim,
+    getKarirLink, getKualifikasiText, getBroadcastText, getPartnerMessage,
+    copiedKey, copyText,
+    toast, showToast,
+    PARTNER_ACCOUNTS, ALL_PARTNER_ACCOUNTS,
+    selectedPartnerPlatform, setSelectedPartnerPlatform,
+    partnerSearchQuery, setPartnerSearchQuery, filteredPartnerAccounts,
+  } = useSebarData(companyId, companyName, profileName);
+
   const [activeTab, setActiveTab] = useState('sendiri'); // 'sendiri' | 'lain'
-  const [jobs, setJobs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [expandedCards, setExpandedCards] = useState({});
-  const [copiedId, setCopiedId] = useState(null);
-  const [toastMsg, setToastMsg] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [qrModalData, setQrModalData] = useState(null);
   const [page, setPage] = useState(1);
-
-  // Table filter & search state for Akun Mitra
-  const [selectedPartnerPlatform, setSelectedPartnerPlatform] = useState('Semua');
-  const [partnerSearchQuery, setPartnerSearchQuery] = useState('');
-
-  const filteredPartnerAccounts = ALL_PARTNER_ACCOUNTS.filter(acc => {
-    const matchesPlatform = selectedPartnerPlatform === 'Semua' || acc.platform === selectedPartnerPlatform;
-    const matchesSearch = partnerSearchQuery.trim() === '' ||
-      acc.name.toLowerCase().includes(partnerSearchQuery.toLowerCase()) ||
-      (acc.category && acc.category.toLowerCase().includes(partnerSearchQuery.toLowerCase())) ||
-      acc.platform.toLowerCase().includes(partnerSearchQuery.toLowerCase());
-    return matchesPlatform && matchesSearch;
-  });
-
-  const namaPerusahaan = companyName || 'PT Arkademi Daya Indonesia';
-  const namaPengirim = profileName || 'Tim Rekrutmen';
-
-  useEffect(() => {
-    if (!companyId) return;
-    let isMounted = true;
-    setIsLoading(true);
-
-    async function fetchJobsWithCandidates() {
-      try {
-        const seleksiData = await getSeleksi(companyId);
-        const activeJobs = (seleksiData || []).filter(s => s.status === 'Aktif');
-
-        if (activeJobs.length > 0) {
-          const seleksiIds = activeJobs.map(s => s.id);
-
-          // Kandidat terhubung ke lowongan lewat tabel scoring (scoring.kandidat_id +
-          // scoring.seleksi_id) — tabel kandidat sendiri tidak punya kolom seleksi_id.
-          const { data: scoringData } = await supabase
-            .from('scoring')
-            .select('seleksi_id, kandidat_id, kandidat:kandidat_id(arsip)')
-            .in('seleksi_id', seleksiIds);
-
-          const countMap = {};
-          seleksiIds.forEach(id => { countMap[id] = new Set(); });
-
-          (scoringData || []).forEach(s => {
-            if (s.kandidat?.arsip) return;
-            if (s.kandidat_id && countMap[s.seleksi_id]) {
-              countMap[s.seleksi_id].add(s.kandidat_id);
-            }
-          });
-
-          const jobsWithCounts = activeJobs.map(job => ({
-            ...job,
-            kandidatCount: countMap[job.id] ? countMap[job.id].size : 0
-          }));
-
-          if (isMounted) setJobs(jobsWithCounts);
-        } else {
-          if (isMounted) setJobs([]);
-        }
-      } catch (err) {
-        console.error('Gagal mengambil daftar lowongan:', err);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    }
-
-    fetchJobsWithCandidates();
-    return () => { isMounted = false; };
-  }, [companyId]);
 
   // Reset ke halaman 1 setiap kali pencarian atau tab berubah
   useEffect(() => {
@@ -206,62 +83,9 @@ export default function Sebar_001({ onNavigate, navigate }) {
     setExpandedCards(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const togglePlatform = (platform) => {
-    setExpandedPlatforms(prev => ({ ...prev, [platform]: !prev[platform] }));
-  };
-
-  const getKarirLink = (job) => {
-    const posisi = job.posisi || job.jabatan || '';
-    if (job.kode) {
-      return `${window.location.origin}/?view=laman-karir&perusahaan=${slugify(namaPerusahaan)}&posisi=${slugify(posisi)}&kode=${encodeURIComponent(job.kode)}`;
-    }
-    return `${window.location.origin}/?view=laman-karir&jabatan=${encodeURIComponent(posisi)}`;
-  };
-
-  const getKualifikasiText = (job) => {
-    const posisi = job.posisi || job.jabatan || 'Lowongan';
-    const kriteria = Array.isArray(job.kriteria) ? job.kriteria : [];
-    if (kriteria.length > 0) {
-      const wajib = kriteria.filter(k => k?.teks && k.kategori === 'Wajib');
-      const lainnya = kriteria.filter(k => k?.teks && k.kategori !== 'Wajib');
-      const top3 = [...wajib, ...lainnya].slice(0, 3);
-      if (top3.length > 0) return top3.map(k => `• ${k.teks}`).join('\n');
-    }
-    return job.kualifikasi ||
-      `• Pengalaman minimal 1 tahun sebagai ${posisi.toLowerCase()}\n• Menguasai keahlian utama posisi ini\n• Bersedia kerja dengan komitmen tinggi`;
-  };
-
-  const getBroadcastText = (job) => {
-    const posisi = job.posisi || job.jabatan || 'Barista';
-    const lokasi = job.lokasi || job.domisili || 'Bandung';
-    const kualifikasi = getKualifikasiText(job);
-    const karirLink = getKarirLink(job);
-
-    return `Kami, ${namaPerusahaan}, sedang membuka lowongan ${posisi} untuk penempatan di ${lokasi}.\n\nKualifikasi:\n${kualifikasi}\n\nKirim lamaran lewat link berikut dan akan langsung kami proses.\n\n${karirLink}`;
-  };
-
-  const getPartnerIntro = (job) => {
-    const posisi = job.posisi || job.jabatan || 'Lowongan';
-    const lokasi = job.lokasi || job.domisili || 'Indonesia';
-    return `Halo, Kak Admin. Saya ${namaPengirim} dari ${namaPerusahaan}.\n\nKami sedang membuka lowongan ${posisi} di ${lokasi}. Boleh minta tolong dibantu posting di akun kakak, ya. Terima kasih, kak.`;
-  };
-
-  const getPartnerMessage = (job) => `${getPartnerIntro(job)}\n\n—\n\n${getBroadcastText(job)}`;
-
   const handleCopy = (job, mode) => {
     const fullText = mode === 'lain' ? getPartnerMessage(job) : getBroadcastText(job);
-    navigator.clipboard.writeText(fullText);
-    setCopiedId(`${job.id}:${mode}`);
-    setToastMsg(mode === 'lain' ? 'Pesan untuk admin berhasil disalin!' : 'Teks & link lowongan berhasil disalin!');
-    setTimeout(() => setCopiedId(null), 2500);
-    setTimeout(() => setToastMsg(null), 3000);
-  };
-
-  const handleCopyUrlOnly = (job) => {
-    const url = getKarirLink(job);
-    navigator.clipboard.writeText(url);
-    setToastMsg('Link Laman Karier berhasil disalin!');
-    setTimeout(() => setToastMsg(null), 2500);
+    copyText(`${job.id}:${mode}`, fullText, mode === 'lain' ? 'Pesan untuk admin berhasil disalin!' : 'Teks & link lowongan berhasil disalin!');
   };
 
   // Mock data fallback if database has no active jobs
@@ -299,7 +123,7 @@ export default function Sebar_001({ onNavigate, navigate }) {
   const renderJobCard = (job, mode, isFirstCard = false) => {
     const key = `${job.id}:${mode}`;
     const isExpanded = expandedCards[key] !== undefined ? expandedCards[key] : isFirstCard;
-    const isCopied = copiedId === key;
+    const isCopied = copiedKey === key;
     const karirLink = getKarirLink(job);
     const posisi = job.posisi || job.jabatan || 'Lowongan';
     const lokasi = job.lokasi || job.domisili || 'Indonesia';
@@ -391,6 +215,30 @@ export default function Sebar_001({ onNavigate, navigate }) {
                 </svg>
               </button>
               <span className="sebar-icon-cta-tooltip">Lihat Ringkasan Lowongan</span>
+            </div>
+
+            {/* Icon CTA 3: Generate QR Code with Tooltip */}
+            <div className="sebar-icon-cta-wrap">
+              <button
+                className="sebar-icon-action-btn qr-accent"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setQrModalData({
+                    job,
+                    karirLink,
+                    companyName: job.company_name || namaPerusahaan
+                  });
+                }}
+                aria-label="Generate QR Code"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01" />
+                </svg>
+              </button>
+              <span className="sebar-icon-cta-tooltip">QR Code Laman Karir</span>
             </div>
 
             <button
@@ -624,7 +472,7 @@ export default function Sebar_001({ onNavigate, navigate }) {
                 {PARTNER_ACCOUNTS.filter(p => (p.accounts || []).length > 0).map(p => {
                   const count = p.accounts.length;
                   const isActive = selectedPartnerPlatform === p.platform;
-                  const Icon = p.Icon;
+                  const Icon = PLATFORM_ICONS[p.platform];
                   return (
                     <button
                       key={p.platform}
@@ -679,7 +527,7 @@ export default function Sebar_001({ onNavigate, navigate }) {
                   <tbody>
                     {filteredPartnerAccounts.length > 0 ? (
                       filteredPartnerAccounts.map((acc, index) => {
-                        const Icon = acc.Icon;
+                        const Icon = PLATFORM_ICONS[acc.platform];
                         return (
                           <tr key={`${acc.platform}-${acc.name}-${index}`}>
                             <td>
@@ -742,11 +590,89 @@ export default function Sebar_001({ onNavigate, navigate }) {
         </>
       )}
 
+      {/* QR Code Modal Overlay */}
+      {qrModalData && (
+        <div className="sebar-qr-overlay" onClick={() => setQrModalData(null)}>
+          <div className="sebar-qr-card" onClick={(e) => e.stopPropagation()}>
+            <div className="sebar-qr-header">
+              <div className="sebar-qr-header-left">
+                <span className="sebar-qr-pill">QR CODE LAMAN KARIR</span>
+                <h3 className="sebar-qr-title">{qrModalData.job?.jabatan || qrModalData.job?.posisi || 'Lowongan Pekerjaan'}</h3>
+                <p className="sebar-qr-subtitle">{qrModalData.companyName}</p>
+              </div>
+              <button className="sebar-qr-close" onClick={() => setQrModalData(null)}>×</button>
+            </div>
+
+            <div className="sebar-qr-body">
+              <div className="sebar-qr-img-box">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrModalData.karirLink)}`}
+                  alt="QR Code Laman Karir"
+                  className="sebar-qr-image"
+                />
+              </div>
+
+              <div className="sebar-qr-url-box">
+                <span className="sebar-qr-url-label">Tautan Laman Karir:</span>
+                <div className="sebar-qr-url-input-wrap">
+                  <input type="text" readOnly value={qrModalData.karirLink} className="sebar-qr-url-input" />
+                  <button
+                    className="sebar-qr-copy-mini"
+                    onClick={() => {
+                      navigator.clipboard.writeText(qrModalData.karirLink);
+                      showToast('Tautan Laman Karir tersalin!');
+                    }}
+                  >
+                    Salin
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="sebar-qr-footer">
+              <button
+                className="sebar-qr-btn-download"
+                onClick={() => {
+                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(qrModalData.karirLink)}`;
+                  fetch(qrUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      const safeName = (qrModalData.job?.jabatan || qrModalData.job?.posisi || 'Karir').replace(/[^a-zA-Z0-9]/g, '_');
+                      a.download = `QRCode-LamanKarir-${safeName}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      window.URL.revokeObjectURL(url);
+                    })
+                    .catch(() => {
+                      window.open(qrUrl, '_blank');
+                    });
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Unduh Gambar QR Code (PNG)
+              </button>
+
+              <button className="sebar-qr-btn-close" onClick={() => setQrModalData(null)}>
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
-      {toastMsg && (
+      {toast && (
         <div className="sebar-toast">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          {toastMsg}
+          {toast.message}
         </div>
       )}
     </div>

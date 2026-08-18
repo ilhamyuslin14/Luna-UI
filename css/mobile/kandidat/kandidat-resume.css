@@ -1,0 +1,39 @@
+/* Mobile Kandidat Detail — tab Resume (viewer CV) — res- prefix, terpisah
+   dari css/mobile/kandidat/kandidat-detail.css (tab Ringkasan, mkd001-) */
+
+.res-view { display: flex; flex-direction: column; height: 100%; }
+
+.res-toolbar {
+  background: #ffffff; border-bottom: 1px solid var(--luna-ink-100); padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.res-file-ic {
+  width: 32px; height: 32px; border-radius: 9px; background: #FDECE3; color: #D6480C; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.res-file-ic svg { width: 15px; height: 15px; }
+.res-file-meta { flex: 1; min-width: 0; }
+.res-file-name { font-size: 12.5px; font-weight: 800; color: var(--luna-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res-file-sub { font-size: 10px; color: var(--luna-ink-400); margin-top: 1px; }
+.res-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.res-act-btn {
+  width: 30px; height: 30px; border-radius: 9px; background: var(--luna-ink-050); border: none;
+  display: flex; align-items: center; justify-content: center; color: var(--luna-ink-600);
+}
+.res-act-btn svg { width: 14px; height: 14px; }
+.res-act-btn.primary { background: var(--luna-orange-050); color: var(--luna-orange-600); }
+.res-act-btn:disabled { opacity: 0.6; }
+
+.res-canvas { flex: 1; min-height: 60vh; background: #f0f2f5; }
+.res-iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.res-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  padding: 60px 30px; text-align: center;
+}
+.res-empty-ic {
+  width: 52px; height: 52px; border-radius: 16px; background: var(--luna-ink-100); color: var(--luna-ink-400);
+  display: flex; align-items: center; justify-content: center;
+}
+.res-empty-ic svg { width: 24px; height: 24px; }
+.res-empty p { font-size: 12.5px; color: var(--luna-ink-400); line-height: 1.6; margin: 0; max-width: 220px; }

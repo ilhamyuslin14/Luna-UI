@@ -98,7 +98,11 @@ export function AuthProvider({ children }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchCompanyId(session.user.id);
+        localStorage.setItem('luna_admin_last_login', new Date().toISOString());
+        const cid = await fetchCompanyId(session.user.id);
+        if (cid) {
+          localStorage.setItem(`luna_admin_last_login_${cid}`, new Date().toISOString());
+        }
       } else {
         setCompanyId(null);
         setCompanyName(null);

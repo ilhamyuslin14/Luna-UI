@@ -1,78 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { supabase } from '../../config/supabase.js';
+import useBantuanData from '../../hooks/bantuan/useBantuanData.js';
 import '../../../css/bantuan/bantuan_001.css';
 
 export default function Bantuan_001() {
   const { user, profileName, companyName, companyDetails, companyId, refreshCompanyData } = useAuth() || {};
+  const { profileData, setProfileData, isSaving, handleSaveProfile, waUrl } =
+    useBantuanData(user, profileName, companyName, companyDetails, companyId, refreshCompanyData);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showWaPopup, setShowWaPopup] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
-  const [profileData, setProfileData] = useState({
-    nama: '',
-    email: '',
-    whatsapp: '',
-    perusahaan: '',
-    industri: '',
-    karyawan: '',
-    lokasi: ''
-  });
-
-  // Sync profile data from real Auth & Company DB context
-  useEffect(() => {
-    setProfileData({
-      nama: profileName || user?.user_metadata?.nama_lengkap || user?.user_metadata?.name || '',
-      email: user?.email || '',
-      whatsapp: companyDetails?.telepon_kontak || companyDetails?.phone || companyDetails?.whatsapp || user?.user_metadata?.whatsapp || user?.phone || '',
-      perusahaan: companyName || companyDetails?.namaPerusahaan || companyDetails?.name || user?.user_metadata?.nama_perusahaan || '',
-      industri: companyDetails?.industri || companyDetails?.industry || '',
-      karyawan: companyDetails?.ukuran || companyDetails?.employee_count || companyDetails?.size || companyDetails?.karyawan || '',
-      lokasi: companyDetails?.lokasi || companyDetails?.location || companyDetails?.address || ''
-    });
-  }, [user, profileName, companyName, companyDetails]);
-
-  const handleSaveProfile = async () => {
-    setIsSaving(true);
-    try {
-      if (user?.id) {
-        await supabase
-          .from('profiles')
-          .update({ nama_lengkap: profileData.nama })
-          .eq('id', user.id);
-      }
-
-      if (companyId) {
-        await supabase
-          .from('companies')
-          .update({
-            name: profileData.perusahaan,
-            namaPerusahaan: profileData.perusahaan,
-            industri: profileData.industri,
-            ukuran: profileData.karyawan,
-            employee_count: profileData.karyawan,
-            lokasi: profileData.lokasi,
-            location: profileData.lokasi,
-            telepon_kontak: profileData.whatsapp,
-            phone: profileData.whatsapp
-          })
-          .eq('id', companyId);
-      }
-
-      if (refreshCompanyData && user?.id) {
-        await refreshCompanyData(user.id);
-      }
-      setIsEditingProfile(false);
-    } catch (err) {
-      console.error('Gagal memperbarui data profil:', err);
-    } finally {
-      setIsSaving(false);
-    }
+  const saveAndCloseEdit = async () => {
+    await handleSaveProfile();
+    setIsEditingProfile(false);
   };
-
-  const waPhoneNumber = '6281234567890';
-  const waUrl = `https://wa.me/${waPhoneNumber}?text=${encodeURIComponent(`Halo Tim Support LUNA, saya ${profileData.nama} dari ${profileData.perusahaan} ingin bertanya tentang kendala rekrutmen.`)}`;
 
   return (
     <div className="bantuan001-view">
@@ -145,7 +88,7 @@ export default function Bantuan_001() {
               ) : (
                 <div className="bc001-edit-actions">
                   <button className="bc001-edit-cancel-btn" onClick={() => setIsEditingProfile(false)} disabled={isSaving}>Batal</button>
-                  <button className="bc001-edit-save-btn" onClick={handleSaveProfile} disabled={isSaving}>
+                  <button className="bc001-edit-save-btn" onClick={saveAndCloseEdit} disabled={isSaving}>
                     {isSaving ? 'Menyimpan...' : 'Simpan'}
                   </button>
                 </div>

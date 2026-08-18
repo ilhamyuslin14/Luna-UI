@@ -1,85 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { getActivityLogs } from '../../services/kandidatService';
+import useRiwayatUnggah, { getBatchStatusInfo, getDisplaySource, formatTanggal } from '../../hooks/kandidat/useRiwayatUnggah.js';
 
 export default function KandidatRiwayatUnggah({ onView }) {
-  const { companyId } = useAuth();
-  const [batches, setBatches] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // States untuk Filter
-  const [filterSumber, setFilterSumber] = useState('Semua');
-  const [filterPosisi, setFilterPosisi] = useState('Semua');
-  const [filterStatus, setFilterStatus] = useState('Semua');
-  const [filterDateStart, setFilterDateStart] = useState('');
-  const [filterDateEnd, setFilterDateEnd] = useState('');
-
-  useEffect(() => {
-    async function loadBatches() {
-      if (!companyId) return;
-      try {
-        setIsLoading(true);
-        const rows = await getActivityLogs(companyId);
-
-        // Grupkan baris flat dari DB berdasarkan batch_id
-        const batchMap = new Map();
-        for (const row of rows) {
-          if (!batchMap.has(row.batch_id)) {
-            batchMap.set(row.batch_id, {
-              batch_id: row.batch_id,
-              tanggal: row.created_at,
-              tipe_aktivitas: row.tipe_aktivitas,
-              source: row.source,
-              posisi_nama: row.posisi_nama || null,
-              files: [],
-              total: 0,
-              upload_berhasil: 0,
-              upload_gagal: 0,
-              scoring_berhasil: 0,
-              scoring_gagal: 0,
-            });
-          }
-          const b = batchMap.get(row.batch_id);
-          
-          b.files.push({ 
-            id: row.id,
-            name: row.nama_file, 
-            tipe_aktivitas: row.tipe_aktivitas,
-            upload_status: row.upload_status, 
-            upload_fail_reason: row.upload_fail_reason, 
-            scoring_status: row.scoring_status,
-            scoring_fail_reason: row.scoring_fail_reason,
-            kandidatId: row.kandidat_id || null 
-          });
-          b.total += 1;
-          
-          if (row.upload_status === 'berhasil') b.upload_berhasil += 1;
-          if (row.upload_status === 'gagal') b.upload_gagal += 1;
-          if (row.scoring_status === 'berhasil') b.scoring_berhasil += 1;
-          if (row.scoring_status === 'gagal') b.scoring_gagal += 1;
-        }
-
-        // Urutkan batch berdasarkan tanggal terbaru
-        const sorted = Array.from(batchMap.values()).sort(
-          (a, b) => new Date(b.tanggal) - new Date(a.tanggal)
-        );
-        setBatches(sorted);
-      } catch (err) {
-        console.error('Gagal memuat riwayat unggah:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadBatches();
-  }, [companyId]);
-
-  const formatTanggal = (iso) => {
-    if (!iso) return '-';
-    return new Date(iso).toLocaleString('id-ID', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-    });
-  };
+  const {
+    isLoading, batches, filteredBatches,
+    filterSumber, setFilterSumber, filterPosisi, setFilterPosisi,
+    filterStatus, setFilterStatus, filterDateStart, setFilterDateStart, filterDateEnd, setFilterDateEnd,
+    uniqueSources, uniquePosisi, statusOptions, hasActiveFilters, resetFilters,
+  } = useRiwayatUnggah();
 
   if (isLoading) {
     return (
@@ -100,106 +27,6 @@ export default function KandidatRiwayatUnggah({ onView }) {
       </div>
     );
   }
-
-  // --- Helper Status ---
-  const getBatchStatusInfo = (item) => {
-    let labelAktivitas = 'Unggah CV & Penilaian AI';
-    if (item.tipe_aktivitas === 'upload_only') labelAktivitas = 'Unggah CV';
-    if (item.tipe_aktivitas === 'scoring_only') labelAktivitas = 'Penilaian AI';
-    
-    let hasError = false;
-    if (item.tipe_aktivitas === 'upload_only') {
-      hasError = item.upload_gagal > 0;
-    } else if (item.tipe_aktivitas === 'scoring_only') {
-      hasError = item.scoring_gagal > 0;
-    } else {
-      hasError = item.files.some(f => {
-        if (f.scoring_status === 'gagal') return true;
-        if (f.upload_status === 'gagal' && f.scoring_status !== 'berhasil') return true;
-        return false;
-      });
-    }
-    
-    let isProcessing = false;
-    if (item.tipe_aktivitas === 'upload_only') {
-      if (item.upload_berhasil + item.upload_gagal < item.total) isProcessing = true;
-    } else if (item.tipe_aktivitas === 'scoring_only') {
-      if (item.scoring_berhasil + item.scoring_gagal < item.total) isProcessing = true;
-    } else {
-      if (item.upload_berhasil + item.upload_gagal < item.total || item.scoring_berhasil + item.scoring_gagal < item.upload_berhasil) isProcessing = true;
-    }
-    
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-    if (isProcessing && new Date(item.tanggal) < twoHoursAgo) {
-      isProcessing = false;
-      hasError = true;
-    }
-
-    let statusBerhasilText = `${labelAktivitas} Berhasil`;
-    if (item.tipe_aktivitas === 'upload_and_scoring') {
-      if (item.upload_berhasil === 0 && item.scoring_berhasil > 0) statusBerhasilText = 'Penilaian AI Berhasil';
-      else if (item.scoring_berhasil === 0 && item.upload_berhasil > 0) statusBerhasilText = 'Unggah CV Berhasil';
-    }
-
-    let finalStatusText = '';
-    if (hasError) {
-      if (item.tipe_aktivitas === 'upload_and_scoring' && item.upload_gagal > 0 && item.scoring_berhasil > 0 && item.scoring_gagal > 0) {
-        finalStatusText = 'Sebagian Gagal';
-      } else {
-        finalStatusText = `${labelAktivitas} Gagal`;
-      }
-    } else if (isProcessing) {
-      finalStatusText = 'Sedang Diproses';
-    } else {
-      finalStatusText = statusBerhasilText;
-    }
-
-    return { labelAktivitas, hasError, isProcessing, statusBerhasilText, finalStatusText };
-  };
-
-  // --- Filtering Logic ---
-  const getDisplaySource = (s) => s === 'Portal Karir' ? 'Portal Karir' : (s === 'HR' ? 'HR' : s);
-  const uniqueSources = ['Semua', ...new Set(batches.map(b => getDisplaySource(b.source)))];
-
-  const uniquePosisi = [
-    'Semua',
-    ...new Set(batches.map(b => b.posisi_nama).filter(Boolean)),
-    ...(batches.some(b => !b.posisi_nama) ? ['Tanpa Posisi'] : []),
-  ];
-
-  // Cuma tampilkan status yang benar-benar muncul di data, bukan daftar statis
-  const statusOptions = ['Semua', ...new Set(batches.map(b => getBatchStatusInfo(b).finalStatusText))];
-
-  const filteredBatches = batches.filter(item => {
-    const info = getBatchStatusInfo(item);
-    const displaySource = getDisplaySource(item.source);
-
-    if (filterSumber !== 'Semua' && displaySource !== filterSumber) return false;
-    if (filterPosisi !== 'Semua') {
-      if (filterPosisi === 'Tanpa Posisi') {
-        if (item.posisi_nama) return false;
-      } else if (item.posisi_nama !== filterPosisi) return false;
-    }
-    if (filterStatus !== 'Semua' && info.finalStatusText !== filterStatus) return false;
-
-    if (filterDateStart || filterDateEnd) {
-      const itemDate = new Date(item.tanggal);
-      itemDate.setHours(0, 0, 0, 0);
-      
-      if (filterDateStart) {
-        const start = new Date(filterDateStart);
-        start.setHours(0, 0, 0, 0);
-        if (itemDate < start) return false;
-      }
-      if (filterDateEnd) {
-        const end = new Date(filterDateEnd);
-        end.setHours(0, 0, 0, 0);
-        if (itemDate > end) return false;
-      }
-    }
-    
-    return true;
-  });
 
   return (
     <div className="ktr-table-wrap">
@@ -277,10 +104,10 @@ export default function KandidatRiwayatUnggah({ onView }) {
           />
         </div>
 
-        {(filterSumber !== 'Semua' || filterPosisi !== 'Semua' || filterStatus !== 'Semua' || filterDateStart || filterDateEnd) && (
+        {hasActiveFilters && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
-              onClick={() => { setFilterSumber('Semua'); setFilterPosisi('Semua'); setFilterStatus('Semua'); setFilterDateStart(''); setFilterDateEnd(''); }}
+              onClick={resetFilters}
               style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', backgroundColor: '#fee2e2', color: '#ef4444', fontSize: '14px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}
               onMouseOver={e => { e.currentTarget.style.backgroundColor = '#fecaca'; }}
               onMouseOut={e => { e.currentTarget.style.backgroundColor = '#fee2e2'; }}

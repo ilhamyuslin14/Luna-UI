@@ -282,6 +282,9 @@
 
 /* ── Summary screen ── */
 .blw-sum-top {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
   padding: 30px 40px 4px;
   flex-shrink: 0;
 }
@@ -324,6 +327,8 @@
 .blw-sum-card {
   width: 100%;
   max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
   height: fit-content;
   transition: opacity 0.3s ease;
   background: #ffffff;
@@ -388,6 +393,9 @@
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
   padding: 20px 40px;
   border-top: 1px solid var(--luna-ink-100);
   background: var(--luna-ink-000);

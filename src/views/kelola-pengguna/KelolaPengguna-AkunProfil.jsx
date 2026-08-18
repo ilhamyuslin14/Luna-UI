@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import PopupKonfirmasiPassword from '../../components/PopupKonfirmasiPassword.jsx';
 import InlineEditRow from '../../components/InlineEditRow.jsx';
 import Toast from '../../components/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { supabase } from '../../config/supabase.js';
+import useAkunProfilData from '../../hooks/akun-profil/useAkunProfilData.js';
 
 const buildingIcon     = '/assets/building.svg';
 const userProfileIcon  = '/assets/user_profile.svg';
@@ -106,108 +106,22 @@ const EditableContent = memo(
 
 export default function KelolaPenggunaAkunProfil() {
   const { user, companyId, companyName, companyDetails, userRole, refreshCompanyData } = useAuth();
+  const {
+    perusahaan, profil,
+    handleUpdateCompany, handleUpdateSocial, handleUpdateProfile, uploadCompanyAsset,
+    toast, setToast, showToast,
+  } = useAkunProfilData(companyId, companyName, companyDetails, user, refreshCompanyData);
+
   const [isKeamananExpanded, setIsKeamananExpanded] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const editorRef = useRef(null);
   const savedRangeRef = useRef(null);
 
-  const [toast, setToast] = useState(null);
-  const toastTimer = useRef(null);
-
-  const showToast = (message, subMessage, type = 'success') => {
-    setToast({ message, subMessage, type });
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 4000);
-  };
-
-  const [perusahaan, setPerusahaan] = useState({
-    namaPerusahaan: '',
-    industri: '',
-    ukuran: '',
-    lokasi: '',
-    logo_url: '',
-    banner_url: '',
-    tagline: '',
-    tahun_didirikan: '',
-    jenis_badan_usaha: '',
-    alamat: '',
-    website: '',
-    email_kontak: '',
-    telepon_kontak: '',
-    deskripsi: '',
-    media_sosial: {},
-    video_profil_url: '',
-  });
-
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
-
-  const [profil, setProfil] = useState({
-    namaLengkap: '',
-    namaTampilan: '',
-    email: '',
-    telepon: '',
-    lokasi: '',
-  });
-
-  useEffect(() => {
-    if (companyDetails || companyName) {
-      setPerusahaan({
-        namaPerusahaan: companyName || '',
-        industri: companyDetails?.industri || '',
-        ukuran: companyDetails?.ukuran || '',
-        lokasi: companyDetails?.lokasi || '',
-        logo_url: companyDetails?.logo_url || '',
-        banner_url: companyDetails?.banner_url || '',
-        tagline: companyDetails?.tagline || '',
-        tahun_didirikan: companyDetails?.tahun_didirikan || '',
-        jenis_badan_usaha: companyDetails?.jenis_badan_usaha || '',
-        alamat: companyDetails?.alamat || '',
-        website: companyDetails?.website || '',
-        email_kontak: companyDetails?.email_kontak || '',
-        telepon_kontak: companyDetails?.telepon_kontak || '',
-        deskripsi: companyDetails?.deskripsi || '',
-        media_sosial: companyDetails?.media_sosial || {},
-        video_profil_url: companyDetails?.video_profil_url || '',
-      });
-    }
-    if (user) {
-      setProfil({
-        namaLengkap: user.user_metadata?.nama_lengkap || '',
-        namaTampilan: user.user_metadata?.nama_tampilan || '',
-        email: user.email || '',
-        telepon: user.user_metadata?.telepon || '',
-        lokasi: user.user_metadata?.lokasi || '',
-      });
-    }
-  }, [companyDetails, companyName, user]);
-
-  const handleUpdateCompany = async (field, value) => {
-    if (!companyId) return;
-    const updatePayload = {};
-    if (field === 'namaPerusahaan') updatePayload.name = value;
-    else updatePayload[field] = value;
-
-    const { error } = await supabase
-      .from('companies')
-      .update(updatePayload)
-      .eq('id', companyId);
-
-    if (!error) {
-      setPerusahaan(prev => ({ ...prev, [field]: value }));
-      if (refreshCompanyData && user?.id) {
-        await refreshCompanyData(user.id);
-      }
-      showToast('Berhasil', 'Data perusahaan berhasil disimpan', 'success');
-    } else {
-      console.error(error);
-      showToast('Gagal', 'Terjadi kesalahan saat menyimpan data perusahaan', 'error');
-      throw error;
-    }
-  };
 
   const [cropModal, setCropModal] = useState({
     isOpen: false,
@@ -220,15 +134,6 @@ export default function KelolaPenggunaAkunProfil() {
     isDragging: false,
     dragStart: { x: 0, y: 0, initialOffsetX: 50, initialOffsetY: 50 },
   });
-
-  const uploadCompanyAsset = async (file, folder) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `${companyId}/${folder}/${fileName}`;
-    const { error } = await supabase.storage.from('company_assets').upload(filePath, file);
-    if (error) throw error;
-    return `${supabase.supabaseUrl}/storage/v1/object/public/company_assets/${filePath}`;
-  };
 
   const openCropModal = (file, type) => {
     const reader = new FileReader();
@@ -407,33 +312,6 @@ export default function KelolaPenggunaAkunProfil() {
     } finally {
       setUploadingLogo(false);
       setUploadingBanner(false);
-    }
-  };
-
-  const handleUpdateSocial = async (platform, value) => {
-    await handleUpdateCompany('media_sosial', { ...(perusahaan.media_sosial || {}), [platform]: value });
-  };
-
-  const handleUpdateProfile = async (field, value) => {
-    if (!user) return;
-    const metadataUpdate = {};
-    
-    if (field === 'namaLengkap') metadataUpdate.nama_lengkap = value;
-    else if (field === 'namaTampilan') metadataUpdate.nama_tampilan = value;
-    else if (field === 'telepon') metadataUpdate.telepon = value;
-    else if (field === 'lokasi') metadataUpdate.lokasi = value;
-
-    const { error } = await supabase.auth.updateUser({
-      data: metadataUpdate
-    });
-
-    if (!error) {
-      setProfil(prev => ({ ...prev, [field]: value }));
-      showToast('Berhasil', 'Data profil berhasil disimpan', 'success');
-    } else {
-      console.error(error);
-      showToast('Gagal', 'Terjadi kesalahan saat menyimpan data profil', 'error');
-      throw error;
     }
   };
 

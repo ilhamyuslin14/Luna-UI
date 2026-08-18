@@ -305,7 +305,8 @@ function formatActivities(pool) {
       text: act.text,
       time: timeLabel,
       icon: act.icon,
-      bg: act.bg
+      bg: act.bg,
+      timestamp: act.timestamp
     };
   });
 }

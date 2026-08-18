@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { supabase } from '../../config/supabase';
-import { useAuth } from '../../context/AuthContext';
-import { useUpload } from '../../context/UploadContext';
-import { getSeleksi } from '../../services/seleksiService';
+import useUnggahCv, { getErrorLabel, isRetryableError } from '../../hooks/kandidat/useUnggahCv.js';
+import { deriveHistoryFiles } from '../../hooks/kandidat/useRiwayatUnggah.js';
 
 const UploadIcon = () => (
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="var(--luna-orange-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,16 +73,6 @@ const IconInfoTip = () => (
   </svg>
 );
 
-function getErrorLabel(msg) {
-  if (!msg) return { label: 'Gagal Upload', detail: '' };
-  if (/sudah pernah diunggah/i.test(msg))          return { label: 'File Duplikat',       detail: msg };
-  if (/bukan cv|lowongan|brosur/i.test(msg))       return { label: 'Bukan CV',            detail: msg };
-  if (/konfigurasi ai/i.test(msg))                 return { label: 'Konfigurasi Error',   detail: msg };
-  if (/format file/i.test(msg))                    return { label: 'Format Salah',        detail: msg };
-  if (/Ekstrak CV Sibuk/i.test(msg))               return { label: 'Gagal Ekstrak',       detail: msg };
-  if (/AI Scoring Sibuk/i.test(msg))               return { label: 'Gagal Scoring',       detail: msg };
-  return { label: 'Gagal Proses', detail: msg };
-}
 
 const PortalTooltip = ({ content, children }) => {
   const [show, setShow] = useState(false);
@@ -165,55 +153,18 @@ const FAIL_CHANCE = 0.2;
 const FAIL_REASONS = ['Gagal Parsing', 'CV Tidak Sesuai', 'Ukuran Terlalu Besar', 'Format Tidak Didukung', 'Koneksi Terputus'];
 const randomFailReason = () => FAIL_REASONS[Math.floor(Math.random() * FAIL_REASONS.length)];
 
-const isRetryableError = (msg) => {
-  if (!msg) return true;
-  if (/sudah pernah diunggah/i.test(msg)) return false;
-  if (/bukan cv|lowongan|brosur/i.test(msg)) return false;
-  if (/format/i.test(msg)) return false;
-  return true; // Asumsikan sisa error seperti Gagal Proses, Koneksi, Timeout dll adalah retryable
-};
-
 export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, initialSeleksiId }) {
-  const { companyId, companyPlan } = useAuth();
-  const isFreePlan = companyPlan === 'free';
-  const { startGlobalUpload, globalFiles, clearGlobalUploads, retryGlobalFileById } = useUpload();
-  const [phase, setPhase] = useState(() => globalFiles.length > 0 ? 'uploading' : 'drop');
-  const [files, setFiles] = useState([]);
+  const {
+    isFreePlan, phase, files, posisiOptions, posisi, setPosisi,
+    addFiles, removeFile, cancelFiles, startUpload, uploadMore, retryGlobalFileById,
+    total, doneCount, allDone, overallPct, normalFiles, failedFiles,
+  } = useUnggahCv(initialSeleksiId);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showPosisi, setShowPosisi] = useState(false);
-  const [posisiOptions, setPosisiOptions] = useState([]);
-  const [posisi, setPosisi] = useState(null); // { id, jabatan } | null
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    async function loadPosisi() {
-      if (!companyId) return;
-      try {
-        const data = await getSeleksi(companyId);
-        setPosisiOptions(data || []);
-        if (initialSeleksiId && data) {
-          const match = data.find(d => d.id === initialSeleksiId);
-          if (match) setPosisi({ id: match.id, jabatan: match.jabatan });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    loadPosisi();
-  }, [companyId, initialSeleksiId]);
-
-  // Menghapus useEffect historyLive karena riwayat kini sepenuhnya statis
-
   const handleFileChange = (e) => {
-    if (e.target.files?.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      setFiles(prev => {
-        const existing = new Set(prev.map(f => `${f.name}-${f.size}`));
-        const unique = newFiles.filter(f => !existing.has(`${f.name}-${f.size}`));
-        return [...prev, ...unique];
-      });
-      setPhase('files');
-    }
+    if (e.target.files?.length > 0) addFiles(Array.from(e.target.files));
     // Reset value agar bisa memilih file yang sama lagi jika dihapus
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -221,146 +172,12 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    if (e.dataTransfer.files?.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setFiles(prev => {
-        const existing = new Set(prev.map(f => `${f.name}-${f.size}`));
-        const unique = newFiles.filter(f => !existing.has(`${f.name}-${f.size}`));
-        return [...prev, ...unique];
-      });
-      setPhase('files');
-    }
+    if (e.dataTransfer.files?.length > 0) addFiles(Array.from(e.dataTransfer.files));
   };
-
-  const removeFile = (idx) => {
-    setFiles(prev => {
-      const next = prev.filter((_, i) => i !== idx);
-      if (next.length === 0) setPhase('drop');
-      return next;
-    });
-  };
-
-  const startUpload = () => {
-    startGlobalUpload(companyId, files, posisi);
-    setFiles([]);
-    setPhase('uploading'); // Tetap di halaman progress
-  };
-
-  // Derived state dari Context untuk phase 'uploading'
-  const { scoringQueue } = useUpload();
-  const ctxFiles = globalFiles;
-  console.log('DEBUG Kandidat-UnggahCV rendering. scoringQueue:', scoringQueue, 'ctxFiles:', ctxFiles);
-  
-  console.log("scoringQueue:", scoringQueue, "ctxFiles:", ctxFiles); const extendedFiles = ctxFiles.map(f => {
-    const isUploadAndScoring = !!f.posisi;
-    const scoringJob = isUploadAndScoring 
-      ? scoringQueue.find(sq => sq.namaFile === f.name)
-      : null;
-
-    let finalStatus = 'waiting';
-    let isFinished = false;
-    let isFailed = false;
-    let failReason = null;
-    let statusText = f.statusText || 'Proses Upload';
-
-    if (!isUploadAndScoring) {
-      isFinished = f.status === 'berhasil' || f.status === 'gagal';
-      finalStatus = f.status;
-      isFailed = f.status === 'gagal';
-      failReason = f.failReason;
-      statusText = finalStatus === 'berhasil' ? 'Unggah Berhasil' : statusText;
-    } else {
-      const uploadFinished = f.status === 'berhasil' || f.status === 'gagal';
-      if (!uploadFinished) {
-        finalStatus = f.status;
-      } else {
-        if (f.scoringEnqueued) {
-          if (scoringJob) {
-            if (scoringJob.status === 'done') {
-              isFinished = true;
-              finalStatus = 'berhasil';
-              statusText = 'Penilaian AI Berhasil';
-              f.progress = 100;
-            } else if (scoringJob.status === 'error') {
-              isFinished = true;
-              finalStatus = 'gagal';
-              isFailed = true;
-              failReason = f.status === 'gagal' ? `Unggah Gagal: ${f.failReason} & AI Gagal: ${scoringJob.error}` : `AI Gagal: ${scoringJob.error}`;
-            } else {
-              finalStatus = 'uploading';
-              statusText = 'Proses Penilaian AI...';
-              f.progress = 85;
-            }
-          } else {
-            finalStatus = 'uploading';
-            statusText = 'Menunggu AI...';
-            f.progress = 60;
-          }
-        } else {
-          isFinished = true;
-          finalStatus = f.status;
-          isFailed = f.status === 'gagal';
-          failReason = f.failReason;
-        }
-      }
-    }
-    return { ...f, finalStatus, isFinished, isFailed, failReason, statusText };
-  });
-
-  const total = extendedFiles.length;
-  const doneCount = extendedFiles.filter(s => s.isFinished).length;
-  const allDone = total > 0 && doneCount === total;
-  const overallPct = total > 0 ? (doneCount / total) * 100 : 0;
-  const normalFiles = extendedFiles.filter(s => !s.isFailed);
-  const failedFiles = extendedFiles.filter(s => s.isFailed);
 
   // ── History static view (selesai, not live) ───────────────────
   if (historyData) {
-    const extendedHistoryFiles = historyData.files.map(f => {
-      const isUploadOnly = f.tipe_aktivitas === 'upload_only';
-      const isScoringOnly = f.tipe_aktivitas === 'scoring_only';
-      
-      let finalStatus = 'waiting';
-      let isFailed = false;
-      let failReason = null;
-      let statusText = '';
-      
-      if (isUploadOnly) {
-        finalStatus = f.upload_status || 'waiting';
-        isFailed = finalStatus === 'gagal';
-        failReason = f.upload_fail_reason;
-        statusText = finalStatus === 'berhasil' ? 'Unggah Berhasil' : 'Menunggu';
-      } else if (isScoringOnly) {
-        finalStatus = f.scoring_status || 'waiting';
-        isFailed = finalStatus === 'gagal';
-        failReason = f.scoring_fail_reason;
-        statusText = finalStatus === 'berhasil' ? 'Penilaian AI Berhasil' : 'Menunggu';
-      } else {
-        const isUploadFailed = f.upload_status === 'gagal';
-        const isScoringBerhasil = f.scoring_status === 'berhasil';
-        const isScoringFailed = f.scoring_status === 'gagal';
-        
-        if (isScoringBerhasil) {
-          finalStatus = 'berhasil';
-          statusText = 'Penilaian AI Berhasil';
-        } else if (isScoringFailed) {
-          finalStatus = 'gagal';
-          isFailed = true;
-          failReason = isUploadFailed ? `Unggah Gagal: ${f.upload_fail_reason} & AI Gagal: ${f.scoring_fail_reason}` : `AI Gagal: ${f.scoring_fail_reason}`;
-        } else if (isUploadFailed) {
-          finalStatus = 'gagal';
-          isFailed = true;
-          failReason = f.upload_fail_reason;
-        } else {
-          finalStatus = 'uploading';
-          statusText = 'Proses...';
-        }
-      }
-      return { ...f, finalStatus, isFailed, failReason, statusText, data: f.kandidat_id };
-    });
-
-    const hNormal = extendedHistoryFiles.filter(f => !f.isFailed);
-    const hFailed = extendedHistoryFiles.filter(f => f.isFailed);
+    const { normalFiles: hNormal, failedFiles: hFailed } = deriveHistoryFiles(historyData.files);
     return (
       <div className="kt-content">
         <div className="kt-upload-card">
@@ -561,7 +378,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                <button className="kt-btn-cancel" onClick={() => { setFiles([]); setPhase('drop'); }}>Batal</button>
+                <button className="kt-btn-cancel" onClick={cancelFiles}>Batal</button>
                 <button className="kt-btn-upload" onClick={startUpload}>Unggah</button>
               </div>
             </div>
@@ -645,7 +462,7 @@ export default function KandidatUnggahCV({ navigate, historyData, onUploadMore, 
             <div className="kt-upload-footer">
               <button className="kt-btn-lihat" onClick={() => navigate('kandidat_001')}>Lihat Kandidat</button>
               {allDone && (
-                <button className="kt-btn-upload-more" onClick={() => { clearGlobalUploads(); setPhase('drop'); }}>
+                <button className="kt-btn-upload-more" onClick={uploadMore}>
                   Upload CV Lainnya
                 </button>
               )}

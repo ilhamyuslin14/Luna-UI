@@ -27,6 +27,7 @@ export async function updateAlurProses(scoringId, alurLevel) {
   }
 }
 
+// Nama fungsi ikut konvensi seleksiService.js (lihat komentar di sana)
 export async function getScoringBySeleksi(seleksiId) {
   if (!seleksiId) return [];
   const { data, error } = await supabase

@@ -449,6 +449,80 @@ export default function LandingPage_003({ navigate }) {
         </div>
       </section>
 
+      {/* ── 3b. Buat Lowongan Otomatis ── */}
+      <section className="lp003-otomatis">
+        <div className="lp003-otomatis-inner">
+          <div className="lp003-otomatis-eyebrow-row">
+            <span className="lp003-otomatis-eyebrow">Fitur Baru</span>
+          </div>
+
+          <div className="lp003-otomatis-grid">
+            <div className="lp003-otomatis-text-col">
+              <h2 className="lp003-otomatis-title">Buat lowongan lebih mudah dengan bantuan <span className="lp003-otomatis-title-accent">Luna</span></h2>
+              <p className="lp003-otomatis-sub">LUNA membantu menyusun semua yang ada di pikiran Anda menjadi lowongan yang terstruktur dan sesuai kebutuhan.</p>
+
+              <div className="lp003-otomatis-feature-list">
+                <div className="lp003-otomatis-feature-item">
+                  <div className="lp003-bento-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                  </div>
+                  <div>
+                    <h4>Disusun dari percakapan alami</h4>
+                    <p>Jawab beberapa pertanyaan pakai bahasa sendiri, tanpa perlu tahu format lowongan formal.</p>
+                  </div>
+                </div>
+                <div className="lp003-otomatis-feature-item">
+                  <div className="lp003-bento-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  </div>
+                  <div>
+                    <h4>Draf lengkap dalam hitungan detik</h4>
+                    <p>Judul posisi, tanggung jawab, kualifikasi, hingga nilai tambah tersusun otomatis dan siap ditinjau.</p>
+                  </div>
+                </div>
+                <div className="lp003-otomatis-feature-item">
+                  <div className="lp003-bento-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                  </div>
+                  <div>
+                    <h4>Tetap dalam kendali Anda</h4>
+                    <p>Minta Luna menyempurnakan bagian tertentu, atau sunting langsung sebelum lowongan dipublikasikan.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lp003-otomatis-visual">
+              <div className="lp003-mock lp003-otomatis-qa-card">
+                <div className="lp003-otomatis-qa-progress-track"><div className="lp003-otomatis-qa-progress-fill" /></div>
+                <div className="lp003-otomatis-qa-q">Kandidat seperti apa yang kamu cari?</div>
+                <div className="lp003-otomatis-qa-opts">
+                  <div className="lp003-otomatis-qa-opt lp003-otomatis-qa-opt-sel">Belum berpengalaman tidak masalah, asal mau belajar</div>
+                  <div className="lp003-otomatis-qa-opt lp003-otomatis-qa-opt-sel">Tinggal dekat lokasi kios</div>
+                  <div className="lp003-otomatis-qa-opt">Bersedia kerja saat akhir pekan dan hari libur</div>
+                </div>
+                <div className="lp003-otomatis-qa-foot"><span className="lp003-otomatis-qa-next">Lanjut</span></div>
+              </div>
+
+              <div className="lp003-mock lp003-otomatis-draft-card">
+                <span className="lp003-otomatis-draft-badge"><IconCheck />Draf Siap</span>
+                <div className="lp003-otomatis-draft-title">Karyawan Toko</div>
+                <div className="lp003-otomatis-draft-pills">
+                  <span className="lp003-otomatis-draft-pill">Staff/Junior</span>
+                  <span className="lp003-otomatis-draft-pill">Waktu Tertentu</span>
+                  <span className="lp003-otomatis-draft-pill">SMP/Sederajat</span>
+                </div>
+                <div className="lp003-otomatis-draft-label">Tanggung Jawab</div>
+                <ul className="lp003-otomatis-draft-list">
+                  <li>Melayani pembeli dan memproses transaksi dengan ramah</li>
+                  <li>Menyiapkan dan mengemas pesanan sesuai standar</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── 4. Berbagi ── */}
       <section className="lp003-berbagi">
         <div className="lp003-berbagi-inner">

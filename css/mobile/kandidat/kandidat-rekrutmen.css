@@ -1,0 +1,86 @@
+/* Mobile Kandidat Detail — tab Rekrutmen (semua posisi yang sudah dinilai) —
+   rk- prefix, terpisah dari css/mobile/kandidat/kandidat-detail.css (tab
+   Ringkasan, mkd001-). Pola kartu sengaja dibuat mirip
+   css/mobile/lowongan/lowongan-kandidat.css (mlk-) supaya visual konsisten. */
+
+.rk-toolbar { background: #ffffff; padding: 12px 14px; border-bottom: 1px solid var(--luna-ink-100); }
+.rk-toolbar-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.rk-count { font-size: 12px; font-weight: 800; color: var(--luna-ink-900); }
+
+.rk-chiprow { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.rk-chiprow::-webkit-scrollbar { display: none; }
+.rk-chip {
+  flex-shrink: 0; font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--luna-ink-100);
+  background: #ffffff; color: var(--luna-ink-500); white-space: nowrap; display: flex; align-items: center; gap: 5px; font-family: inherit;
+}
+.rk-chip.active { background: var(--luna-ink-900); border-color: var(--luna-ink-900); color: #ffffff; }
+.rk-chip-sort {
+  margin-left: auto; flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px; background: var(--luna-orange-050);
+  color: var(--luna-orange-600); display: flex; align-items: center; justify-content: center; border: none; position: relative;
+}
+.rk-chip-sort svg { width: 14px; height: 14px; }
+.rk-chip-sort-dot { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--luna-orange-600); border: 1.5px solid #ffffff; }
+.rk-filter-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.rk-list { padding: 12px 14px 40px; display: flex; flex-direction: column; gap: 10px; }
+.rk-card { background: #ffffff; border: 1.5px solid var(--luna-ink-100); border-radius: 16px; padding: 13px; }
+
+.rk-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; cursor: pointer; }
+.rk-posisi { font-size: 13.5px; font-weight: 800; color: var(--luna-orange-600); text-decoration: underline; text-decoration-color: var(--luna-orange-100); text-underline-offset: 2px; }
+.rk-dept { font-size: 11px; color: var(--luna-ink-400); margin-top: 2px; }
+.rk-chev { color: var(--luna-ink-300); flex-shrink: 0; margin-top: 2px; }
+.rk-chev svg { width: 11px; height: 11px; }
+
+.rk-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--luna-ink-050); gap: 8px; }
+.rk-alur-pill {
+  display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; color: var(--luna-ink-600); background: var(--luna-ink-050);
+  padding: 5px 10px; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; border: none; font-family: inherit;
+}
+.rk-alur-pill svg { width: 8px; height: 8px; flex-shrink: 0; color: var(--luna-ink-400); }
+.rk-alur-pill.baru { background: #DBEAFE; color: #2563EB; }
+.rk-alur-pill.wawancara { background: var(--luna-orange-050); color: var(--luna-orange-500); }
+.rk-alur-pill.hired { background: #E9F9EE; color: var(--fit-high, #089F32); }
+.rk-alur-pill.tidak-sesuai { background: #FDEBEC; color: var(--fit-low, #FB484B); }
+.rk-alur-pill.baru svg, .rk-alur-pill.wawancara svg, .rk-alur-pill.hired svg, .rk-alur-pill.tidak-sesuai svg { color: inherit; }
+
+.rk-skor { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; border-radius: 999px; flex-shrink: 0; border: none; font-family: inherit; }
+.rk-skor.high { background: #E9F9EE; }
+.rk-skor.moderate { background: #FFF1E5; }
+.rk-skor.low { background: #FDEBEC; }
+.rk-skor.none { background: var(--luna-ink-050); }
+.rk-skor-label { font-size: 10px; font-weight: 700; }
+.rk-skor.high .rk-skor-label { color: var(--fit-high, #089F32); }
+.rk-skor.moderate .rk-skor-label { color: var(--fit-moderate, #FD800C); }
+.rk-skor.low .rk-skor-label { color: var(--fit-low, #FB484B); }
+.rk-skor.none .rk-skor-label { color: var(--fit-none, #7E8799); }
+.rk-skor-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: #ffffff; }
+.rk-skor.high .rk-skor-num { background: var(--fit-high, #089F32); }
+.rk-skor.moderate .rk-skor-num { background: var(--fit-moderate, #FD800C); }
+.rk-skor.low .rk-skor-num { background: var(--fit-low, #FB484B); }
+.rk-skor.none .rk-skor-num { background: var(--fit-none, #7E8799); font-size: 12px; }
+
+.rk-empty { margin: 0; text-align: center; padding: 34px 18px; background: #ffffff; border: 1px solid var(--luna-ink-100); border-radius: 16px; }
+.rk-empty p { font-size: 12.5px; color: var(--luna-ink-400); margin: 0; line-height: 1.5; }
+
+/* ── sheet: filter & urutkan ── */
+.rk-sheet-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--luna-ink-900); margin-bottom: 2px; }
+.rk-sheet-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--luna-ink-400); margin: 16px 0 9px; }
+.rk-filter-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.rk-filter-opt {
+  font-size: 12px; font-weight: 700; padding: 8px 13px; border-radius: 10px; border: 1.5px solid var(--luna-ink-100);
+  background: #ffffff; color: var(--luna-ink-600); display: flex; align-items: center; gap: 6px; font-family: inherit;
+}
+.rk-filter-opt.sel { border-color: var(--luna-orange-400); background: var(--luna-orange-050); color: var(--luna-orange-600); }
+.rk-sort-list { display: flex; flex-direction: column; }
+.rk-sort-item {
+  display: flex; align-items: center; justify-content: space-between; padding: 11px 4px; font-size: 13px; font-weight: 600;
+  color: var(--luna-ink-700); border-bottom: 1px solid var(--luna-ink-050); background: none; border-left: none; border-right: none;
+  border-top: none; width: 100%; text-align: left; font-family: inherit;
+}
+.rk-sort-item:last-child { border-bottom: none; }
+.rk-sort-item.sel { color: var(--luna-orange-600); font-weight: 800; }
+.rk-sort-item svg { width: 13px; height: 13px; color: var(--luna-orange-500); }
+.rk-sheet-cta {
+  margin-top: 18px; width: 100%; background: var(--luna-orange-500); color: #ffffff; border: none; border-radius: 12px;
+  padding: 13px; font-size: 13.5px; font-weight: 800; text-align: center; font-family: inherit;
+}

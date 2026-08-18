@@ -1504,6 +1504,236 @@ body:has(.lp003-page) {
   }
 }
 
+/* ── Buat Lowongan Otomatis ── */
+.lp003-otomatis {
+  position: relative;
+  overflow: hidden;
+}
+
+.lp003-otomatis::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -20px;
+  width: 100px;
+  height: 220px;
+  background: linear-gradient(135deg, var(--luna-orange-100, #FFCD90) 0%, rgba(255,205,144,0) 100%);
+  opacity: 0.4;
+  border-radius: 120px;
+  transform: rotate(35deg);
+  pointer-events: none;
+}
+
+.lp003-otomatis-inner {
+  position: relative;
+  z-index: 1;
+  padding: 8px 20px 56px;
+}
+
+.lp003-otomatis-eyebrow-row {
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.lp003-otomatis-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8a93a6;
+}
+
+.lp003-otomatis-title {
+  max-width: 420px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #171e2c;
+  line-height: 1.25;
+  margin: 0 0 12px;
+}
+
+.lp003-otomatis-title-accent {
+  display: inline-block;
+  border-bottom: 5px solid var(--luna-orange-500);
+  padding-bottom: 1px;
+}
+
+.lp003-otomatis-sub {
+  max-width: 420px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #555f71;
+}
+
+.lp003-otomatis-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.lp003-otomatis-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.lp003-otomatis-feature-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.lp003-otomatis-feature-item h4 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #171e2c;
+  margin: 0 0 4px;
+  line-height: 1.35;
+}
+
+.lp003-otomatis-feature-item p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #555f71;
+}
+
+.lp003-otomatis-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lp003-otomatis-qa-card,
+.lp003-otomatis-draft-card {
+  padding: 18px 18px 16px;
+}
+
+.lp003-otomatis-qa-progress-track {
+  height: 3px;
+  border-radius: 999px;
+  background: #eef0f4;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.lp003-otomatis-qa-progress-fill {
+  width: 58%;
+  height: 100%;
+  background: var(--luna-orange-500);
+  border-radius: 999px;
+}
+
+.lp003-otomatis-qa-q {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #171e2c;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.lp003-otomatis-qa-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp003-otomatis-qa-opt {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #2b3345;
+  background: #fafbfc;
+  border: 1.5px solid #eef0f4;
+  border-radius: 9px;
+  padding: 9px 12px;
+}
+
+.lp003-otomatis-qa-opt-sel {
+  background: var(--luna-orange-050, #fff4df);
+  border-color: var(--luna-orange-200, #ffb76b);
+  color: var(--luna-orange-600, #d95f0e);
+  font-weight: 700;
+}
+
+.lp003-otomatis-qa-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.lp003-otomatis-qa-next {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #171e2c;
+  border-radius: 8px;
+  padding: 7px 14px;
+}
+
+.lp003-otomatis-draft-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--luna-orange-600, #d95f0e);
+  background: var(--luna-orange-050, #fff4df);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.lp003-otomatis-draft-badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+.lp003-otomatis-draft-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #171e2c;
+  margin-bottom: 8px;
+}
+
+.lp003-otomatis-draft-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.lp003-otomatis-draft-pill {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #555f71;
+  background: #fafbfc;
+  border: 1px solid #eef0f4;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.lp003-otomatis-draft-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #8a93a6;
+  margin-bottom: 5px;
+}
+
+.lp003-otomatis-draft-list {
+  margin: 0;
+  padding-left: 15px;
+  font-size: 11.5px;
+  color: #555f71;
+  line-height: 1.7;
+}
+
 /* ── Berbagi ── */
 .lp003-berbagi {
   position: relative;
@@ -2417,6 +2647,58 @@ body:has(.lp003-page) {
 
   .lp003-zig-row-flip .lp003-zig-text p {
     margin-left: auto;
+  }
+
+  .lp003-otomatis-inner {
+    padding: 24px 56px 96px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .lp003-otomatis-eyebrow-row {
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+  }
+
+  .lp003-otomatis-title {
+    max-width: none;
+    font-size: 44px;
+    line-height: 1.2;
+  }
+
+  .lp003-otomatis-sub {
+    max-width: 580px;
+    font-size: 15px;
+  }
+
+  .lp003-otomatis-grid {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 64px;
+    margin-top: 40px;
+  }
+
+  /* Akar masalah sebelumnya: kolom visual dilebarkan (flex-grow) padahal
+     kartu di dalamnya tetap dikunci 360px — jadi ruang kosong nangkring DI
+     DALAM kolom itu sendiri, antara teks & kartu. Perbaikan: teks melebar
+     (boleh sampai 620px, lebih lega dari sebelumnya), kolom visual TIDAK
+     ikut melebar — lebarnya dikunci pas sama kartunya, lalu didorong mepet
+     ke tepi kanan container pakai margin-left:auto. Jadi tidak ada spasi
+     "nganggur" di antara teks & kartu — keduanya benar-benar nempel ke
+     ruang yang tersedia. */
+  .lp003-otomatis-text-col {
+    flex: 0 1 620px;
+  }
+
+  .lp003-otomatis-visual {
+    flex: 0 0 380px;
+    margin-left: auto;
+  }
+
+  .lp003-otomatis-qa-card,
+  .lp003-otomatis-draft-card {
+    width: 100%;
+    padding: 20px 20px 18px;
   }
 
   .lp003-berbagi-inner {

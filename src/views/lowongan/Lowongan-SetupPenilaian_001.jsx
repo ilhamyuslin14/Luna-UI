@@ -9,6 +9,7 @@ import Toast from '../../components/Toast.jsx';
 import { supabase } from '../../config/supabase.js';
 import { parseJobDescManual } from '../../utils/parseJobDescManual';
 import { extractTextFromFile } from '../../utils/extractTextFromFile';
+import { formatDeskripsiToHtml } from '../../utils/formatDeskripsiToHtml.js';
 
 const SP001_DRAFT_KEY = 'sp001-draft';
 
@@ -284,16 +285,6 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
 
   const handleUpah = (key) => (e) => {
     setForm(prev => ({ ...prev, [key]: formatRupiah(e.target.value) }));
-  };
-
-  const formatDeskripsiToHtml = (text) => {
-    if (!text) return '';
-    if (text.includes('<p>') || text.includes('<ul>') || text.includes('<br')) return text;
-    return text.split('\n').map(line => {
-      if (!line.trim()) return '<p><br/></p>';
-      if (line.trim().startsWith('•')) return `<ul><li>${line.substring(1).trim()}</li></ul>`;
-      return `<p>${line}</p>`;
-    }).join('').replace(/<\/ul><ul>/g, '');
   };
 
   const handleFileChange = async (e) => {

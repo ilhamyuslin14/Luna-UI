@@ -1,0 +1,83 @@
+/* Mobile Akun & Profil — map001- prefix, terpisah dari
+   css/kelola-pengguna/... (desktop, prefix pap-) */
+
+.map001-head { padding: 14px 14px 12px; background: #fff; border-bottom: 1px solid var(--luna-ink-100); }
+.map001-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--luna-ink-900); }
+
+/* ── hero ── */
+.map001-hero { padding: 18px 16px 20px; background: #fff; display: flex; align-items: center; gap: 12px; border-bottom: 8px solid var(--luna-ink-050); }
+.map001-avatar { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, var(--luna-orange-400), var(--luna-orange-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.map001-hero-text { min-width: 0; }
+.map001-hero-name { font-size: 14.5px; font-weight: 800; color: var(--luna-ink-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map001-hero-email { font-size: 11px; color: var(--luna-ink-400); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map001-hero-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: var(--luna-orange-600); background: var(--luna-orange-050); padding: 3px 8px; border-radius: 999px; margin-top: 6px; }
+.map001-hero-chip svg { width: 10px; height: 10px; }
+
+/* ── accordion card ── */
+.map001-card { background: #fff; border-bottom: 8px solid var(--luna-ink-050); }
+.map001-card:last-child { border-bottom: none; }
+.map001-card-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; width: 100%; background: none; border: none; font-family: inherit; }
+.map001-card-head-left { display: flex; align-items: center; gap: 10px; text-align: left; }
+.map001-card-icon { width: 32px; height: 32px; border-radius: 10px; background: var(--luna-orange-050); color: var(--luna-orange-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.map001-card-icon svg { width: 15px; height: 15px; }
+.map001-card-title { font-size: 13px; font-weight: 800; color: var(--luna-ink-900); text-align: left; }
+.map001-card-sub { font-size: 10.5px; color: var(--luna-ink-400); margin-top: 1px; text-align: left; }
+.map001-chevron { color: var(--luna-ink-300); flex-shrink: 0; transition: transform 0.2s; }
+.map001-chevron svg { width: 12px; height: 12px; }
+.map001-card.open .map001-chevron { transform: rotate(180deg); }
+
+/* ── logo row ── */
+.map001-logo-row { display: flex; align-items: center; gap: 12px; padding: 2px 14px 14px; }
+.map001-logo-box { width: 52px; height: 52px; border-radius: 14px; background: var(--luna-ink-050) center/cover; border: 1.5px dashed var(--luna-ink-200); display: flex; align-items: center; justify-content: center; color: var(--luna-ink-300); font-size: 9px; font-weight: 800; flex-shrink: 0; }
+.map001-logo-upload { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--luna-orange-600); background: var(--luna-orange-050); border: none; border-radius: 8px; padding: 7px 11px; font-family: inherit; }
+.map001-logo-upload svg { width: 11px; height: 11px; }
+.map001-logo-upload:disabled { opacity: 0.6; }
+
+/* ── field rows ── */
+.map001-rows { padding: 0 14px 12px; }
+.map001-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--luna-ink-050); width: 100%; background: none; border-left: none; border-right: none; border-top: none; font-family: inherit; text-align: left; }
+.map001-row:last-child { border-bottom: none; }
+.map001-row-label { font-size: 11px; color: var(--luna-ink-400); flex-shrink: 0; width: 40%; }
+.map001-row-val-wrap { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end; text-align: right; min-width: 0; }
+.map001-row-val { font-size: 12px; font-weight: 700; color: var(--luna-ink-800); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map001-row-val.muted { color: var(--luna-ink-300); font-weight: 500; font-style: italic; }
+.map001-row-pencil { color: var(--luna-ink-300); flex-shrink: 0; display: flex; }
+.map001-row-pencil svg { width: 10px; height: 10px; }
+.map001-row-default-badge { font-size: 8.5px; font-weight: 800; color: var(--luna-ink-400); background: var(--luna-ink-050); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+
+/* ── deskripsi preview box ── */
+.map001-desc-wrap { padding: 2px 14px 14px; }
+.map001-desc-box { background: var(--luna-ink-050); border-radius: 12px; padding: 12px 13px; }
+.map001-desc-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--luna-ink-400); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+.map001-desc-edit-tag { display: flex; align-items: center; gap: 4px; color: var(--luna-orange-600); font-weight: 700; }
+.map001-desc-edit-tag svg { width: 10px; height: 10px; }
+.map001-desc-text { font-size: 11.5px; line-height: 1.6; color: var(--luna-ink-700); }
+.map001-desc-text.empty { color: var(--luna-ink-300); font-style: italic; }
+
+/* ── edit-field sheet ── */
+.map001-sheet-label { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--luna-orange-600); margin-bottom: 4px; }
+.map001-sheet-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--luna-ink-900); margin-bottom: 14px; }
+.map001-sheet-list { max-height: 46vh; overflow-y: auto; }
+.map001-select-opt { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 4px; border-bottom: 1px solid var(--luna-ink-050); width: 100%; background: none; border-left: none; border-right: none; border-top: none; font-family: inherit; text-align: left; }
+.map001-select-opt:last-child { border-bottom: none; }
+.map001-select-opt-label { font-size: 13.5px; font-weight: 700; color: var(--luna-ink-800); }
+.map001-select-opt-check { color: var(--luna-orange-500); flex-shrink: 0; display: flex; }
+.map001-select-opt-check svg { width: 14px; height: 14px; }
+.map001-field-input { width: 100%; border: 1.5px solid var(--luna-ink-100); border-radius: 12px; padding: 13px 14px; font-size: 13px; font-family: inherit; color: var(--luna-ink-900); background: var(--luna-ink-050); margin-bottom: 14px; }
+.map001-sheet-cta { width: 100%; background: var(--luna-orange-500); color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 13.5px; font-weight: 800; font-family: inherit; }
+
+/* ── full-screen deskripsi editor ── */
+.map001-fs-top { display: flex; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; border-bottom: 1px solid var(--luna-ink-100); flex-shrink: 0; }
+.map001-fs-back { width: 30px; height: 30px; border-radius: 9px; background: var(--luna-ink-050); border: none; display: flex; align-items: center; justify-content: center; color: var(--luna-ink-700); flex-shrink: 0; }
+.map001-fs-back svg { width: 14px; height: 14px; }
+.map001-fs-title { font-size: 14px; font-weight: 800; color: var(--luna-ink-900); }
+.map001-fs-body { flex: 1; overflow-y: auto; padding: 16px; }
+.map001-fs-save { width: 100%; background: var(--luna-orange-500); color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 13.5px; font-weight: 800; font-family: inherit; margin-top: 14px; }
+
+/* ── keamanan akun (password form) ── */
+.map001-pw-form { padding: 4px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.map001-pw-group label { font-size: 10.5px; font-weight: 700; color: var(--luna-ink-500); display: block; margin-bottom: 5px; }
+.map001-pw-group input { width: 100%; border: 1.5px solid var(--luna-ink-100); border-radius: 10px; padding: 11px 12px; font-size: 12.5px; font-family: inherit; background: var(--luna-ink-050); color: var(--luna-ink-800); }
+.map001-pw-actions { display: flex; gap: 8px; margin-top: 4px; }
+.map001-pw-cancel { flex: 1; background: var(--luna-ink-050); color: var(--luna-ink-600); border: none; border-radius: 10px; padding: 12px; font-size: 12.5px; font-weight: 700; font-family: inherit; }
+.map001-pw-submit { flex: 1.4; background: var(--luna-orange-500); color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 12.5px; font-weight: 800; font-family: inherit; }

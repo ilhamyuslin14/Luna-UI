@@ -1,5 +1,11 @@
 import { supabase } from '../config/supabase.js';
 
+// Nama "Seleksi" di sini historis — mengikuti nama tabel database
+// (`seleksi`, `alur_seleksi`, kolom `seleksi_id`) yang dibuat sebelum
+// fitur ini di-rename jadi "Lowongan" di UI. Tidak diubah karena rename
+// tabel/kolom butuh migrasi database + update ke Edge Functions
+// (generate-kriteria, run-scoring) yang juga bergantung ke nama ini.
+
 // Paket Free cuma boleh punya status Rencana/Aktif, dan maksimal 1 lowongan
 // Aktif dalam satu waktu (status "Aktif" = lowongan itu tampil di Laman
 // Karier publik, jadi ini juga menjaga cuma 1 lowongan yang published).
@@ -57,6 +63,32 @@ export async function getSeleksi(companyId, { showArchived = false, showAll = fa
     throw error;
   }
   return data;
+}
+
+export async function getAllActiveJobs() {
+  try {
+    const { data, error } = await supabase
+      .from('seleksi')
+      .select(`*, companies:company_id ( name, slug, logo_url, location, industry ), departments:department_id ( name ), job_views ( view_count )`)
+      .eq('status', 'Aktif')
+      .neq('arsip', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all active jobs:', error);
+      return [];
+    }
+    return (data || []).map(item => {
+      const v = Array.isArray(item.job_views) ? item.job_views[0]?.view_count : item.job_views?.view_count;
+      return {
+        ...item,
+        view_count: typeof v === 'number' ? v : 0
+      };
+    });
+  } catch (err) {
+    console.error('Error in getAllActiveJobs:', err);
+    return [];
+  }
 }
 
 export async function archiveSeleksi(id) {
@@ -229,7 +261,8 @@ export async function getSeleksiByKode(kode) {
     .select(`
       *,
       departments:department_id ( name ),
-      companies:company_id ( name, slug, logo_url, tagline, deskripsi )
+      companies:company_id ( name, slug, logo_url, tagline, deskripsi ),
+      job_views ( view_count )
     `)
     .eq('kode', kode)
     .limit(1);
@@ -238,7 +271,15 @@ export async function getSeleksiByKode(kode) {
     console.error('Error fetching seleksi by kode:', error);
     throw error;
   }
-  return data && data.length > 0 ? data[0] : null;
+  if (data && data.length > 0) {
+    const item = data[0];
+    const v = Array.isArray(item.job_views) ? item.job_views[0]?.view_count : item.job_views?.view_count;
+    return {
+      ...item,
+      view_count: typeof v === 'number' ? v : 0
+    };
+  }
+  return null;
 }
 
 // Halaman publik perusahaan (dibuka dari breadcrumb Laman Karir) — RLS anon
@@ -262,19 +303,31 @@ export async function getCompanyBySlug(slug) {
 export async function getActiveSeleksiByCompany(companyId) {
   if (!companyId) return [];
 
-  const { data, error } = await supabase
-    .from('seleksi')
-    .select('id, kode, jabatan, lokasi, remote, ikatan_kerja, level_jabatan, departments:department_id ( name )')
-    .eq('company_id', companyId)
-    .eq('arsip', false)
-    .ilike('status', 'aktif')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('seleksi')
+      .select('id, kode, jabatan, lokasi, remote, ikatan_kerja, level_jabatan, departments:department_id ( name ), job_views ( view_count )')
+      .eq('company_id', companyId)
+      .eq('arsip', false)
+      .ilike('status', 'aktif')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching active seleksi by company:', error);
-    throw error;
+    if (error) {
+      console.warn('Warning fetching active seleksi by company:', error);
+      return [];
+    }
+
+    return (data || []).map(item => {
+      const v = Array.isArray(item.job_views) ? item.job_views[0]?.view_count : item.job_views?.view_count;
+      return {
+        ...item,
+        view_count: typeof v === 'number' ? v : 0
+      };
+    });
+  } catch (err) {
+    console.warn('Error in getActiveSeleksiByCompany:', err);
+    return [];
   }
-  return data || [];
 }
 
 export async function updateSeleksiStatus(id, statusRekrutmen) {
@@ -338,4 +391,32 @@ export async function updateSeleksi(id, updates) {
     throw error;
   }
   return data;
+}
+
+export async function recordJobView(jobTarget, currentCount = 0) {
+  const targetId = (typeof jobTarget === 'object' ? (jobTarget?.kode || jobTarget?.id) : jobTarget) || '';
+  if (!targetId) return currentCount || 0;
+
+  // Anti-spam 24-hour check per job
+  const lockKey = `luna_pv_${targetId}`;
+  const lastViewTime = localStorage.getItem(lockKey);
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  if (lastViewTime && (Date.now() - parseInt(lastViewTime, 10)) < ONE_DAY_MS) {
+    return currentCount || 0;
+  }
+
+  localStorage.setItem(lockKey, Date.now().toString());
+
+  try {
+    const { data, error } = await supabase.rpc('increment_job_view', { target_id: String(targetId) });
+    if (!error && typeof data === 'number') {
+      return data;
+    }
+    if (error) console.error('Error incrementing view in Supabase:', error);
+  } catch (e) {
+    console.error('RPC Error in recordJobView:', e);
+  }
+
+  return (currentCount || 0) + 1;
 }

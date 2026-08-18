@@ -1,5 +1,11 @@
 import { supabase } from '../config/supabase.js';
 
+// Nama "Seleksi" di sini historis — mengikuti nama tabel database
+// (`seleksi`, `alur_seleksi`, kolom `seleksi_id`) yang dibuat sebelum
+// fitur ini di-rename jadi "Lowongan" di UI. Tidak diubah karena rename
+// tabel/kolom butuh migrasi database + update ke Edge Functions
+// (generate-kriteria, run-scoring) yang juga bergantung ke nama ini.
+
 export const DEFAULT_ALUR = [
   { level: 0,  nama: 'Tidak Sesuai' },
   { level: 1,  nama: 'Kandidat Baru' },

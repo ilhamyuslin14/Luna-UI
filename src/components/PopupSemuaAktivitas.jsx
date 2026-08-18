@@ -1,36 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { getAllActivities } from '../services/dashboardService.js';
+import useSemuaAktivitas from '../hooks/notifikasi/useSemuaAktivitas.js';
 
-const PAGE_SIZE = 20;
 const EXIT_DURATION = 180;
 
 export default function PopupSemuaAktivitas({ onClose, onNavigate }) {
   const { companyId } = useAuth();
   const [closing, setClosing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activities, setActivities] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
-  useEffect(() => {
-    if (!companyId) return;
-    let isMounted = true;
-    setIsLoading(true);
-    getAllActivities(companyId)
-      .then(data => { if (isMounted) setActivities(data || []); })
-      .finally(() => { if (isMounted) setIsLoading(false); });
-    return () => { isMounted = false; };
-  }, [companyId]);
+  const { isLoading, activities, visible, hasMore, loadMore } = useSemuaAktivitas(companyId);
 
   const dismiss = () => {
     if (closing) return;
     setClosing(true);
     setTimeout(onClose, EXIT_DURATION);
   };
-
-  const visible = activities.slice(0, visibleCount);
-  const hasMore = visibleCount < activities.length;
 
   return createPortal(
     <div className={`psa-overlay${closing ? ' psa-closing' : ''}`} onClick={dismiss}>
@@ -74,7 +58,7 @@ export default function PopupSemuaAktivitas({ onClose, onNavigate }) {
         {!isLoading && (
           <div className="psa-footer">
             {hasMore ? (
-              <button className="psa-load-more" onClick={() => setVisibleCount(c => c + PAGE_SIZE)}>
+              <button className="psa-load-more" onClick={loadMore}>
                 Muat Lebih Banyak
               </button>
             ) : activities.length > 0 ? (
