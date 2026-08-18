@@ -13,5 +13,7 @@ This repo pushes to two remotes for different purposes:
   via `npm install`/build, not needed in git). `.mcp.json` and
   `.claude/settings.local.json` stay excluded from both remotes — they may hold
   machine-specific tokens; sync those manually instead.
+  When staging for a backup push, use `git add .` (run from repo root), per
+  user preference — not `git add -A`.
 
 When the user says "push" without specifying, ask which remote (or both) they mean.
