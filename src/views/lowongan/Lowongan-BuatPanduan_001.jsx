@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import Toast from '../../components/Toast.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
-import useBuatLowonganPanduan, { GENERATED_RESULT, buildDetailFromAnswers, buildMockPublishedUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
+import useBuatLowonganPanduan, { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getSeleksi } from '../../services/seleksiService.js';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -12,9 +11,6 @@ const IconAi = () => (
 );
 const IconClose = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-);
-const IconChevronLeft = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
 );
 const IconChevronRight = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
@@ -39,8 +35,23 @@ const IconShareGlyph = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
 );
 
-// Satu badge loading dipakai ulang di 3 momen (antar pertanyaan, draf
-// pertama, & perbaiki draf) — cuma teksnya beda, lihat pemakaian di bawah.
+// Textarea jawaban bebas — mulai 2 baris, tumbuh otomatis mengikuti isi
+// sampai maksimal 6 baris, lewat itu scroll internal (bukan terus melar).
+const FREE_INPUT_MIN_ROWS = 1;
+const FREE_INPUT_MAX_ROWS = 6;
+function autoResizeTextarea(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+  const minHeight = lineHeight * FREE_INPUT_MIN_ROWS;
+  const maxHeight = lineHeight * FREE_INPUT_MAX_ROWS;
+  el.style.height = `${Math.max(minHeight, Math.min(el.scrollHeight, maxHeight))}px`;
+  el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+// Satu badge loading dipakai ulang di beberapa momen (antar pertanyaan, draf
+// pertama, perbaiki draf, menerbitkan) — cuma teksnya beda, lihat pemakaian
+// di bawah.
 function LoadingState({ text, sub }) {
   return (
     <div className="blw-loading">
@@ -51,20 +62,36 @@ function LoadingState({ text, sub }) {
   );
 }
 
+function ErrorState({ message, onRetry, onBack }) {
+  return (
+    <div className="blw-loading">
+      <div className="blw-loadbadge" style={{ animation: 'none', background: 'var(--luna-ink-100)' }}>
+        <span style={{ color: 'var(--luna-ink-500)' }}><IconClose /></span>
+      </div>
+      <div className="blw-loading-text">Gagal memproses permintaan</div>
+      {message && <div className="blw-loading-sub">{message}</div>}
+      <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+        <button className="blw-sum-btn-outline" onClick={onBack}>Kembali</button>
+        <button className="blw-next-btn" onClick={onRetry}>Coba Lagi</button>
+      </div>
+    </div>
+  );
+}
+
 export default function LowonganBuatPanduan_001({ navigate, back }) {
-  const { companyId } = useAuth() || {};
+  const { companyId, companyPlan, companyName } = useAuth() || {};
   const {
-    step, currentQ, total, data, current, answers, hasAnswer, fixText, setFixText,
-    toggleOption, setText, prevQuestion, nextQuestion, restart,
+    step, questionNumber, totalQuestions, currentQuestion, currentAnswer, hasAnswer, qaHistory,
+    draft, publishedSeleksiId, publishedKode, errorMessage, fixText, setFixText,
+    toggleOption, setText, nextQuestion, restart,
     openFixInput, closeFixInput, regenerate, publishDraft,
-  } = useBuatLowonganPanduan();
+    retryLastAction, goBackFromError,
+  } = useBuatLowonganPanduan(companyId, companyPlan);
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isOpeningLowongan, setIsOpeningLowongan] = useState(false);
-  const detail = buildDetailFromAnswers(answers);
-  const publishedUrl = buildMockPublishedUrl();
+  const publishedUrl = buildLamanKarirUrl({ companyName, jabatan: draft?.jobTitle, kode: publishedKode });
 
   const handleCancel = () => {
     if (back) back(); else navigate('beranda_002');
@@ -77,7 +104,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`https://${publishedUrl}`);
+      await navigator.clipboard.writeText(publishedUrl);
       setCopied(true);
       showToast('Tautan disalin');
       setTimeout(() => setCopied(false), 1800);
@@ -88,142 +115,130 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
 
   const mulaiSebar = () => navigate('sebar_001');
 
-  // Masih prototype (belum benar-benar tersambung ke database), jadi belum
-  // ada seleksiId asli buat dibuka — sebagai gantinya arahkan ke lowongan
-  // yang paling terakhir dibuat di perusahaan ini.
-  const lihatLowongan = async () => {
-    if (isOpeningLowongan) return;
-    setIsOpeningLowongan(true);
-    try {
-      const rows = await getSeleksi(companyId);
-      const latest = rows?.[0];
-      if (latest) navigate('lowongan-detail_001', { seleksiId: latest.id, jabatan: latest.jabatan, activeTab: 'ringkasan' });
-      else navigate('lowongan_001');
-    } catch {
+  // Lowongan sudah beneran tersimpan (publishDraft menulis ke DB), jadi
+  // seleksiId-nya sudah pasti ada — tidak perlu lagi menebak "yang terakhir
+  // dibuat" seperti versi dummy sebelumnya.
+  const lihatLowongan = () => {
+    if (publishedSeleksiId) {
+      navigate('lowongan-detail_001', { seleksiId: publishedSeleksiId, jabatan: draft?.jobTitle, activeTab: 'ringkasan' });
+    } else {
       navigate('lowongan_001');
-    } finally {
-      setIsOpeningLowongan(false);
     }
   };
 
   return (
     <div className="blw-screen">
-      {(step === 'qa' || step === 'loading-next') && (
+      {(step === 'qa' || step === 'loading-next' || step === 'loading-summary') && (
         <>
           <div className="blw-progress-rail">
-            <div className="blw-progress-fill" style={{ width: `${((currentQ + 1) / total) * 100}%` }} />
+            <div className="blw-progress-fill" style={{ width: `${(questionNumber / totalQuestions) * 100}%` }} />
           </div>
           <div className="blw-top">
             <button className="blw-close" onClick={handleCancel}><IconClose />Batalkan</button>
-            <span className="blw-progress-label">Pertanyaan {currentQ + 1} dari {total}</span>
+            <span className="blw-progress-label">Pertanyaan {questionNumber} dari {totalQuestions}</span>
           </div>
 
-          <div className={`blw-body${step === 'loading-next' ? ' blw-body-center' : ''}`}>
-            <div className="blw-inner">
-              {step === 'loading-next' ? (
-                <LoadingState text="Menyiapkan pertanyaan berikutnya..." />
-              ) : (
-                <>
-                  <h2 className="blw-question">{data.q}</h2>
-                  {data.subnote && <p className="blw-subnote">{data.subnote}</p>}
+          <div className={`blw-body${step !== 'qa' ? ' blw-body-center' : ''}`}>
+            {step === 'loading-next' && <LoadingState text="Luna sedang menyiapkan pertanyaan berikutnya..." />}
+            {step === 'loading-summary' && <LoadingState text="Menyusun draf lowongan..." sub="Dari seluruh jawabanmu barusan" />}
 
-                  {data.options && (
-                    <>
-                      {data.multi && <p className="blw-subnote">Boleh pilih lebih dari satu.</p>}
-                      <div className="blw-options">
-                        {data.options.map((opt, i) => (
-                          <button
-                            key={opt}
-                            className={`blw-option${current.selected.includes(i) ? ' selected' : ''}`}
-                            onClick={() => toggleOption(i)}
-                          >
-                            <span className="blw-option-letter">
-                              {current.selected.includes(i) ? <IconCheck /> : String.fromCharCode(65 + i)}
-                            </span>
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
+            {step === 'qa' && (
+              <div className="blw-inner">
+                <h2 className="blw-question">{currentQuestion.q}</h2>
+                {currentQuestion.subnote && <p className="blw-subnote">{currentQuestion.subnote}</p>}
 
-                  {!data.options ? (
-                    <>
-                      {/* Pertanyaan freetext murni (tanpa pilihan) — contoh
-                          jawaban ditaruh sebagai teks tetap di atas kotak,
-                          bukan placeholder, supaya tidak kepotong & tetap
-                          kebaca terus (placeholder hilang begitu user mulai
-                          ngetik atau kalau teksnya kepanjangan buat kotaknya). */}
-                      {data.placeholder && <p className="blw-example-note">{data.placeholder}</p>}
-                      <textarea
-                        className="blw-free-input"
-                        rows={1}
-                        placeholder="Tulis jawabanmu di sini…"
-                        value={current.text}
-                        onChange={e => setText(e.target.value)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <p className="blw-free-label">Opsi lain? Tulis sendiri</p>
-                      <textarea
-                        className="blw-free-input"
-                        rows={1}
-                        placeholder={data.placeholder}
-                        value={current.text}
-                        onChange={e => setText(e.target.value)}
-                      />
-                    </>
-                  )}
-                </>
-              )}
+                {currentQuestion.options && (
+                  <>
+                    {currentQuestion.multi && <p className="blw-subnote">Boleh pilih lebih dari satu.</p>}
+                    <div className="blw-options">
+                      {currentQuestion.options.map((opt, i) => (
+                        <button
+                          key={opt}
+                          className={`blw-option${currentAnswer.selected.includes(i) ? ' selected' : ''}`}
+                          onClick={() => toggleOption(i)}
+                        >
+                          <span className="blw-option-letter">
+                            {currentAnswer.selected.includes(i) ? <IconCheck /> : String.fromCharCode(65 + i)}
+                          </span>
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {!currentQuestion.options ? (
+                  <>
+                    {/* Pertanyaan freetext murni (tanpa pilihan) — contoh
+                        jawaban ditaruh sebagai teks tetap di atas kotak,
+                        bukan placeholder, supaya tidak kepotong & tetap
+                        kebaca terus (placeholder hilang begitu user mulai
+                        ngetik atau kalau teksnya kepanjangan buat kotaknya). */}
+                    {currentQuestion.placeholder && <p className="blw-example-note">{currentQuestion.placeholder}</p>}
+                    <textarea
+                      key={questionNumber}
+                      className="blw-free-input"
+                      rows={FREE_INPUT_MIN_ROWS}
+                      placeholder="Tulis jawabanmu di sini…"
+                      value={currentAnswer.text}
+                      onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p className="blw-free-label">Opsi lain? Tulis sendiri</p>
+                    <textarea
+                      key={questionNumber}
+                      className="blw-free-input"
+                      rows={FREE_INPUT_MIN_ROWS}
+                      placeholder={currentQuestion.placeholder}
+                      value={currentAnswer.text}
+                      onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {step === 'qa' && (
+            <div className="blw-footer">
+              <div />
+              <button className="blw-next-btn" onClick={nextQuestion} disabled={!hasAnswer}>
+                {questionNumber === totalQuestions ? 'Lihat Ringkasan' : 'Lanjut'}<IconChevronRight />
+              </button>
             </div>
-          </div>
-
-          <div className="blw-footer">
-            <button className="blw-back-btn" onClick={prevQuestion} style={{ visibility: currentQ === 0 ? 'hidden' : 'visible' }}>
-              <IconChevronLeft />Sebelumnya
-            </button>
-            <button className="blw-next-btn" onClick={nextQuestion} disabled={!hasAnswer || step === 'loading-next'}>
-              {currentQ === total - 1 ? 'Lihat Ringkasan' : 'Lanjut'}<IconChevronRight />
-            </button>
-          </div>
+          )}
         </>
-      )}
-
-      {step === 'loading-summary' && (
-        <div className="blw-body blw-body-center">
-          <LoadingState text="Menyusun draf lowongan..." sub="Dari jawabanmu barusan" />
-        </div>
       )}
 
       {step === 'summary' && (
         <>
           <div className="blw-sum-top">
-            <span className="blw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {total} jawaban Anda</span>
+            <span className="blw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {qaHistory.length} jawaban Anda</span>
             <h2>Deskripsi Lowongan Siap</h2>
             <p>Tinjau hasilnya di bawah — bisa diminta ulang, atau langsung diterbitkan.</p>
           </div>
           <div className="blw-sum-body">
             <div className="blw-sum-card">
-              <div className="blw-sum-job-title">{GENERATED_RESULT.jobTitle}</div>
+              <div className="blw-sum-job-title">{draft?.jobTitle}</div>
               <div className="blw-sum-detail-rows">
-                <div className="blw-sum-detail-row"><span>Level</span><b>{GENERATED_RESULT.detail.levelJabatan}</b></div>
-                <div className="blw-sum-detail-row"><span>Lokasi</span><b>{detail.lokasi}</b></div>
-                <div className="blw-sum-detail-row"><span>Jumlah rekrut</span><b>{detail.jumlahRekrut}</b></div>
-                <div className="blw-sum-detail-row"><span>Ikatan kerja</span><b>{GENERATED_RESULT.detail.ikatanKerja}</b></div>
-                <div className="blw-sum-detail-row"><span>Upah</span><b>{detail.upah}</b></div>
-                <div className="blw-sum-detail-row"><span>Pendidikan minimal</span><b>{GENERATED_RESULT.detail.pendidikan}</b></div>
-                <div className="blw-sum-detail-row"><span>Pengalaman minimal</span><b>{GENERATED_RESULT.detail.pengalaman}</b></div>
+                <div className="blw-sum-detail-row"><span>Level</span><b>{draft?.detail.levelJabatan || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Lokasi</span><b>{draft?.detail.lokasi || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Jumlah rekrut</span><b>{draft?.detail.jumlahRekrut || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Ikatan kerja</span><b>{draft?.detail.ikatanKerja || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Upah</span><b>{draft?.detail.upah || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Pendidikan minimal</span><b>{draft?.detail.pendidikan || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Pengalaman minimal</span><b>{draft?.detail.pengalaman || '-'}</b></div>
               </div>
             </div>
 
             <div className="blw-sum-card">
-              {GENERATED_RESULT.sections.map(section => (
+              {(draft?.sections || []).map(section => (
                 <div key={section.title}>
                   <div className="blw-sum-section-title">{section.title}</div>
                   {section.type === 'text' ? (
-                    <p className="blw-sum-body-text">{section.content}</p>
+                    <p className="blw-sum-body-text">{section.content || '-'}</p>
                   ) : (
                     <ul className="blw-sum-list">
                       {section.items.map(item => <li key={item}>{item}</li>)}
@@ -232,6 +247,13 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
                 </div>
               ))}
             </div>
+
+            {draft?.catatanLuna && (
+              <div className="blw-note">
+                <div className="blw-note-title">Catatan dari Luna</div>
+                <p className="blw-note-body">{draft.catatanLuna}</p>
+              </div>
+            )}
           </div>
           <div className="blw-sum-footer">
             <button className="blw-sum-btn-ghost" onClick={() => setShowRestartConfirm(true)}>Buat Ulang</button>
@@ -272,13 +294,25 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
         </div>
       )}
 
+      {step === 'publishing' && (
+        <div className="blw-body blw-body-center">
+          <LoadingState text="Menerbitkan lowongan..." sub="Menyimpan &amp; menyusun kriteria penilaian" />
+        </div>
+      )}
+
+      {step === 'error' && (
+        <div className="blw-body blw-body-center">
+          <ErrorState message={errorMessage} onRetry={retryLastAction} onBack={goBackFromError} />
+        </div>
+      )}
+
       {step === 'published' && (
         <>
           <div className="blw-sum-body blw-pub-body">
             <div className="blw-pub-header">
               <div className="blw-pub-header-text">
                 <div className="blw-pub-title">Lowongan kamu sudah tayang</div>
-                <p className="blw-pub-sub">{GENERATED_RESULT.jobTitle} sekarang bisa dilamar siapa saja.</p>
+                <p className="blw-pub-sub">{draft?.jobTitle} sekarang bisa dilamar siapa saja.</p>
               </div>
               <div className="blw-pub-icon"><IconCheck /></div>
             </div>
@@ -296,7 +330,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
             <button className="blw-pub-share-btn" onClick={mulaiSebar}><IconShareGlyph />Mulai Sebar</button>
           </div>
           <div className="blw-sum-footer">
-            <button className="blw-pub-view-btn" disabled={isOpeningLowongan} onClick={lihatLowongan}>Lihat Lowongan</button>
+            <button className="blw-pub-view-btn" onClick={lihatLowongan}>Lihat Lowongan</button>
           </div>
         </>
       )}

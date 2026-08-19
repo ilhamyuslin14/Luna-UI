@@ -23,11 +23,15 @@ export default function SandboxKonfigurasi() {
   const defaultPromptJD = `Berdasarkan teks mentah dari Job Description berikut, hasilkan Kriteria Penilaian yang komprehensif dan kembalikan sesuai format JSON yang diminta. Pastikan kriteria yang dibuat relevan, spesifik, dan dapat diukur.`;
   const defaultPromptCV = `Berdasarkan dokumen CV berikut, ekstrak informasi pribadi, pengalaman kerja, pendidikan, dan keahlian yang relevan.`;
   const defaultPromptScoring = `Berdasarkan data CV Kandidat dan Kriteria Penilaian, hitung kecocokan (scoring) dan berikan analisa mendalam. Kembalikan hasil dalam format JSON sesuai skema yang diminta.`;
+  const defaultPromptBuatLowonganTanya = `Kamu adalah Luna, pewawancara yang membantu pemilik usaha kecil menyusun lowongan pekerjaan lewat obrolan singkat. Berdasarkan riwayat jawaban sejauh ini, ajukan SATU pertanyaan berikutnya yang paling relevan untuk melengkapi gambaran posisi yang mau direkrut (tugas harian, jam kerja, gaji, kriteria kandidat, lokasi usaha, jumlah yang direkrut, dsb). Pertanyaan harus singkat, memakai bahasa Indonesia sehari-hari (bukan bahasa korporat), dan tidak mengulang topik yang sudah ditanyakan. Kembalikan hasil dalam format JSON sesuai skema yang diminta.`;
+  const defaultPromptBuatLowonganDraft = `Berdasarkan seluruh riwayat jawaban pengguna atas pertanyaan panduan, susun draf lowongan pekerjaan yang lengkap dan rapi: judul posisi, detail (level jabatan, ikatan kerja, lokasi, jumlah rekrut, upah, pendidikan minimal, pengalaman minimal), deskripsi peran, tanggung jawab, kualifikasi, dan nilai tambah (dalam bentuk poin-poin). Tulis dengan bahasa Indonesia yang sederhana dan jujur, sesuai jawaban yang diberikan — jangan mengarang detail yang tidak disebutkan. Sertakan juga satu "catatan dari Luna": tips praktis dan singkat terkait posisi ini, berdasarkan pola umum perekrutan untuk peran sejenis. Kembalikan hasil dalam format JSON sesuai skema yang diminta.`;
 
   const [configs, setConfigs] = useState({
     JD: { model: '', model_openai: '', prompt: defaultPromptJD, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
     CV: { model: '', model_openai: '', prompt: defaultPromptCV, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
-    Scoring: { model: '', model_openai: '', prompt: defaultPromptScoring, use_flex: false, temperature: 0.2, reasoning_effort: 'low' }
+    Scoring: { model: '', model_openai: '', prompt: defaultPromptScoring, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+    BuatLowonganTanya: { model: '', model_openai: '', prompt: defaultPromptBuatLowonganTanya, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+    BuatLowonganDraft: { model: '', model_openai: '', prompt: defaultPromptBuatLowonganDraft, use_flex: false, temperature: 0.2, reasoning_effort: 'low' }
   });
 
   // Kolom model yang relevan tergantung provider aktif (prompt/use_flex/temperature tetap dishare)
@@ -58,15 +62,19 @@ export default function SandboxKonfigurasi() {
           let fallbackOpenaiModel = '';
           if (!psError && psData) {
             const newConfigs = {
-              JD: { model: '', model_openai: '', prompt: defaultPromptJD, use_flex: false, temperature: 0.2 },
-              CV: { model: '', model_openai: '', prompt: defaultPromptCV, use_flex: false, temperature: 0.2 },
-              Scoring: { model: '', model_openai: '', prompt: defaultPromptScoring, use_flex: false, temperature: 0.2 }
+              JD: { model: '', model_openai: '', prompt: defaultPromptJD, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+              CV: { model: '', model_openai: '', prompt: defaultPromptCV, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+              Scoring: { model: '', model_openai: '', prompt: defaultPromptScoring, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+              BuatLowonganTanya: { model: '', model_openai: '', prompt: defaultPromptBuatLowonganTanya, use_flex: false, temperature: 0.2, reasoning_effort: 'low' },
+              BuatLowonganDraft: { model: '', model_openai: '', prompt: defaultPromptBuatLowonganDraft, use_flex: false, temperature: 0.2, reasoning_effort: 'low' }
             };
             psData.forEach(ps => {
-              if (ps.type === 'JD' || ps.type === 'CV' || ps.type === 'Scoring') {
+              if (ps.type === 'JD' || ps.type === 'CV' || ps.type === 'Scoring' || ps.type === 'BuatLowonganTanya' || ps.type === 'BuatLowonganDraft') {
                 let defaultPsPrompt = defaultPromptJD;
                 if (ps.type === 'CV') defaultPsPrompt = defaultPromptCV;
                 if (ps.type === 'Scoring') defaultPsPrompt = defaultPromptScoring;
+                if (ps.type === 'BuatLowonganTanya') defaultPsPrompt = defaultPromptBuatLowonganTanya;
+                if (ps.type === 'BuatLowonganDraft') defaultPsPrompt = defaultPromptBuatLowonganDraft;
 
                 newConfigs[ps.type] = {
                   model: ps.model || '',
@@ -265,7 +273,7 @@ export default function SandboxKonfigurasi() {
       if (dbError) throw dbError;
 
       // Update prompt_settings
-      const upsertPayload = ['JD', 'CV', 'Scoring'].map(type => ({
+      const upsertPayload = ['JD', 'CV', 'Scoring', 'BuatLowonganTanya', 'BuatLowonganDraft'].map(type => ({
         type,
         model: configs[type].model,
         model_openai: configs[type].model_openai,
@@ -454,8 +462,8 @@ export default function SandboxKonfigurasi() {
             </div>
           </div>
 
-          {/* JD, CV, and Scoring Config Cards loop */}
-          {['JD', 'CV', 'Scoring'].map((type) => {
+          {/* JD, CV, Scoring, dan Buat Lowongan (Tanya + Draft) Config Cards loop */}
+          {['JD', 'CV', 'Scoring', 'BuatLowonganTanya', 'BuatLowonganDraft'].map((type) => {
             const config = configs[type];
             let title = '';
             let desc = '';
@@ -469,10 +477,18 @@ export default function SandboxKonfigurasi() {
               title = 'Konfigurasi AI Parsing CV';
               desc = 'Atur instruksi (prompt) spesifik dan model AI yang digunakan khusus untuk fitur ekstraksi data otomatis dari dokumen CV pelamar.';
               defaultPromptForType = defaultPromptCV;
-            } else {
+            } else if (type === 'Scoring') {
               title = 'Konfigurasi AI Scoring Kandidat';
               desc = 'Atur instruksi (prompt) spesifik dan model AI yang digunakan untuk menghitung kecocokan kandidat berdasarkan kriteria penilaian.';
               defaultPromptForType = defaultPromptScoring;
+            } else if (type === 'BuatLowonganTanya') {
+              title = 'Buat Lowongan — Ajukan Pertanyaan';
+              desc = 'Atur instruksi (prompt) dan model AI yang dipakai untuk menyusun pertanyaan berikutnya di wizard "Bantuan Luna", berdasarkan riwayat jawaban sejauh ini.';
+              defaultPromptForType = defaultPromptBuatLowonganTanya;
+            } else {
+              title = 'Buat Lowongan — Susun Draf Lowongan';
+              desc = 'Atur instruksi (prompt) dan model AI yang dipakai untuk merangkai seluruh jawaban wizard menjadi draf lowongan lengkap di langkah terakhir.';
+              defaultPromptForType = defaultPromptBuatLowonganDraft;
             }
             
             const handleConfigChange = (key, value) => {

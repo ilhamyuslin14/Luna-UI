@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import useBuatLowonganPanduan, { GENERATED_RESULT, buildDetailFromAnswers, buildMockPublishedUrl } from '../../../hooks/lowongan/useBuatLowonganPanduan.js';
+import useBuatLowonganPanduan, { buildLamanKarirUrl } from '../../../hooks/lowongan/useBuatLowonganPanduan.js';
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import { getSeleksi } from '../../../services/seleksiService.js';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -12,12 +11,6 @@ const IconAi = () => (
 );
 const IconClose = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-);
-const IconBack = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
-);
-const IconChevronLeft = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
 );
 const IconChevronRight = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
@@ -41,14 +34,46 @@ const IconCopy = () => (
 const IconShareGlyph = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
 );
-// Satu badge loading dipakai ulang di 3 momen (antar pertanyaan, draf
-// pertama, & perbaiki draf) — cuma teksnya beda, lihat pemakaian di bawah.
+
+// Textarea jawaban bebas — mulai 2 baris, tumbuh otomatis mengikuti isi
+// sampai maksimal 6 baris, lewat itu scroll internal (bukan terus melar).
+const FREE_INPUT_MIN_ROWS = 1;
+const FREE_INPUT_MAX_ROWS = 6;
+function autoResizeTextarea(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+  const minHeight = lineHeight * FREE_INPUT_MIN_ROWS;
+  const maxHeight = lineHeight * FREE_INPUT_MAX_ROWS;
+  el.style.height = `${Math.max(minHeight, Math.min(el.scrollHeight, maxHeight))}px`;
+  el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+// Satu badge loading dipakai ulang di beberapa momen (antar pertanyaan, draf
+// pertama, perbaiki draf, menerbitkan) — cuma teksnya beda, lihat pemakaian
+// di bawah.
 function LoadingState({ text, sub }) {
   return (
     <div className="mblw-loading">
       <div className="mblw-loadbadge"><IconBrain /></div>
       <div className="mblw-loading-text">{text}</div>
       {sub && <div className="mblw-loading-sub">{sub}</div>}
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry, onBack }) {
+  return (
+    <div className="mblw-loading">
+      <div className="mblw-loadbadge" style={{ animation: 'none', background: 'var(--luna-ink-100)' }}>
+        <span style={{ color: 'var(--luna-ink-500)' }}><IconClose /></span>
+      </div>
+      <div className="mblw-loading-text">Gagal memproses permintaan</div>
+      {message && <div className="mblw-loading-sub">{message}</div>}
+      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+        <button className="mblw-sum-btn-outline" onClick={onBack}>Kembali</button>
+        <button className="mblw-next-btn" onClick={onRetry} style={{ flex: 'none', padding: '11px 20px' }}>Coba Lagi</button>
+      </div>
     </div>
   );
 }
@@ -92,19 +117,19 @@ function Confetti() {
 }
 
 export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
-  const { companyId } = useAuth() || {};
+  const { companyId, companyPlan, companyName } = useAuth() || {};
   const {
-    step, currentQ, total, data, current, answers, hasAnswer, fixText, setFixText,
-    toggleOption, setText, prevQuestion, nextQuestion, restart,
+    step, questionNumber, totalQuestions, currentQuestion, currentAnswer, hasAnswer, qaHistory,
+    draft, publishedSeleksiId, publishedKode, errorMessage, fixText, setFixText,
+    toggleOption, setText, nextQuestion, restart,
     openFixInput, closeFixInput, regenerate, publishDraft,
-  } = useBuatLowonganPanduan();
+    retryLastAction, goBackFromError,
+  } = useBuatLowonganPanduan(companyId, companyPlan);
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isOpeningLowongan, setIsOpeningLowongan] = useState(false);
-  const detail = buildDetailFromAnswers(answers);
-  const publishedUrl = buildMockPublishedUrl();
+  const publishedUrl = buildLamanKarirUrl({ companyName, jabatan: draft?.jobTitle, kode: publishedKode });
 
   useEffect(() => {
     if (open) restart();
@@ -117,7 +142,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`https://${publishedUrl}`);
+      await navigator.clipboard.writeText(publishedUrl);
       setCopied(true);
       showToast('Tautan disalin');
       setTimeout(() => setCopied(false), 1800);
@@ -128,60 +153,50 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
   const mulaiSebar = () => { onClose(); navigate('sebar_001'); };
 
-  // Masih prototype (belum benar-benar tersambung ke database), jadi belum
-  // ada seleksiId asli buat dibuka — sebagai gantinya arahkan ke lowongan
-  // yang paling terakhir dibuat di perusahaan ini.
-  const lihatLowongan = async () => {
-    if (isOpeningLowongan) return;
-    setIsOpeningLowongan(true);
-    try {
-      const rows = await getSeleksi(companyId);
-      const latest = rows?.[0];
-      onClose();
-      if (latest) navigate('lowongan-detail_001', { seleksiId: latest.id, jabatan: latest.jabatan, activeTab: 'ringkasan' });
-      else navigate('lowongan_001');
-    } catch {
-      onClose();
+  // Lowongan sudah beneran tersimpan (publishDraft menulis ke DB), jadi
+  // seleksiId-nya sudah pasti ada — tidak perlu lagi menebak "yang terakhir
+  // dibuat" seperti versi dummy sebelumnya.
+  const lihatLowongan = () => {
+    onClose();
+    if (publishedSeleksiId) {
+      navigate('lowongan-detail_001', { seleksiId: publishedSeleksiId, jabatan: draft?.jobTitle, activeTab: 'ringkasan' });
+    } else {
       navigate('lowongan_001');
-    } finally {
-      setIsOpeningLowongan(false);
     }
   };
 
   return createPortal(
     <>
       <div className={`msh-fullscreen-panel${open ? ' open' : ''}`}>
-        {(step === 'qa' || step === 'loading-next') && (
+        {(step === 'qa' || step === 'loading-next' || step === 'loading-summary') && (
           <>
-            <div className="mblw-rail"><div className="mblw-rail-fill" style={{ width: `${((currentQ + 1) / total) * 100}%` }} /></div>
+            <div className="mblw-rail"><div className="mblw-rail-fill" style={{ width: `${(questionNumber / totalQuestions) * 100}%` }} /></div>
             <div className="mblw-top">
               <button className="mblw-close" onClick={onClose}><IconClose /></button>
-              <span className="mblw-progress-label">Pertanyaan {currentQ + 1} dari {total}</span>
+              <span className="mblw-progress-label">Pertanyaan {questionNumber} dari {totalQuestions}</span>
             </div>
 
             <div className="mblw-body">
-              {step === 'loading-next' ? (
-                <LoadingState text="Menyiapkan pertanyaan berikutnya…" />
-              ) : (
-                <>
-                  {currentQ > 0 && (
-                    <button className="mblw-back-link" onClick={prevQuestion}><IconChevronLeft />Sebelumnya</button>
-                  )}
-                  <h2 className="mblw-question">{data.q}</h2>
-                  {data.subnote && <p className="mblw-subnote">{data.subnote}</p>}
+              {step === 'loading-next' && <LoadingState text="Luna sedang menyiapkan pertanyaan berikutnya…" />}
+              {step === 'loading-summary' && <LoadingState text="Menyusun draf lowongan…" sub="Dari seluruh jawabanmu barusan" />}
 
-                  {data.options && (
+              {step === 'qa' && (
+                <>
+                  <h2 className="mblw-question">{currentQuestion.q}</h2>
+                  {currentQuestion.subnote && <p className="mblw-subnote">{currentQuestion.subnote}</p>}
+
+                  {currentQuestion.options && (
                     <>
-                      {data.multi && <p className="mblw-subnote">Boleh pilih lebih dari satu.</p>}
+                      {currentQuestion.multi && <p className="mblw-subnote">Boleh pilih lebih dari satu.</p>}
                       <div className="mblw-options">
-                        {data.options.map((opt, i) => (
+                        {currentQuestion.options.map((opt, i) => (
                           <button
                             key={opt}
-                            className={`mblw-option${current.selected.includes(i) ? ' selected' : ''}`}
+                            className={`mblw-option${currentAnswer.selected.includes(i) ? ' selected' : ''}`}
                             onClick={() => toggleOption(i)}
                           >
                             <span className="mblw-option-letter">
-                              {current.selected.includes(i) ? <IconCheck /> : String.fromCharCode(65 + i)}
+                              {currentAnswer.selected.includes(i) ? <IconCheck /> : String.fromCharCode(65 + i)}
                             </span>
                             {opt}
                           </button>
@@ -193,29 +208,31 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
                   {/* Freetext selalu tampil — buat pertanyaan tanpa pilihan
                       (jawaban murni teks) maupun pertanyaan pilihan ganda
                       (opsi lain di luar A/B/C/D yang tersedia). */}
-                  {!data.options ? (
+                  {!currentQuestion.options ? (
                     <>
                       {/* Contoh jawaban ditaruh sebagai teks tetap di atas
                           kotak, bukan placeholder — placeholder-nya suka
                           kepanjangan & kepotong/hilang begitu mulai ngetik. */}
-                      {data.placeholder && <p className="mblw-example-note">{data.placeholder}</p>}
+                      {currentQuestion.placeholder && <p className="mblw-example-note">{currentQuestion.placeholder}</p>}
                       <textarea
+                        key={questionNumber}
                         className="mblw-free-input"
-                        rows={1}
+                        rows={FREE_INPUT_MIN_ROWS}
                         placeholder="Tulis jawabanmu di sini…"
-                        value={current.text}
-                        onChange={e => setText(e.target.value)}
+                        value={currentAnswer.text}
+                        onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                       />
                     </>
                   ) : (
                     <>
                       <p className="mblw-free-label">Opsi lain? Tulis sendiri</p>
                       <textarea
+                        key={questionNumber}
                         className="mblw-free-input"
-                        rows={1}
-                        placeholder={data.placeholder}
-                        value={current.text}
-                        onChange={e => setText(e.target.value)}
+                        rows={FREE_INPUT_MIN_ROWS}
+                        placeholder={currentQuestion.placeholder}
+                        value={currentAnswer.text}
+                        onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                       />
                     </>
                   )}
@@ -223,18 +240,14 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
               )}
             </div>
 
-            <div className="mblw-footer">
-              <button className="mblw-next-btn" onClick={nextQuestion} disabled={!hasAnswer || step === 'loading-next'}>
-                {currentQ === total - 1 ? 'Lihat Ringkasan' : 'Lanjut'}<IconChevronRight />
-              </button>
-            </div>
+            {step === 'qa' && (
+              <div className="mblw-footer">
+                <button className="mblw-next-btn" onClick={nextQuestion} disabled={!hasAnswer}>
+                  {questionNumber === totalQuestions ? 'Lihat Ringkasan' : 'Lanjut'}<IconChevronRight />
+                </button>
+              </div>
+            )}
           </>
-        )}
-
-        {step === 'loading-summary' && (
-          <div className="mblw-body" style={{ display: 'flex' }}>
-            <LoadingState text="Menyusun draf lowongan…" sub="Dari jawabanmu barusan" />
-          </div>
         )}
 
         {step === 'summary' && (
@@ -243,28 +256,28 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
               <button className="mblw-close" onClick={onClose}><IconClose /></button>
             </div>
             <div className="mblw-sum-body">
-              <span className="mblw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {total} jawaban Anda</span>
+              <span className="mblw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {qaHistory.length} jawaban Anda</span>
               <h2 className="mblw-sum-title">Deskripsi Lowongan Siap</h2>
 
               <div className="mblw-sum-card">
-                <div className="mblw-sum-job-title">{GENERATED_RESULT.jobTitle}</div>
+                <div className="mblw-sum-job-title">{draft?.jobTitle}</div>
                 <div className="mblw-sum-detail-rows">
-                  <div className="mblw-sum-detail-row"><span>Level</span><b>{GENERATED_RESULT.detail.levelJabatan}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Lokasi</span><b>{detail.lokasi}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Jumlah rekrut</span><b>{detail.jumlahRekrut}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Ikatan kerja</span><b>{GENERATED_RESULT.detail.ikatanKerja}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Upah</span><b>{detail.upah}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Pendidikan minimal</span><b>{GENERATED_RESULT.detail.pendidikan}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Pengalaman minimal</span><b>{GENERATED_RESULT.detail.pengalaman}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Level</span><b>{draft?.detail.levelJabatan || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Lokasi</span><b>{draft?.detail.lokasi || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Jumlah rekrut</span><b>{draft?.detail.jumlahRekrut || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Ikatan kerja</span><b>{draft?.detail.ikatanKerja || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Upah</span><b>{draft?.detail.upah || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Pendidikan minimal</span><b>{draft?.detail.pendidikan || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Pengalaman minimal</span><b>{draft?.detail.pengalaman || '-'}</b></div>
                 </div>
               </div>
 
               <div className="mblw-sum-card">
-                {GENERATED_RESULT.sections.map(section => (
+                {(draft?.sections || []).map(section => (
                   <div key={section.title}>
                     <div className="mblw-sum-section-title">{section.title}</div>
                     {section.type === 'text' ? (
-                      <p className="mblw-sum-text">{section.content}</p>
+                      <p className="mblw-sum-text">{section.content || '-'}</p>
                     ) : (
                       <ul className="mblw-sum-list">
                         {section.items.map(item => <li key={item}>{item}</li>)}
@@ -273,6 +286,13 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
                   </div>
                 ))}
               </div>
+
+              {draft?.catatanLuna && (
+                <div className="mblw-note">
+                  <div className="mblw-note-title">Catatan dari Luna</div>
+                  <p className="mblw-note-body">{draft.catatanLuna}</p>
+                </div>
+              )}
             </div>
             <div className="mblw-sum-footer">
               <div className="mblw-sum-secondary-row">
@@ -314,6 +334,18 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
           </div>
         )}
 
+        {step === 'publishing' && (
+          <div className="mblw-body" style={{ display: 'flex' }}>
+            <LoadingState text="Menerbitkan lowongan…" sub="Menyimpan & menyusun kriteria penilaian" />
+          </div>
+        )}
+
+        {step === 'error' && (
+          <div className="mblw-body" style={{ display: 'flex' }}>
+            <ErrorState message={errorMessage} onRetry={retryLastAction} onBack={goBackFromError} />
+          </div>
+        )}
+
         {step === 'published' && (
           <>
             <Confetti />
@@ -321,7 +353,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
               <div className="mblw-pub-header">
                 <div className="mblw-pub-header-text">
                   <div className="mblw-pub-title">Lowongan kamu sudah tayang</div>
-                  <p className="mblw-pub-sub">{GENERATED_RESULT.jobTitle} sekarang bisa dilamar siapa saja.</p>
+                  <p className="mblw-pub-sub">{draft?.jobTitle} sekarang bisa dilamar siapa saja.</p>
                 </div>
                 <div className="mblw-pub-icon"><IconCheck /></div>
               </div>
@@ -339,7 +371,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
               <button className="mblw-pub-share-btn" onClick={mulaiSebar}><IconShareGlyph />Mulai Sebar</button>
             </div>
             <div className="mblw-sum-footer">
-              <button className="mblw-pub-view-btn" disabled={isOpeningLowongan} onClick={lihatLowongan}>Lihat Lowongan</button>
+              <button className="mblw-pub-view-btn" onClick={lihatLowongan}>Lihat Lowongan</button>
             </div>
           </>
         )}

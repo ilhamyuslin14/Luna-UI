@@ -2,7 +2,7 @@
 
 This repo pushes to two remotes for different purposes:
 
-- `origin` → https://github.com/ilhamyuslin/Luna-UI.git
+- `origin` → https://github.com/ilhamyuslin14/Luna-UI.git
   Work/task repo. Push selectively — only commits tied to completed, tested work.
   Use for normal `git push` when the user references their actual work/task.
 

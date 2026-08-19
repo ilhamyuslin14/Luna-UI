@@ -3,6 +3,7 @@ import SandboxKonfigurasi from './Sandbox-Konfigurasi.jsx';
 import SandboxKriteria from './Sandbox-Kriteria.jsx';
 import SandboxCVParsing from './Sandbox-CVParsing.jsx';
 import SandboxAIScoring from './Sandbox-AIScoring.jsx';
+import SandboxBuatLowongan from './Sandbox-BuatLowongan.jsx';
 import SandboxRiwayat from './Sandbox-Riwayat.jsx';
 import SandboxLabs from './Sandbox-Labs.jsx';
 import SandboxSidebarOptions from './Sandbox-SidebarOptions.jsx';
@@ -46,6 +47,7 @@ export default function Sandbox({ navigate }) {
                 { id: 'kriteria', label: 'Kriteria Penilaian', icon: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon> },
                 { id: 'cv_parsing', label: 'CV Parsing', icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></> },
                 { id: 'ai_scoring', label: 'AI Scoring', icon: <><circle cx="12" cy="12" r="10"></circle><path d="M16 12l-4 4-4-4M12 8v8"/></> },
+                { id: 'buat_lowongan', label: 'Buat Lowongan', icon: <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path> },
               ].map(item => {
                 const active = activeTab === item.id;
                 return (
@@ -120,6 +122,10 @@ export default function Sandbox({ navigate }) {
 
           <div className="w-full h-full flex flex-col" style={{ display: activeTab === 'ai_scoring' ? 'flex' : 'none' }}>
             <SandboxAIScoring navigate={navigate} />
+          </div>
+
+          <div className="w-full h-full flex flex-col" style={{ display: activeTab === 'buat_lowongan' ? 'flex' : 'none' }}>
+            <SandboxBuatLowongan navigate={navigate} />
           </div>
 
           <div className="w-full h-full flex flex-col" style={{ display: activeTab === 'cv_parsing' ? 'flex' : 'none' }}>
