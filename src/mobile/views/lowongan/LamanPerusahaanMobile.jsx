@@ -44,7 +44,7 @@ function ShareSheet({ open, onClose, onShare, pageUrl }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
             <button key={key} onClick={() => onShare(key)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'var(--luna-ink-050)', border: 'none', borderRadius: 12, padding: '12px 6px', fontFamily: 'inherit' }}>
-              <span style={{ color: 'var(--luna-ink-700)' }}><Icon /></span>
+              <span className="lk-share-grid-icon" style={{ color: 'var(--luna-ink-700)' }}><Icon /></span>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--luna-ink-600)' }}>{label}</span>
             </button>
           ))}

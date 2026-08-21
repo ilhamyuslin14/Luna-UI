@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getSeleksiByKode } from '../../services/seleksiService.js';
 import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
+import '../../../css/lowongan/lowongan-laman-karir.css';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILE_SIZE_MB = 10;

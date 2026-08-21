@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
@@ -15,6 +15,8 @@ const IconMoney = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const IconDoc = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>);
 const IconChevronRight = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>);
 const IconChevronLeft = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M15 6l-6 6 6 6" /></svg>);
+const IconChevronDown = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>);
+const IconSort = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M7 12h10M11 18h2" /></svg>);
 const IconUpload = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>);
 const IconInfo = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>);
 const IconClose = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>);
@@ -38,6 +40,38 @@ const SHARE_PLATFORMS = [
   { key: 'x', label: 'X', Icon: IconX },
   { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
 ];
+
+const PORTAL_PAGE_SIZE = 8;
+const SORT_OPTIONS = [
+  { value: 'terbaru', label: 'Terbaru' },
+  { value: 'az', label: 'Nama A-Z' },
+  { value: 'za', label: 'Nama Z-A' },
+];
+
+function SortSheet({ open, onClose, value, onSelect }) {
+  return createPortal(
+    <>
+      <div className={`msh-sheet-overlay${open ? ' open' : ''}`} onClick={onClose} />
+      <div className={`msh-sheet${open ? ' open' : ''}`}>
+        <div className="msh-sheet-handle" />
+        <div className="lk-sheet-title" style={{ marginBottom: 8 }}>Urutkan Lowongan</div>
+        {SORT_OPTIONS.map(opt => (
+          <button
+            key={opt.value}
+            className={`lk-m-sortopt${value === opt.value ? ' active' : ''}`}
+            onClick={() => onSelect(opt.value)}
+          >
+            <span>{opt.label}</span>
+            <span className={`lk-m-sortring${value === opt.value ? ' on' : ''}`}>
+              {value === opt.value && <IconCheck />}
+            </span>
+          </button>
+        ))}
+      </div>
+    </>,
+    document.body
+  );
+}
 
 function CompanyLogo({ url, name, className }) {
   return url
@@ -72,7 +106,7 @@ function ShareSheet({ open, onClose, onShare, pageUrl }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
             <button key={key} onClick={() => onShare(key)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'var(--luna-ink-050)', border: 'none', borderRadius: 12, padding: '12px 6px', fontFamily: 'inherit' }}>
-              <span style={{ color: 'var(--luna-ink-700)' }}><Icon /></span>
+              <span className="lk-share-grid-icon" style={{ color: 'var(--luna-ink-700)' }}><Icon /></span>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--luna-ink-600)' }}>{label}</span>
             </button>
           ))}
@@ -94,15 +128,20 @@ export default function LamanKarirMobile({ kode }) {
     form, handleChange, handlePhoneChange, linkedinError,
     cvFile, setCvFile, fileError, dragOver, setDragOver, handleDrop, handleFileInput,
     submitState, submitErrorMsg, progressText, uploadPercent, handleSubmit, resetApply,
-    portalJobs, portalSearch, setPortalSearch, portalCategory, setPortalCategory,
+    portalJobs, portalSearch, setPortalSearch,
     handleShareAction,
   } = useLamanKarirData(kode);
 
   const [applyOpen, setApplyOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [portalSort, setPortalSort] = useState('terbaru');
+  const [portalPage, setPortalPage] = useState(1);
+  const [sortSheetOpen, setSortSheetOpen] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
   const [kualExpanded, setKualExpanded] = useState(false);
+
+  useEffect(() => { setPortalPage(1); }, [portalSearch, portalSort]);
 
   const onShareDone = (result) => {
     setShareOpen(false);
@@ -139,25 +178,22 @@ export default function LamanKarirMobile({ kode }) {
   const adminActivity = getAdminActivityState(seleksiData);
   const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
 
-  // ── layar berhasil melamar + portal rekomendasi/semua lowongan ──
+  // ── layar berhasil melamar + portal semua lowongan (list ringkas + pagination) ──
   if (submitState === 'success') {
-    const recommendedJobs = portalJobs.filter(job => {
-      if (job.id === seleksiData.id) return false;
-      const dept = (job.departments?.name || '').toLowerCase();
-      const pos = (job.jabatan || '').toLowerCase();
-      const currDept = (departemenName || '').toLowerCase();
-      const currPos = (seleksiData.jabatan || '').toLowerCase();
-      return (dept && currDept && (dept.includes(currDept) || currDept.includes(dept))) ||
-             (pos && currPos && (pos.includes(currPos) || currPos.includes(pos)));
-    });
-    const categories = ['Semua', ...new Set(portalJobs.map(j => j.departments?.name).filter(Boolean))];
     const filteredPortalJobs = portalJobs.filter(job => {
-      const matchSearch = !portalSearch.trim() ||
+      return !portalSearch.trim() ||
         (job.jabatan || '').toLowerCase().includes(portalSearch.toLowerCase()) ||
         (job.companies?.name || '').toLowerCase().includes(portalSearch.toLowerCase());
-      const matchCat = portalCategory === 'Semua' || (job.departments?.name === portalCategory);
-      return matchSearch && matchCat;
     });
+    const sortedPortalJobs = portalSort === 'terbaru'
+      ? filteredPortalJobs
+      : [...filteredPortalJobs].sort((a, b) => {
+          const cmp = (a.jabatan || '').localeCompare(b.jabatan || '', 'id');
+          return portalSort === 'az' ? cmp : -cmp;
+        });
+    const totalPortalPages = Math.max(1, Math.ceil(sortedPortalJobs.length / PORTAL_PAGE_SIZE));
+    const pagedPortalJobs = sortedPortalJobs.slice((portalPage - 1) * PORTAL_PAGE_SIZE, portalPage * PORTAL_PAGE_SIZE);
+    const activeSortLabel = SORT_OPTIONS.find(o => o.value === portalSort)?.label || 'Terbaru';
     const goToJob = (job) => {
       const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
       window.open(url, '_blank');
@@ -181,57 +217,65 @@ export default function LamanKarirMobile({ kode }) {
         </div>
         <div className="lk-applied-card">
           <CompanyLogo url={companyLogoUrl} name={companyName} className="lk-applied-logo" />
-          <div>
+          <div className="lk-applied-body">
             <div className="lk-applied-title">{seleksiData.jabatan}</div>
             <div className="lk-applied-sub">{companyName || 'Perusahaan'} • {seleksiData.lokasi || 'Indonesia'}</div>
           </div>
+          <span className="lk-applied-tag">Hari Ini</span>
         </div>
 
-        {recommendedJobs.length > 0 && (
-          <>
-            <div className="lk-section-head"><div className="lk-section-title">✨ Rekomendasi Lowongan Sejenis</div></div>
-            <div className="lk-reco-scroll">
-              {recommendedJobs.map(job => (
-                <div className="lk-reco-card" key={job.id}>
-                  <span className="lk-reco-tag">🔥 Recommended</span>
-                  <CompanyLogo url={job.companies?.logo_url} name={job.companies?.name} className="lk-reco-logo" />
-                  <div className="lk-reco-title">{job.jabatan}</div>
-                  <div className="lk-reco-co">{job.companies?.name || 'Perusahaan'}</div>
-                  <button className="lk-reco-btn" onClick={() => goToJob(job)}>Melamar Sekarang</button>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        <div className="lk-section-head"><div className="lk-section-title">🔍 Semua Lowongan Aktif</div></div>
+        <div className="lk-section-head"><div className="lk-section-title">Semua Lowongan Aktif di Luna</div></div>
         <div className="lk-search">
           <IconSearch />
-          <input placeholder="Cari lowongan atau perusahaan…" value={portalSearch} onChange={e => setPortalSearch(e.target.value)} />
+          <input placeholder="Cari lowongan, perusahaan, kota…" value={portalSearch} onChange={e => setPortalSearch(e.target.value)} />
         </div>
-        {categories.length > 1 && (
-          <div className="lk-chiprow">
-            {categories.map(cat => (
-              <button key={cat} className={`lk-chip${portalCategory === cat ? ' active' : ''}`} onClick={() => setPortalCategory(cat)}>{cat}</button>
-            ))}
-          </div>
-        )}
-        {filteredPortalJobs.length === 0 ? (
+        <div className="lk-m-sortrow">
+          <button className="lk-m-sortbtn" onClick={() => setSortSheetOpen(true)}>
+            <IconSort />
+            Urutkan: <b>{activeSortLabel}</b>
+            <IconChevronDown />
+          </button>
+        </div>
+
+        {pagedPortalJobs.length === 0 ? (
           <div className="lk-portal-empty">Tidak ada lowongan yang cocok dengan pencarian Anda.</div>
         ) : (
-          <div className="lk-job-list">
-            {filteredPortalJobs.map(job => (
-              <button className="lk-job-card" key={job.id} onClick={() => goToJob(job)}>
-                <CompanyLogo url={job.companies?.logo_url} name={job.companies?.name} className="lk-job-card-logo" />
-                <div className="lk-job-card-body">
-                  <div className="lk-job-card-title">{job.jabatan}</div>
-                  <div className="lk-job-card-meta">{job.companies?.name || 'Perusahaan'} • {job.lokasi || 'Indonesia'}</div>
+          <div className="lk-m-joblist">
+            {pagedPortalJobs.map(job => (
+              <button className="lk-m-jobrow" key={job.id} onClick={() => goToJob(job)}>
+                <CompanyLogo url={job.companies?.logo_url} name={job.companies?.name} className="lk-m-jobrow-logo" />
+                <div className="lk-m-jobrow-body">
+                  <div className="lk-m-jobrow-title">{job.jabatan}</div>
+                  <div className="lk-m-jobrow-meta">{job.companies?.name || 'Perusahaan'} · {job.lokasi || 'Indonesia'}</div>
                 </div>
-                <span className="lk-job-card-btn">Lamar</span>
+                <div className="lk-m-jobrow-side">
+                  {formatUpah(job) && <span className="lk-m-jobrow-salary">Rp {formatUpah(job)}</span>}
+                  <span className="lk-m-jobrow-chev"><IconChevronRight /></span>
+                </div>
               </button>
             ))}
           </div>
         )}
+
+        {sortedPortalJobs.length > 0 && (
+          <div className="lk-m-pagination">
+            <span className="lk-m-pg-summary">
+              Menampilkan {(portalPage - 1) * PORTAL_PAGE_SIZE + 1}–{Math.min(portalPage * PORTAL_PAGE_SIZE, sortedPortalJobs.length)} dari {sortedPortalJobs.length}
+            </span>
+            <div className="lk-m-pg-controls">
+              <button className="lk-m-pg-btn" disabled={portalPage <= 1} onClick={() => setPortalPage(p => Math.max(1, p - 1))}><IconChevronLeft /></button>
+              <span className="lk-m-pg-current">{portalPage} / {totalPortalPages}</span>
+              <button className="lk-m-pg-btn" disabled={portalPage >= totalPortalPages} onClick={() => setPortalPage(p => Math.min(totalPortalPages, p + 1))}><IconChevronRight /></button>
+            </div>
+          </div>
+        )}
+
+        <SortSheet
+          open={sortSheetOpen}
+          onClose={() => setSortSheetOpen(false)}
+          value={portalSort}
+          onSelect={(v) => { setPortalSort(v); setSortSheetOpen(false); }}
+        />
       </div>
     );
   }
@@ -249,11 +293,14 @@ export default function LamanKarirMobile({ kode }) {
         <div className="lk-hero">
           <div className="lk-hero-top">
             <CompanyLogo url={companyLogoUrl} name={companyName} className="lk-co-logo" />
-            <div>
+            <div className="lk-hero-top-meta">
               <div className="lk-co-name">{companyName}</div>
               <div className="lk-hero-badges">
                 <span className="lk-pill-mini active"><span className="dot" />Lowongan Aktif</span>
                 <span className="lk-pill-mini views"><IconEye />{viewCount.toLocaleString('id-ID')} Dilihat</span>
+                <span className={`lk-pill-mini${adminActivity.isOnline ? ' active' : ''}`} style={!adminActivity.isOnline ? { background: 'rgba(255,255,255,0.16)', color: '#fff' } : undefined}>
+                  {adminActivity.isOnline && <span className="dot" />}{adminActivity.text}
+                </span>
               </div>
             </div>
           </div>
@@ -266,11 +313,6 @@ export default function LamanKarirMobile({ kode }) {
             )}
           </div>
           {upahStr && <div className="lk-hero-salary"><span>Estimasi Gaji</span>Rp {upahStr}</div>}
-          <div className="lk-hero-badges" style={{ marginTop: 8 }}>
-            <span className={`lk-pill-mini${adminActivity.isOnline ? ' active' : ''}`} style={!adminActivity.isOnline ? { background: 'rgba(255,255,255,0.16)', color: '#fff' } : undefined}>
-              {adminActivity.isOnline && <span className="dot" />}{adminActivity.text}
-            </span>
-          </div>
         </div>
       </div>
 

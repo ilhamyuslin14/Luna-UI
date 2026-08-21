@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
 } from '../../hooks/lowongan/useLamanKarirData.js';
@@ -75,12 +75,37 @@ export default function LowonganLamanKarir_001({ kode }) {
     form, handleChange, handlePhoneChange, linkedinError,
     cvFile, fileError, dragOver, setDragOver, handleDrop, handleFileInput, setCvFile,
     submitState, submitErrorMsg, progressText, uploadPercent, handleSubmit, resetApply,
-    portalJobs, portalSearch, setPortalSearch, portalCategory, setPortalCategory,
+    portalJobs, portalSearch, setPortalSearch,
     handleShareAction,
   } = useLamanKarirData(kode);
 
   const [showToast, setShowToast] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+
+  // ── Kontrol laman portal (layar "berhasil melamar") ──
+  const PORTAL_PAGE_SIZE = 9;
+  const SORT_OPTIONS = [
+    { value: 'terbaru', label: 'Terbaru' },
+    { value: 'az', label: 'Nama A-Z' },
+    { value: 'za', label: 'Nama Z-A' },
+  ];
+  const [portalView, setPortalView] = useState('list'); // 'list' | 'card'
+  const [portalSort, setPortalSort] = useState('terbaru');
+  const [portalPage, setPortalPage] = useState(1);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target)) setShowSortMenu(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Cari/urutkan ganti → balik ke halaman 1, supaya tidak nyangkut di halaman
+  // kosong kalau hasilnya jadi lebih sedikit dari sebelumnya.
+  useEffect(() => { setPortalPage(1); }, [portalSearch, portalSort]);
 
   useEffect(() => {
     document.body.style.setProperty('overflow', 'visible', 'important');
@@ -143,26 +168,33 @@ export default function LowonganLamanKarir_001({ kode }) {
   const modelKerjaTipeKerja = [seleksiData.remote, seleksiData.ikatan_kerja].filter(Boolean).join(' · ');
 
   if (submitState === 'success') {
-    const recommendedJobs = portalJobs.filter(job => {
-      if (job.id === seleksiData.id) return false;
-      const dept = (job.departments?.name || '').toLowerCase();
-      const pos = (job.jabatan || '').toLowerCase();
-      const currDept = (departemenName || '').toLowerCase();
-      const currPos = (seleksiData.jabatan || '').toLowerCase();
-      return (dept && currDept && (dept.includes(currDept) || currDept.includes(dept))) ||
-             (pos && currPos && (pos.includes(currPos) || currPos.includes(pos)));
-    });
-
-    const categories = ['Semua', ...new Set(portalJobs.map(j => j.departments?.name).filter(Boolean))];
-
     const filteredPortalJobs = portalJobs.filter(job => {
-      const matchSearch = !portalSearch.trim() ||
+      return !portalSearch.trim() ||
         (job.jabatan || '').toLowerCase().includes(portalSearch.toLowerCase()) ||
         (job.companies?.name || '').toLowerCase().includes(portalSearch.toLowerCase()) ||
         (job.lokasi || '').toLowerCase().includes(portalSearch.toLowerCase());
-      const matchCat = portalCategory === 'Semua' || (job.departments?.name === portalCategory);
-      return matchSearch && matchCat;
     });
+
+    // "Terbaru" = urutan asli dari getAllActiveJobs() (sudah ORDER BY
+    // created_at desc dari query-nya), jadi tidak perlu di-sort ulang di sini.
+    const sortedPortalJobs = portalSort === 'terbaru'
+      ? filteredPortalJobs
+      : [...filteredPortalJobs].sort((a, b) => {
+          const cmp = (a.jabatan || '').localeCompare(b.jabatan || '', 'id');
+          return portalSort === 'az' ? cmp : -cmp;
+        });
+
+    const totalPortalPages = Math.max(1, Math.ceil(sortedPortalJobs.length / PORTAL_PAGE_SIZE));
+    const pagedPortalJobs = sortedPortalJobs.slice(
+      (portalPage - 1) * PORTAL_PAGE_SIZE,
+      portalPage * PORTAL_PAGE_SIZE
+    );
+    const activeSortLabel = SORT_OPTIONS.find(o => o.value === portalSort)?.label || 'Terbaru';
+
+    const openJob = (job) => {
+      const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
+      window.open(url, '_blank');
+    };
 
     return (
       <div className="lk-page-wrapper">
@@ -173,23 +205,24 @@ export default function LowonganLamanKarir_001({ kode }) {
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
             </div>
-            <button
-              className="lk-btn-secondary-nav"
-              onClick={resetApply}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span>Kembali ke Lowongan</span>
+            <button className="lk-back-ghost" onClick={resetApply}>
+              <span className="lk-back-ghost-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </span>
+              Kembali ke Lowongan
             </button>
           </div>
         </header>
 
         <div className="lk-portal-container option2">
-          {/* Header Banner - Dark Slate Tech Style (Opsi B) */}
+          {/* Success Banner */}
           <div className="lk-tech-banner">
             <div className="lk-tech-banner-top">
               <div className="lk-tech-success-pill">
-                <span className="lk-tech-check-circle">✓</span>
-                <span>Aplikasi Berhasil Dikirim!</span>
+                <span className="lk-tech-check-circle">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Aplikasi Berhasil Dikirim</span>
               </div>
               <p className="lk-tech-success-sub">
                 Terima kasih telah melamar ke <strong>{companyName || 'Perusahaan'}</strong>. Berkas CV Anda <strong>({cvFile?.name || 'CV.pdf'})</strong> sedang diproses oleh tim rekrutmen.
@@ -206,7 +239,12 @@ export default function LowonganLamanKarir_001({ kode }) {
                 )}
                 <div>
                   <h3 className="lk-tech-job-title">{seleksiData.jabatan}</h3>
-                  <span className="lk-tech-company-name">{companyName || 'PT Arkademi'} • 📍 {seleksiData.lokasi || 'Indonesia'}</span>
+                  <span className="lk-tech-company-name">
+                    {companyName || 'PT Arkademi'}
+                    <span className="lk-tech-company-dot" />
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {seleksiData.lokasi || 'Indonesia'}
+                  </span>
                 </div>
               </div>
               <div className="lk-tech-snippet-actions">
@@ -215,168 +253,181 @@ export default function LowonganLamanKarir_001({ kode }) {
             </div>
           </div>
 
-          {/* Section 1: Rekomendasi Lowongan Sejenis (Horizontal Scroll Carousel) */}
-          {recommendedJobs.length > 0 && (
-            <div className="lk-portal-section">
-              <div className="lk-portal-section-header flex-header">
-                <div>
-                  <h2 className="lk-portal-section-title">✨ Rekomendasi Lowongan Sejenis</h2>
-                  <p className="lk-portal-section-desc">Peluang karir terbaik berdasarkan kualifikasi & minat posisi Anda</p>
-                </div>
-                <div className="lk-carousel-nav-btns">
-                  <button
-                    className="lk-cnav-btn"
-                    onClick={() => {
-                      const el = document.getElementById('lk-rec-carousel');
-                      if (el) el.scrollBy({ left: -320, behavior: 'smooth' });
-                    }}
-                    title="Geser Kiri"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    className="lk-cnav-btn"
-                    onClick={() => {
-                      const el = document.getElementById('lk-rec-carousel');
-                      if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
-                    }}
-                    title="Geser Kanan"
-                  >
-                    ›
-                  </button>
-                </div>
-              </div>
-
-              <div id="lk-rec-carousel" className="lk-portal-carousel">
-                {recommendedJobs.map(job => (
-                  <div key={job.id} className="lk-carousel-card">
-                    <div className="lk-pjob-top">
-                      <span className="lk-carousel-match-tag">🔥 Recommended</span>
-                      {job.remote && <span className="lk-carousel-skill-tag">{job.remote}</span>}
-                    </div>
-
-                    <div className="lk-carousel-body">
-                      {job.companies?.logo_url ? (
-                        <img src={job.companies.logo_url} alt={job.companies.name} className="lk-pjob-logo" />
-                      ) : (
-                        <div className="lk-pjob-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
-                      )}
-                      <div>
-                        <h3 className="lk-pjob-title">{job.jabatan}</h3>
-                        <p className="lk-pjob-company">{job.companies?.name || 'Perusahaan'}</p>
-                      </div>
-                    </div>
-
-                    <div className="lk-pjob-meta">
-                      <span>📍 {job.lokasi || 'Indonesia'}</span>
-                      {job.departments?.name && <span>🏢 {job.departments.name}</span>}
-                    </div>
-
-                    {formatUpah(job) && (
-                      <div className="lk-pjob-salary">
-                        <span>💰 {formatUpah(job)}</span>
-                      </div>
-                    )}
-
-                    <button
-                      className="lk-pjob-btn orange-btn"
-                      onClick={() => {
-                        const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
-                        window.open(url, '_blank');
-                      }}
-                    >
-                      <span>Melamar Sekarang</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Section 2: Semua Lowongan Aktif (Clean Tech Grid) */}
+          {/* Semua Lowongan Aktif */}
           <div className="lk-portal-section">
             <div className="lk-portal-section-header flex-header">
               <div>
-                <h2 className="lk-portal-section-title">🔍 Semua Lowongan Aktif di LUNA</h2>
-                <p className="lk-portal-section-desc">Eksplorasi posisi pekerjaan terbaru dari seluruh perusahaan terverifikasi</p>
+                <h2 className="lk-portal-section-title">Semua Lowongan Aktif di Luna</h2>
+                <p className="lk-portal-section-desc">Eksplorasi posisi terbaru dari seluruh perusahaan terverifikasi di platform ini.</p>
               </div>
 
-              {/* Search Bar */}
-              <div className="lk-portal-search-box">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input
-                  type="text"
-                  placeholder="Cari lowongan, perusahaan, atau kata kunci..."
-                  value={portalSearch}
-                  onChange={(e) => setPortalSearch(e.target.value)}
-                />
-                {portalSearch && (
-                  <button onClick={() => setPortalSearch('')} className="lk-portal-clear-search">×</button>
-                )}
+              <div className="lk-portal-controls">
+                {/* Search */}
+                <div className="lk-portal-search-box">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input
+                    type="text"
+                    placeholder="Cari lowongan, perusahaan, kota…"
+                    value={portalSearch}
+                    onChange={(e) => setPortalSearch(e.target.value)}
+                  />
+                  {portalSearch && (
+                    <button onClick={() => setPortalSearch('')} className="lk-portal-clear-search">×</button>
+                  )}
+                </div>
+
+                {/* Sort */}
+                <div className="lk-sort-control" ref={sortMenuRef}>
+                  <button className="lk-sort-control-btn" onClick={() => setShowSortMenu(v => !v)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+                    <span className="lk-sort-control-label">Urutkan:</span>
+                    <span className="lk-sort-control-value">{activeSortLabel}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  {showSortMenu && (
+                    <div className="lk-sort-control-menu">
+                      {SORT_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value}
+                          className={`lk-sort-control-item${portalSort === opt.value ? ' active' : ''}`}
+                          onClick={() => { setPortalSort(opt.value); setShowSortMenu(false); }}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* View toggle */}
+                <div className="lk-view-toggle">
+                  <button
+                    className={`lk-view-toggle-btn${portalView === 'list' ? ' active' : ''}`}
+                    onClick={() => setPortalView('list')}
+                    title="Tampilan daftar"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                  </button>
+                  <button
+                    className={`lk-view-toggle-btn${portalView === 'card' ? ' active' : ''}`}
+                    onClick={() => setPortalView('card')}
+                    title="Tampilan kartu"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Category Filter Chips */}
-            {categories.length > 1 && (
-              <div className="lk-portal-chips-wrapper">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    className={`lk-portal-chip ${portalCategory === cat ? 'active' : ''}`}
-                    onClick={() => setPortalCategory(cat)}
-                  >
-                    {cat}
-                  </button>
-                ))}
+            {pagedPortalJobs.length > 0 ? (
+              portalView === 'list' ? (
+                <div className="lk-job-list-001">
+                  {pagedPortalJobs.map(job => (
+                    <article key={job.id} className="lk-job-row" onClick={() => openJob(job)}>
+                      <div className="lk-job-row-main">
+                        {job.companies?.logo_url ? (
+                          <img src={job.companies.logo_url} alt={job.companies.name} className="lk-job-row-logo" />
+                        ) : (
+                          <div className="lk-job-row-logo lk-job-row-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
+                        )}
+                        <div className="lk-job-row-body">
+                          <div className="lk-pjob-company-eyebrow">{job.companies?.name || 'Perusahaan'}</div>
+                          <h3 className="lk-pjob-title">{job.jabatan}</h3>
+                          <div className="lk-pjob-meta">
+                            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{job.lokasi || 'Indonesia'}</span>
+                            {(job.remote || job.ikatan_kerja) && (
+                              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>{[job.remote, job.ikatan_kerja].filter(Boolean).join(' · ')}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="lk-job-row-side">
+                        {formatUpah(job) && (
+                          <div className="lk-job-row-salary">
+                            <span>Estimasi gaji</span>
+                            Rp {formatUpah(job)}
+                          </div>
+                        )}
+                        <button className="lk-pjob-btn orange-btn" onClick={(e) => { e.stopPropagation(); openJob(job); }}>
+                          <span>Lihat Lowongan</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="lk-portal-jobs-grid tech-grid">
+                  {pagedPortalJobs.map(job => (
+                    <div key={job.id} className="lk-portal-job-card tech-card" onClick={() => openJob(job)}>
+                      <div className="lk-pjob-top">
+                        {job.companies?.logo_url ? (
+                          <img src={job.companies.logo_url} alt={job.companies.name} className="lk-pjob-logo" />
+                        ) : (
+                          <div className="lk-pjob-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="lk-pjob-company-eyebrow">{job.companies?.name || 'Perusahaan'}</div>
+                        <h3 className="lk-pjob-title">{job.jabatan}</h3>
+                      </div>
+
+                      <div className="lk-pjob-meta">
+                        <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{job.lokasi || 'Indonesia'}</span>
+                        {(job.remote || job.ikatan_kerja) && (
+                          <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>{[job.remote, job.ikatan_kerja].filter(Boolean).join(' · ')}</span>
+                        )}
+                      </div>
+
+                      {formatUpah(job) && (
+                        <div className="lk-pjob-salary">Rp {formatUpah(job)}</div>
+                      )}
+
+                      <button className="lk-pjob-btn orange-btn" onClick={(e) => { e.stopPropagation(); openJob(job); }}>
+                        <span>Lihat Lowongan</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              <div className="lk-portal-empty-001">
+                <p>Tidak ada lowongan yang cocok dengan pencarian Anda.</p>
               </div>
             )}
 
-            {/* Tech Grid Lowongan */}
-            {filteredPortalJobs.length > 0 ? (
-              <div className="lk-portal-jobs-grid tech-grid">
-                {filteredPortalJobs.map(job => (
-                  <div key={job.id} className="lk-portal-job-card tech-card">
-                    <div className="lk-pjob-top">
-                      {job.companies?.logo_url ? (
-                        <img src={job.companies.logo_url} alt={job.companies.name} className="lk-pjob-logo" />
-                      ) : (
-                        <div className="lk-pjob-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
-                      )}
-                      <span className="lk-pjob-tag">{job.departments?.name || 'Karir'}</span>
-                    </div>
-
-                    <h3 className="lk-pjob-title">{job.jabatan}</h3>
-                    <p className="lk-pjob-company">{job.companies?.name || 'Perusahaan'}</p>
-
-                    <div className="lk-pjob-meta">
-                      <span>📍 {job.lokasi || 'Indonesia'}</span>
-                      {job.remote && <span>🌐 {job.remote}</span>}
-                      {job.ikatan_kerja && <span>💼 {job.ikatan_kerja}</span>}
-                    </div>
-
-                    {formatUpah(job) && (
-                      <div className="lk-pjob-salary">
-                        <span>💰 {formatUpah(job)}</span>
-                      </div>
-                    )}
-
+            {/* Pagination */}
+            {sortedPortalJobs.length > 0 && (
+              <div className="lk-portal-pagination">
+                <span className="lk-portal-pagination-summary">
+                  Menampilkan <strong>{(portalPage - 1) * PORTAL_PAGE_SIZE + 1}–{Math.min(portalPage * PORTAL_PAGE_SIZE, sortedPortalJobs.length)}</strong> dari <strong>{sortedPortalJobs.length}</strong> lowongan
+                </span>
+                <div className="lk-portal-pagination-controls">
+                  <button
+                    className="lk-portal-page-btn"
+                    disabled={portalPage <= 1}
+                    onClick={() => setPortalPage(p => Math.max(1, p - 1))}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  {Array.from({ length: totalPortalPages }, (_, i) => i + 1).map(p => (
                     <button
-                      className="lk-pjob-btn orange-btn"
-                      onClick={() => {
-                        const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
-                        window.open(url, '_blank');
-                      }}
+                      key={p}
+                      className={`lk-portal-page-btn${p === portalPage ? ' active' : ''}`}
+                      onClick={() => setPortalPage(p)}
                     >
-                      <span>Melamar Sekarang</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      {p}
                     </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="lk-portal-empty">
-                <p>Tidak ada lowongan yang cocok dengan pencarian Anda.</p>
+                  ))}
+                  <button
+                    className="lk-portal-page-btn"
+                    disabled={portalPage >= totalPortalPages}
+                    onClick={() => setPortalPage(p => Math.min(totalPortalPages, p + 1))}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -549,49 +600,49 @@ export default function LowonganLamanKarir_001({ kode }) {
             </div>
 
             <div className="lk-detail-list-wrapper">
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Departemen</span>
                 <span className="lk-detail-row-value">{departemenName || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Level Jabatan</span>
                 <span className="lk-detail-row-value">{seleksiData.level_jabatan || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Lokasi</span>
                 <span className="lk-detail-row-value">{seleksiData.lokasi || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Ikatan Kerja</span>
                 <span className="lk-detail-row-value">{seleksiData.ikatan_kerja || '-'}</span>
               </div>
 
               {upahStr && (
-                <div className="lk-detail-row">
+                <div className="lk-detail-row-001">
                   <span className="lk-detail-row-label">Upah / Gaji</span>
                   <span className="lk-detail-row-value" style={{ color: '#EA580C', fontWeight: '700' }}>Rp {upahStr}</span>
                 </div>
               )}
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Min. Pendidikan</span>
                 <span className="lk-detail-row-value">{seleksiData.pendidikan || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Min. Pengalaman</span>
                 <span className="lk-detail-row-value">{formatPengalaman(pengalamanMin) || '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Jumlah Posisi</span>
                 <span className="lk-detail-row-value">{seleksiData.jumlah_rekrut ? `${seleksiData.jumlah_rekrut} Orang` : '-'}</span>
               </div>
 
-              <div className="lk-detail-row">
+              <div className="lk-detail-row-001">
                 <span className="lk-detail-row-label">Tanggal Buka</span>
                 <span className="lk-detail-row-value">
                   {formatTanggal(seleksiData.tgl_onboard || seleksiData.target_onboarding || seleksiData.target_date || seleksiData.created_at)}
@@ -602,7 +653,7 @@ export default function LowonganLamanKarir_001({ kode }) {
 
           {/* Job Description Card */}
           <div className="lk-section-card">
-            <h2 className="lk-section-title">Deskripsi & Tanggung Jawab Pekerjaan</h2>
+            <h2 className="lk-section-title-001">Deskripsi & Tanggung Jawab Pekerjaan</h2>
             <div
               className="lk-rich-content"
               dangerouslySetInnerHTML={{ __html: formatDeskripsiToHtml(seleksiData.deskripsi) || '<p>Tidak ada deskripsi pekerjaan khusus.</p>' }}
@@ -612,7 +663,7 @@ export default function LowonganLamanKarir_001({ kode }) {
           {/* Job Requirements Card */}
           {seleksiData.kualifikasi && (
             <div className="lk-section-card">
-              <h2 className="lk-section-title">Persyaratan & Kualifikasi Pelamar</h2>
+              <h2 className="lk-section-title-001">Persyaratan & Kualifikasi Pelamar</h2>
               <div
                 className="lk-rich-content"
                 dangerouslySetInnerHTML={{ __html: formatDeskripsiToHtml(seleksiData.kualifikasi) }}
@@ -633,23 +684,23 @@ export default function LowonganLamanKarir_001({ kode }) {
               {/* Form Input Fields */}
               <div className="lk-form-group">
                 <label className="lk-label">Nama Lengkap <span className="req">*</span></label>
-                <input type="text" name="nama" className="lk-input" placeholder="Masukkan nama lengkap Anda" value={form.nama} onChange={handleChange} />
+                <input type="text" name="nama" className="lk-input-001" placeholder="Masukkan nama lengkap Anda" value={form.nama} onChange={handleChange} />
               </div>
 
               <div className="lk-form-group">
                 <label className="lk-label">Email <span className="req">*</span></label>
-                <input type="email" name="email" className="lk-input" placeholder="contoh@email.com" value={form.email} onChange={handleChange} />
+                <input type="email" name="email" className="lk-input-001" placeholder="contoh@email.com" value={form.email} onChange={handleChange} />
               </div>
 
               <div className="lk-form-group">
                 <label className="lk-label">Nomor HP <span className="req">*</span></label>
-                <input type="text" inputMode="numeric" name="phone" className="lk-input" placeholder="+62 812 3456 7890" value={form.phone} onChange={handlePhoneChange} />
+                <input type="text" inputMode="numeric" name="phone" className="lk-input-001" placeholder="+62 812 3456 7890" value={form.phone} onChange={handlePhoneChange} />
               </div>
 
               <div className="lk-form-group">
                 <label className="lk-label">LinkedIn URL <span className="opt">(opsional)</span></label>
-                <input type="text" name="linkedin" className={`lk-input ${linkedinError ? 'error' : ''}`} placeholder="linkedin.com/in/username" value={form.linkedin} onChange={handleChange} />
-                {linkedinError && <span className="lk-error-text">Masukkan URL yang valid, contoh: linkedin.com/in/nama</span>}
+                <input type="text" name="linkedin" className={`lk-input-001 ${linkedinError ? 'error' : ''}`} placeholder="linkedin.com/in/username" value={form.linkedin} onChange={handleChange} />
+                {linkedinError && <span className="lk-error-text-001">Masukkan URL yang valid, contoh: linkedin.com/in/nama</span>}
               </div>
 
               {/* File Upload Zone */}
@@ -680,15 +731,15 @@ export default function LowonganLamanKarir_001({ kode }) {
                     <input id="lk-cv-input_001" type="file" accept=".pdf,.doc,.docx" onChange={handleFileInput} style={{ display: 'none' }} />
                   </div>
                 )}
-                {fileError && <span className="lk-error-text">{fileError}</span>}
+                {fileError && <span className="lk-error-text-001">{fileError}</span>}
 
                 {/* Upload Notes */}
-                <div className="lk-upload-notes">
-                  <div className="lk-upload-note-item">
+                <div className="lk-upload-notes-001">
+                  <div className="lk-upload-note-item-001">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <span>Pastikan CV dalam format teks yang dapat dibaca, bukan hasil scan gambar.</span>
                   </div>
-                  <div className="lk-upload-note-item">
+                  <div className="lk-upload-note-item-001">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <span>Jika lebih dari 1 file, harap gabungkan menjadi 1 file PDF atau DOC sebelum diunggah (bisa menggunakan <a href="https://www.ilovepdf.com/merge_pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--karir-primary)', textDecoration: 'underline', fontWeight: 600 }}>tools ini</a>).</span>
                   </div>

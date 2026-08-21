@@ -69,7 +69,7 @@ export async function getAllActiveJobs() {
   try {
     const { data, error } = await supabase
       .from('seleksi')
-      .select(`*, companies:company_id ( name, slug, logo_url, location, industry ), departments:department_id ( name ), job_views ( view_count )`)
+      .select(`*, companies:company_id ( name, slug, logo_url, lokasi, industri ), departments:department_id ( name ), job_views ( view_count )`)
       .eq('status', 'Aktif')
       .neq('arsip', true)
       .order('created_at', { ascending: false });

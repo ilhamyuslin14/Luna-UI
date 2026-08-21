@@ -211,18 +211,16 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   gap: 24px;
 }
 
-/* Modern Enterprise Job Hero Card Showcase */
+/* Modern Enterprise Job Hero Card Showcase — gradasi gelap disamakan dengan
+   .lk-hero versi mobile (laman-karir.css) supaya header desktop & mobile
+   senada, bukan dua gaya berbeda (putih/dotted vs gradien gelap). */
 .lk-job-hero-card {
-  background-color: #FFFFFF;
-  background-image: 
-    radial-gradient(circle at 92% 12%, rgba(255, 141, 33, 0.09) 0%, transparent 45%),
-    radial-gradient(circle at 5% 90%, rgba(37, 99, 235, 0.03) 0%, transparent 40%),
-    radial-gradient(#E2E8F0 0.8px, transparent 0.8px);
-  background-size: 100% 100%, 100% 100%, 18px 18px;
-  border: 1px solid #E2E8F0;
+  background: linear-gradient(155deg, #2A1204 0%, #7A3A05 55%, var(--karir-primary) 100%);
+  border: none;
   border-radius: 22px;
   padding: 32px 36px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+  box-shadow: 0 14px 34px rgba(122, 58, 5, 0.22), 0 1px 3px rgba(15, 23, 42, 0.04);
+  color: #FFFFFF;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -231,20 +229,7 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   isolation: isolate;
 }
 
-/* Top Gradient Accent Bar */
-.lk-job-hero-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--karir-primary) 0%, #FF8D21 45%, rgba(255, 141, 33, 0.15) 100%);
-  border-radius: 22px 22px 0 0;
-  z-index: 3;
-}
-
-/* Background Glowing Mesh Blob */
+/* Background Glowing Mesh Blob — versi putih (pola sama seperti .lk-hero::after mobile) */
 .lk-job-hero-card::after {
   content: '';
   position: absolute;
@@ -253,7 +238,7 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 141, 33, 0.15) 0%, rgba(255, 141, 33, 0.03) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
   filter: blur(10px);
   z-index: 1;
   pointer-events: none;
@@ -269,8 +254,8 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   width: 68px;
   height: 68px;
   border-radius: 16px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,13 +295,13 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: var(--karir-primary);
+  color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
   transition: color 0.15s;
 }
 
 .lk-job-company-link:hover {
-  color: #D96A00;
+  color: #FFFFFF;
   text-decoration: underline;
 }
 
@@ -324,14 +309,14 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: var(--karir-ink-700);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .lk-job-main-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 26px;
   font-weight: 800;
-  color: #0F172A;
+  color: #FFFFFF;
   line-height: 1.25;
   margin: 0;
   letter-spacing: -0.4px;
@@ -346,9 +331,9 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  background: rgba(255, 141, 33, 0.1);
-  color: #D96A00;
-  border: 1px solid rgba(255, 141, 33, 0.2);
+  background: rgba(20, 181, 65, 0.25);
+  color: #B9F3C9;
+  border: 1px solid transparent;
 }
 
 .lk-active-hiring-badge .dot {
@@ -369,16 +354,16 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  background: #F8FAFC;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   transition: all 0.15s ease;
 }
 
 .lk-admin-activity-badge.online {
-  background: #ECFDF5;
-  color: #047857;
-  border-color: #A7F3D0;
+  background: rgba(20, 181, 65, 0.25);
+  color: #B9F3C9;
+  border-color: transparent;
 }
 
 .lk-admin-activity-badge .online-pulse-dot {
@@ -406,15 +391,15 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   transition: all 0.15s ease;
 }
 
 .lk-view-count-badge:hover {
-  background: #E2E8F0;
-  color: #0F172A;
+  background: rgba(255, 255, 255, 0.26);
+  color: #FFFFFF;
 }
 
 .lk-job-hero-details-strip {
@@ -423,7 +408,7 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   gap: 10px;
   flex-wrap: wrap;
   padding-top: 18px;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .lk-job-detail-pill {
@@ -432,26 +417,29 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   gap: 6px;
   padding: 6px 14px;
   border-radius: 8px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  color: #475569;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13px;
   font-weight: 600;
 }
 
 .lk-job-detail-pill svg {
-  color: #64748B;
+  color: rgba(255, 255, 255, 0.85);
 }
 
+/* Pill gaji sengaja dibuat putih solid — beda dari pill lain — supaya tetap
+   menonjol sebagai info terpenting, senada dengan gaji besar-bold-putih di
+   versi mobile (.lk-hero-salary). */
 .lk-job-salary-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
   border-radius: 8px;
-  background: #FFF7ED;
-  border: 1px solid #FFEDD5;
+  background: #FFFFFF;
+  border: none;
   color: #EA580C;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13.5px;
@@ -639,23 +627,23 @@ a.lk-navy-company-card:hover {
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 
-.lk-detail-row {
+.lk-detail-row-001 {
   display: flex;
   align-items: center;
-  padding: 9px 16px;
+  padding: 10px 24px;
   border-bottom: 1px solid #F1F5F9;
   transition: all 0.15s ease;
 }
 
-.lk-detail-row:last-child {
+.lk-detail-row-001:last-child {
   border-bottom: none;
 }
 
-.lk-detail-row:nth-child(even) {
+.lk-detail-row-001:nth-child(even) {
   background: #F8FAFC;
 }
 
-.lk-detail-row:hover {
+.lk-detail-row-001:hover {
   background: #FFF4EC;
 }
 
@@ -672,15 +660,17 @@ a.lk-navy-company-card:hover {
 
 .lk-detail-row-value {
   flex: 1;
+  min-width: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: #0F172A;
+  text-align: right;
   word-break: break-word;
 }
 
 @media (max-width: 640px) {
-  .lk-detail-row {
+  .lk-detail-row-001 {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
@@ -689,6 +679,9 @@ a.lk-navy-company-card:hover {
   .lk-detail-row-label {
     flex: auto;
     font-size: 12px;
+  }
+  .lk-detail-row-value {
+    text-align: left;
   }
 }
 
@@ -770,7 +763,7 @@ a.lk-navy-company-card:hover {
   box-shadow: var(--karir-shadow);
 }
 
-.lk-section-title {
+.lk-section-title-001 {
   font-size: 18px;
   font-weight: 800;
   color: var(--karir-ink-900);
@@ -780,7 +773,7 @@ a.lk-navy-company-card:hover {
   gap: 10px;
 }
 
-.lk-section-title::before {
+.lk-section-title-001::before {
   content: '';
   width: 4px;
   height: 20px;
@@ -855,7 +848,7 @@ a.lk-navy-company-card:hover {
   margin-left: 4px;
 }
 
-.lk-upload-notes {
+.lk-upload-notes-001 {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
@@ -866,7 +859,7 @@ a.lk-navy-company-card:hover {
   border-radius: 10px;
 }
 
-.lk-upload-note-item {
+.lk-upload-note-item-001 {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -876,7 +869,7 @@ a.lk-navy-company-card:hover {
   line-height: 1.45;
 }
 
-.lk-upload-note-item svg {
+.lk-upload-note-item-001 svg {
   color: var(--karir-primary);
   flex-shrink: 0;
   margin-top: 2px;
@@ -924,7 +917,7 @@ a.lk-navy-company-card:hover {
   margin-left: 2px;
 }
 
-.lk-input {
+.lk-input-001 {
   width: 100%;
   height: 44px;
   padding: 0 14px;
@@ -938,17 +931,17 @@ a.lk-navy-company-card:hover {
   box-sizing: border-box;
 }
 
-.lk-input:focus {
+.lk-input-001:focus {
   outline: none;
   border-color: var(--karir-primary);
   box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
-.lk-input.error {
+.lk-input-001.error {
   border-color: #EF4444;
 }
 
-.lk-error-text {
+.lk-error-text-001 {
   font-family: 'Inter Tight', sans-serif;
   font-size: 11.5px;
   color: #EF4444;
@@ -1604,6 +1597,12 @@ a.lk-navy-company-card:hover {
   color: var(--karir-ink-600);
 }
 
+.lk-pjob-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .lk-pjob-salary {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 12.5px;
@@ -1639,7 +1638,7 @@ a.lk-navy-company-card:hover {
   color: #FFFFFF;
 }
 
-.lk-portal-empty {
+.lk-portal-empty-001 {
   text-align: center;
   padding: 40px;
   background: #FFFFFF;
@@ -1669,13 +1668,16 @@ a.lk-navy-company-card:hover {
   max-width: 1180px;
 }
 
-/* Dark Slate Tech Banner */
+/* Success Banner — gradasi Ink hangat + Luna Orange (design-guidelines.md),
+   bukan slate/navy dingin seperti sebelumnya */
 .lk-tech-banner {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(150deg, #0A0908 0%, #292823 62%, #E06800 130%);
   border-radius: 20px;
   padding: 28px 32px;
   color: #FFFFFF;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 20px 48px rgba(10, 9, 8, 0.18);
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;
@@ -1683,10 +1685,34 @@ a.lk-navy-company-card:hover {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.lk-tech-banner::after {
+  content: '';
+  position: absolute;
+  top: -70px;
+  right: -60px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 141, 33, 0.22) 0%, transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
 .lk-tech-banner-top {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Judul untuk laman "Semua Lowongan" — banner pesan terbuka, bukan pesan
+   sukses melamar, jadi tidak ada pill/checkmark, cukup heading + deskripsi. */
+.lk-explore-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  position: relative;
 }
 
 .lk-tech-success-pill {
@@ -1720,9 +1746,11 @@ a.lk-navy-company-card:hover {
 .lk-tech-success-sub {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
-  color: #94A3B8;
+  color: #C9C6C0;
   margin: 0;
   line-height: 1.5;
+  position: relative;
+  max-width: 640px;
 }
 
 /* Applied Snippet Box */
@@ -1775,9 +1803,19 @@ a.lk-navy-company-card:hover {
 }
 
 .lk-tech-company-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Inter Tight', sans-serif;
   font-size: 12.5px;
-  color: #CBD5E1;
+  color: #C9C6C0;
+}
+
+.lk-tech-company-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #6B6862;
 }
 
 .lk-tech-date-tag {
@@ -1900,4 +1938,310 @@ a.lk-navy-company-card:hover {
   border-color: var(--karir-primary-hover);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(255, 141, 33, 0.35);
+}
+
+/* Nilai gaji netral (Ink), bukan aksen kuning/amber — konsisten dengan
+   redesain mockup (gaji bukan lagi elemen yang "berteriak" di kartu). */
+.lk-pjob-salary {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--karir-ink-900);
+  background: #F7F7F6;
+  padding: 6px 12px;
+  border-radius: 9px;
+  width: fit-content;
+}
+
+/* ══════════════ Revamp: back CTA, kontrol portal, list view, pagination ══════════════ */
+
+.lk-back-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 16px 6px 6px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  color: var(--karir-ink-600);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lk-back-ghost:hover {
+  background: #F7F7F6;
+  color: var(--karir-ink-900);
+}
+
+.lk-back-ghost-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #EFEEEC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lk-portal-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Sort */
+.lk-sort-control {
+  position: relative;
+}
+
+.lk-sort-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid var(--karir-border);
+  border-radius: 12px;
+  padding: 9px 14px;
+  color: var(--karir-ink-500);
+  font-family: 'Inter Tight', sans-serif;
+  white-space: nowrap;
+}
+
+.lk-sort-control-label {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.lk-sort-control-value {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--karir-ink-900);
+}
+
+.lk-sort-control-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  background: #FFFFFF;
+  border: 1px solid var(--karir-border);
+  border-radius: 12px;
+  box-shadow: var(--karir-shadow-lg);
+  padding: 6px;
+  min-width: 150px;
+}
+
+.lk-sort-control-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--karir-ink-600);
+}
+
+.lk-sort-control-item:hover {
+  background: #F7F7F6;
+  color: var(--karir-ink-900);
+}
+
+.lk-sort-control-item.active {
+  background: var(--karir-primary-light);
+  color: var(--karir-primary-hover);
+}
+
+/* View toggle */
+.lk-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #EFEEEC;
+  border-radius: 10px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.lk-view-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--karir-ink-500);
+}
+
+.lk-view-toggle-btn.active {
+  background: var(--karir-navy-900);
+  color: #FFFFFF;
+}
+
+/* Company eyebrow — dipakai di list row & card, gantikan tag departemen */
+.lk-pjob-company-eyebrow {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--karir-primary-hover);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 3px;
+}
+
+/* List view (default) */
+.lk-job-list-001 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lk-job-row {
+  background: #FFFFFF;
+  border: 1px solid var(--karir-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: var(--karir-shadow);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lk-job-row:hover {
+  border-color: rgba(255, 141, 33, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(255, 141, 33, 0.08);
+}
+
+.lk-job-row-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.lk-job-row-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.lk-job-row-logo-fallback {
+  background: var(--karir-primary-light);
+  color: var(--karir-primary-hover);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lk-job-row-body {
+  min-width: 0;
+}
+
+.lk-job-row-side {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.lk-job-row-side .lk-pjob-btn {
+  width: auto;
+  white-space: nowrap;
+}
+
+.lk-job-row-salary {
+  text-align: right;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--karir-ink-900);
+}
+
+.lk-job-row-salary span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--karir-ink-400);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* Pagination */
+.lk-portal-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #EFEEEC;
+}
+
+.lk-portal-pagination-summary {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  color: var(--karir-ink-500);
+}
+
+.lk-portal-pagination-summary strong {
+  color: var(--karir-ink-800);
+}
+
+.lk-portal-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lk-portal-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 9px;
+  border: 1px solid var(--karir-border);
+  background: #FFFFFF;
+  color: var(--karir-ink-600);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lk-portal-page-btn.active {
+  border-color: transparent;
+  background: var(--karir-navy-900);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.lk-portal-page-btn:disabled {
+  color: var(--karir-ink-400);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .lk-portal-controls { flex-wrap: wrap; }
+  .lk-job-row { flex-direction: column; align-items: stretch; }
+  .lk-job-row-side { justify-content: space-between; }
 }
