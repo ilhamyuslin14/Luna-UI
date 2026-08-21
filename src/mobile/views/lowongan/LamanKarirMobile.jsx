@@ -82,11 +82,11 @@ function CompanyLogo({ url, name, className }) {
 function Header({ onShare, shareDisabled }) {
   return (
     <div className="lk-head">
-      <div className="lk-logo">
+      <a className="lk-logo" href="/?view=semua-lowongan">
         <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
         <span className="lk-logo-word">Luna</span>
         <span className="lk-badge-portal">PORTAL KARIR</span>
-      </div>
+      </a>
       <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
     </div>
   );
@@ -202,11 +202,11 @@ export default function LamanKarirMobile({ kode }) {
     return (
       <div className="lk-page">
         <div className="lk-head">
-          <div className="lk-logo">
+          <a className="lk-logo" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-word">Luna</span>
             <span className="lk-badge-portal">PORTAL KARIR</span>
-          </div>
+          </a>
           <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>
         </div>
 

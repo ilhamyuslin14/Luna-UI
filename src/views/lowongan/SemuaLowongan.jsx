@@ -39,10 +39,10 @@ export default function SemuaLowongan() {
       {/* Header Navbar */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="lk-brand">
+          <a className="lk-brand" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
-          </div>
+          </a>
         </div>
       </header>
 

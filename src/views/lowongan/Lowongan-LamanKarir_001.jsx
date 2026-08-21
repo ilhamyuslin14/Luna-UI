@@ -201,10 +201,10 @@ export default function LowonganLamanKarir_001({ kode }) {
         {/* Header Navbar */}
         <header className="lk-header">
           <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="lk-brand">
+            <a className="lk-brand" href="/?view=semua-lowongan">
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
-            </div>
+            </a>
             <button className="lk-back-ghost" onClick={resetApply}>
               <span className="lk-back-ghost-icon">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -449,10 +449,10 @@ export default function LowonganLamanKarir_001({ kode }) {
       {/* Top Clean Professional Header Navbar */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="lk-brand">
+          <a className="lk-brand" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
-          </div>
+          </a>
 
           <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button

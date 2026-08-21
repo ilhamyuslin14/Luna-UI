@@ -64,11 +64,11 @@ export default function SemuaLowonganMobile() {
   return (
     <div className="lk-page">
       <div className="lk-head">
-        <div className="lk-logo">
+        <a className="lk-logo" href="/?view=semua-lowongan">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
           <span className="lk-logo-word">Luna</span>
           <span className="lk-badge-portal">PORTAL KARIR</span>
-        </div>
+        </a>
       </div>
 
       {/* Banner — pesan terbuka, bukan pesan sukses melamar */}

@@ -188,10 +188,10 @@ export default function LowonganPerusahaan_001({ slug }) {
       {/* Header Bar Top */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="lk-brand">
+          <a className="lk-brand" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
-          </div>
+          </a>
 
           <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button
