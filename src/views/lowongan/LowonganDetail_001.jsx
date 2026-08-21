@@ -11,6 +11,8 @@ import { getSeleksiById, updateSeleksi, duplicateSeleksi, archiveSeleksi } from 
 import { invalidate } from '../../services/dataCache.js';
 import { slugify } from '../../utils/slug.js';
 
+import '../../../css/sebar/sebar_001.css';
+
 const STATUS_OPTS = [
   { val: 'rencana', label: 'Rencana', text: '#555f71', bg: '#f4f6fa', border: '#cbd0db' },
   { val: 'aktif', label: 'Aktif', text: '#0977be', bg: '#eef7fd', border: '#89ccf6' },
@@ -64,6 +66,15 @@ const IconShare = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const IconQrCode = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01" />
   </svg>
 );
 
@@ -138,6 +149,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
   const [companyName, setCompanyName] = useState(null);
   const [showStatusDrop, setShowStatusDrop] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [showTitleMenu, setShowTitleMenu] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
@@ -397,6 +409,23 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
             )}
           </div>
 
+          {/* QR Code Laman Karir Button */}
+          <div className="sd001-cta-tip-wrap">
+            <button
+              className={`sd001-open-karir-btn sd001-icon-only-btn${!karilEnabled ? ' sd001-btn-disabled' : ''}`}
+              onClick={() => karilEnabled && setShowQrModal(true)}
+              title="Generate & Unduh QR Code"
+              aria-label="Generate & Unduh QR Code"
+            >
+              <IconQrCode />
+            </button>
+            {!karilEnabled && (
+              <div className="sd001-cta-tooltip">
+                Status lowongan harus Aktif untuk mengaktifkan fitur ini
+              </div>
+            )}
+          </div>
+
           {/* Menu titik-tiga: Duplikat Seleksi + Arsipkan */}
           <div className="sd001-share-wrap" onClick={e => e.stopPropagation()}>
             <button
@@ -484,6 +513,84 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
           </>
         )}
       </div>
+
+      {/* QR Code Modal Overlay */}
+      {showQrModal && (
+        <div className="sebar-qr-overlay" onClick={() => setShowQrModal(false)}>
+          <div className="sebar-qr-card" onClick={(e) => e.stopPropagation()}>
+            <div className="sebar-qr-header">
+              <div className="sebar-qr-header-left">
+                <span className="sebar-qr-pill">QR CODE LAMAN KARIR</span>
+                <h3 className="sebar-qr-title">{jabatan}</h3>
+                <p className="sebar-qr-subtitle">{companyName || 'PT Arkademi Daya Indonesia'}</p>
+              </div>
+              <button className="sebar-qr-close" onClick={() => setShowQrModal(false)}>×</button>
+            </div>
+
+            <div className="sebar-qr-body">
+              <div className="sebar-qr-img-box">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(kaririUrl)}`}
+                  alt="QR Code Laman Karir"
+                  className="sebar-qr-image"
+                />
+              </div>
+
+              <div className="sebar-qr-url-box">
+                <span className="sebar-qr-url-label">Tautan Laman Karir:</span>
+                <div className="sebar-qr-url-input-wrap">
+                  <input type="text" readOnly value={kaririUrl} className="sebar-qr-url-input" />
+                  <button
+                    className="sebar-qr-copy-mini"
+                    onClick={() => {
+                      navigator.clipboard.writeText(kaririUrl);
+                      setToast({ message: 'Tautan Laman Karir tersalin!' });
+                    }}
+                  >
+                    Salin
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="sebar-qr-footer">
+              <button
+                className="sebar-qr-btn-download"
+                onClick={() => {
+                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(kaririUrl)}`;
+                  fetch(qrUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      const safeName = (jabatan || 'Karir').replace(/[^a-zA-Z0-9]/g, '_');
+                      a.download = `QRCode-LamanKarir-${safeName}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      window.URL.revokeObjectURL(url);
+                    })
+                    .catch(() => {
+                      window.open(qrUrl, '_blank');
+                    });
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Unduh Gambar QR Code (PNG)
+              </button>
+
+              <button className="sebar-qr-btn-close" onClick={() => setShowQrModal(false)}>
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
