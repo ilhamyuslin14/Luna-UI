@@ -87,6 +87,7 @@ export default function App() {
   const [lamanKarirKode, setLamanKarirKode] = useState(urlParams.get('kode') || '');
   const [lamanPerusahaanSlug, setLamanPerusahaanSlug] = useState(urlParams.get('slug') || '');
   const [selectedKandidat, setSelectedKandidat] = useState(urlParams.get('kandidat') || null);
+  const [kandidatOverlay, setKandidatOverlay] = useState(null);
   const [kandidatFilter, setKandidatFilter] = useState(urlParams.get('filter') || '');
   const [selectedDepartemen, setSelectedDepartemen] = useState(urlParams.get('departemen') || null);
   const [selectedDepartemenId, setSelectedDepartemenId] = useState(urlParams.get('departemenId') || null);

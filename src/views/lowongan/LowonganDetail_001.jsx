@@ -544,7 +544,7 @@ export default function LowonganDetail_001({ seleksiId, jabatan: initialJabatan 
                     className="sebar-qr-copy-mini"
                     onClick={() => {
                       navigator.clipboard.writeText(kaririUrl);
-                      showToastMsg('Tautan Laman Karir tersalin!');
+                      setToast({ message: 'Tautan Laman Karir tersalin!' });
                     }}
                   >
                     Salin
