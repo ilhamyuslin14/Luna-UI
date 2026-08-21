@@ -1,75 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getCompanyBySlug, getActiveSeleksiByCompany } from '../../services/seleksiService.js';
+import useLamanPerusahaanData, { formatDeskripsiToHtml, getYoutubeEmbedUrl } from '../../hooks/lowongan/useLamanPerusahaanData.js';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/lowongan-perusahaan_001.css';
 import '../../../css/lowongan/lowongan_001.css';
-
-function formatDeskripsiToHtml(text) {
-  if (!text) return '';
-  if (text.includes('<p>') || text.includes('<ul>') || text.includes('<ol>') || text.includes('<br')) return text;
-
-  const lines = text.split('\n');
-  let inList = false;
-  let listType = null;
-  let html = '';
-
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      if (inList) {
-        html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = false;
-        listType = null;
-      }
-      return;
-    }
-
-    const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*');
-    const isNumbered = /^\d+[\.\)]\s*/.test(trimmed);
-
-    if (isBullet) {
-      if (!inList || listType !== 'ul') {
-        if (inList) html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = true;
-        listType = 'ul';
-        html += '<ul>';
-      }
-      html += `<li>${trimmed.replace(/^[•\-\*]\s*/, '')}</li>`;
-    } else if (isNumbered) {
-      if (!inList || listType !== 'ol') {
-        if (inList) html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = true;
-        listType = 'ol';
-        html += '<ol>';
-      }
-      html += `<li>${trimmed.replace(/^\d+[\.\)]\s*/, '')}</li>`;
-    } else {
-      if (inList) {
-        html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = false;
-        listType = null;
-      }
-      html += `<p>${trimmed}</p>`;
-    }
-  });
-
-  if (inList) html += listType === 'ul' ? '</ul>' : '</ol>';
-  return html;
-}
-
-function getYoutubeEmbedUrl(url) {
-  if (!url) return null;
-  try {
-    const u = new URL(url.startsWith('http') ? url : `https://${url}`);
-    let id = null;
-    if (u.hostname.includes('youtu.be')) id = u.pathname.slice(1);
-    else if (u.pathname.includes('/embed/')) id = u.pathname.split('/embed/')[1];
-    else id = u.searchParams.get('v');
-    return id ? `https://www.youtube.com/embed/${id}` : null;
-  } catch {
-    return null;
-  }
-}
 
 // Icons
 const IconLink = () => (
@@ -190,38 +123,18 @@ const SHARE_PLATFORMS = [
 ];
 
 export default function LowonganPerusahaan_001({ slug }) {
-  const [pageState, setPageState] = useState('loading'); // loading | ready | not-found
-  const [company, setCompany] = useState(null);
-  const [jobs, setJobs] = useState([]);
-  const [jobSearch, setJobSearch] = useState('');
-  const [copiedToast, setCopiedToast] = useState(false);
+  const { pageState, company, jobs, filteredJobs, jobSearch, setJobSearch, handleShareAction } = useLamanPerusahaanData(slug);
 
-  useEffect(() => {
-    let active = true;
-    if (!slug) {
-      setPageState('not-found');
-      return;
+  const [copiedToast, setCopiedToast] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+
+  const onShareDone = (result) => {
+    if (result === 'copied' || result === 'instagram') {
+      setCopiedToast(true);
+      setTimeout(() => setCopiedToast(false), 2500);
     }
-    getCompanyBySlug(slug)
-      .then(data => {
-        if (!active) return null;
-        if (!data) {
-          setPageState('not-found');
-          return null;
-        }
-        setCompany(data);
-        return getActiveSeleksiByCompany(data.id);
-      })
-      .then(jobList => {
-        if (!active || !jobList) return;
-        setJobs(jobList);
-        setPageState('ready');
-      })
-      .catch(() => {
-        if (active) setPageState('not-found');
-      });
-    return () => { active = false; };
-  }, [slug]);
+    setShowShareMenu(false);
+  };
 
   useEffect(() => {
     document.body.style.setProperty('overflow', 'visible', 'important');
@@ -236,39 +149,6 @@ export default function LowonganPerusahaan_001({ slug }) {
       document.documentElement.style.removeProperty('height');
     };
   }, []);
-
-  const [showShareMenu, setShowShareMenu] = useState(false);
-
-  const handleShareAction = (platform) => {
-    const pageUrl = window.location.href;
-    const shareText = `Profil Perusahaan ${company?.name || ''}`;
-
-    if (platform === 'copy') {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(pageUrl);
-        setCopiedToast(true);
-        setTimeout(() => setCopiedToast(false), 2500);
-      }
-      setShowShareMenu(false);
-      return;
-    }
-
-    let url = '';
-    if (platform === 'wa') {
-      url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + '\n' + pageUrl)}`;
-    } else if (platform === 'linkedin') {
-      url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
-    } else if (platform === 'facebook') {
-      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
-    } else if (platform === 'telegram') {
-      url = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`;
-    }
-
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setShowShareMenu(false);
-    }
-  };
 
   if (pageState === 'loading') {
     return (
@@ -303,12 +183,6 @@ export default function LowonganPerusahaan_001({ slug }) {
   const social = company.media_sosial || {};
   const initials = (company.name || '?').trim().charAt(0).toUpperCase();
 
-  const filteredJobs = jobs.filter(j => {
-    if (!jobSearch.trim()) return true;
-    const q = jobSearch.toLowerCase();
-    return (j.jabatan || '').toLowerCase().includes(q) || (j.departments?.name || '').toLowerCase().includes(q) || (j.lokasi || '').toLowerCase().includes(q);
-  });
-
   return (
     <div className="lk-page-wrapper lpr-page-wrap" onClick={() => setShowShareMenu(false)}>
       {/* Header Bar Top */}
@@ -335,7 +209,7 @@ export default function LowonganPerusahaan_001({ slug }) {
                 <div className="lw001-share-eyebrow">BAGIKAN LAMAN PERUSAHAAN</div>
                 <div className="lw001-share-linkcard">
                   <span className="lw001-share-linkcard-url">{window.location.href}</span>
-                  <button type="button" className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy')}>
+                  <button type="button" className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy', onShareDone)}>
                     <IconLink />
                     {copiedToast ? 'Tersalin' : 'Salin'}
                   </button>
@@ -343,7 +217,7 @@ export default function LowonganPerusahaan_001({ slug }) {
                 <div className="lw001-share-divider" />
                 <div className="lw001-share-grid">
                   {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
-                    <button key={key} type="button" className="lw001-share-gridbtn" onClick={() => handleShareAction(key)}>
+                    <button key={key} type="button" className="lw001-share-gridbtn" onClick={() => handleShareAction(key, onShareDone)}>
                       <span className="lw001-share-gridbtn-icon"><Icon /></span>
                       <span className="lw001-share-gridbtn-label">{label}</span>
                     </button>
@@ -534,8 +408,15 @@ export default function LowonganPerusahaan_001({ slug }) {
                       <div className="lpr-job-tags">
                         {job.departments?.name && <span className="lpr-tag-dept">{job.departments.name}</span>}
                         {job.ikatan_kerja && <span className="lpr-tag-type">{job.ikatan_kerja}</span>}
-                        {job.lokasi && <span className="lpr-tag-loc">{job.lokasi}</span>}
+                        <span className="lpr-tag-views" title="Total tayangan lowongan ini">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                          {(job.view_count || 0).toLocaleString('id-ID')} Dilihat
+                        </span>
                       </div>
+                      {job.lokasi && <div className="lpr-job-loc-row"><span className="lpr-tag-loc">{job.lokasi}</span></div>}
                     </div>
                     <div className="lpr-job-apply-cta">
                       <IconArrowRight />

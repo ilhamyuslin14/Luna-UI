@@ -27,6 +27,8 @@ import LowonganTambahKandidat from './views/lowongan/Lowongan-TambahKandidat.jsx
 import LamanKarir from './views/lowongan/Lowongan-LamanKarir.jsx';
 import LamanKarir_001 from './views/lowongan/Lowongan-LamanKarir_001.jsx';
 import LamanPerusahaan_001 from './views/lowongan/Lowongan-Perusahaan_001.jsx';
+import LamanKarirMobile from './mobile/views/lowongan/LamanKarirMobile.jsx';
+import LamanPerusahaanMobile from './mobile/views/lowongan/LamanPerusahaanMobile.jsx';
 import KandidatDetail from './views/kandidat/KandidatDetail.jsx';
 import KandidatDetail_001 from './views/kandidat/KandidatDetail_001.jsx';
 import DepartemenDetail from './views/departemen/DepartemenDetail.jsx';
@@ -218,7 +220,9 @@ export default function App() {
   }
 
   if (activeMenu === 'laman-karir' || activeMenu === 'laman-karir_001') {
-    return <LamanKarir_001 kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
+    return isMobile
+      ? <LamanKarirMobile kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />
+      : <LamanKarir_001 kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
   if (activeMenu === 'laman-karir_old') {
@@ -226,7 +230,9 @@ export default function App() {
   }
 
   if (activeMenu === 'laman-perusahaan') {
-    return <LamanPerusahaan_001 slug={lamanPerusahaanSlug} />;
+    return isMobile
+      ? <LamanPerusahaanMobile slug={lamanPerusahaanSlug} />
+      : <LamanPerusahaan_001 slug={lamanPerusahaanSlug} />;
   }
 
   if (activeMenu === 'landingpage') {

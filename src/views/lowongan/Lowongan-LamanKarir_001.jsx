@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getSeleksiByKode } from '../../services/seleksiService.js';
-import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
-import { runScoring } from '../../services/scoringService.js';
+import useLamanKarirData, {
+  formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
+} from '../../hooks/lowongan/useLamanKarirData.js';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/lowongan-perusahaan_001.css';
 import '../../../css/lowongan/lowongan_001.css';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILE_SIZE_MB = 10;
 
 // Icons
 const IconLink = () => (
@@ -72,160 +69,18 @@ const SHARE_PLATFORMS = [
   { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
 ];
 
-function isValidUrl(str) {
-  if (!str) return true;
-  try {
-    new URL(str.startsWith('http') ? str : 'https://' + str);
-    return str.includes('.');
-  } catch {
-    return false;
-  }
-}
-
-function formatDeskripsiToHtml(text) {
-  if (!text) return '';
-  if (text.includes('<p>') || text.includes('<ul>') || text.includes('<ol>') || text.includes('<br')) return text;
-
-  const lines = text.split('\n');
-  let inList = false;
-  let listType = null; // 'ul' | 'ol'
-  let html = '';
-
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      if (inList) {
-        html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = false;
-        listType = null;
-      }
-      return;
-    }
-
-    const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*');
-    const isNumbered = /^\d+[\.\)]\s*/.test(trimmed);
-
-    if (isBullet) {
-      if (!inList || listType !== 'ul') {
-        if (inList) html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = true;
-        listType = 'ul';
-        html += '<ul>';
-      }
-      const content = trimmed.replace(/^[•\-\*]\s*/, '');
-      html += `<li>${content}</li>`;
-    } else if (isNumbered) {
-      if (!inList || listType !== 'ol') {
-        if (inList) html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = true;
-        listType = 'ol';
-        html += '<ol>';
-      }
-      const content = trimmed.replace(/^\d+[\.\)]\s*/, '');
-      html += `<li>${content}</li>`;
-    } else {
-      if (inList) {
-        html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = false;
-        listType = null;
-      }
-      html += `<p>${trimmed}</p>`;
-    }
-  });
-
-  if (inList) {
-    html += listType === 'ul' ? '</ul>' : '</ol>';
-  }
-
-  return html;
-}
-
-function formatTanggal(dateStr) {
-  if (!dateStr) return '-';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  } catch {
-    return '-';
-  }
-}
-
-function stripRupiahPrefix(val) {
-  if (!val) return val;
-  return String(val).trim().replace(/^rp\.?\s*/i, '');
-}
-
-function formatPengalaman(val) {
-  if (!val && val !== 0) return null;
-  const trimmed = String(val).trim();
-  return /^\d+$/.test(trimmed) ? `${trimmed} Tahun` : trimmed;
-}
-
-function formatUpah(data) {
-  if (!data) return null;
-  const min = data.upah_min || data.gaji_min || null;
-  const maks = data.upah_maks || data.gaji_maks || null;
-  if (min || maks) {
-    const minStr = stripRupiahPrefix(min) || '-';
-    const maksStr = stripRupiahPrefix(maks) || '-';
-    return `${minStr} – ${maksStr}${data.siklus_upah ? ' / ' + data.siklus_upah : ''}`;
-  }
-  if (data.gaji || data.upah) return stripRupiahPrefix(data.gaji || data.upah);
-  return null;
-}
-
-function getApplyErrorInfo(msg) {
-  if (!msg) return { title: 'Gagal Mengirim Lamaran', desc: 'Terjadi kesalahan saat memproses lamaran Anda. Silakan coba lagi.' };
-  if (/sudah pernah diunggah/i.test(msg)) {
-    return { title: 'CV Sudah Pernah Dikirim', desc: 'CV dengan isi yang sama pernah dikirim sebelumnya. Lamaran Anda tetap akan kami proses pada posisi ini.' };
-  }
-  if (/bukan cv|lowongan|brosur/i.test(msg)) {
-    return { title: 'Dokumen Bukan CV', desc: 'File yang Anda unggah terdeteksi bukan merupakan CV/resume. Silakan unggah dokumen CV yang sesuai.' };
-  }
-  if (/konfigurasi ai/i.test(msg)) {
-    return { title: 'Sistem Sedang Bermasalah', desc: 'Sistem kami sedang mengalami gangguan. Silakan coba beberapa saat lagi.' };
-  }
-  if (/format file/i.test(msg)) {
-    return { title: 'Format File Tidak Didukung', desc: 'File yang Anda unggah berupa gambar atau format lain yang tidak dapat dibaca sistem kami. Silakan gunakan file PDF, DOC, atau DOCX yang berisi teks CV Anda.' };
-  }
-  return { title: 'Gagal Mengirim Lamaran', desc: msg };
-}
-
 export default function LowonganLamanKarir_001({ kode }) {
-  const [pageState, setPageState] = useState('loading'); // loading | ready | not-found
-  const [seleksiData, setSeleksiData] = useState(null);
+  const {
+    pageState, seleksiData, viewCount,
+    form, handleChange, handlePhoneChange, linkedinError,
+    cvFile, fileError, dragOver, setDragOver, handleDrop, handleFileInput, setCvFile,
+    submitState, submitErrorMsg, progressText, uploadPercent, handleSubmit, resetApply,
+    portalJobs, portalSearch, setPortalSearch, portalCategory, setPortalCategory,
+    handleShareAction,
+  } = useLamanKarirData(kode);
 
-  const [form, setForm] = useState({ nama: '', email: '', phone: '', linkedin: '' });
-  const [cvFile, setCvFile] = useState(null);
-  const [fileError, setFileError] = useState('');
-  const [submitState, setSubmitState] = useState('idle'); // idle | uploading | success | error
-  const [submitErrorMsg, setSubmitErrorMsg] = useState(null);
-  const [progressText, setProgressText] = useState('');
-  const [dragOver, setDragOver] = useState(false);
-  const [linkedinError, setLinkedinError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    if (!kode) {
-      setPageState('not-found');
-      return;
-    }
-    getSeleksiByKode(kode).then(data => {
-      if (!active) return;
-      if (!data || (data.status || '').trim().toLowerCase() !== 'aktif') {
-        setPageState('not-found');
-        return;
-      }
-      setSeleksiData(data);
-      setPageState('ready');
-    }).catch(() => {
-      if (active) setPageState('not-found');
-    });
-    return () => { active = false; };
-  }, [kode]);
 
   useEffect(() => {
     document.body.style.setProperty('overflow', 'visible', 'important');
@@ -241,170 +96,12 @@ export default function LowonganLamanKarir_001({ kode }) {
     };
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-    if (name === 'linkedin') setLinkedinError(value ? !isValidUrl(value) : false);
-  };
-
-  const handleShareAction = (platform) => {
-    const pageUrl = window.location.href;
-    const shareText = `Lowongan ${seleksiData?.jabatan || ''}${seleksiData?.companies?.name ? ' - ' + seleksiData.companies.name : ''}`;
-
-    if (platform === 'copy') {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(pageUrl);
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2500);
-      }
-      setShowShareMenu(false);
-      return;
+  const onShareDone = (result) => {
+    if (result === 'copied' || result === 'instagram') {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
     }
-
-    let url = '';
-    if (platform === 'wa') {
-      url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + '\n' + pageUrl)}`;
-    } else if (platform === 'linkedin') {
-      url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
-    } else if (platform === 'facebook') {
-      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
-    } else if (platform === 'telegram') {
-      url = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`;
-    }
-
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setShowShareMenu(false);
-    }
-  };
-
-  const handlePhoneChange = (e) => {
-    const filtered = e.target.value.replace(/[^0-9+\-\s]/g, '');
-    if (filtered.replace(/[^0-9]/g, '').length <= 14) {
-      setForm(f => ({ ...f, phone: filtered }));
-    }
-  };
-
-  const handleFileChange = (file) => {
-    setFileError('');
-    if (!file) return;
-
-    if (file.size > MAX_FILE_SIZE) {
-      setFileError(`Ukuran file melebihi batas maksimal ${MAX_FILE_SIZE_MB}MB.`);
-      return;
-    }
-
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (!['pdf', 'doc', 'docx'].includes(ext)) {
-      setFileError('Format file tidak didukung. Harap unggah file PDF, DOC, atau DOCX.');
-      return;
-    }
-
-    setCvFile(file);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileChange(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileInput = (e) => {
-    handleFileChange(e.target.files?.[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!cvFile) {
-      setFileError('Harap unggah file CV Anda.');
-      return;
-    }
-
-    if (form.linkedin && !isValidUrl(form.linkedin)) {
-      setLinkedinError(true);
-      return;
-    }
-
-    setSubmitState('uploading');
-    setSubmitErrorMsg(null);
-    setProgressText('Mengunggah & menganalisis CV Anda...');
-
-    const batchId = `pb-${Date.now()}`;
-    let logId = null;
-    try {
-      const log = await createActivityLog({
-        batch_id: batchId,
-        company_id: seleksiData.company_id,
-        nama_file: cvFile.name,
-        tipe_aktivitas: 'upload_and_scoring',
-        upload_status: 'memproses',
-        source: 'Portal Karir',
-        posisi_nama: seleksiData?.jabatan || null,
-      });
-      logId = log?.id;
-
-      const kandidat = await uploadAndExtractCV(
-        seleksiData.company_id,
-        cvFile,
-        seleksiData.jabatan,
-        (msg) => setProgressText(msg),
-        'public'
-      );
-
-      const updates = {};
-      if (form.nama.trim()) updates.nama_lengkap = form.nama.trim();
-      if (form.email.trim()) updates.email = form.email.trim();
-      if (form.phone.trim()) updates.phone = form.phone.trim();
-      if (form.linkedin.trim()) updates.linkedin_url = form.linkedin.trim();
-
-      if (kandidat?.id && Object.keys(updates).length > 0) {
-        await updateKandidat(kandidat.id, updates);
-      }
-
-      setProgressText('Menilai kualifikasi Anda dengan kebutuhan posisi...');
-
-      // CV sudah tersimpan di titik ini — kalau scoring AI gagal, jangan
-      // gagalkan submission-nya juga, cukup catat di activity log.
-      let scoringStatus = 'gagal';
-      if (kandidat?.id && seleksiData?.id) {
-        try {
-          await runScoring(kandidat.id, seleksiData.id, seleksiData.company_id);
-          scoringStatus = 'berhasil';
-        } catch (scoreErr) {
-          console.error('Scoring gagal:', scoreErr);
-        }
-      }
-
-      if (logId) {
-        await updateActivityLog(logId, {
-          kandidat_id: kandidat?.id || null,
-          upload_status: 'berhasil',
-          scoring_status: scoringStatus,
-        });
-      }
-
-      setSubmitState('success');
-    } catch (err) {
-      console.error('Error submitting application:', err);
-      try {
-        const log = await createActivityLog({
-          batch_id: batchId,
-          company_id: seleksiData.company_id,
-          nama_file: cvFile.name,
-          tipe_aktivitas: 'upload_and_scoring',
-          upload_status: 'gagal',
-          upload_fail_reason: err.message,
-          source: 'Portal Karir',
-          posisi_nama: seleksiData?.jabatan || null,
-        });
-        logId = log?.id;
-      } catch (e) {}
-
-      setSubmitErrorMsg(err.message);
-      setSubmitState('error');
-    }
+    setShowShareMenu(false);
   };
 
   if (pageState === 'loading') {
@@ -446,27 +143,243 @@ export default function LowonganLamanKarir_001({ kode }) {
   const modelKerjaTipeKerja = [seleksiData.remote, seleksiData.ikatan_kerja].filter(Boolean).join(' · ');
 
   if (submitState === 'success') {
+    const recommendedJobs = portalJobs.filter(job => {
+      if (job.id === seleksiData.id) return false;
+      const dept = (job.departments?.name || '').toLowerCase();
+      const pos = (job.jabatan || '').toLowerCase();
+      const currDept = (departemenName || '').toLowerCase();
+      const currPos = (seleksiData.jabatan || '').toLowerCase();
+      return (dept && currDept && (dept.includes(currDept) || currDept.includes(dept))) ||
+             (pos && currPos && (pos.includes(currPos) || currPos.includes(pos)));
+    });
+
+    const categories = ['Semua', ...new Set(portalJobs.map(j => j.departments?.name).filter(Boolean))];
+
+    const filteredPortalJobs = portalJobs.filter(job => {
+      const matchSearch = !portalSearch.trim() ||
+        (job.jabatan || '').toLowerCase().includes(portalSearch.toLowerCase()) ||
+        (job.companies?.name || '').toLowerCase().includes(portalSearch.toLowerCase()) ||
+        (job.lokasi || '').toLowerCase().includes(portalSearch.toLowerCase());
+      const matchCat = portalCategory === 'Semua' || (job.departments?.name === portalCategory);
+      return matchSearch && matchCat;
+    });
+
     return (
       <div className="lk-page-wrapper">
+        {/* Header Navbar */}
         <header className="lk-header">
-          <div className="lk-header-container">
+          <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div className="lk-brand">
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
             </div>
+            <button
+              className="lk-btn-secondary-nav"
+              onClick={resetApply}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span>Kembali ke Lowongan</span>
+            </button>
           </div>
         </header>
-        <div className="lk-success-box">
-          <div className="lk-success-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+
+        <div className="lk-portal-container option2">
+          {/* Header Banner - Dark Slate Tech Style (Opsi B) */}
+          <div className="lk-tech-banner">
+            <div className="lk-tech-banner-top">
+              <div className="lk-tech-success-pill">
+                <span className="lk-tech-check-circle">✓</span>
+                <span>Aplikasi Berhasil Dikirim!</span>
+              </div>
+              <p className="lk-tech-success-sub">
+                Terima kasih telah melamar ke <strong>{companyName || 'Perusahaan'}</strong>. Berkas CV Anda <strong>({cvFile?.name || 'CV.pdf'})</strong> sedang diproses oleh tim rekrutmen.
+              </p>
+            </div>
+
+            {/* Applied Job Snippet Box */}
+            <div className="lk-tech-snippet-box">
+              <div className="lk-tech-snippet-info">
+                {companyLogoUrl ? (
+                  <img src={companyLogoUrl} alt={companyName} className="lk-tech-logo" />
+                ) : (
+                  <div className="lk-tech-logo-fallback">{(companyName || 'P')[0]}</div>
+                )}
+                <div>
+                  <h3 className="lk-tech-job-title">{seleksiData.jabatan}</h3>
+                  <span className="lk-tech-company-name">{companyName || 'PT Arkademi'} • 📍 {seleksiData.lokasi || 'Indonesia'}</span>
+                </div>
+              </div>
+              <div className="lk-tech-snippet-actions">
+                <span className="lk-tech-date-tag">Melamar pada: Hari Ini</span>
+              </div>
+            </div>
           </div>
-          <h2 className="lk-success-title">Lamaran Berhasil Terkirim!</h2>
-          <p className="lk-success-desc">
-            Terima kasih telah melamar posisi <strong>{seleksiData.jabatan}</strong>{companyName ? <> di <strong>{companyName}</strong></> : ''}. Berkas CV Anda telah kami terima dan tim rekrutmen kami akan segera meninjau kualifikasi Anda.
-          </p>
-          <button className="lk-btn-submit" style={{ maxWidth: '240px', margin: '0 auto' }} onClick={() => { setSubmitState('idle'); setCvFile(null); setForm({ nama: '', email: '', phone: '', linkedin: '' }); }}>
-            Kirim Lamaran Lain
-          </button>
+
+          {/* Section 1: Rekomendasi Lowongan Sejenis (Horizontal Scroll Carousel) */}
+          {recommendedJobs.length > 0 && (
+            <div className="lk-portal-section">
+              <div className="lk-portal-section-header flex-header">
+                <div>
+                  <h2 className="lk-portal-section-title">✨ Rekomendasi Lowongan Sejenis</h2>
+                  <p className="lk-portal-section-desc">Peluang karir terbaik berdasarkan kualifikasi & minat posisi Anda</p>
+                </div>
+                <div className="lk-carousel-nav-btns">
+                  <button
+                    className="lk-cnav-btn"
+                    onClick={() => {
+                      const el = document.getElementById('lk-rec-carousel');
+                      if (el) el.scrollBy({ left: -320, behavior: 'smooth' });
+                    }}
+                    title="Geser Kiri"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="lk-cnav-btn"
+                    onClick={() => {
+                      const el = document.getElementById('lk-rec-carousel');
+                      if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
+                    }}
+                    title="Geser Kanan"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+
+              <div id="lk-rec-carousel" className="lk-portal-carousel">
+                {recommendedJobs.map(job => (
+                  <div key={job.id} className="lk-carousel-card">
+                    <div className="lk-pjob-top">
+                      <span className="lk-carousel-match-tag">🔥 Recommended</span>
+                      {job.remote && <span className="lk-carousel-skill-tag">{job.remote}</span>}
+                    </div>
+
+                    <div className="lk-carousel-body">
+                      {job.companies?.logo_url ? (
+                        <img src={job.companies.logo_url} alt={job.companies.name} className="lk-pjob-logo" />
+                      ) : (
+                        <div className="lk-pjob-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
+                      )}
+                      <div>
+                        <h3 className="lk-pjob-title">{job.jabatan}</h3>
+                        <p className="lk-pjob-company">{job.companies?.name || 'Perusahaan'}</p>
+                      </div>
+                    </div>
+
+                    <div className="lk-pjob-meta">
+                      <span>📍 {job.lokasi || 'Indonesia'}</span>
+                      {job.departments?.name && <span>🏢 {job.departments.name}</span>}
+                    </div>
+
+                    {formatUpah(job) && (
+                      <div className="lk-pjob-salary">
+                        <span>💰 {formatUpah(job)}</span>
+                      </div>
+                    )}
+
+                    <button
+                      className="lk-pjob-btn orange-btn"
+                      onClick={() => {
+                        const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
+                        window.open(url, '_blank');
+                      }}
+                    >
+                      <span>Melamar Sekarang</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Section 2: Semua Lowongan Aktif (Clean Tech Grid) */}
+          <div className="lk-portal-section">
+            <div className="lk-portal-section-header flex-header">
+              <div>
+                <h2 className="lk-portal-section-title">🔍 Semua Lowongan Aktif di LUNA</h2>
+                <p className="lk-portal-section-desc">Eksplorasi posisi pekerjaan terbaru dari seluruh perusahaan terverifikasi</p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="lk-portal-search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  type="text"
+                  placeholder="Cari lowongan, perusahaan, atau kata kunci..."
+                  value={portalSearch}
+                  onChange={(e) => setPortalSearch(e.target.value)}
+                />
+                {portalSearch && (
+                  <button onClick={() => setPortalSearch('')} className="lk-portal-clear-search">×</button>
+                )}
+              </div>
+            </div>
+
+            {/* Category Filter Chips */}
+            {categories.length > 1 && (
+              <div className="lk-portal-chips-wrapper">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    className={`lk-portal-chip ${portalCategory === cat ? 'active' : ''}`}
+                    onClick={() => setPortalCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Tech Grid Lowongan */}
+            {filteredPortalJobs.length > 0 ? (
+              <div className="lk-portal-jobs-grid tech-grid">
+                {filteredPortalJobs.map(job => (
+                  <div key={job.id} className="lk-portal-job-card tech-card">
+                    <div className="lk-pjob-top">
+                      {job.companies?.logo_url ? (
+                        <img src={job.companies.logo_url} alt={job.companies.name} className="lk-pjob-logo" />
+                      ) : (
+                        <div className="lk-pjob-logo-fallback">{(job.companies?.name || 'P')[0]}</div>
+                      )}
+                      <span className="lk-pjob-tag">{job.departments?.name || 'Karir'}</span>
+                    </div>
+
+                    <h3 className="lk-pjob-title">{job.jabatan}</h3>
+                    <p className="lk-pjob-company">{job.companies?.name || 'Perusahaan'}</p>
+
+                    <div className="lk-pjob-meta">
+                      <span>📍 {job.lokasi || 'Indonesia'}</span>
+                      {job.remote && <span>🌐 {job.remote}</span>}
+                      {job.ikatan_kerja && <span>💼 {job.ikatan_kerja}</span>}
+                    </div>
+
+                    {formatUpah(job) && (
+                      <div className="lk-pjob-salary">
+                        <span>💰 {formatUpah(job)}</span>
+                      </div>
+                    )}
+
+                    <button
+                      className="lk-pjob-btn orange-btn"
+                      onClick={() => {
+                        const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
+                        window.open(url, '_blank');
+                      }}
+                    >
+                      <span>Melamar Sekarang</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="lk-portal-empty">
+                <p>Tidak ada lowongan yang cocok dengan pencarian Anda.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -506,7 +419,7 @@ export default function LowonganLamanKarir_001({ kode }) {
                 <div className="lw001-share-eyebrow">BAGIKAN LAMAN KARIR</div>
                 <div className="lw001-share-linkcard">
                   <span className="lw001-share-linkcard-url">{window.location.href}</span>
-                  <button type="button" className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy')}>
+                  <button type="button" className="lw001-share-linkcard-copy" onClick={() => handleShareAction('copy', onShareDone)}>
                     <IconLink />
                     {showToast ? 'Tersalin' : 'Salin'}
                   </button>
@@ -514,7 +427,7 @@ export default function LowonganLamanKarir_001({ kode }) {
                 <div className="lw001-share-divider" />
                 <div className="lw001-share-grid">
                   {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
-                    <button key={key} type="button" className="lw001-share-gridbtn" onClick={() => handleShareAction(key)}>
+                    <button key={key} type="button" className="lw001-share-gridbtn" onClick={() => handleShareAction(key, onShareDone)}>
                       <span className="lw001-share-gridbtn-icon"><Icon /></span>
                       <span className="lw001-share-gridbtn-label">{label}</span>
                     </button>
@@ -567,6 +480,32 @@ export default function LowonganLamanKarir_001({ kode }) {
                     <span className="lk-active-hiring-badge">
                       <span className="dot"></span> Lowongan Aktif
                     </span>
+
+                    {(() => {
+                      const adminActivity = getAdminActivityState(seleksiData);
+                      return (
+                        <span className={`lk-admin-activity-badge ${adminActivity.isOnline ? 'online' : ''}`}>
+                          {adminActivity.isOnline ? (
+                            <span className="online-pulse-dot" />
+                          ) : (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                            </svg>
+                          )}
+                          <span>{adminActivity.text}</span>
+                        </span>
+                      );
+                    })()}
+
+                    {typeof viewCount === 'number' && viewCount >= 0 && (
+                      <span className="lk-view-count-badge" title="Total tayangan halaman lowongan ini">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        <span>{viewCount.toLocaleString('id-ID')} Dilihat</span>
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -754,6 +693,33 @@ export default function LowonganLamanKarir_001({ kode }) {
                     <span>Jika lebih dari 1 file, harap gabungkan menjadi 1 file PDF atau DOC sebelum diunggah (bisa menggunakan <a href="https://www.ilovepdf.com/merge_pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--karir-primary)', textDecoration: 'underline', fontWeight: 600 }}>tools ini</a>).</span>
                   </div>
                 </div>
+
+                {/* Animated Upload Progress Card */}
+                {submitState === 'uploading' && (
+                  <div className="lk-upload-progress-card">
+                    <div className="lk-progress-header">
+                      <div className="lk-progress-title-wrap">
+                        <div className="lk-progress-spinner">
+                          <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--karir-primary)" strokeWidth="2.5">
+                            <circle cx="12" cy="12" r="10" strokeOpacity="0.25"></circle>
+                            <path d="M12 2a10 10 0 0 1 10 10"></path>
+                          </svg>
+                        </div>
+                        <div className="lk-progress-info">
+                          <span className="lk-progress-label">{progressText || 'Memproses berkas CV Anda...'}</span>
+                          <span className="lk-progress-filename">{cvFile?.name}</span>
+                        </div>
+                      </div>
+                      <div className="lk-progress-badge">{uploadPercent}%</div>
+                    </div>
+
+                    <div className="lk-progress-track">
+                      <div className="lk-progress-fill" style={{ width: `${Math.min(100, Math.max(10, uploadPercent))}%` }}>
+                        <div className="lk-progress-shimmer"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Submit Error Warning */}
@@ -773,7 +739,7 @@ export default function LowonganLamanKarir_001({ kode }) {
                 {submitState === 'uploading' ? (
                   <>
                     <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
-                    <span>{progressText || 'Mengirim Berkas…'}</span>
+                    <span>Memproses Lamaran ({uploadPercent}%)...</span>
                   </>
                 ) : (
                   <>
