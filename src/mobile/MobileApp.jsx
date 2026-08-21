@@ -9,6 +9,7 @@ import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx'
 import KandidatMobile from './views/kandidat/KandidatMobile.jsx';
 import KandidatTambahMobile from './views/kandidat/KandidatTambahMobile.jsx';
 import KandidatDetailMobile from './views/kandidat/KandidatDetailMobile.jsx';
+import LowonganTambahKandidatMobile from './views/lowongan/LowonganTambahKandidatMobile.jsx';
 import SebarMobile from './views/sebar/SebarMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
@@ -141,7 +142,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         </div>
       </div>
 
-      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'sebar_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
+      <div className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}>
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
           : activeMenu === 'lowongan-detail_001' ? (
@@ -162,6 +163,14 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
               back={back}
               kandidat={selectedKandidat}
               overlay={kandidatOverlay}
+            />
+          )
+          : (activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') ? (
+            <LowonganTambahKandidatMobile
+              navigate={navigate}
+              back={back}
+              seleksiId={selectedSeleksiId}
+              jabatan={seleksiJabatan}
             />
           )
           : activeMenu === 'sebar_001' ? <SebarMobile navigate={navigate} />
