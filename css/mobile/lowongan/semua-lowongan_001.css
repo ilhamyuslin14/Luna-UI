@@ -1,0 +1,90 @@
+/* Padanan mobile "Semua Lowongan" (?view=semua-lowongan) — slm- prefix.
+   Terpisah dari laman-karir.css (lk- classes, dipakai bareng LamanKarirMobile
+   & LamanPerusahaanMobile) supaya revamp ini tidak ikut mengubah halaman lain
+   yang berbagi class yang sama. Header (lk-page/lk-head/lk-logo) tetap dipakai
+   dari laman-karir.css untuk konsistensi lintas halaman publik. */
+
+.slm-page { background: var(--luna-ink-050); min-height: 100vh; font-family: 'Inter Tight', sans-serif; }
+
+/* ── Hero ── */
+.slm-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(240px 160px at 100% 0%, rgba(255, 141, 33, 0.18), transparent 65%),
+    linear-gradient(180deg, var(--luna-orange-050) 0%, #FFFAF1 100%);
+  border-bottom: 1px solid var(--luna-orange-100);
+  padding: 20px 16px 22px;
+}
+.slm-hero-rings { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.slm-hero-rings .slm-r { position: absolute; border-radius: 50%; border: 1px solid rgba(214, 104, 0, 0.22); box-shadow: none; }
+.slm-hero-rings .slm-r1 { width: 190px; height: 190px; top: -80px; right: -50px; }
+.slm-hero-rings .slm-r2 { width: 130px; height: 130px; top: -40px; right: -10px; }
+.slm-hero-rings .slm-r3 { width: 84px; height: 84px; top: -8px; right: 30px; background: rgba(255, 176, 107, 0.4); border: none; }
+.slm-hero-inner { position: relative; z-index: 1; }
+.slm-eyebrow {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--luna-orange-600);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--luna-orange-200);
+  padding: 4px 9px 4px 7px; border-radius: 20px; margin-bottom: 10px;
+}
+.slm-eyebrow .slm-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--luna-orange-500); }
+.slm-hero h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--luna-ink-900); margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.01em; max-width: 260px; }
+.slm-hero p { font-size: 12px; color: var(--luna-ink-600); margin: 0; max-width: 270px; line-height: 1.5; }
+
+/* ── Search + controls (sticky) ── */
+.slm-controls { position: sticky; top: 0; z-index: 9; background: var(--luna-ink-050); padding: 12px 16px 10px; border-bottom: 1px solid var(--luna-ink-100); }
+.slm-search { display: flex; align-items: center; gap: 8px; background: var(--luna-ink-000); border: 1px solid var(--luna-ink-200); border-radius: 11px; padding: 10px 12px; margin-bottom: 9px; }
+.slm-search svg { width: 14px; height: 14px; color: var(--luna-ink-400); flex-shrink: 0; }
+.slm-search input { border: none; outline: none; font-size: 12px; font-family: inherit; color: var(--luna-ink-900); width: 100%; background: none; }
+.slm-search input::placeholder { color: var(--luna-ink-400); }
+.slm-pillrow { display: flex; gap: 8px; }
+.slm-pill {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--luna-ink-000); border: 1px solid var(--luna-ink-200); border-radius: 10px;
+  padding: 8px 10px; font-size: 11.5px; font-weight: 600; color: var(--luna-ink-700); font-family: inherit;
+}
+.slm-pill.active { background: var(--luna-orange-050); border-color: var(--luna-orange-200); color: var(--luna-orange-600); }
+.slm-pill svg { width: 13px; height: 13px; flex-shrink: 0; }
+.slm-pill .slm-badge { background: var(--luna-orange-500); color: white; font-size: 9px; font-weight: 700; border-radius: 999px; width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; }
+
+.slm-count { padding: 12px 16px 4px; font-size: 11.5px; color: var(--luna-ink-500); }
+.slm-count b { color: var(--luna-ink-900); }
+
+/* ── Job cards ── */
+.slm-list { display: flex; flex-direction: column; gap: 10px; padding: 8px 16px 16px; }
+.slm-card { width: 100%; text-align: left; background: var(--luna-ink-000); border: 1px solid var(--luna-ink-100); border-radius: 14px; padding: 14px; font-family: inherit; }
+.slm-card-top { display: flex; align-items: flex-start; gap: 10px; }
+.slm-avatar { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 13px; overflow: hidden; }
+.slm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.slm-card-heading { flex: 1; min-width: 0; }
+.slm-card-title { font-size: 13.5px; font-weight: 700; color: var(--luna-ink-900); margin: 0 0 2px; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.3; }
+.slm-card-company { font-size: 11px; color: var(--luna-ink-500); }
+.slm-card-company b { color: var(--luna-ink-700); font-weight: 600; }
+.slm-card-salary { font-size: 12px; font-weight: 700; color: var(--luna-orange-600); margin-top: 6px; }
+.slm-chips { display: flex; gap: 5px; flex-wrap: wrap; margin: 10px 0; }
+.slm-chip { font-size: 10px; font-weight: 600; color: var(--luna-ink-600); background: var(--luna-ink-050); border-radius: 6px; padding: 3px 8px; }
+.slm-divider { height: 1px; background: var(--luna-ink-100); margin: 0 0 9px; }
+.slm-meta { display: flex; align-items: center; gap: 10px; font-size: 10.5px; color: var(--luna-ink-500); flex-wrap: wrap; row-gap: 5px; }
+.slm-meta span { display: flex; align-items: center; gap: 4px; }
+.slm-meta svg { width: 11px; height: 11px; flex-shrink: 0; opacity: 0.8; }
+
+.slm-empty { padding: 60px 20px; text-align: center; color: var(--luna-ink-400); font-size: 13px; }
+
+.slm-loadmore { margin: 4px 16px 24px; }
+.slm-loadmore button { width: 100%; background: var(--luna-ink-000); border: 1.5px solid var(--luna-orange-300); color: var(--luna-orange-600); font-weight: 700; font-size: 12.5px; border-radius: 12px; padding: 12px; font-family: inherit; }
+.slm-loadmore button:disabled { opacity: 0.5; }
+
+/* ── Filter bottom sheet — pola sama dengan .msh-sheet (shell.css) ── */
+.slm-sheet-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.slm-sheet-reset { font-size: 12px; font-weight: 600; color: var(--luna-orange-600); background: none; border: none; font-family: inherit; }
+
+.slm-fgroup { margin-bottom: 18px; }
+.slm-fgroup .slm-flabel { font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--luna-ink-400); margin-bottom: 6px; }
+.slm-fopt { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 2px; border: none; background: none; border-bottom: 1px solid var(--luna-ink-050); font-size: 13px; color: var(--luna-ink-700); font-weight: 500; font-family: inherit; text-align: left; }
+.slm-fopt .slm-cb { width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid var(--luna-ink-300); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: transparent; }
+.slm-fopt .slm-cb svg { width: 11px; height: 11px; }
+.slm-fopt .slm-cb.on { background: var(--luna-orange-500); border-color: var(--luna-orange-500); color: white; }
+.slm-sheet-cta { width: 100%; background: var(--luna-orange-500); color: white; border: none; border-radius: 12px; padding: 13px; font-size: 13px; font-weight: 700; font-family: inherit; margin-top: 6px; }

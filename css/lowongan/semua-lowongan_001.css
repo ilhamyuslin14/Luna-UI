@@ -1,0 +1,150 @@
+/* Laman publik "Semua Lowongan" (?view=semua-lowongan) — sl- prefix.
+   Terpisah dari lowongan-laman-karir_001.css (lk- classes) karena file itu
+   dipakai bareng oleh Lowongan-LamanKarir_001.jsx (halaman sukses melamar)
+   yang tidak ikut direvamp; kalau dipakai bareng, styling di sana ikut berubah. */
+
+.sl-page {
+  background: var(--luna-ink-050, #F7F7F6);
+  min-height: 100vh;
+}
+
+/* ── Hero — full-bleed ───────────────────────────────────────── */
+.sl-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(600px 320px at 88% 0%, rgba(255, 141, 33, 0.16), transparent 65%),
+    linear-gradient(180deg, var(--luna-orange-050, #FFF4DF) 0%, #FFFAF1 100%);
+  border-bottom: 1px solid var(--luna-orange-100, #FFCD90);
+  padding: 44px 32px 40px;
+}
+
+.sl-hero-rings { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.sl-hero-rings .sl-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(214, 104, 0, 0.22); box-shadow: none; }
+.sl-hero-rings .sl-ring--outer { width: 420px; height: 420px; top: -140px; right: -20px; }
+.sl-hero-rings .sl-ring--mid { width: 300px; height: 300px; top: -70px; right: 60px; }
+.sl-hero-rings .sl-ring--fill { width: 190px; height: 190px; top: -20px; right: 130px; background: rgba(255, 176, 107, 0.4); border: none; }
+
+.sl-hero-inner { max-width: 1180px; margin: 0 auto; position: relative; z-index: 1; }
+
+.sl-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--luna-orange-600, #D66800);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--luna-orange-200, #FFB76B);
+  padding: 5px 12px 5px 10px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  font-family: 'Inter Tight', sans-serif;
+}
+.sl-hero-eyebrow .sl-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--luna-orange-500, #FF7B00); }
+
+.sl-hero h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 30px; font-weight: 700; color: var(--luna-ink-900, #0A0908);
+  margin: 0 0 10px; letter-spacing: -0.01em; white-space: nowrap;
+}
+.sl-hero p { font-size: 14.5px; color: var(--luna-ink-600, #3D3B36); margin: 0; font-family: 'Inter Tight', sans-serif; }
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.sl-wrap { max-width: 1180px; margin: 0 auto; padding: 32px 32px 80px; }
+.sl-layout { display: flex; gap: 28px; align-items: flex-start; }
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sl-sidebar {
+  width: 260px; flex-shrink: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--luna-ink-100, #EFEEEC);
+  border-radius: 16px;
+  padding: 20px;
+  position: sticky;
+  top: 24px;
+  font-family: 'Inter Tight', sans-serif;
+}
+.sl-sidebar-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sl-sidebar-head h3 { font-size: 14.5px; font-weight: 700; color: var(--luna-ink-900, #0A0908); margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+.sl-sidebar-head button { background: none; border: none; font-size: 12px; font-weight: 600; color: var(--luna-orange-600, #D66800); cursor: pointer; padding: 0; font-family: inherit; }
+
+.sl-search-box { display: flex; align-items: center; gap: 8px; border: 1px solid var(--luna-ink-200, #DCDAD5); border-radius: 10px; padding: 9px 12px; margin-bottom: 20px; }
+.sl-search-box svg { color: var(--luna-ink-400, #8A8780); flex-shrink: 0; }
+.sl-search-box input { border: none; outline: none; font-size: 12.5px; font-family: inherit; color: var(--luna-ink-800, #15140F); width: 100%; background: none; }
+.sl-search-box input::placeholder { color: var(--luna-ink-400, #8A8780); }
+
+.sl-filter-group { border-top: 1px solid var(--luna-ink-100, #EFEEEC); padding-top: 16px; margin-top: 16px; }
+.sl-filter-group:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.sl-filter-group .sl-flabel { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--luna-ink-400, #8A8780); margin-bottom: 10px; }
+.sl-fopt { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--luna-ink-700, #292823); padding: 6px 0; cursor: pointer; }
+.sl-fopt input { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--luna-ink-300, #B8B5AE); accent-color: var(--luna-orange-500, #FF7B00); cursor: pointer; }
+
+/* ── Main column ─────────────────────────────────────────────── */
+.sl-main { flex: 1; min-width: 0; font-family: 'Inter Tight', sans-serif; }
+.sl-main-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.sl-count-text { font-size: 13px; color: var(--luna-ink-600, #3D3B36); }
+.sl-count-text b { color: var(--luna-ink-900, #0A0908); }
+
+.sl-sort-box { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--luna-ink-600, #3D3B36); font-weight: 600; }
+.sl-sort-select {
+  border: 1px solid var(--luna-ink-200, #DCDAD5); border-radius: 9px; padding: 7px 30px 7px 12px;
+  font-size: 12.5px; font-weight: 600; color: var(--luna-ink-800, #15140F); font-family: inherit;
+  background: #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235E5C56' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+  appearance: none; cursor: pointer;
+}
+
+.sl-job-list { display: flex; flex-direction: column; gap: 14px; }
+
+.sl-job-card {
+  background: #FFFFFF; border: 1px solid var(--luna-ink-100, #EFEEEC); border-radius: 16px;
+  padding: 22px 24px; cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+.sl-job-card:hover { box-shadow: 0 12px 30px -16px rgba(20, 18, 15, 0.2); border-color: var(--luna-ink-200, #DCDAD5); transform: translateY(-1px); }
+
+.sl-job-top { display: flex; align-items: flex-start; gap: 16px; }
+.sl-job-avatar {
+  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16px;
+  overflow: hidden;
+}
+.sl-job-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.sl-job-heading { flex: 1; min-width: 0; }
+.sl-job-title { font-size: 17px; font-weight: 700; color: var(--luna-ink-900, #0A0908); margin: 0 0 4px; font-family: 'Plus Jakarta Sans', sans-serif; }
+.sl-job-company { font-size: 13px; color: var(--luna-ink-500, #5E5C56); }
+.sl-job-company b { color: var(--luna-ink-700, #292823); font-weight: 600; }
+.sl-job-company .sl-sep { margin: 0 6px; color: var(--luna-ink-300, #B8B5AE); }
+
+.sl-job-salary { text-align: right; flex-shrink: 0; }
+.sl-job-salary .sl-amount { font-size: 15px; font-weight: 700; color: var(--luna-ink-900, #0A0908); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.sl-job-chips { display: flex; gap: 7px; flex-wrap: wrap; margin: 16px 0 16px 68px; }
+.sl-chip { font-size: 12px; font-weight: 600; color: var(--luna-ink-600, #3D3B36); background: var(--luna-ink-050, #F7F7F6); border-radius: 7px; padding: 4px 10px; }
+
+.sl-job-divider { height: 1px; background: var(--luna-ink-100, #EFEEEC); margin: 0 0 14px 68px; }
+
+.sl-job-meta { display: flex; align-items: center; gap: 18px; font-size: 12.5px; color: var(--luna-ink-500, #5E5C56); margin-left: 68px; flex-wrap: wrap; row-gap: 6px; }
+.sl-job-meta span { display: flex; align-items: center; gap: 6px; }
+.sl-job-meta svg { flex-shrink: 0; opacity: 0.8; }
+
+.sl-empty { padding: 60px 20px; text-align: center; color: var(--luna-ink-400, #8A8780); font-size: 13.5px; }
+
+/* ── Pagination ──────────────────────────────────────────────── */
+.sl-pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--luna-ink-100, #EFEEEC); }
+.sl-pagination .sl-summary { font-size: 12.5px; color: var(--luna-ink-500, #5E5C56); }
+.sl-pagination .sl-summary b { color: var(--luna-ink-800, #15140F); }
+.sl-page-controls { display: flex; align-items: center; gap: 6px; }
+.sl-page-btn {
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--luna-ink-200, #DCDAD5);
+  background: #FFFFFF; color: var(--luna-ink-600, #3D3B36); font-size: 12.5px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.sl-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sl-page-btn.active { background: var(--luna-ink-900, #0A0908); border-color: var(--luna-ink-900, #0A0908); color: white; }
+
+@media (max-width: 860px) {
+  .sl-layout { flex-direction: column; }
+  .sl-sidebar { width: 100%; position: static; }
+  .sl-hero h1 { white-space: normal; font-size: 24px; }
+  .sl-job-chips, .sl-job-divider, .sl-job-meta { margin-left: 0; }
+}

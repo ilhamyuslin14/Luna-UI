@@ -73,17 +73,19 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   object-fit: contain;
 }
 
+.lk-brand-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--luna-ink-200, #DCDAD5);
+}
+
 .lk-brand-badge {
   font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  color: var(--karir-primary);
-  background: var(--karir-primary-light);
-  padding: 4px 10px;
-  border-radius: 20px;
+  color: var(--luna-ink-400, #8A8780);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 141, 33, 0.2);
 }
 
 .lk-header-actions {

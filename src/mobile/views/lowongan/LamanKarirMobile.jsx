@@ -84,7 +84,7 @@ function Header({ onShare, shareDisabled }) {
     <div className="lk-head">
       <a className="lk-logo" href="/?view=semua-lowongan">
         <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
-        <span className="lk-logo-word">Luna</span>
+        <span className="lk-logo-divider" />
         <span className="lk-badge-portal">PORTAL KARIR</span>
       </a>
       <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
@@ -204,7 +204,7 @@ export default function LamanKarirMobile({ kode }) {
         <div className="lk-head">
           <a className="lk-logo" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
-            <span className="lk-logo-word">Luna</span>
+            <span className="lk-logo-divider" />
             <span className="lk-badge-portal">PORTAL KARIR</span>
           </a>
           <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>

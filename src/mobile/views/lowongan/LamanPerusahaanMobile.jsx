@@ -102,7 +102,7 @@ export default function LamanPerusahaanMobile({ slug }) {
       <div className="lk-head">
         <a className="lk-logo" href="/?view=semua-lowongan">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
-          <span className="lk-logo-word">Luna</span>
+          <span className="lk-logo-divider" />
           <span className="lk-badge-portal">PORTAL KARIR</span>
         </a>
         <button className="lk-share-btn" onClick={() => setShareOpen(true)} title="Bagikan"><IconShare /></button>
