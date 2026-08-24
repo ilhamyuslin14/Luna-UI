@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../../hooks/lowongan/useSemuaLowonganData.js';
 import { formatUpah } from '../../../hooks/lowongan/useLamanKarirData.js';
@@ -13,6 +13,8 @@ const IconCheck = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const IconPin = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>);
 const IconClock = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>);
 const IconBriefcase = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>);
+const IconChevronLeft = () => (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>);
+const IconChevronRight = () => (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>);
 
 // Palet avatar inisial (fallback saat perusahaan belum punya logo_url) —
 // sama persis dengan versi desktop (SemuaLowongan.jsx), deterministik dari
@@ -126,24 +128,25 @@ function FilterSheet({
 // Header tetap pakai class lk- dari laman-karir.css (dipakai bareng
 // LamanKarirMobile/LamanPerusahaanMobile untuk konsistensi), tapi hero +
 // daftar lowongan punya CSS sendiri (semua-lowongan_001.css, prefix slm-).
-// Pagination diganti "Muat Lebih Banyak" (akumulasi visibleCount) — nomor
-// halaman kecil sulit di-tap di layar sempit; sidebar filter desktop
-// dipindah jadi bottom sheet karena tidak muat di lebar mobile.
+// Pagination sama seperti desktop (nomor halaman + panah), bukan akumulasi
+// "Muat Lebih Banyak" — baris nomor dibuat scroll horizontal & auto-scroll
+// ke halaman aktif supaya tetap gampang di-tap di layar sempit; sidebar
+// filter desktop dipindah jadi bottom sheet karena tidak muat di lebar mobile.
 export default function SemuaLowonganMobile() {
   const {
-    loading, search, setSearch, sort, setSort,
+    loading, search, setSearch, sort, setSort, page, setPage,
     tipeKerja, toggleTipeKerja,
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     resetFilters, activeFilterCount,
-    sortedJobs,
+    sortedJobs, pagedJobs, totalPages,
   } = useSemuaLowonganData(8);
 
-  const PAGE_STEP = 8;
-  const [visibleCount, setVisibleCount] = useState(PAGE_STEP);
-  useEffect(() => { setVisibleCount(PAGE_STEP); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket]);
-  const visibleJobs = sortedJobs.slice(0, visibleCount);
-  const hasMore = visibleCount < sortedJobs.length;
+  const pageRowRef = useRef(null);
+  useEffect(() => {
+    const activeBtn = pageRowRef.current?.querySelector('.slm-page-btn.active');
+    activeBtn?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }, [page]);
 
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -196,11 +199,11 @@ export default function SemuaLowonganMobile() {
 
       {loading ? (
         <div className="slm-empty">Memuat lowongan…</div>
-      ) : visibleJobs.length === 0 ? (
+      ) : pagedJobs.length === 0 ? (
         <div className="slm-empty">Tidak ada lowongan yang cocok dengan pencarian Anda.</div>
       ) : (
         <div className="slm-list">
-          {visibleJobs.map(job => {
+          {pagedJobs.map(job => {
             const companyName = job.companies?.name || 'Perusahaan';
             return (
               <button type="button" className="slm-card" key={job.id} onClick={() => goToJob(job)}>
@@ -236,9 +239,36 @@ export default function SemuaLowonganMobile() {
         </div>
       )}
 
-      {!loading && hasMore && (
-        <div className="slm-loadmore">
-          <button type="button" onClick={() => setVisibleCount(c => c + PAGE_STEP)}>Muat Lebih Banyak</button>
+      {!loading && sortedJobs.length > 0 && totalPages > 1 && (
+        <div className="slm-pagination">
+          <button
+            type="button"
+            className="slm-page-arrow"
+            disabled={page <= 1}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+          >
+            <IconChevronLeft />
+          </button>
+          <div className="slm-page-row" ref={pageRowRef}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button
+                key={p}
+                type="button"
+                className={`slm-page-btn${p === page ? ' active' : ''}`}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="slm-page-arrow"
+            disabled={page >= totalPages}
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+          >
+            <IconChevronRight />
+          </button>
         </div>
       )}
 

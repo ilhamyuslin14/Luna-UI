@@ -73,9 +73,23 @@
 
 .slm-empty { padding: 60px 20px; text-align: center; color: var(--luna-ink-400); font-size: 13px; }
 
-.slm-loadmore { margin: 4px 16px 24px; }
-.slm-loadmore button { width: 100%; background: var(--luna-ink-000); border: 1.5px solid var(--luna-orange-300); color: var(--luna-orange-600); font-weight: 700; font-size: 12.5px; border-radius: 12px; padding: 12px; font-family: inherit; }
-.slm-loadmore button:disabled { opacity: 0.5; }
+.slm-pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 16px 24px; }
+.slm-page-arrow {
+  flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  background: var(--luna-ink-000); border: 1px solid var(--luna-ink-200); border-radius: 10px; color: var(--luna-ink-700);
+}
+.slm-page-arrow:disabled { opacity: 0.4; }
+.slm-page-row {
+  flex: 0 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; overflow-x: auto; scroll-behavior: smooth;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.slm-page-row::-webkit-scrollbar { display: none; }
+.slm-page-btn {
+  flex-shrink: 0; min-width: 36px; height: 36px; padding: 0 4px; display: flex; align-items: center; justify-content: center;
+  background: var(--luna-ink-000); border: 1px solid var(--luna-ink-200); border-radius: 10px;
+  font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--luna-ink-700);
+}
+.slm-page-btn.active { background: var(--luna-ink-900); border-color: var(--luna-ink-900); color: white; }
 
 /* ── Filter bottom sheet — pola sama dengan .msh-sheet (shell.css) ── */
 .slm-sheet-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
