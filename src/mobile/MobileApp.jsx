@@ -6,6 +6,7 @@ import BerandaMobile from './views/beranda/BerandaMobile.jsx';
 import LowonganMobile from './views/lowongan/LowonganMobile.jsx';
 import LowonganDetailMobile from './views/lowongan/LowonganDetailMobile.jsx';
 import MobileBuatLowonganForm from './views/lowongan/MobileBuatLowonganForm.jsx';
+import MobileBuatLowonganQA from './views/lowongan/MobileBuatLowonganQA.jsx';
 import KandidatMobile from './views/kandidat/KandidatMobile.jsx';
 import KandidatTambahMobile from './views/kandidat/KandidatTambahMobile.jsx';
 import LowonganTambahKandidatMobile from './views/lowongan/LowonganTambahKandidatMobile.jsx';
@@ -17,6 +18,7 @@ import SemuaAktivitasMobile from './views/notifikasi/SemuaAktivitasMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
 import MobileScoringWidget from './components/MobileScoringWidget.jsx';
+import OnboardingMobile from './views/onboarding/OnboardingMobile.jsx';
 
 const IcBeranda = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -121,7 +123,7 @@ function DummyPage({ menu }) {
 }
 
 export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab, seleksiOverlay, selectedKandidat, kandidatOverlay, shellPanel, openShellPanel }) {
-  const { user, logout, companyId } = useAuth();
+  const { user, logout, companyId, onboardingCompleted } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   // Pencarian global dibuka lewat history entry (openShellPanel/back), bukan
@@ -140,6 +142,14 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0;
   }, [activeMenu, selectedSeleksiId, selectedKandidat]);
+
+  // Padanan mobile dari OnboardingModal.jsx (desktop) — di App.jsx modal itu
+  // dirender sebagai sibling renderView() jadi selalu muncul di atas halaman
+  // apa pun, tapi tidak pernah disentuh sama sekali di sisi mobile sebelum
+  // ini, sehingga user mobile lolos tanpa pernah mengisi profil perusahaan.
+  if (user && !onboardingCompleted) {
+    return <OnboardingMobile />;
+  }
 
   const profileName = user?.user_metadata?.nama_lengkap || user?.user_metadata?.full_name || 'User';
   const profileEmail = user?.email || '';
@@ -186,7 +196,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
 
       <div
         ref={contentRef}
-        className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001', 'pengguna-akun', 'bantuan_001', 'semua-aktivitas_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}
+        className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'buat-lowongan-panduan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001', 'pengguna-akun', 'bantuan_001', 'semua-aktivitas_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}
       >
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
@@ -201,6 +211,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
             />
           )
           : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
+          : activeMenu === 'buat-lowongan-panduan_001' ? <MobileBuatLowonganQA navigate={navigate} back={back} />
           : activeMenu === 'kandidat_001' ? <KandidatMobile navigate={navigate} />
           : activeMenu === 'kandidat-tambah' ? <KandidatTambahMobile navigate={navigate} back={back} />
           : (activeMenu === 'seleksi-tambah-kandidat' || activeMenu === 'lowongan-tambah-kandidat') ? (

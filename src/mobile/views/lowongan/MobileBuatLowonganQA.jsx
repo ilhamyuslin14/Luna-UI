@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import useBuatLowonganPanduan, { buildLamanKarirUrl } from '../../../hooks/lowongan/useBuatLowonganPanduan.js';
+import { buildLamanKarirUrl } from '../../../hooks/lowongan/useBuatLowonganPanduan.js';
+import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPanduanContext.jsx';
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 
@@ -42,11 +43,31 @@ const FREE_INPUT_MAX_ROWS = 6;
 function autoResizeTextarea(el) {
   if (!el) return;
   el.style.height = 'auto';
-  const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+  const styles = getComputedStyle(el);
+  const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.4 || 20;
   const minHeight = lineHeight * FREE_INPUT_MIN_ROWS;
   const maxHeight = lineHeight * FREE_INPUT_MAX_ROWS;
-  el.style.height = `${Math.max(minHeight, Math.min(el.scrollHeight, maxHeight))}px`;
-  el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  // Baca scrollHeight SEKALI lalu simpan — membaca ulang setelah style.height
+  // di-set bisa balik memberi angka beda (lebar konten ikut berubah begitu
+  // scrollbar muncul/hilang), yang bikin tinggi ke-apply lebih kecil dari
+  // tinggi konten sebenarnya (teks kepotong tanpa scrollbar).
+  const contentHeight = el.scrollHeight;
+  el.style.height = `${Math.max(minHeight, Math.min(contentHeight, maxHeight))}px`;
+  el.style.overflowY = contentHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+// Dipanggil lewat ref (bukan cuma onChange) supaya textarea yang mount
+// dengan teks yang SUDAH panjang (bukan hasil ngetik — mis. jawaban yang
+// dibawa lewat BuatLowonganPanduanContext saat pindah desktop<->mobile di
+// tengah wizard) ikut ukurannya benar sejak awal, bukan nyangkut di tinggi
+// 1 baris sampai user ngetik satu huruf lagi. Diukur dua kali: sekali saat
+// mount, sekali lagi setelah font web (Inter Tight) selesai di-swap browser
+// — pengukuran pertama sering keburu jalan dengan metrik font fallback,
+// jadi hasilnya lebih pendek dari yang sebenarnya kalau tidak diukur ulang.
+function initAutoResize(el) {
+  if (!el) return;
+  autoResizeTextarea(el);
+  document.fonts.ready.then(() => autoResizeTextarea(el));
 }
 
 // Satu badge loading dipakai ulang di beberapa momen (antar pertanyaan, draf
@@ -116,24 +137,20 @@ function Confetti() {
   );
 }
 
-export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
-  const { companyId, companyPlan, companyName } = useAuth() || {};
+export default function MobileBuatLowonganQA({ navigate, back }) {
+  const { companyName } = useAuth() || {};
   const {
     step, questionNumber, totalQuestions, currentQuestion, currentAnswer, hasAnswer, qaHistory,
     draft, publishedSeleksiId, publishedKode, errorMessage, fixText, setFixText,
     toggleOption, setText, nextQuestion, restart,
     openFixInput, closeFixInput, regenerate, publishDraft,
     retryLastAction, goBackFromError,
-  } = useBuatLowonganPanduan(companyId, companyPlan);
+  } = useBuatLowonganPanduanContext();
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
   const publishedUrl = buildLamanKarirUrl({ companyName, jabatan: draft?.jobTitle, kode: publishedKode });
-
-  useEffect(() => {
-    if (open) restart();
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (message, sub) => {
     setToast({ message, sub });
@@ -151,13 +168,12 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
     }
   };
 
-  const mulaiSebar = () => { onClose(); navigate('sebar_001'); };
+  const mulaiSebar = () => navigate('sebar_001');
 
   // Lowongan sudah beneran tersimpan (publishDraft menulis ke DB), jadi
   // seleksiId-nya sudah pasti ada — tidak perlu lagi menebak "yang terakhir
   // dibuat" seperti versi dummy sebelumnya.
   const lihatLowongan = () => {
-    onClose();
     if (publishedSeleksiId) {
       navigate('lowongan-detail_001', { seleksiId: publishedSeleksiId, jabatan: draft?.jobTitle, activeTab: 'ringkasan' });
     } else {
@@ -167,12 +183,12 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
 
   return createPortal(
     <>
-      <div className={`msh-fullscreen-panel${open ? ' open' : ''}`}>
+      <div className="msh-fullscreen-panel open">
         {(step === 'qa' || step === 'loading-next' || step === 'loading-summary') && (
           <>
             <div className="mblw-rail"><div className="mblw-rail-fill" style={{ width: `${(questionNumber / totalQuestions) * 100}%` }} /></div>
             <div className="mblw-top">
-              <button className="mblw-close" onClick={onClose}><IconClose /></button>
+              <button className="mblw-close" onClick={back}><IconClose /></button>
               <span className="mblw-progress-label">Pertanyaan {questionNumber} dari {totalQuestions}</span>
             </div>
 
@@ -220,6 +236,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
                         rows={FREE_INPUT_MIN_ROWS}
                         placeholder="Tulis jawabanmu di sini…"
                         value={currentAnswer.text}
+                        ref={initAutoResize}
                         onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                       />
                     </>
@@ -232,6 +249,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
                         rows={FREE_INPUT_MIN_ROWS}
                         placeholder={currentQuestion.placeholder}
                         value={currentAnswer.text}
+                        ref={initAutoResize}
                         onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                       />
                     </>
@@ -253,7 +271,7 @@ export default function MobileBuatLowonganQA({ open, onClose, navigate }) {
         {step === 'summary' && (
           <>
             <div className="mblw-sum-top">
-              <button className="mblw-close" onClick={onClose}><IconClose /></button>
+              <button className="mblw-close" onClick={back}><IconClose /></button>
             </div>
             <div className="mblw-sum-body">
               <span className="mblw-sum-eyebrow"><IconAi />Dirangkum otomatis dari {qaHistory.length} jawaban Anda</span>

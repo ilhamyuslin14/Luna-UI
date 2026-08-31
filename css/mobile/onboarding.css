@@ -1,0 +1,251 @@
+/* Onboarding mobile (profil perusahaan pertama kali) — onbm- prefix.
+   Chrome dari .msh-fullscreen-panel & .msh-sheet, lihat shell.css. */
+
+.onbm-panel { background: #ffffff; }
+
+.onbm-rail { height: 3px; background: var(--luna-ink-100); flex-shrink: 0; }
+.onbm-rail-fill { height: 100%; background: var(--luna-orange-500); transition: width 0.35s ease; }
+
+.onbm-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px 0;
+  flex-shrink: 0;
+  min-height: 30px;
+}
+
+.onbm-back {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--luna-ink-050);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--luna-ink-700);
+  flex-shrink: 0;
+}
+.onbm-back svg { width: 14px; height: 14px; }
+
+.onbm-progress-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--luna-orange-600);
+}
+
+.onbm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 18px 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.onbm-question {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: var(--luna-ink-900);
+}
+
+.onbm-subnote { font-size: 13px; color: var(--luna-ink-500); line-height: 1.5; margin: 0 0 24px; }
+
+.onbm-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--luna-ink-600);
+  margin-bottom: 9px;
+  display: block;
+}
+
+.onbm-optional { font-weight: 500; color: var(--luna-ink-400); }
+
+.onbm-pick-field {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  border: 1.5px solid var(--luna-ink-200);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--luna-ink-300);
+  text-align: left;
+}
+.onbm-pick-field.filled { color: var(--luna-ink-900); font-weight: 600; }
+.onbm-pick-field svg { width: 16px; height: 16px; color: var(--luna-ink-400); flex-shrink: 0; }
+.onbm-pick-field:active { border-color: var(--luna-orange-400); }
+
+.onbm-input {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  border: 1.5px solid var(--luna-ink-200);
+  background: #ffffff;
+  padding: 0 15px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--luna-ink-900);
+  outline: none;
+}
+.onbm-input:focus { border-color: var(--luna-orange-400); }
+.onbm-input::placeholder { color: var(--luna-ink-300); }
+
+.onbm-phone-row { display: flex; gap: 8px; }
+.onbm-phone-prefix {
+  height: 50px;
+  padding: 0 13px;
+  border-radius: 14px;
+  border: 1.5px solid var(--luna-ink-200);
+  background: var(--luna-ink-050);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--luna-ink-600);
+  flex-shrink: 0;
+}
+
+.onbm-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.onbm-chip {
+  padding: 10px 15px;
+  border-radius: 999px;
+  border: 1.5px solid var(--luna-ink-200);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--luna-ink-600);
+}
+.onbm-chip.active { background: var(--luna-ink-900); border-color: var(--luna-ink-900); color: #fff; }
+
+.onbm-hint {
+  margin-top: 22px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: var(--luna-orange-050);
+  border: 1px solid var(--luna-orange-100);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--luna-ink-600);
+}
+
+.onbm-error { font-size: 12.5px; color: var(--luna-semantic-error); margin: 14px 0 0; }
+
+.onbm-footer {
+  padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 10px));
+  border-top: 1px solid var(--luna-ink-100);
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.onbm-next-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--luna-orange-400), var(--luna-orange-500));
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(255, 123, 0, 0.28);
+}
+.onbm-next-btn svg { width: 15px; height: 15px; }
+.onbm-next-btn:disabled { opacity: 0.4; box-shadow: none; }
+
+.onbm-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: onbm-spin 0.7s linear infinite;
+}
+@keyframes onbm-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .onbm-spinner { animation: none; }
+}
+
+/* ── Sukses ── */
+.onbm-success {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12vh 28px 24px;
+}
+
+.onbm-success-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--luna-orange-500);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px -8px rgba(255, 123, 0, 0.5);
+  margin-bottom: 18px;
+}
+.onbm-success-badge svg { width: 26px; height: 26px; }
+
+.onbm-success-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 23px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+  margin: 0 0 8px;
+}
+
+.onbm-success-sub { font-size: 13.5px; color: var(--luna-ink-500); line-height: 1.55; max-width: 26ch; margin: 0; }
+
+.onbm-recap {
+  width: 100%;
+  margin-top: 22px;
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 16px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.onbm-recap-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--luna-ink-050);
+  font-size: 12.5px;
+}
+.onbm-recap-row:last-child { border-bottom: none; padding-bottom: 0; }
+.onbm-recap-row:first-child { padding-top: 0; }
+.onbm-recap-row span { color: var(--luna-ink-400); flex-shrink: 0; }
+.onbm-recap-row b { color: var(--luna-ink-900); font-weight: 700; text-align: right; }
+
+/* ── Sheet pilih industri (chrome dari .msh-sheet, shell.css) ── */
+.onbm-sheet-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--luna-ink-900);
+  padding: 2px 4px 12px;
+}
+.onbm-sheet .msh-sheet-item.selected { color: var(--luna-orange-600); }
+.onbm-sheet .msh-sheet-item.selected svg { color: var(--luna-orange-500); }
+.onbm-sheet .msh-sheet-item { justify-content: space-between; }

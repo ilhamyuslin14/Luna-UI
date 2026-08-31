@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPanduanContext.jsx';
 import useBerandaData from '../../../hooks/beranda/useBerandaData.js';
 import MobileBuatLowonganChoice from '../lowongan/MobileBuatLowonganChoice.jsx';
-import MobileBuatLowonganQA from '../lowongan/MobileBuatLowonganQA.jsx';
 import '../../../../css/mobile/beranda.css';
 
 const IconPlus = () => (
@@ -78,6 +78,7 @@ const STEPS = [
 
 export default function BerandaMobile({ navigate }) {
   const { user, profileName, companyName, companyId } = useAuth() || {};
+  const wizardPanduan = useBuatLowonganPanduanContext();
   const userName = profileName || user?.user_metadata?.full_name || 'HR Team';
   const companyDisplay = companyName || 'Perusahaan Anda';
 
@@ -86,7 +87,6 @@ export default function BerandaMobile({ navigate }) {
   const [shareJob, setShareJob] = useState(null);
   const [toastMsg, setToastMsg] = useState(null);
   const [showCreateChoice, setShowCreateChoice] = useState(false);
-  const [showGuidedFlow, setShowGuidedFlow] = useState(false);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -239,13 +239,8 @@ export default function BerandaMobile({ navigate }) {
       <MobileBuatLowonganChoice
         open={showCreateChoice}
         onClose={() => setShowCreateChoice(false)}
-        onPilihPanduan={() => { setShowCreateChoice(false); setShowGuidedFlow(true); }}
+        onPilihPanduan={() => { setShowCreateChoice(false); wizardPanduan.restart(); navigate('buat-lowongan-panduan_001'); }}
         onPilihForm={() => { setShowCreateChoice(false); navigate('buat-lowongan_001'); }}
-      />
-      <MobileBuatLowonganQA
-        open={showGuidedFlow}
-        onClose={() => setShowGuidedFlow(false)}
-        navigate={navigate}
       />
     </>
   );

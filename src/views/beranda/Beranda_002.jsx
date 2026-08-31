@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import useBerandaData from '../../hooks/beranda/useBerandaData.js';
 import PopupPilihanBuatLowongan from '../../components/PopupPilihanBuatLowongan.jsx';
 import '../../../css/beranda/beranda_002.css';
@@ -57,6 +58,7 @@ const SHARE_PLATFORMS = [
 
 export default function Beranda_002({ navigate }) {
   const { user, profileName, companyName, companyId } = useAuth() || {};
+  const wizardPanduan = useBuatLowonganPanduanContext();
   const userName = profileName || user?.user_metadata?.full_name || 'HR Team';
   const companyDisplay = companyName || 'Perusahaan Anda';
 
@@ -513,7 +515,7 @@ export default function Beranda_002({ navigate }) {
       {showCreateChoice && (
         <PopupPilihanBuatLowongan
           onClose={() => setShowCreateChoice(false)}
-          onPilihPanduan={() => { setShowCreateChoice(false); navigate('buat-lowongan-panduan_001'); }}
+          onPilihPanduan={() => { setShowCreateChoice(false); wizardPanduan.restart(); navigate('buat-lowongan-panduan_001'); }}
           onPilihForm={() => { setShowCreateChoice(false); navigate('buat-lowongan_001'); }}
         />
       )}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import { updateSeleksiStatus, archiveSeleksi } from '../../services/seleksiService.js';
 import { invalidate } from '../../services/dataCache.js';
 import useLowonganData, { STATUS_CONFIG, STATUS_TO_DB, applyStatusFilters } from '../../hooks/lowongan/useLowonganData.js';
@@ -127,6 +128,7 @@ function buildBoardFromData(alurList, rows, maxAlurMap) {
 
 export default function Lowongan_001({ navigate, searchQuery = '' }) {
   const { companyId, companyPlan, companyName } = useAuth();
+  const wizardPanduan = useBuatLowonganPanduanContext();
   const {
     isFreePlan, statusConfigEntries,
     rows, setRows, alurList, maxAlurMap, isLoading,
@@ -691,7 +693,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
       {showCreateChoice && (
         <PopupPilihanBuatLowongan
           onClose={() => setShowCreateChoice(false)}
-          onPilihPanduan={() => { setShowCreateChoice(false); navigate('buat-lowongan-panduan_001'); }}
+          onPilihPanduan={() => { setShowCreateChoice(false); wizardPanduan.restart(); navigate('buat-lowongan-panduan_001'); }}
           onPilihForm={() => { setShowCreateChoice(false); navigate('setup-penilaian_001'); }}
         />
       )}

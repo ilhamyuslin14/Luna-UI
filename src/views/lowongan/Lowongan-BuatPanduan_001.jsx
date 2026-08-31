@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Toast from '../../components/Toast.jsx';
 import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
-import useBuatLowonganPanduan, { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
+import { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
+import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const IconAi = () => (
@@ -42,11 +43,31 @@ const FREE_INPUT_MAX_ROWS = 6;
 function autoResizeTextarea(el) {
   if (!el) return;
   el.style.height = 'auto';
-  const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+  const styles = getComputedStyle(el);
+  const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.4 || 20;
   const minHeight = lineHeight * FREE_INPUT_MIN_ROWS;
   const maxHeight = lineHeight * FREE_INPUT_MAX_ROWS;
-  el.style.height = `${Math.max(minHeight, Math.min(el.scrollHeight, maxHeight))}px`;
-  el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  // Baca scrollHeight SEKALI lalu simpan — membaca ulang setelah style.height
+  // di-set bisa balik memberi angka beda (lebar konten ikut berubah begitu
+  // scrollbar muncul/hilang), yang bikin tinggi ke-apply lebih kecil dari
+  // tinggi konten sebenarnya (teks kepotong tanpa scrollbar).
+  const contentHeight = el.scrollHeight;
+  el.style.height = `${Math.max(minHeight, Math.min(contentHeight, maxHeight))}px`;
+  el.style.overflowY = contentHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+// Dipanggil lewat ref (bukan cuma onChange) supaya textarea yang mount
+// dengan teks yang SUDAH panjang (bukan hasil ngetik — mis. jawaban yang
+// dibawa lewat BuatLowonganPanduanContext saat pindah desktop<->mobile di
+// tengah wizard) ikut ukurannya benar sejak awal, bukan nyangkut di tinggi
+// 1 baris sampai user ngetik satu huruf lagi. Diukur dua kali: sekali saat
+// mount, sekali lagi setelah font web (Inter Tight) selesai di-swap browser
+// — pengukuran pertama sering keburu jalan dengan metrik font fallback,
+// jadi hasilnya lebih pendek dari yang sebenarnya kalau tidak diukur ulang.
+function initAutoResize(el) {
+  if (!el) return;
+  autoResizeTextarea(el);
+  document.fonts.ready.then(() => autoResizeTextarea(el));
 }
 
 // Satu badge loading dipakai ulang di beberapa momen (antar pertanyaan, draf
@@ -79,14 +100,14 @@ function ErrorState({ message, onRetry, onBack }) {
 }
 
 export default function LowonganBuatPanduan_001({ navigate, back }) {
-  const { companyId, companyPlan, companyName } = useAuth() || {};
+  const { companyName } = useAuth() || {};
   const {
     step, questionNumber, totalQuestions, currentQuestion, currentAnswer, hasAnswer, qaHistory,
     draft, publishedSeleksiId, publishedKode, errorMessage, fixText, setFixText,
     toggleOption, setText, nextQuestion, restart,
     openFixInput, closeFixInput, regenerate, publishDraft,
     retryLastAction, goBackFromError,
-  } = useBuatLowonganPanduan(companyId, companyPlan);
+  } = useBuatLowonganPanduanContext();
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
@@ -181,6 +202,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
                       rows={FREE_INPUT_MIN_ROWS}
                       placeholder="Tulis jawabanmu di sini…"
                       value={currentAnswer.text}
+                      ref={initAutoResize}
                       onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                     />
                   </>
@@ -193,6 +215,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
                       rows={FREE_INPUT_MIN_ROWS}
                       placeholder={currentQuestion.placeholder}
                       value={currentAnswer.text}
+                      ref={initAutoResize}
                       onChange={e => { setText(e.target.value); autoResizeTextarea(e.target); }}
                     />
                   </>

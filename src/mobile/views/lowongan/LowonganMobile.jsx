@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPanduanContext.jsx';
 import useLowonganData from '../../../hooks/lowongan/useLowonganData.js';
 import useVirtualizedList from '../../../hooks/useVirtualizedList.js';
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
 import MobileAlphaIndex from '../../components/MobileAlphaIndex.jsx';
 import MobileBuatLowonganChoice from './MobileBuatLowonganChoice.jsx';
-import MobileBuatLowonganQA from './MobileBuatLowonganQA.jsx';
 import '../../../../css/mobile/lowongan/lowongan.css';
 
 const STATUS_DOT = {
@@ -95,6 +95,7 @@ const QUICK_CHIPS = ['Aktif', 'Rencana', 'Selesai'];
 
 export default function LowonganMobile({ navigate }) {
   const { companyId, companyPlan, companyName } = useAuth() || {};
+  const wizardPanduan = useBuatLowonganPanduanContext();
   const [searchText, setSearchText] = useState('');
 
   const {
@@ -121,7 +122,6 @@ export default function LowonganMobile({ navigate }) {
   const [actionRow, setActionRow] = useState(null);
   const [shareRow, setShareRow] = useState(null);
   const [showCreateChoice, setShowCreateChoice] = useState(false);
-  const [showGuidedFlow, setShowGuidedFlow] = useState(false);
 
   // Sama seperti Kandidat: filteredRows sudah lengkap di memori, jadi tidak
   // ada lagi "load more" berbasis fetch — seluruh list divirtualisasi,
@@ -393,13 +393,8 @@ export default function LowonganMobile({ navigate }) {
       <MobileBuatLowonganChoice
         open={showCreateChoice}
         onClose={() => setShowCreateChoice(false)}
-        onPilihPanduan={() => { setShowCreateChoice(false); setShowGuidedFlow(true); }}
+        onPilihPanduan={() => { setShowCreateChoice(false); wizardPanduan.restart(); navigate('buat-lowongan-panduan_001'); }}
         onPilihForm={() => { setShowCreateChoice(false); navigate('buat-lowongan_001'); }}
-      />
-      <MobileBuatLowonganQA
-        open={showGuidedFlow}
-        onClose={() => setShowGuidedFlow(false)}
-        navigate={navigate}
       />
     </>
   );

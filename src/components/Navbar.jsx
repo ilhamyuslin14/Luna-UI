@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '../context/AuthContext.jsx';
+import { useBuatLowonganPanduanContext } from '../context/BuatLowonganPanduanContext.jsx';
 import useUniversalSearch from '../hooks/navbar/useUniversalSearch.js';
 import useNotifications from '../hooks/navbar/useNotifications.js';
 import Highlight from './Highlight.jsx';
@@ -47,6 +48,7 @@ const HINTS = {
 
 export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJabatan }) {
   const { companyId, user, logout } = useAuth();
+  const wizardPanduan = useBuatLowonganPanduanContext();
   const [notifOpen, setNotifOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -461,7 +463,7 @@ export default function Navbar({ navigate, activeMenu = 'beranda_002', seleksiJa
       {showCreateChoice && (
         <PopupPilihanBuatLowongan
           onClose={() => setShowCreateChoice(false)}
-          onPilihPanduan={() => { setShowCreateChoice(false); navigate?.('buat-lowongan-panduan_001'); }}
+          onPilihPanduan={() => { setShowCreateChoice(false); wizardPanduan.restart(); navigate?.('buat-lowongan-panduan_001'); }}
           onPilihForm={() => { setShowCreateChoice(false); navigate?.('buat-lowongan_001'); }}
         />
       )}
