@@ -66,6 +66,7 @@ export default function OnboardingMobile() {
         .eq('id', user.id);
       if (profileErr) throw profileErr;
 
+      localStorage.setItem('luna_trigger_tour', 'true');
       setStep('success');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan data. Coba lagi.');

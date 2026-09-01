@@ -18,6 +18,7 @@ import SemuaAktivitasMobile from './views/notifikasi/SemuaAktivitasMobile.jsx';
 import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
 import MobileScoringWidget from './components/MobileScoringWidget.jsx';
+import MobileTourGuide from './components/MobileTourGuide.jsx';
 import OnboardingMobile from './views/onboarding/OnboardingMobile.jsx';
 
 const IcBeranda = () => (
@@ -250,6 +251,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         {TABS.map(({ menu, label, Icon }) => (
           <button
             key={menu}
+            data-menu={menu}
             className={`msh-tab${isTabActive(activeMenu, menu) ? ' active' : ''}`}
             onClick={() => goTo(menu)}
           >
@@ -307,6 +309,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
         markAllAsRead={notif.markAllAsRead}
       />
       <MobileScoringWidget />
+      <MobileTourGuide navigate={navigate} />
     </div>
   );
 }
