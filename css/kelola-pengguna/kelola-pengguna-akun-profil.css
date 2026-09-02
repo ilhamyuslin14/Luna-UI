@@ -61,6 +61,39 @@
     line-height: 1.2;
 }
 
+.pap-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+}
+
+.pap-view-laman-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid var(--luna-orange-400);
+    color: var(--luna-orange-400);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+    padding: 0 14px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.pap-view-laman-btn:hover {
+    background: var(--luna-orange-500);
+    color: #ffffff;
+}
+
 /* Content Section */
 .pap-content {
     display: flex;

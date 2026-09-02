@@ -20,6 +20,12 @@ const UploadIcon = () => (
   </svg>
 );
 
+const IconEye = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
 // ── Toolbar icons for Rich Text Deskripsi Editor ──
 const IcOrderedList = () => (
   <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
@@ -320,7 +326,20 @@ export default function KelolaPenggunaAkunProfil() {
       <div className="pap-wrapper">
 
         <div className="pap-header">
-          <h1 className="pap-page-title">Akun dan Profil</h1>
+          <div className="pap-header-row">
+            <h1 className="pap-page-title">Akun dan Profil</h1>
+            {companyDetails?.slug && (
+              <a
+                className="pap-view-laman-btn"
+                href={`/?view=laman-perusahaan&slug=${encodeURIComponent(companyDetails.slug)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconEye />
+                Lihat Laman Perusahaan
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="pap-content">
