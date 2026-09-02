@@ -83,17 +83,10 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    // Mengecek sesi aktif saat pertama kali muat
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchCompanyId(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    // Mendengarkan perubahan status autentikasi (login, logout, token refresh)
+    // onAuthStateChange sudah fire sekali dengan sesi saat ini begitu di-subscribe
+    // (event INITIAL_SESSION), jadi tidak perlu getSession() terpisah di atasnya —
+    // dulu ada dua-duanya dan berjalan paralel, menggandakan round-trip ke Supabase
+    // di setiap muat halaman.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -171,7 +164,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
