@@ -172,7 +172,7 @@ export default function LandingPageDaftar_001({ navigate }) {
             <div className="lpm-heading-text">
               <h2 className="lpm-title">{role === 'hr' ? 'Mulai Perjalanan Anda' : 'Selamat Datang di LUNA'}</h2>
               <p className="lpm-subtitle">
-                {role === 'hr' ? 'Daftar untuk menikmati trial 14 hari gratis.' : 'Pilih peran Anda untuk melanjutkan pendaftaran.'}
+                {role === 'hr' ? 'Daftar dan langsung mulai pakai LUNA, gratis.' : 'Pilih peran Anda untuk melanjutkan pendaftaran.'}
               </p>
             </div>
           </div>

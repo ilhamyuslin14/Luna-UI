@@ -113,7 +113,7 @@ export default function LandingPageDaftar({ navigate }) {
           {/* Heading */}
           <div className="lpm-heading">
             <h2 className="lpm-title">Mulai Perjalanan Anda</h2>
-            <p className="lpm-subtitle">Daftar untuk menikmati trial 14 hari gratis.</p>
+            <p className="lpm-subtitle">Daftar dan langsung mulai pakai LUNA, gratis.</p>
           </div>
 
           {errorMsg && (

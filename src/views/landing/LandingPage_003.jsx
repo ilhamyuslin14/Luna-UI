@@ -72,13 +72,13 @@ const COMPARISON_ROWS = [
   { label: 'Pelamar dinilai dan diurutkan otomatis', googleForm: false, jobPortal: false },
   { label: 'Alur dari lamaran sampai diterima', googleForm: false, jobPortal: false },
   { label: 'Bisa ditemukan di Google', googleForm: false, jobPortal: true },
-  { label: 'Lowongan & pelamar tanpa batas, gratis', googleForm: true, jobPortal: false },
+  { label: 'Pelamar & CV tersimpan tanpa batas, gratis', googleForm: true, jobPortal: false },
 ];
 
 const FAQ_ITEMS = [
   {
-    q: 'Apa yang terjadi kalau 14 hari free trial saya habis?',
-    a: 'Akun otomatis turun ke paket Free — bukan hilang. Anda tetap bisa pakai 1 lowongan aktif, pipeline hiring, dan semua data kandidat lama tetap tersimpan. Upgrade kapan saja saat siap.',
+    q: 'Apakah LUNA benar-benar gratis, tanpa trial atau kartu kredit?',
+    a: 'Ya. Tidak ada masa trial dan tidak perlu kartu kredit — begitu daftar, akun Anda langsung bisa dipakai gratis selamanya.',
   },
   {
     q: 'Apakah pelamar perlu membuat akun untuk melamar?',
@@ -90,15 +90,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Bisa pakai lebih dari satu lowongan sekaligus?',
-    a: 'Di paket Free hanya 1 lowongan aktif. Basic menampung sampai 15 lowongan, Plus tidak terbatas.',
+    a: 'Saat ini LUNA mendukung 1 lowongan aktif dalam satu waktu. Anda bisa mengganti lowongan aktif kapan saja tanpa biaya tambahan, dan seluruh data kandidat dari lowongan sebelumnya tetap tersimpan.',
   },
   {
     q: 'Apakah data kandidat dan perusahaan saya aman?',
     a: 'Data disimpan terenkripsi dan hanya bisa diakses oleh tim Anda. LUNA tidak pernah membagikan data kandidat ke pihak ketiga.',
-  },
-  {
-    q: 'Bisa ganti paket atau berhenti berlangganan kapan saja?',
-    a: 'Bisa. Upgrade, downgrade, atau berhenti berlangganan kapan saja tanpa penalti — akun otomatis kembali ke paket Free, bukan dihapus.',
   },
 ];
 
@@ -139,7 +135,7 @@ export default function LandingPage_003({ navigate }) {
           </button>
           <div className="lp003-hero-micro">
             <span className="lp003-hero-micro-item"><IconCheck /> Tanpa biaya apapun</span>
-            <span className="lp003-hero-micro-item"><IconCheck /> Lowongan &amp; pelamar tanpa batas</span>
+            <span className="lp003-hero-micro-item"><IconCheck /> Pelamar &amp; CV tersimpan tanpa batas</span>
           </div>
         </div>
 
