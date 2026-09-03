@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSeleksiByKode } from '../../services/seleksiService.js';
-import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
+import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
 import '../../../css/lowongan/lowongan-laman-karir.css';
 
@@ -176,16 +176,17 @@ export default function LowonganLamanKarir({ kode }) {
 
     try {
       const onProgress = (_progress, text) => setProgressText(text || '');
-      const kandidat = await uploadAndExtractCV(seleksiData.company_id, cvFile, seleksiData.jabatan, onProgress, 'public');
-
-      const contactUpdates = {};
-      if (form.nama) contactUpdates.nama_lengkap = form.nama;
-      if (form.email) contactUpdates.email = form.email;
-      if (form.phone) contactUpdates.phone = form.phone;
-      if (form.linkedin) contactUpdates.linkedin_url = form.linkedin;
-      if (kandidat?.id && Object.keys(contactUpdates).length > 0) {
-        await updateKandidat(kandidat.id, contactUpdates).catch(() => {});
-      }
+      // Data kontak yang diketik manual dikirim sebagai contactOverrides dan
+      // disimpan langsung oleh edge function parse-cv (service role) — bukan
+      // lewat updateKandidat() terpisah, karena pelamar publik jalan sebagai
+      // anon role dan tidak ada RLS policy yang mengizinkan anon meng-UPDATE
+      // tabel kandidat (updateKandidat() di sini selalu gagal diam-diam).
+      const kandidat = await uploadAndExtractCV(seleksiData.company_id, cvFile, seleksiData.jabatan, onProgress, 'public', false, {
+        nama: form.nama || null,
+        email: form.email || null,
+        phone: form.phone || null,
+        linkedin: form.linkedin || null,
+      });
 
       let logId = null;
       try {

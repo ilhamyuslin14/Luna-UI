@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSeleksiByKode, getAllActiveJobs, recordJobView } from '../../services/seleksiService.js';
-import { uploadAndExtractCV, updateKandidat, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
+import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -379,23 +379,27 @@ export default function useLamanKarirData(kode) {
       logId = log?.id;
 
       setUploadPercent(30);
+      // Data kontak yang diketik manual di form dikirim sebagai contactOverrides
+      // dan disimpan langsung oleh edge function parse-cv (service role) —
+      // BUKAN lewat updateKandidat() terpisah di sini, karena pelamar publik
+      // jalan sebagai anon role dan tidak ada RLS policy yang mengizinkan anon
+      // meng-UPDATE tabel kandidat (dulu selalu gagal dengan error "Cannot
+      // coerce the result to a single JSON object" kecuali browser kebetulan
+      // masih ada sesi login HR pemilik perusahaan itu).
       const kandidat = await uploadAndExtractCV(
         seleksiData.company_id,
         cvFile,
         seleksiData.jabatan,
         handleProgressUpdate,
-        'public'
+        'public',
+        false,
+        {
+          nama: form.nama.trim() || null,
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          linkedin: form.linkedin.trim() || null,
+        }
       );
-
-      const updates = {};
-      if (form.nama.trim()) updates.nama_lengkap = form.nama.trim();
-      if (form.email.trim()) updates.email = form.email.trim();
-      if (form.phone.trim()) updates.phone = form.phone.trim();
-      if (form.linkedin.trim()) updates.linkedin_url = form.linkedin.trim();
-
-      if (kandidat?.id && Object.keys(updates).length > 0) {
-        await updateKandidat(kandidat.id, updates);
-      }
 
       setUploadPercent(75);
       setProgressText('Menilai kualifikasi Anda dengan kriteria posisi...');

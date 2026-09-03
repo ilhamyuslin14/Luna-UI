@@ -125,7 +125,7 @@ async function computeFileHash(file) {
   return sha256Fallback(new Uint8Array(arrayBuffer));
 }
 
-export async function uploadAndExtractCV(companyId, file, posisi, onProgress, sumber = 'hr_dashboard', isUploadAndScoring = false) {
+export async function uploadAndExtractCV(companyId, file, posisi, onProgress, sumber = 'hr_dashboard', isUploadAndScoring = false, contactOverrides = null) {
   if (!companyId) throw new Error('Company ID diperlukan');
 
   if (onProgress) onProgress(5, 'Memulai...');
@@ -164,7 +164,7 @@ export async function uploadAndExtractCV(companyId, file, posisi, onProgress, su
   // terkirim ke browser (penting untuk alur publik Laman Karir yang diakses
   // pengunjung anonim).
   const { data, error } = await supabase.functions.invoke('parse-cv', {
-    body: { companyId, fileHash, rawText, fileName: file.name, cvUrl: cv_url, posisi, sumber },
+    body: { companyId, fileHash, rawText, fileName: file.name, cvUrl: cv_url, posisi, sumber, contactOverrides },
   });
 
   if (error) throw new Error(error.message || 'Gagal memproses CV.');

@@ -476,7 +476,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json()
-    const { companyId, fileHash, fileName, cvUrl, posisi, sumber } = body
+    const { companyId, fileHash, fileName, cvUrl, posisi, sumber, contactOverrides } = body
     // CEGAT NULL BYTE DARI FRONTEND: Bersihkan rawText sebelum masuk sistem
     const rawText = typeof body.rawText === 'string' ? body.rawText.replace(/\0/g, '') : ''
 
@@ -586,17 +586,24 @@ serve(async (req) => {
     const dk = parsedData?.detail_kandidat || {}
     const dt = parsedData?.detail_tambahan || {}
 
+    // contactOverrides = data yang diketik manual pelamar di form Laman Karir
+    // (bukan hasil ekstraksi AI). Diproses di sini, bukan lewat UPDATE terpisah
+    // dari browser, karena pelamar publik cuma anon role — tidak ada RLS policy
+    // yang mengizinkan anon UPDATE tabel kandidat (lihat riwayat
+    // "Cannot coerce the result to a single JSON object").
+    const co = contactOverrides || {}
+
     const kandidatRecord = {
       company_id: companyId,
-      nama_lengkap: dk.nama_lengkap || `CV Baru (${fileName || 'tanpa nama'})`,
+      nama_lengkap: co.nama || dk.nama_lengkap || `CV Baru (${fileName || 'tanpa nama'})`,
       cv_url: cvUrl,
       parsing_status: 'completed',
       raw_text: rawText,
       output_ai_raw: rawJson,
 
-      email: dk.email || null,
-      phone: dk.no_telpon || null,
-      linkedin_url: dk.linkedin || null,
+      email: co.email || dk.email || null,
+      phone: co.phone || dk.no_telpon || null,
+      linkedin_url: co.linkedin || dk.linkedin || null,
       portfolio_url: dk.portfolio || null,
       gender: dk.gender || null,
       tgl_lahir: dk.tanggal_lahir || null,
