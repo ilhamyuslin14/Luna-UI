@@ -4,6 +4,7 @@ import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
 import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import ReportKendalaButton from '../../components/ReportKendalaButton.jsx';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -156,7 +157,10 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
           </div>
           <div className="blw-top">
             <button className="blw-close" onClick={handleCancel}><IconClose />Batalkan</button>
-            <span className="blw-progress-label">Pertanyaan {questionNumber} dari {totalQuestions}</span>
+            <div className="blw-top-right">
+              <ReportKendalaButton halaman="buat-lowongan-ai" />
+              <span className="blw-progress-label">Pertanyaan {questionNumber} dari {totalQuestions}</span>
+            </div>
           </div>
 
           <div className={`blw-body${step !== 'qa' ? ' blw-body-center' : ''}`}>

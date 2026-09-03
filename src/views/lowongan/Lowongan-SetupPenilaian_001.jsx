@@ -10,6 +10,8 @@ import { supabase } from '../../config/supabase.js';
 import { parseJobDescManual } from '../../utils/parseJobDescManual';
 import { extractTextFromFile } from '../../utils/extractTextFromFile';
 import { formatDeskripsiToHtml } from '../../utils/formatDeskripsiToHtml.js';
+import { reportLastError } from '../../utils/lastErrorMemory.js';
+import ReportKendalaButton from '../../components/ReportKendalaButton.jsx';
 
 const SP001_DRAFT_KEY = 'sp001-draft';
 
@@ -377,7 +379,9 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
       clearDraft();
       navigate('lowongan-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
     } catch (err) {
-      showToast('Gagal', err.message || 'Terjadi kesalahan saat menyimpan lowongan seleksi', 'error');
+      const msg = err.message || 'Terjadi kesalahan saat menyimpan lowongan seleksi';
+      showToast('Gagal', msg, 'error');
+      reportLastError('buat-lowongan-form', msg);
     } finally {
       setIsSaving(false);
     }
@@ -400,6 +404,7 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
           </div>
         </div>
         <div className="sp001-header-actions">
+          <ReportKendalaButton halaman="buat-lowongan-form" />
           <button className="sp001-btn-cancel" onClick={() => { discardedRef.current = true; clearDraft(); navigate('lowongan_001'); }}>Batal</button>
           <button className="sp001-btn-primary" onClick={handleSimpan}>Terbitkan Lowongan</button>
         </div>

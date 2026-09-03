@@ -5,6 +5,7 @@ import useBuatLowonganForm from '../../../hooks/lowongan/useBuatLowonganForm.js'
 import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
 import MobileToast from '../../components/MobileToast.jsx';
 import MobileRichTextEditor from '../../components/MobileRichTextEditor.jsx';
+import MobileReportKendalaButton from '../../components/MobileReportKendalaButton.jsx';
 import '../../../../css/mobile/lowongan/buat-lowongan-form.css';
 
 const IconClose = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>);
@@ -218,7 +219,8 @@ export default function MobileBuatLowonganForm({ navigate }) {
             )}
           </div>
 
-          <div className="mblf-footer">
+          <div className="mblf-footer mblf-footer-col">
+            <MobileReportKendalaButton halaman="buat-lowongan-form-mobile" variant="bar" />
             <button className="mblf-btn-primary" onClick={() => { syncDeskripsiFromEditor(); setPhase('review'); }}>
               Lanjut ke Review<IconChevronRight />
             </button>
@@ -268,11 +270,14 @@ export default function MobileBuatLowonganForm({ navigate }) {
               </div>
             )}
           </div>
-          <div className="mblf-footer">
-            <button className="mblf-btn-ghost" onClick={() => setPhase('form')}>Kembali</button>
-            <button className="mblf-btn-primary" disabled={isSaving} onClick={handleSubmitClick}>
-              {isSaving ? <IconSpinner /> : <IconCheck />}Terbitkan Lowongan
-            </button>
+          <div className="mblf-footer mblf-footer-col">
+            <MobileReportKendalaButton halaman="buat-lowongan-form-mobile" variant="bar" />
+            <div className="mblf-btn-row">
+              <button className="mblf-btn-ghost" onClick={() => setPhase('form')}>Kembali</button>
+              <button className="mblf-btn-primary" disabled={isSaving} onClick={handleSubmitClick}>
+                {isSaving ? <IconSpinner /> : <IconCheck />}Terbitkan Lowongan
+              </button>
+            </div>
           </div>
         </>
       )}

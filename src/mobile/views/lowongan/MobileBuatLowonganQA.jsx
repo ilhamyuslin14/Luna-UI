@@ -4,6 +4,7 @@ import { buildLamanKarirUrl } from '../../../hooks/lowongan/useBuatLowonganPandu
 import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPanduanContext.jsx';
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import MobileReportKendalaButton from '../../components/MobileReportKendalaButton.jsx';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -259,7 +260,8 @@ export default function MobileBuatLowonganQA({ navigate, back }) {
             </div>
 
             {step === 'qa' && (
-              <div className="mblw-footer">
+              <div className="mblw-footer mblw-footer-col">
+                <MobileReportKendalaButton halaman="buat-lowongan-ai-mobile" variant="bar" />
                 <button className="mblw-next-btn" onClick={nextQuestion} disabled={!hasAnswer}>
                   {questionNumber === totalQuestions ? 'Lihat Ringkasan' : 'Lanjut'}<IconChevronRight />
                 </button>
@@ -316,6 +318,9 @@ export default function MobileBuatLowonganQA({ navigate, back }) {
               <div className="mblw-sum-secondary-row">
                 <button className="mblw-sum-btn-ghost" onClick={() => setShowRestartConfirm(true)}>Buat Ulang</button>
                 <button className="mblw-sum-btn-outline" onClick={openFixInput}><IconRegenerate />Perbaiki</button>
+              </div>
+              <div className="mblw-sum-report-row">
+                <MobileReportKendalaButton halaman="buat-lowongan-ai-mobile" variant="bar" />
               </div>
               <button className="mblw-sum-btn-primary" onClick={() => setShowPublishConfirm(true)}><IconCheck />Terbitkan Lowongan</button>
             </div>

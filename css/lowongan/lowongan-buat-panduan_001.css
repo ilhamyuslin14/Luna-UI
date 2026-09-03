@@ -42,6 +42,12 @@
 
 .blw-close svg { width: 13px; height: 13px; }
 
+.blw-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .blw-progress-label {
   font-size: 11.5px;
   font-weight: 700;

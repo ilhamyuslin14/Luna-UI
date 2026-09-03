@@ -3,7 +3,7 @@
    Luna) & lowongan.css (mlw-, daftar lowongan) */
 
 .mblf-top {
-  background: #ffffff; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; flex-shrink: 0;
+  background: #ffffff; padding: 10px 14px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--luna-ink-100);
 }
 .mblf-iconbtn { width: 28px; height: 28px; border-radius: 8px; background: var(--luna-ink-050); border: none; display: flex; align-items: center; justify-content: center; color: var(--luna-ink-700); flex-shrink: 0; }
@@ -102,6 +102,8 @@
 
 /* footer */
 .mblf-footer { padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 10px)); background: #fff; border-top: 1px solid var(--luna-ink-100); flex-shrink: 0; display: flex; gap: 8px; }
+.mblf-footer-col { flex-direction: column; align-items: stretch; gap: 10px; }
+.mblf-footer-col .mblf-btn-row { display: flex; gap: 8px; }
 .mblf-btn-ghost { flex-shrink: 0; padding: 13px 16px; border-radius: 12px; background: var(--luna-ink-050); color: var(--luna-ink-600); font-size: 12.5px; font-weight: 800; border: none; font-family: inherit; }
 .mblf-btn-primary {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: var(--luna-orange-500); color: #ffffff;

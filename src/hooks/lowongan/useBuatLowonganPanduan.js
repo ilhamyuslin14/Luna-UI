@@ -3,6 +3,7 @@ import { supabase } from '../../config/supabase.js';
 import { slugify } from '../../utils/slug.js';
 import { createSeleksi } from '../../services/seleksiService.js';
 import { invalidate } from '../../services/dataCache.js';
+import { reportLastError } from '../../utils/lastErrorMemory.js';
 
 // Versi produksi — porting dari Sandbox (Sandbox-BuatLowongan.jsx), setelah
 // dites di sana. Beda utama dari versi sandbox: di sini panggilan AI lewat
@@ -134,8 +135,10 @@ export default function useBuatLowonganPanduan(companyId, companyPlan) {
       await action();
     } catch (err) {
       console.error(err);
-      setErrorMessage(err.message || 'Terjadi kesalahan. Coba lagi.');
+      const msg = err.message || 'Terjadi kesalahan. Coba lagi.';
+      setErrorMessage(msg);
       setStep('error');
+      reportLastError('buat-lowongan-ai', msg);
     }
   };
 

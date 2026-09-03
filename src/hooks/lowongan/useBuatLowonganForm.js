@@ -8,6 +8,7 @@ import { parseJobDescManual } from '../../utils/parseJobDescManual.js';
 import { extractTextFromFile } from '../../utils/extractTextFromFile.js';
 import { formatDeskripsiToHtml } from '../../utils/formatDeskripsiToHtml.js';
 import { supabase } from '../../config/supabase.js';
+import { reportLastError } from '../../utils/lastErrorMemory.js';
 
 // Draft key sendiri (bukan 'sp001-draft' punya desktop) — sengaja dipisah
 // supaya perubahan bentuk draft di salah satu sisi (mobile/desktop) tidak
@@ -192,7 +193,9 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
       navigate('lowongan-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
       return true;
     } catch (err) {
-      showToast('Gagal', err.message || 'Terjadi kesalahan saat menyimpan lowongan.', 'error');
+      const msg = err.message || 'Terjadi kesalahan saat menyimpan lowongan.';
+      showToast('Gagal', msg, 'error');
+      reportLastError('buat-lowongan-form-mobile', msg);
       return false;
     } finally {
       setIsSaving(false);

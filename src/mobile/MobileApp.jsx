@@ -197,7 +197,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
 
       <div
         ref={contentRef}
-        className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'buat-lowongan-panduan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001', 'pengguna-akun', 'bantuan_001', 'semua-aktivitas_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}
+        className={`msh-content${['beranda_002', 'lowongan_001', 'lowongan-detail_001', 'buat-lowongan_001', 'setup-penilaian_001', 'buat-lowongan-panduan_001', 'kandidat_001', 'kandidat-detail_001', 'kandidat-tambah', 'seleksi-tambah-kandidat', 'lowongan-tambah-kandidat', 'sebar_001', 'pengguna-akun', 'bantuan_001', 'semua-aktivitas_001'].includes(activeMenu) ? ' msh-content--flush' : ''}`}
       >
         {activeMenu === 'beranda_002' ? <BerandaMobile navigate={navigate} />
           : activeMenu === 'lowongan_001' ? <LowonganMobile navigate={navigate} />
@@ -211,7 +211,7 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
               overlay={seleksiOverlay}
             />
           )
-          : activeMenu === 'buat-lowongan_001' ? <MobileBuatLowonganForm navigate={navigate} />
+          : (activeMenu === 'buat-lowongan_001' || activeMenu === 'setup-penilaian_001') ? <MobileBuatLowonganForm navigate={navigate} />
           : activeMenu === 'buat-lowongan-panduan_001' ? <MobileBuatLowonganQA navigate={navigate} back={back} />
           : activeMenu === 'kandidat_001' ? <KandidatMobile navigate={navigate} />
           : activeMenu === 'kandidat-tambah' ? <KandidatTambahMobile navigate={navigate} back={back} />
