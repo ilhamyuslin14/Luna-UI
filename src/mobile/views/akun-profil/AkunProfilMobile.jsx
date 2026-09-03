@@ -19,6 +19,7 @@ const IconShare = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
 const IconShield = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4z" /></svg>);
 const IconLock = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>);
+const IconEye = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>);
 
 const UKURAN_PERUSAHAAN_OPTS = ['1-10 Karyawan', '11-50 Karyawan', '51-200 Karyawan', '201-500 Karyawan', '501-1000 Karyawan', '1000+ Karyawan'];
 const JENIS_BADAN_USAHA_OPTS = ['PT', 'CV', 'Firma', 'Koperasi', 'Yayasan', 'BUMN', 'Startup/Perorangan', 'Lainnya'];
@@ -158,12 +159,25 @@ export default function AkunProfilMobile() {
       </div>
 
       <div className="map001-hero">
-        <div className="map001-avatar">{profileInitial}</div>
-        <div className="map001-hero-text">
-          <div className="map001-hero-name">{profil.namaLengkap || 'Belum ada nama'}</div>
-          <div className="map001-hero-email">{profil.email}</div>
-          <div className="map001-hero-chip"><IconBuilding />{perusahaan.namaPerusahaan || 'Perusahaan Anda'}</div>
+        <div className="map001-hero-top">
+          <div className="map001-avatar">{profileInitial}</div>
+          <div className="map001-hero-text">
+            <div className="map001-hero-name">{profil.namaLengkap || 'Belum ada nama'}</div>
+            <div className="map001-hero-email">{profil.email}</div>
+            <div className="map001-hero-chip"><IconBuilding />{perusahaan.namaPerusahaan || 'Perusahaan Anda'}</div>
+          </div>
         </div>
+        {companyDetails?.slug && (
+          <a
+            className="map001-view-laman-btn"
+            href={`/?view=laman-perusahaan&slug=${encodeURIComponent(companyDetails.slug)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconEye />
+            Lihat Laman Perusahaan
+          </a>
+        )}
       </div>
 
       {GROUPS.map(group => {
