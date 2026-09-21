@@ -1,3 +1,12 @@
+// ══ ARSIP — tidak lagi dirender di manapun (lihat App.jsx) ══
+// Digantikan oleh alur GettingStartedLowongan (mobile), yang otomatis
+// ter-trigger saat user login dan belum punya lowongan sama sekali
+// (lihat gate di mobile/MobileApp.jsx). File ini sengaja tidak dihapus
+// untuk referensi/riwayat, bukan berarti masih aktif.
+//
+// Catatan: belum ada pengganti untuk DESKTOP — GettingStartedLowongan cuma
+// ada versi mobile. Sejak modal ini diarsipkan, user desktop yang baru
+// signup untuk sementara tidak melewati onboarding survey apa pun.
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext.jsx';

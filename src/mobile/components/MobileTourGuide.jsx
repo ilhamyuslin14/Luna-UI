@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { supabase } from '../../config/supabase.js';
 import '../../../css/mobile/tour.css';
 
 const MOBILE_STEPS = [
@@ -35,6 +37,7 @@ function calcSpotlight(el) {
 }
 
 export default function MobileTourGuide({ navigate }) {
+  const { user } = useAuth();
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [spotlight, setSpotlight] = useState({ centered: true, style: {} });
@@ -59,13 +62,37 @@ export default function MobileTourGuide({ navigate }) {
     return () => { delete window.startProductTour; };
   }, []);
 
-  // Auto-start setelah onboarding (lihat OnboardingMobile.jsx)
+  // Auto-start setelah "Getting Started" (lihat ScreenSelesai di
+  // GettingStartedLowongan.jsx — dulu di-set oleh OnboardingMobile.jsx yang
+  // sekarang diarsipkan)
   useEffect(() => {
-    if (localStorage.getItem('luna_trigger_tour') === 'true') {
-      const t = setTimeout(() => { setStepIndex(0); setActive(true); }, 1200);
-      return () => clearTimeout(t);
+    if (localStorage.getItem('luna_trigger_tour') !== 'true') return;
+    if (!user) return;
+    // Sekali saja per AKUN: penandanya disimpan di user_metadata Supabase
+    // (`tour_completed`) supaya berlaku lintas perangkat & browser.
+    // Cadangan di localStorage kalau penyimpanan ke akun gagal, kuncinya
+    // per user id supaya tidak menahan tur untuk akun lain di perangkat yang
+    // sama. Kalau tur sudah pernah tampil, trigger dibuang tanpa memulai apa pun.
+    const localKey = `luna_tour_seen_${user.id}`;
+    const sudahPernah = user.user_metadata?.tour_completed === true
+      || localStorage.getItem(localKey) === 'true';
+    if (sudahPernah) {
+      localStorage.removeItem('luna_trigger_tour');
+      return;
     }
-  }, []);
+    const t = setTimeout(() => {
+      // Ditandai "sudah pernah" saat mulai, bukan saat selesai, supaya tur
+      // yang terputus (aplikasi ditutup di tengah jalan) tidak muncul lagi.
+      localStorage.removeItem('luna_trigger_tour');
+      localStorage.setItem('luna_tour_completed', 'true');
+      localStorage.setItem(localKey, 'true');
+      supabase.auth.updateUser({ data: { tour_completed: true } })
+        .then(({ error }) => { if (error) console.error('Gagal menyimpan status tur ke akun:', error); });
+      setStepIndex(0);
+      setActive(true);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [user?.id]);
 
   // Render step tiap kali active/stepIndex berubah
   useEffect(() => {

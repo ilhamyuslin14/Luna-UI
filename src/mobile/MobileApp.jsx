@@ -19,7 +19,7 @@ import MobileSearch from './components/MobileSearch.jsx';
 import MobileNotifications from './components/MobileNotifications.jsx';
 import MobileScoringWidget from './components/MobileScoringWidget.jsx';
 import MobileTourGuide from './components/MobileTourGuide.jsx';
-import OnboardingMobile from './views/onboarding/OnboardingMobile.jsx';
+import GettingStartedLowongan from './views/getting-started-lowongan/GettingStartedLowongan.jsx';
 
 const IcBeranda = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -124,7 +124,7 @@ function DummyPage({ menu }) {
 }
 
 export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiId, seleksiJabatan, seleksiActiveTab, seleksiOverlay, selectedKandidat, kandidatOverlay, shellPanel, openShellPanel }) {
-  const { user, logout, companyId, onboardingCompleted } = useAuth();
+  const { user, logout, companyId, lowonganCount } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   // Pencarian global dibuka lewat history entry (openShellPanel/back), bukan
@@ -144,12 +144,24 @@ export default function MobileApp({ navigate, back, activeMenu, selectedSeleksiI
     if (contentRef.current) contentRef.current.scrollTop = 0;
   }, [activeMenu, selectedSeleksiId, selectedKandidat]);
 
-  // Padanan mobile dari OnboardingModal.jsx (desktop) — di App.jsx modal itu
-  // dirender sebagai sibling renderView() jadi selalu muncul di atas halaman
-  // apa pun, tapi tidak pernah disentuh sama sekali di sisi mobile sebelum
-  // ini, sehingga user mobile lolos tanpa pernah mengisi profil perusahaan.
-  if (user && !onboardingCompleted) {
-    return <OnboardingMobile />;
+  // Menggantikan gate onboarding lama (OnboardingMobile.jsx, sekarang
+  // diarsipkan) — begitu user login dan perusahaannya belum punya lowongan
+  // sama sekali, tampilkan prototipe "Getting Started" sebagai pengganti
+  // seluruh app, bukan modal di atas Beranda kosong. Dicek tiap render
+  // (bukan sekali per sesi) supaya benar-benar "tiap login belum punya
+  // lowongan akan ke-trigger" — tapi begitu user keluar dari alur ini
+  // (lihat onExit di GettingStartedLowongan), ditandai "selesai" lewat
+  // sessionStorage supaya tidak muncul berulang selama sesi yang sama,
+  // walaupun lowonganCount masih 0 (prototipe ini murni dummy, tidak
+  // benar-benar membuat lowongan).
+  const gettingStartedSeen = sessionStorage.getItem('luna_getting_started_seen') === 'true';
+  if (user && lowonganCount === 0 && !gettingStartedSeen) {
+    return (
+      <GettingStartedLowongan
+        navigate={navigate}
+        onExit={() => sessionStorage.setItem('luna_getting_started_seen', 'true')}
+      />
+    );
   }
 
   const profileName = user?.user_metadata?.nama_lengkap || user?.user_metadata?.full_name || 'User';
