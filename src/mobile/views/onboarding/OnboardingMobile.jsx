@@ -1,3 +1,12 @@
+// ══ ARSIP — tidak lagi dirender di manapun (lihat MobileApp.jsx) ══
+// Digantikan oleh GettingStartedLowongan, yang otomatis ter-trigger saat
+// user login dan belum punya lowongan sama sekali (gate langsung di
+// MobileApp.jsx, menggantikan gate `!onboardingCompleted` yang sebelumnya
+// merender komponen ini). File ini sengaja tidak dihapus untuk
+// referensi/riwayat, bukan berarti masih aktif. Perhatikan juga: komponen
+// ini yang dulu menyetel `profiles.onboarding_completed = true` dan flag
+// localStorage `luna_trigger_tour` — begitu diarsipkan, tanggung jawab
+// men-trigger tur produk dipindah ke GettingStartedLowongan (ScreenSelesai).
 import { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { supabase } from '../../../config/supabase.js';

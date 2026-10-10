@@ -147,6 +147,9 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    // Reset gate "Getting Started" (lihat mobile/MobileApp.jsx) supaya
+    // benar-benar dievaluasi ulang tiap login baru, bukan cuma tiap tab/sesi.
+    sessionStorage.removeItem('luna_getting_started_seen');
   };
 
   const value = {

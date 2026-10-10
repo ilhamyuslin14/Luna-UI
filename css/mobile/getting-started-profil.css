@@ -65,6 +65,51 @@
   color: #ffffff;
   box-shadow: 0 10px 20px -6px rgba(255, 123, 0, 0.4);
 }
+/* !important perlu di sini — tombol ini kena animasi fly-in "gsp-footer > *"
+   yang berakhir di opacity:1, dan CSS animation menang atas declaration
+   biasa (non-!important) di cascade, jadi opacity:0.45 di bawah ini
+   ke-override total & disabled terlihat identik dengan enabled kalau tanpa
+   !important. */
+.gsp-btn-primary:disabled { opacity: 0.45 !important; box-shadow: none; cursor: not-allowed; }
+.gsp-skip-link {
+  display: flex; align-items: center; justify-content: center; background: none; border: none; font-family: inherit;
+  color: var(--luna-ink-400); font-size: 11.5px; font-weight: 600; padding: 9px 6px 0; cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.gsp-skip-link:active { color: var(--luna-ink-700); transform: scale(0.96); }
+.gsp-spin { display: flex; animation: spin 0.8s linear infinite; }
+.gsp-spin svg { width: 16px; height: 16px; }
+.gsp-save-error { font-size: 11.5px; color: #dc3545; text-align: center; padding: 0 2px; }
+
+/* ── Bottom sheet Industri (pakai shell .msh-sheet global) ── */
+.gsp-sheet-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--luna-ink-900); margin-bottom: 4px; }
+.gsp-sheet-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 4px;
+  border-bottom: 1px solid var(--luna-ink-050); width: 100%; background: none; border-left: none; border-right: none; border-top: none;
+  font-family: inherit; text-align: left; font-size: 13.5px; font-weight: 700; color: var(--luna-ink-800); cursor: pointer;
+}
+.gsp-sheet-opt:last-of-type { border-bottom: none; }
+.gsp-sheet-opt svg { width: 13px; height: 13px; color: var(--luna-orange-500); flex-shrink: 0; }
+
+/* ── Autocomplete Lokasi (mengikuti daftar ID_REGIONS yang sama dengan
+   dropdown lokasi di desktop, lihat InlineEditRow.jsx) ── */
+.gsp-loc-dropdown {
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px -8px rgba(23, 30, 44, 0.18);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 99999;
+}
+.gsp-loc-empty { padding: 12px 14px; font-size: 12.5px; color: var(--luna-ink-300); }
+.gsp-loc-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  padding: 11px 14px; border: none; border-bottom: 1px solid var(--luna-ink-050); background: none;
+  font-family: inherit; text-align: left; font-size: 13px; font-weight: 600; color: var(--luna-ink-800); cursor: pointer;
+}
+.gsp-loc-opt:last-child { border-bottom: none; }
+.gsp-loc-opt .tag { font-size: 9.5px; font-weight: 700; color: var(--luna-ink-400); background: var(--luna-ink-050); padding: 2px 7px; border-radius: 999px; flex-shrink: 0; }
 
 .gsp-h2 {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -148,6 +193,8 @@
 .gsp-avatar-upload { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 4px 0 2px; }
 .gsp-avatar-circle { width: 84px; height: 84px; border-radius: 50%; position: relative; cursor: pointer; flex-shrink: 0; border: none; background: none; padding: 0; }
 .gsp-avatar-circle .fill { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 26px; color: #fff; background: linear-gradient(135deg, var(--luna-orange-400), var(--luna-orange-500)); box-shadow: 0 10px 22px -8px rgba(255, 123, 0, 0.5); }
+.gsp-avatar-circle .fill.img { object-fit: cover; background: var(--luna-ink-100); box-shadow: none; }
+.gsp-avatar-circle:disabled { opacity: 0.7; cursor: default; }
 .gsp-avatar-badge { position: absolute; bottom: -2px; right: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--luna-ink-900); color: #fff; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; }
 .gsp-avatar-badge svg { width: 12px; height: 12px; }
 .gsp-avatar-hint { font-size: 11px; color: var(--luna-ink-400); text-align: center; }
@@ -158,11 +205,14 @@
 .gsp-field label { font-size: 12px; font-weight: 700; color: var(--luna-ink-700); display: flex; align-items: center; gap: 6px; }
 .gsp-field label .opt { color: var(--luna-ink-400); font-weight: 500; text-transform: none; letter-spacing: 0; }
 .gsp-field label .prefill { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; background: var(--luna-ink-100); color: var(--luna-ink-600); padding: 2px 7px; border-radius: 20px; }
+.gsp-field label .req { color: var(--luna-orange-600); font-weight: 800; }
+.gsp-field-err { font-size: 10.5px; color: #dc3545; margin-top: -2px; }
 .gsp-inp, .gsp-txa {
   width: 100%; border: 1.5px solid var(--luna-ink-200); border-radius: 14px; padding: 12px 14px; font-size: 13.5px;
   color: var(--luna-ink-900); background: #ffffff; font-family: inherit; outline: none; transition: border-color 0.18s ease;
 }
 .gsp-inp:focus, .gsp-txa:focus { border-color: var(--luna-orange-400); }
+.gsp-inp.err, .gsp-txa.err, .gsp-pick-field.err { border-color: #dc3545; }
 .gsp-txa { resize: none; height: 76px; line-height: 1.55; }
 .gsp-char-hint { font-size: 10px; color: var(--luna-ink-300); text-align: right; }
 .gsp-pick-field {
@@ -170,6 +220,7 @@
   display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 13.5px; color: var(--luna-ink-900);
   font-weight: 600; font-family: inherit; cursor: pointer;
 }
+.gsp-pick-field .ph { color: var(--luna-ink-300); font-weight: 500; }
 .gsp-pick-field svg { width: 16px; height: 16px; color: var(--luna-ink-400); flex-shrink: 0; }
 .gsp-seg { display: flex; gap: 7px; flex-wrap: wrap; }
 .gsp-seg-opt {
@@ -179,12 +230,6 @@
 }
 .gsp-seg-opt:active { transform: scale(0.95); }
 .gsp-seg-opt.sel { border-color: var(--luna-ink-900); background: var(--luna-ink-900); color: #fff; }
-.gsp-settings-hint { display: flex; gap: 9px; align-items: flex-start; background: #f9fafc; border: 1px solid var(--luna-ink-100); border-radius: 12px; padding: 12px 13px; }
-.gsp-settings-hint svg { width: 15px; height: 15px; color: var(--luna-ink-400); flex-shrink: 0; margin-top: 1px; }
-.gsp-settings-hint p { font-size: 11px; line-height: 1.5; color: var(--luna-ink-500); margin: 0; }
-.gsp-settings-hint b { color: var(--luna-ink-700); font-weight: 700; }
-.gsp-settings-note { font-size: 11.5px; line-height: 1.6; color: var(--luna-ink-500); padding: 0 2px; }
-.gsp-settings-note b { color: var(--luna-ink-800); font-weight: 700; }
 
 /* ── Confirmation ── */
 .gsp-conf-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 22px 22px 2px; }

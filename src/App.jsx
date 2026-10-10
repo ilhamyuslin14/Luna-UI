@@ -6,7 +6,7 @@ import MobileApp from './mobile/MobileApp.jsx';
 import Navbar from './components/Navbar.jsx';
 import Sidebar_001 from './components/Sidebar_001.jsx';
 import TourGuide_001 from './components/TourGuide_001.jsx';
-import OnboardingModal from './components/OnboardingModal.jsx';
+// OnboardingModal diarsipkan — lihat catatan di components/OnboardingModal.jsx
 import UploadProgressWidget from './components/UploadProgressWidget.jsx';
 import GlobalAIPoller from './components/GlobalAIPoller.jsx';
 import Beranda from './views/beranda/Beranda.jsx';
@@ -66,7 +66,6 @@ import LandingPageLupaPassword_001 from './views/landing/LandingPage-LupaPasswor
 import LandingPageTerimaUndangan from './views/landing/LandingPage-TerimaUndangan.jsx';
 import Docs from './views/docs/Docs.jsx';
 import LunaAnalytic from './views/analytic/LunaAnalytic.jsx';
-import Onboarding_002 from './views/onboarding_002/Onboarding_002.jsx';
 import GettingStartedLowongan from './mobile/views/getting-started-lowongan/GettingStartedLowongan.jsx';
 import GettingStartedProfil from './mobile/views/getting-started-profil/GettingStartedProfil.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
@@ -382,8 +381,6 @@ export default function App() {
       case 'analytic':
       case 'analytics':
       case 'luna-analytic': return <LunaAnalytic navigate={navigate} />;
-      case 'onboarding-2':
-      case 'onboarding_002': return <Onboarding_002 navigate={navigate} />;
       default: return <Beranda_002 navigate={navigate} />;
     }
   };
@@ -401,15 +398,11 @@ export default function App() {
   }
 
   if (location.pathname === '/getting-started-lowongan' || activeMenu === 'getting-started-lowongan') {
-    return <GettingStartedLowongan />;
+    return <GettingStartedLowongan navigate={navigate} />;
   }
 
   if (location.pathname === '/getting-started-profil' || activeMenu === 'getting-started-profil') {
-    return <GettingStartedProfil />;
-  }
-
-  if (location.pathname === '/onboarding-2' || location.pathname === '/onboarding_002' || activeMenu === 'onboarding_002' || activeMenu === 'onboarding-2') {
-    return <Onboarding_002 navigate={navigate} />;
+    return <GettingStartedProfil navigate={navigate} />;
   }
 
   if (isMobile) {
@@ -442,7 +435,7 @@ export default function App() {
         {renderView()}
       </main>
       <TourGuide_001 navigate={navigate} />
-      <OnboardingModal />
+      {/* OnboardingModal diarsipkan — lihat catatan di components/OnboardingModal.jsx */}
       <UploadProgressWidget navigate={navigate} />
       <GlobalAIPoller />
     </div>

@@ -273,6 +273,87 @@
 .gsl-choice-li { display: flex; gap: 7px; align-items: flex-start; font-size: 11.5px; color: var(--luna-ink-800); line-height: 1.4; }
 .gsl-choice-li svg { width: 13px; height: 13px; color: #1f8a4e; flex-shrink: 0; margin-top: 1.5px; }
 
+/* ── Metode Buat Lowongan (kartu ringkas + detail expandable) ── */
+.gsl-metode-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--luna-ink-600);
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 14px;
+  padding: 9px 12px;
+}
+.gsl-metode-note svg { width: 12px; height: 12px; color: var(--luna-orange-600); flex-shrink: 0; margin-top: 2px; }
+
+.gsl-metode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.gsl-metode-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid var(--luna-ink-200);
+  border-radius: 16px;
+  padding: 14px;
+  background: #ffffff;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.gsl-metode-card.sel { border-color: var(--luna-orange-300); background: var(--luna-orange-050); }
+.gsl-metode-card-wm { position: absolute; right: -14px; bottom: -14px; opacity: 0.1; pointer-events: none; display: flex; }
+.gsl-metode-card-wm svg { width: 68px; height: 68px; }
+.gsl-metode-card.sel .gsl-metode-card-wm svg { color: var(--luna-orange-500); }
+.gsl-metode-card:not(.sel) .gsl-metode-card-wm svg { color: var(--luna-ink-900); }
+.gsl-metode-card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 800; color: var(--luna-ink-900); position: relative; }
+.gsl-metode-card-desc { margin: 0; font-size: 11.5px; line-height: 1.45; color: var(--luna-ink-500); position: relative; }
+
+.gsl-detail-toggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--luna-orange-600);
+}
+.gsl-detail-toggle svg { width: 11px; height: 11px; }
+
+.gsl-detail-panel {
+  background: #ffffff;
+  border: 1px solid var(--luna-ink-100);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gsl-detail-item { display: flex; gap: 10px; align-items: flex-start; }
+.gsl-detail-item span { font-size: 13px; line-height: 1.5; color: var(--luna-ink-800); }
+.gsl-detail-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ── Kenalan Portal Karier (value prop) ── */
 .gsl-lp { display: flex; flex-direction: column; gap: 16px; }
 .gsl-lp-kicker {
@@ -289,6 +370,11 @@
   padding: 5px 10px;
   border-radius: 20px;
   width: fit-content;
+}
+.gsl-lp-kicker svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 .gsl-lp-feat { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--luna-ink-100); }
 .gsl-lp-feat:last-child { border-bottom: none; }
@@ -364,10 +450,27 @@ button.gsl-input { cursor: pointer; }
 .gsl-draft-row span:last-child { color: var(--luna-ink-800); font-weight: 600; }
 .gsl-draft-desc-label { font-size: 11px; font-weight: 700; color: var(--luna-ink-400); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 6px; }
 .gsl-draft-desc { font-size: 12px; line-height: 1.55; color: var(--luna-ink-600); }
+.gsl-draft-more { display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--luna-orange-600); cursor: pointer; }
+.gsl-draft-list { margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.6; color: var(--luna-ink-600); }
+.gsl-draft-list li { margin-bottom: 3px; }
+.gsl-draft-top { display: flex; align-items: center; justify-content: space-between; }
+.gsl-draft-edit-link { background: none; border: none; font-family: inherit; font-size: 11.5px; font-weight: 700; color: var(--luna-orange-600); padding: 0; cursor: pointer; }
+.gsl-draft-status { display: inline-block; font-size: 10.5px; font-weight: 700; color: #1f8a4e; background: #eafaf0; border-radius: 20px; padding: 3px 9px; margin: 10px 0; }
+
+.gsl-note { border: 1px solid var(--luna-ink-100); background: var(--luna-ink-050); border-radius: 12px; padding: 12px 13px; }
+.gsl-note-title { font-size: 10.5px; font-weight: 700; color: var(--luna-ink-400); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.gsl-note-body { font-size: 11.5px; line-height: 1.55; color: var(--luna-ink-600); margin: 0; }
+
+.gsl-btn-row { display: flex; gap: 8px; }
+.gsl-btn-row .gsl-btn { width: auto; flex: 1; height: 44px; font-size: 12.5px; }
+.gsl-btn-ghost { background: none; color: var(--luna-ink-600); border: none; }
+.gsl-btn-outline { background: #ffffff; color: var(--luna-ink-800); border: 1.5px solid var(--luna-ink-200); }
+.gsl-btn-outline svg, .gsl-btn-ghost svg { width: 13px; height: 13px; }
 .gsl-ai-hint { display: flex; gap: 10px; align-items: flex-start; background: var(--luna-orange-050); border: 1px solid var(--luna-orange-100); border-radius: 12px; padding: 12px 13px; }
 .gsl-ai-hint svg { width: 16px; height: 16px; color: var(--luna-orange-600); flex-shrink: 0; margin-top: 1px; }
 .gsl-ai-hint p { font-size: 11px; line-height: 1.5; color: var(--luna-ink-600); margin: 0; }
 .gsl-ai-hint p b { color: var(--luna-ink-900); font-weight: 700; }
+.gsl-bullet-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--luna-orange-500); flex-shrink: 0; margin-top: 6px; }
 .gsl-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .gsl-chip {
   border: 1.5px solid var(--luna-ink-200);
