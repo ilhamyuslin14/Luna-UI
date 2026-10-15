@@ -143,6 +143,7 @@ Catatan internal lowongan yang telah dinonaktifkan (`is_published` diubah ke `fa
 | **2026-10-07** | **`JD000505`**<br>Content Writer | TESTER GETTING STARTED<br>`ciwomok941@caps7.com` | PT. TEST | `lunasys.id/KEtwSe46` | **Kriteria A.1 & A.2 (Testing Onboarding):** Akun testing fitur Getting Started menggunakan email disposable (`@caps7.com`). Dinonaktifkan atas instruksi user. |
 | **2026-10-07** | **`JD000506`**<br>Senior Backend Engineer | TEST GS 1<br>`kiyen65000@caps7.com` | PT. TEST1 | `lunasys.id/ME443tCa` | **Kriteria A.1 & A.2 (Testing Onboarding):** Akun testing fitur Getting Started menggunakan email disposable (`@caps7.com`). Dinonaktifkan atas instruksi user. |
 | **2026-10-15** | **`JD000530`**<br>Senior Frontend Engineer | latexi9396@iconcubic.com<br>`latexi9396@iconcubic.com` | latexi9396@iconcubic.com | — | **Kriteria A.1 & A.2 (Akun Testing User):** Akun pengujian internal user menggunakan email disposable (`@iconcubic.com`). Dinonaktifkan atas instruksi user. |
+| **2026-10-15** | **`JD000531`**<br>Analis Data Produk | dyan.fritz@dropoffs.org<br>`dyan.fritz@dropoffs.org` | dyan.fritz@dropoffs.org | — | **Kriteria A.1 & A.2 (Akun Testing User):** Akun pengujian internal user menggunakan email disposable (`@dropoffs.org`). Dinonaktifkan atas instruksi user. |
 
 ---
 
