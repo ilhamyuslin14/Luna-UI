@@ -3,10 +3,13 @@ import { createPortal } from 'react-dom';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
 } from '../../../hooks/lowongan/useLamanKarirData.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 
 const IconShare = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>);
+const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
+const IconCompany = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>);
 const IconLink = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" /></svg>);
 const IconEye = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>);
 const IconPin = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>);
@@ -79,7 +82,7 @@ function CompanyLogo({ url, name, className }) {
     : <div className={className}>{(name || '?').charAt(0).toUpperCase()}</div>;
 }
 
-function Header({ onShare, shareDisabled }) {
+function Header({ onShare, shareDisabled, onMasuk, onPerusahaan }) {
   return (
     <div className="lk-head">
       <a className="lk-logo" href="/?view=semua-lowongan">
@@ -87,7 +90,12 @@ function Header({ onShare, shareDisabled }) {
         <span className="lk-logo-divider" />
         <span className="lk-badge-portal">PORTAL KARIR</span>
       </a>
-      <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
+      <div className="lk-head-actions">
+        <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
+        <span className="lk-head-divider" />
+        <button className="lk-share-btn" onClick={onMasuk} title="Masuk"><IconUser /></button>
+        <button className="lk-share-btn primary" onClick={onPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+      </div>
     </div>
   );
 }
@@ -122,7 +130,13 @@ function ShareSheet({ open, onClose, onShare, pageUrl }) {
 // hook `useLamanKarirData` yang sama persis dengan desktop (fetch, validasi
 // form, alur submit upload→ekstrak AI→scoring) — cuma markup & CSS beda
 // total (2-kolom sticky sidebar di desktop vs sheet+sticky-bar di sini).
-export default function LamanKarirMobile({ kode }) {
+export default function LamanKarirMobile({ kode, navigate }) {
+  const { companyId } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const {
     pageState, seleksiData, viewCount,
     form, handleChange, handlePhoneChange, linkedinError,
@@ -207,7 +221,12 @@ export default function LamanKarirMobile({ kode }) {
             <span className="lk-logo-divider" />
             <span className="lk-badge-portal">PORTAL KARIR</span>
           </a>
-          <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>
+          <div className="lk-head-actions">
+            <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>
+            <span className="lk-head-divider" />
+            <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+            <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+          </div>
         </div>
 
         <div className="lk-success-band">
@@ -283,7 +302,7 @@ export default function LamanKarirMobile({ kode }) {
   // ── layar detail lowongan + form lamar ──
   return (
     <div className="lk-page">
-      <Header onShare={() => setShareOpen(true)} />
+      <Header onShare={() => setShareOpen(true)} onMasuk={goMasuk} onPerusahaan={goPerusahaan} />
       <div className="lk-crumb">
         {companyPageUrl ? <a href={companyPageUrl}>{companyName}</a> : <span>{companyName || 'Lowongan Pekerjaan'}</span>}
         {' / '}<b>{seleksiData.jabatan}</b>

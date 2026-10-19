@@ -1,8 +1,15 @@
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
 import { formatUpah } from '../../hooks/lowongan/useLamanKarirData.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_001.css';
+
+const IconBriefcase = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
 
 // Palet avatar inisial (fallback saat perusahaan belum punya logo_url) —
 // deterministik dari nama perusahaan supaya satu perusahaan konsisten
@@ -41,7 +48,13 @@ function relativeTime(dateStr) {
 // (semua-lowongan_001.css, prefix sl-) supaya tidak ikut mengubah tampilan
 // section "Semua Lowongan Aktif" di Lowongan-LamanKarir_001.jsx yang berbagi
 // class lk-portal-*/lk-job-row* yang sama.
-export default function SemuaLowongan() {
+export default function SemuaLowongan({ navigate }) {
+  const { companyId } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const {
     loading, search, setSearch, sort, setSort, page, setPage,
     tipeKerja, toggleTipeKerja,
@@ -68,6 +81,10 @@ export default function SemuaLowongan() {
             <span className="lk-brand-divider" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
           </a>
+          <div className="lk-header-actions">
+            <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
+          </div>
         </div>
       </header>
 

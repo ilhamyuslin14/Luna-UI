@@ -1,0 +1,704 @@
+/* ==========================================================================
+   STATUS LAMARAN 001 (PORTAL PELAMAR) - LUNA UI DESIGN SYSTEM
+   Prefix: .slm001-
+   Karakteristik:
+   - Palette: Luna Warm Theme (#F8F7F4, #0A0908, #2B2A27, #5E5C56, #E6E4DF)
+   - Status Badge: Bersih, Minimalis, Konsisten
+   - Clickable Job Card: Membuka detail lowongan /?view=laman-karir
+   - Tanpa warna-warni mencolok (flat, professional, clean)
+   ========================================================================== */
+
+:root {
+  --slm-bg: #F8FAFC;
+  --slm-surface: #FFFFFF;
+  --slm-card-bg: #FFFFFF;
+  --slm-border: #E2E8F0;
+  --slm-border-strong: #CBD5E1;
+  --slm-ink-title: #0F172A;
+  --slm-ink-body: #1E293B;
+  --slm-ink-muted: #64748B;
+  --slm-ink-subtle: #94A3B8;
+  --slm-orange: #FF8D21;
+  --slm-orange-soft: #FFF4DF;
+  --slm-orange-border: #FFCD90;
+}
+
+/* ─── Modern Sleek Scrollbar (Ramping & Halus, Tidak Besar) ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+  border: 2px solid #F8FAFC;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+.slm001-layout {
+  min-height: 100vh;
+  background-color: var(--slm-bg);
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--slm-ink-body);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Kontainer Konten Utama (Menyatu dengan background halaman, transparan tanpa warna terpisah) ─── */
+.slm001-container {
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+  box-sizing: border-box;
+  background: transparent;
+  flex: 1;
+}
+
+/* ─── Main Tabs Navigation (Riwayat Lamaran vs Lamaran Tersimpan) ─── */
+.slm001-main-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  border-bottom: 1.5px solid var(--slm-border);
+  margin-bottom: 28px;
+}
+
+.slm001-main-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 2px 14px 2px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--slm-ink-muted);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.slm001-main-tab-btn:hover {
+  color: var(--slm-ink-title);
+}
+
+.slm001-main-tab-btn.active {
+  color: var(--slm-ink-title);
+  font-weight: 700;
+}
+
+.slm001-main-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #0F172A;
+  border-radius: 3px 3px 0 0;
+}
+
+.slm001-main-tab-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #E2E8F0;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+
+.slm001-main-tab-btn.active .slm001-main-tab-badge {
+  background: #0F172A;
+  color: #FFFFFF;
+}
+
+/* ─── Two-Column Grid (Main 72% + Sidebar 28%) ─── */
+.slm001-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+  width: 100%;
+}
+
+.slm001-main-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.slm001-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.slm001-header-wrap {
+  margin-bottom: 24px;
+}
+
+.slm001-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--slm-ink-title);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.slm001-page-desc {
+  font-size: 13.5px;
+  color: var(--slm-ink-muted);
+  margin: 0;
+}
+
+/* ─── Filter Status Bar (Clean Minimalist Underline) ─── */
+.slm001-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--slm-border);
+  margin-bottom: 24px;
+}
+
+.slm001-tab-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 2px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--slm-ink-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.slm001-tab-item:hover {
+  color: var(--slm-ink-title);
+}
+
+.slm001-tab-item.active {
+  color: var(--slm-ink-title);
+  font-weight: 700;
+}
+
+.slm001-tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--slm-ink-title);
+  border-radius: 2px 2px 0 0;
+}
+
+.slm001-tab-count {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: #EAE8E3;
+  color: var(--slm-ink-muted);
+  font-weight: 600;
+}
+
+.slm001-tab-item.active .slm001-tab-count {
+  background: var(--slm-ink-title);
+  color: #FFFFFF;
+}
+
+/* ─── List Kartu Lamaran (Clean, Flat, Clickable Card) ─── */
+.slm001-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.slm001-job-card {
+  background: var(--slm-surface);
+  border: 1px solid var(--slm-border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.slm001-job-card:hover {
+  border-color: var(--slm-border-strong);
+  box-shadow: 0 4px 14px rgba(10, 9, 8, 0.04);
+  transform: translateY(-1px);
+}
+
+.slm001-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.slm001-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.slm001-job-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.slm001-job-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--slm-ink-title);
+  margin: 0;
+  transition: color 0.15s ease;
+}
+
+.slm001-job-card:hover .slm001-job-name {
+  color: var(--slm-orange);
+}
+
+.slm001-company-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--slm-ink-body);
+  margin: 0 0 10px 0;
+}
+
+.slm001-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--slm-ink-muted);
+  flex-wrap: wrap;
+}
+
+.slm001-meta-divider {
+  color: var(--slm-border-strong);
+}
+
+.slm001-meta-salary {
+  color: var(--slm-ink-title);
+  font-weight: 600;
+}
+
+/* ─── Status Badge Luna (Clean Monochromatic / Subdued Accent) ─── */
+.slm001-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 1. Tahap Baru / Terkirim: Abu-abu netral */
+.slm001-status-badge.status-baru {
+  background: #F4F3F0;
+  color: var(--slm-ink-body);
+  border: 1px solid var(--slm-border);
+}
+
+/* 2. Tahap Review / Terseleksi: Subtle Blue-Gray */
+.slm001-status-badge.status-review {
+  background: #EEF3F8;
+  color: #1F4B78;
+  border: 1px solid #D5E2F0;
+}
+
+/* 3. Tahap Wawancara (Penjadwalan / HR / Akhir): Subtle Amber / Luna Warm */
+.slm001-status-badge.status-wawancara {
+  background: var(--slm-orange-soft);
+  color: #9E4D00;
+  border: 1px solid var(--slm-orange-border);
+}
+
+/* 4. Tahap Penawaran / Diterima: Subtle Green */
+.slm001-status-badge.status-diterima {
+  background: #E8F7EE;
+  color: #156938;
+  border: 1px solid #B8E4C9;
+}
+
+/* 5. Tahap Tidak Sesuai: Muted Grayish Red */
+.slm001-status-badge.status-tolak {
+  background: #FDF2F2;
+  color: #8C2220;
+  border: 1px solid #F5C6C6;
+}
+
+/* ─── Strip Penjadwalan Wawancara (Clean & Minimal) ─── */
+.slm001-interview-strip {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: #FDFBF7;
+  border: 1px solid var(--slm-border);
+  border-left: 3px solid var(--slm-orange);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+}
+
+.slm001-strip-text {
+  color: var(--slm-ink-body);
+  font-weight: 500;
+}
+
+.slm001-strip-link {
+  color: var(--slm-orange);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slm001-strip-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Card Footer: Tanggal Kirim & Action ─── */
+.slm001-card-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--slm-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--slm-ink-muted);
+}
+
+.slm001-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slm001-btn-open-job {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--slm-ink-title);
+  font-weight: 600;
+  font-size: 12.5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.slm001-btn-open-job:hover {
+  color: var(--slm-orange);
+}
+
+/* Empty State */
+.slm001-empty-state {
+  background: var(--slm-surface);
+  border: 1px dashed var(--slm-border-strong);
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.slm001-empty-state h3 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--slm-ink-title);
+}
+
+.slm001-empty-state p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: var(--slm-ink-muted);
+}
+
+.slm001-empty-btn {
+  background: var(--slm-ink-title);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.slm001-empty-btn:hover {
+  opacity: 0.9;
+}
+
+/* ─── Sidebar Cards & Widgets ─── */
+.slm001-side-card {
+  background: #FFFFFF;
+  border: 1px solid var(--slm-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+}
+
+.slm001-side-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.slm001-side-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slm001-side-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slm-orange);
+}
+
+.slm001-side-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--slm-ink-title);
+  margin: 0;
+}
+
+.slm001-side-badge-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--slm-orange);
+  background: var(--slm-orange-soft);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--slm-orange-border);
+}
+
+/* Stats Activity Grid */
+.slm001-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.slm001-stat-item {
+  background: var(--slm-bg);
+  border: 1px solid var(--slm-border);
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.slm001-stat-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--slm-ink-title);
+  line-height: 1.1;
+}
+
+.slm001-stat-lbl {
+  font-size: 11px;
+  color: var(--slm-ink-muted);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.slm001-side-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--slm-ink-muted);
+  line-height: 1.45;
+  border-top: 1px dashed var(--slm-border);
+  padding-top: 10px;
+}
+
+/* Rekomendasi Lowongan Mini */
+.slm001-link-more {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--slm-orange);
+  cursor: pointer;
+  padding: 0;
+}
+
+.slm001-link-more:hover {
+  text-decoration: underline;
+}
+
+.slm001-recom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slm001-recom-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--slm-border);
+  background: var(--slm-bg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.slm001-recom-card:hover {
+  background: #FFFFFF;
+  border-color: var(--slm-border-strong);
+  transform: translateY(-1px);
+}
+
+.slm001-recom-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--slm-ink-title);
+}
+
+.slm001-recom-company {
+  font-size: 11.5px;
+  color: var(--slm-ink-muted);
+  margin: 2px 0 4px;
+}
+
+.slm001-recom-salary {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--slm-orange);
+}
+
+/* ─── Lamaran Tersimpan (Saved Jobs) Card Styles ─── */
+.slm001-saved-card {
+  background: var(--slm-card-bg);
+  border: 1px solid var(--slm-border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.slm001-saved-card:hover {
+  border-color: var(--slm-border-strong);
+  box-shadow: 0 4px 14px rgba(10, 9, 8, 0.04);
+  transform: translateY(-1px);
+}
+
+.slm001-saved-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.slm001-saved-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slm001-btn-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FF8D21;
+  color: #FFFFFF;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.slm001-btn-apply:hover {
+  background: #E67A15;
+  transform: translateY(-1px);
+}
+
+.slm001-btn-unsave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--slm-border);
+  background: #FFFFFF;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.slm001-btn-unsave:hover {
+  background: #FEF2F2;
+  border-color: #FECACA;
+  color: #DC2626;
+}
+
+.slm001-saved-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12.5px;
+  color: var(--slm-ink-muted);
+  border-top: 1px solid #F1F5F9;
+  padding-top: 12px;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 960px) {
+  .slm001-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .slm001-card-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .slm001-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .slm001-filter-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 4px;
+  }
+}

@@ -5,6 +5,7 @@ import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPand
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import MobileReportKendalaButton from '../../components/MobileReportKendalaButton.jsx';
+import MobileLowonganPublishedScreen from '../../components/MobileLowonganPublishedScreen.jsx';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -30,13 +31,6 @@ const IconBrain = () => (
     <path d="M9 8a2 2 0 0 1 2 2" /><path d="M15 8a2 2 0 0 0-2 2" /><path d="M8 14a2 2 0 0 0 2-2" /><path d="M16 14a2 2 0 0 1-2-2" />
   </svg>
 );
-const IconCopy = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-);
-const IconShareGlyph = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
-);
-
 // Textarea jawaban bebas — mulai 2 baris, tumbuh otomatis mengikuti isi
 // sampai maksimal 6 baris, lewat itu scroll internal (bukan terus melar).
 const FREE_INPUT_MIN_ROWS = 1;
@@ -150,23 +144,11 @@ export default function MobileBuatLowonganQA({ navigate, back }) {
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
-  const [copied, setCopied] = useState(false);
   const publishedUrl = buildLamanKarirUrl({ companyName, jabatan: draft?.jobTitle, kode: publishedKode });
 
   const showToast = (message, sub) => {
     setToast({ message, sub });
     setTimeout(() => setToast(null), 2200);
-  };
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(publishedUrl);
-      setCopied(true);
-      showToast('Tautan disalin');
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      showToast('Gagal menyalin', 'Coba salin manual dari kotak tautan');
-    }
   };
 
   const mulaiSebar = () => navigate('sebar_001');
@@ -372,30 +354,13 @@ export default function MobileBuatLowonganQA({ navigate, back }) {
         {step === 'published' && (
           <>
             <Confetti />
-            <div className="mblw-sum-body mblw-pub-body">
-              <div className="mblw-pub-header">
-                <div className="mblw-pub-header-text">
-                  <div className="mblw-pub-title">Lowongan kamu sudah tayang</div>
-                  <p className="mblw-pub-sub">{draft?.jobTitle} sekarang bisa dilamar siapa saja.</p>
-                </div>
-                <div className="mblw-pub-icon"><IconCheck /></div>
-              </div>
-
-              <div className="mblw-pub-link-card">
-                <div className="mblw-pub-link-label">Tautan Lowongan</div>
-                <div className="mblw-pub-link-url">{publishedUrl}</div>
-                <button className="mblw-pub-copy-btn" onClick={copyLink}>
-                  {copied ? <IconCheck /> : <IconCopy />}{copied ? 'Tersalin' : 'Salin Tautan'}
-                </button>
-              </div>
-
-              <div className="mblw-pub-share-title">Sekarang sebarkan lowongannya</div>
-              <p className="mblw-pub-share-sub">Lowongan tidak akan dapat pelamar kalau tidak disebar. Bagikan tautannya ke WhatsApp, Instagram, atau grup lowongan kerja.</p>
-              <button className="mblw-pub-share-btn" onClick={mulaiSebar}><IconShareGlyph />Mulai Sebar</button>
-            </div>
-            <div className="mblw-sum-footer">
-              <button className="mblw-pub-view-btn" onClick={lihatLowongan}>Lihat Lowongan</button>
-            </div>
+            <MobileLowonganPublishedScreen
+              jobTitle={draft?.jobTitle}
+              publishedUrl={publishedUrl}
+              onLihatLowongan={lihatLowongan}
+              onMulaiSebar={mulaiSebar}
+              showToast={showToast}
+            />
           </>
         )}
 

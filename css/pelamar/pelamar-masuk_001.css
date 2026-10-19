@@ -1,0 +1,159 @@
+/* ─── LUNA UI — Pelamar Masuk 001 Stylesheet ─── */
+/* Prefix terisolasi: .pm001- (Pelamar Masuk 001) */
+/* Opsi A dari artifact "Masuk Pelamar Options" — split hero bercerita,
+   tanpa baris statistik (jumlah lowongan/perusahaan belum representatif). */
+
+.pm001-shell {
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Panel kiri: hero bercerita ──
+   Kedua panel berbagi ruang rata (flex:1), full-bleed sampai tepi layar.
+   Tipografi hero dibesarkan supaya kontennya "mengisi" panel secara alami,
+   bukan lewat memperkecil kontainernya. */
+.pm001-hero {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 50%;
+  min-width: 320px;
+  padding: 44px clamp(32px, 4.5vw, 56px);
+  background: radial-gradient(120% 140% at 0% 0%, #3A220A 0%, var(--luna-ink-900, #0A0908) 48%, #0A0F1C 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/* pointer-events:none — murni dekoratif, tanpa ini lingkaran glow ini
+   "menimpa" klik ke elemen di bawahnya (mis. tombol Kembali cari lowongan
+   yang posisinya persis tumpang tindih dengan ::after di bawah-kiri panel). */
+.pm001-hero::before {
+  content: ''; position: absolute; right: -60px; top: -60px; width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 123, 0, 0.35), transparent 70%);
+  pointer-events: none;
+}
+.pm001-hero::after {
+  content: ''; position: absolute; left: -40px; bottom: -80px; width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.07), transparent 70%);
+  pointer-events: none;
+}
+
+.pm001-hero-top { position: relative; display: flex; align-items: center; gap: 10px; }
+.pm001-hero-logo { height: 32px; width: auto; border-radius: 8px; object-fit: contain; display: block; }
+.pm001-hero-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+
+.pm001-hero-mid { position: relative; margin-top: 40px; }
+.pm001-hero-mid h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; line-height: 1.2; margin: 0 0 16px; text-wrap: balance; letter-spacing: -0.01em; }
+.pm001-hero-mid p { font-size: 15px; line-height: 1.7; color: rgba(255, 255, 255, 0.72); margin: 0; max-width: 420px; }
+
+.pm001-hero-back {
+  position: relative; z-index: 1; align-self: flex-start; background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, 0.75); padding: 0; transition: color 0.15s;
+  user-select: none;
+}
+.pm001-hero-back:hover { color: #fff; }
+
+/* ── Panel kanan: form ── */
+.pm001-form-side {
+  flex: 1 1 50%;
+  min-width: 320px;
+  background: #fff;
+  padding: 44px clamp(28px, 5vw, 56px) 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.pm001-form-col {
+  width: 100%;
+  max-width: 420px;
+}
+
+.pm001-form-head { margin-bottom: 24px; }
+.pm001-form-head h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 21px; font-weight: 800; color: var(--luna-ink-900, #0A0908); margin: 0 0 6px; }
+.pm001-form-head p { font-size: 12.5px; color: var(--luna-ink-500, #5E5C56); line-height: 1.55; margin: 0; }
+
+.pm001-form { display: flex; flex-direction: column; gap: 15px; }
+.pm001-field { display: flex; flex-direction: column; gap: 6px; }
+.pm001-label-row { display: flex; align-items: center; justify-content: space-between; }
+.pm001-label { font-size: 12px; font-weight: 700; color: var(--luna-ink-700, #292823); }
+.pm001-forgot { font-size: 11.5px; font-weight: 700; color: var(--luna-orange-500, #FF7B00); cursor: pointer; }
+.pm001-forgot:hover { color: var(--luna-orange-600, #D66800); }
+
+.pm001-input {
+  width: 100%; box-sizing: border-box; border: 1.5px solid var(--luna-ink-100, #EFEEEC); border-radius: 11px;
+  padding: 11px 14px; font-size: 13.5px; font-family: inherit; color: var(--luna-ink-900, #0A0908);
+  outline: none; transition: border-color 0.15s;
+}
+.pm001-input:focus { border-color: var(--luna-orange-400, #FF8D21); }
+.pm001-input::placeholder { color: var(--luna-ink-300, #B8B5AE); }
+
+.pm001-pass-wrap { position: relative; }
+.pm001-pass-wrap .pm001-input { padding-right: 42px; }
+.pm001-pass-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;
+  color: var(--luna-ink-400, #8A8780); display: flex; align-items: center; justify-content: center; padding: 4px;
+}
+.pm001-pass-toggle svg { width: 16px; height: 16px; }
+.pm001-pass-toggle:hover { color: var(--luna-ink-700, #292823); }
+
+.pm001-check-row {
+  display: flex; align-items: flex-start; gap: 9px; cursor: pointer;
+  font-size: 12px; line-height: 1.5; color: var(--luna-ink-600, #5E5C56);
+}
+.pm001-check-row input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--luna-orange-500, #FF7B00); flex-shrink: 0; cursor: pointer; }
+.pm001-check-row a { color: var(--luna-orange-500, #FF7B00); font-weight: 600; text-decoration: none; }
+.pm001-check-row a:hover { color: var(--luna-orange-600, #D66800); }
+
+.pm001-submit {
+  margin-top: 2px; width: 100%; background: var(--luna-orange-500, #FF7B00); color: #fff; border: none; border-radius: 11px;
+  padding: 13px; font-size: 13.5px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer;
+  box-shadow: 0 14px 26px -14px rgba(255, 123, 0, 0.5); transition: background 0.15s, opacity 0.15s;
+}
+.pm001-submit:hover:not(:disabled) { background: var(--luna-orange-600, #D66800); }
+.pm001-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+.pm001-divider-row { display: flex; align-items: center; gap: 10px; margin: 18px 0; }
+.pm001-divider-row span { flex: 1; height: 1px; background: var(--luna-ink-100, #EFEEEC); }
+.pm001-divider-row b { font-size: 11px; color: var(--luna-ink-400, #8A8780); font-weight: 600; }
+
+.pm001-social { display: flex; gap: 10px; }
+.pm001-social-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px solid var(--luna-ink-100, #EFEEEC); border-radius: 11px; padding: 10px;
+  background: #fff; font-size: 12.5px; font-weight: 700; color: var(--luna-ink-700, #292823);
+  font-family: inherit; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.pm001-social-btn:hover { border-color: var(--luna-ink-300, #B8B5AE); background: var(--luna-ink-050, #F7F7F6); }
+
+.pm001-switch {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--luna-ink-100, #EFEEEC);
+  font-size: 13px; color: var(--luna-ink-700, #292823); text-align: center;
+}
+.pm001-switch button {
+  background: none; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 800;
+  color: var(--luna-orange-500, #FF7B00); padding: 0 0 0 3px;
+}
+.pm001-switch button:hover { color: var(--luna-orange-600, #D66800); }
+
+.pm001-note {
+  margin-top: 14px;
+  font-size: 11.5px; line-height: 1.6; color: var(--luna-ink-400, #8A8780); text-align: center;
+}
+.pm001-note b { color: var(--luna-ink-600, #5E5C56); }
+
+.pm001-company-link {
+  display: block; margin-top: 14px; font-size: 11.5px; font-weight: 700; text-align: center;
+  color: var(--luna-ink-400, #8A8780); text-decoration: none;
+}
+.pm001-company-link:hover { color: var(--luna-orange-600, #D66800); }
+
+@media (max-width: 760px) {
+  .pm001-shell { flex-direction: column; }
+  .pm001-hero { display: none; }
+  .pm001-form-side { padding: 32px 20px 28px; justify-content: flex-start; min-height: 100vh; }
+  .pm001-form-col { max-width: 100%; }
+}

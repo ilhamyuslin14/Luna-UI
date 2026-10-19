@@ -106,16 +106,17 @@ export default function LandingPage_003({ navigate }) {
   return (
     <div className="lp003-page">
 
-      {/* ── Nav: cuma logo + 1 CTA ── */}
+      {/* ── Nav: style & size disamakan dengan .lk-header (portal karir) —
+          glass/blur, tinggi 72px, logo 34px, pemisah tipis sebelum CTA ── */}
       <header className="lp003-nav">
-        <div className="lp003-nav-pattern" />
-        <div className="lp003-nav-pattern lp003-nav-pattern-2" />
         <div className="lp003-nav-left">
           <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lp003-nav-logo" />
-          <span className="lp003-nav-tagline">Portal Karier Mandiri</span>
+          <span className="lp003-nav-divider" />
+          <span className="lp003-nav-tagline">PORTAL KARIR</span>
         </div>
         <div className="lp003-nav-right">
           <button className="lp003-nav-login" onClick={goMasuk}>Masuk</button>
+          <span className="lp003-nav-divider" />
           <button className="lp003-nav-cta" onClick={goDaftar}>
             Mulai Gratis
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>

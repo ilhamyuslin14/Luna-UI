@@ -9,6 +9,7 @@ import { extractTextFromFile } from '../../utils/extractTextFromFile.js';
 import { formatDeskripsiToHtml } from '../../utils/formatDeskripsiToHtml.js';
 import { supabase } from '../../config/supabase.js';
 import { reportLastError } from '../../utils/lastErrorMemory.js';
+import { buildLamanKarirUrl } from './useBuatLowonganPanduan.js';
 
 // Draft key sendiri (bukan 'sp001-draft' punya desktop) — sengaja dipisah
 // supaya perubahan bentuk draft di salah satu sisi (mobile/desktop) tidak
@@ -46,7 +47,7 @@ function formatRupiah(value) {
 // bisa jalan persis seperti desktop — komponen yang pegang editor-nya
 // langsung (lihat MobileBuatLowonganForm.jsx), hook ini cuma nyimpen hasil
 // akhirnya di `form.deskripsi`.
-export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
+export default function useBuatLowonganForm(companyId, companyPlan, navigate, companyName) {
   const isFreePlan = companyPlan === 'free';
   const statusOptions = isFreePlan
     ? DROPDOWN_OPTIONS.statusRekrutmen.filter(s => s === 'Rencana' || s === 'Aktif')
@@ -63,6 +64,7 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const [published, setPublished] = useState(null);
 
   const showToast = (message, subMessage, type = 'success') => {
     setToast({ message, subMessage, type });
@@ -150,7 +152,12 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
     if (!companyId) return false;
     const htmlDeskripsi = liveHtml ?? form.deskripsi;
     const plainText = htmlDeskripsi.replace(/<[^>]*>/g, '').trim();
-    if (!form.jabatan || !form.statusRekrutmen || !plainText) {
+    // Semua field wajib diisi kecuali Departemen, Upah Maks, Tgl Mulai &
+    // Target Onboard (ditandai "(Opsional)" di form).
+    const isComplete = form.jabatan && form.levelJabatan && form.lokasi && form.statusRekrutmen &&
+      form.jumlahRekrut && form.ikatanKerja && form.upahMin && form.siklusUpah &&
+      form.pendidikan && form.pengalaman && plainText;
+    if (!isComplete) {
       showToast('Lengkapi Form', 'Harap isi semua field wajib (*)', 'error');
       return false;
     }
@@ -158,6 +165,7 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
     try {
       const meetsDescLength = plainText.length >= 300;
       const isSufficientDesc = !isFreePlan && meetsDescLength;
+      const kode = `LUN-${Math.floor(Math.random() * 10000)}`;
 
       const dataBaru = await createSeleksi(companyId, {
         department_id: form.departemen || null,
@@ -175,7 +183,7 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
         pendidikan: form.pendidikan,
         pengalaman: form.pengalaman,
         deskripsi: htmlDeskripsi,
-        kode: `LUN-${Math.floor(Math.random() * 10000)}`,
+        kode,
         kriteria: isSufficientDesc ? [{ _isGenerating: true }] : [],
       });
       invalidate('seleksi');
@@ -190,7 +198,12 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
 
       discardedRef.current = true;
       clearDraft();
-      navigate('lowongan-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
+      setPublished({
+        seleksiId: dataBaru.id,
+        jobTitle: form.jabatan,
+        publishedUrl: buildLamanKarirUrl({ companyName, jabatan: form.jabatan, kode }),
+        publishedKode: kode,
+      });
       return true;
     } catch (err) {
       const msg = err.message || 'Terjadi kesalahan saat menyimpan lowongan.';
@@ -216,5 +229,6 @@ export default function useBuatLowonganForm(companyId, companyPlan, navigate) {
     isSaving, submit, cancel,
     isFreePlan, statusOptions,
     toast, setToast,
+    published,
   };
 }

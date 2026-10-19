@@ -6,6 +6,7 @@ import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
 import MobileToast from '../../components/MobileToast.jsx';
 import MobileRichTextEditor from '../../components/MobileRichTextEditor.jsx';
 import MobileReportKendalaButton from '../../components/MobileReportKendalaButton.jsx';
+import MobileLowonganPublishedScreen from '../../components/MobileLowonganPublishedScreen.jsx';
 import '../../../../css/mobile/lowongan/buat-lowongan-form.css';
 
 const IconClose = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>);
@@ -33,7 +34,7 @@ function fmtDate(iso) {
 }
 
 export default function MobileBuatLowonganForm({ navigate }) {
-  const { companyId, companyPlan } = useAuth() || {};
+  const { companyId, companyName, companyPlan } = useAuth() || {};
   const {
     form, setField, setUpah,
     departments, createNewDepartment, isCreatingDept,
@@ -42,7 +43,8 @@ export default function MobileBuatLowonganForm({ navigate }) {
     isSaving, submit, cancel,
     isFreePlan, statusOptions,
     toast, setToast,
-  } = useBuatLowonganForm(companyId, companyPlan, navigate);
+    published,
+  } = useBuatLowonganForm(companyId, companyPlan, navigate, companyName);
 
   const [phase, setPhase] = useState('form'); // 'form' | 'review'
   const [activeSheet, setActiveSheet] = useState(null);
@@ -58,8 +60,50 @@ export default function MobileBuatLowonganForm({ navigate }) {
 
   const closeSheet = () => { setActiveSheet(null); setNewDeptMode(false); setNewDeptName(''); };
 
+  if (published) {
+    return (
+      <>
+        <MobileLowonganPublishedScreen
+          jobTitle={published.jobTitle}
+          publishedUrl={published.publishedUrl}
+          onLihatLowongan={() => navigate('lowongan-detail_001', { seleksiId: published.seleksiId, jabatan: published.jobTitle, activeTab: 'ringkasan' })}
+          onMulaiSebar={() => navigate('sebar_001')}
+          showToast={(message, subMessage) => setToast({ message, subMessage, type: 'success' })}
+        />
+        <MobileToast toast={toast} onClose={() => setToast(null)} />
+      </>
+    );
+  }
+
   const syncDeskripsiFromEditor = () => {
     if (editorRef.current) setField('deskripsi', editorRef.current.innerHTML);
+  };
+
+  // Semua field wajib diisi kecuali Departemen, Upah Maks, Tgl Mulai &
+  // Target Onboard (ditandai "(Opsional)" di form).
+  const isFormComplete = (htmlDeskripsi) => {
+    const plainText = htmlDeskripsi.replace(/<[^>]*>/g, '').trim();
+    return !!(
+      form.jabatan && form.levelJabatan && form.lokasi && form.statusRekrutmen &&
+      form.jumlahRekrut && form.ikatanKerja && form.upahMin && form.siklusUpah &&
+      form.pendidikan && form.pengalaman && plainText
+    );
+  };
+
+  const canGoToReview = !!(
+    form.jabatan && form.levelJabatan && form.lokasi && form.statusRekrutmen &&
+    form.jumlahRekrut && form.ikatanKerja && form.upahMin && form.siklusUpah &&
+    form.pendidikan && form.pengalaman && liveDescLen > 0
+  );
+
+  const goToReview = () => {
+    const htmlDeskripsi = editorRef.current ? editorRef.current.innerHTML : form.deskripsi;
+    if (!isFormComplete(htmlDeskripsi)) {
+      setToast({ message: 'Lengkapi Form', subMessage: 'Harap isi semua field wajib (*)', type: 'error' });
+      return;
+    }
+    setField('deskripsi', htmlDeskripsi);
+    setPhase('review');
   };
 
   const departemenNama = departments.find(d => d.id === form.departemen)?.name || '';
@@ -111,19 +155,19 @@ export default function MobileBuatLowonganForm({ navigate }) {
               <input className="mblf-input" placeholder="mis. Product Designer" value={form.jabatan} onChange={e => setField('jabatan', e.target.value)} />
             </div>
             <div>
-              <div className="mblf-field-label">Level Jabatan</div>
+              <div className="mblf-field-label">Level Jabatan <span className="req">*</span></div>
               <button className="mblf-select" onClick={() => setActiveSheet('levelJabatan')}>
                 <span className={form.levelJabatan ? '' : 'ph'}>{form.levelJabatan || 'Pilih level jabatan'}</span><IconChevronDown />
               </button>
             </div>
             <div>
-              <div className="mblf-field-label">Departemen</div>
+              <div className="mblf-field-label">Departemen <span className="opt">(Opsional)</span></div>
               <button className="mblf-select" onClick={() => setActiveSheet('departemen')}>
                 <span className={departemenNama ? '' : 'ph'}>{departemenNama || 'Pilih departemen'}</span><IconChevronDown />
               </button>
             </div>
             <div style={{ position: 'relative' }}>
-              <div className="mblf-field-label">Lokasi</div>
+              <div className="mblf-field-label">Lokasi <span className="req">*</span></div>
               <input className="mblf-input" placeholder="mis. Jakarta Selatan" value={form.lokasi} onChange={e => handleLokasiChange(e.target.value)} />
               {lokasiSuggestions.length > 0 && (
                 <div className="mblf-suggest">
@@ -136,7 +180,7 @@ export default function MobileBuatLowonganForm({ navigate }) {
               )}
             </div>
             <div>
-              <div className="mblf-field-label">Ikatan Kerja</div>
+              <div className="mblf-field-label">Ikatan Kerja <span className="req">*</span></div>
               <button className="mblf-select" onClick={() => setActiveSheet('ikatanKerja')}>
                 <span className={form.ikatanKerja ? '' : 'ph'}>{form.ikatanKerja || 'Pilih ikatan kerja'}</span><IconChevronDown />
               </button>
@@ -150,43 +194,43 @@ export default function MobileBuatLowonganForm({ navigate }) {
               </button>
             </div>
             <div>
-              <div className="mblf-field-label">Jumlah Rekrut</div>
+              <div className="mblf-field-label">Jumlah Rekrut <span className="req">*</span></div>
               <input className="mblf-input" type="number" inputMode="numeric" placeholder="mis. 2" value={form.jumlahRekrut} onChange={e => setField('jumlahRekrut', e.target.value)} />
             </div>
             <div className="mblf-row2">
               <div>
-                <div className="mblf-field-label">Upah Min</div>
+                <div className="mblf-field-label">Upah Min <span className="req">*</span></div>
                 <input className="mblf-input" inputMode="numeric" placeholder="Rp 0" value={form.upahMin} onChange={e => setUpah('upahMin')(e.target.value)} />
               </div>
               <div>
-                <div className="mblf-field-label">Upah Maks</div>
+                <div className="mblf-field-label">Upah Maks <span className="opt">(Opsional)</span></div>
                 <input className="mblf-input" inputMode="numeric" placeholder="Rp 0" value={form.upahMax} onChange={e => setUpah('upahMax')(e.target.value)} />
               </div>
             </div>
             <div>
-              <div className="mblf-field-label">Siklus Upah</div>
+              <div className="mblf-field-label">Siklus Upah <span className="req">*</span></div>
               <button className="mblf-select" onClick={() => setActiveSheet('siklusUpah')}>
                 <span className={form.siklusUpah ? '' : 'ph'}>{form.siklusUpah || 'Pilih siklus upah'}</span><IconChevronDown />
               </button>
             </div>
             <div className="mblf-row2">
               <div>
-                <div className="mblf-field-label">Tgl Mulai</div>
+                <div className="mblf-field-label">Tgl Mulai <span className="opt">(Opsional)</span></div>
                 <input className="mblf-input" type="date" value={form.tglMulai} onChange={e => setField('tglMulai', e.target.value)} />
               </div>
               <div>
-                <div className="mblf-field-label">Target Onboard</div>
+                <div className="mblf-field-label">Target Onboard <span className="opt">(Opsional)</span></div>
                 <input className="mblf-input" type="date" value={form.tglOnboarding} onChange={e => setField('tglOnboarding', e.target.value)} />
               </div>
             </div>
             <div>
-              <div className="mblf-field-label">Minimal Pendidikan</div>
+              <div className="mblf-field-label">Minimal Pendidikan <span className="req">*</span></div>
               <button className="mblf-select" onClick={() => setActiveSheet('pendidikan')}>
                 <span className={form.pendidikan ? '' : 'ph'}>{form.pendidikan || 'Pilih minimal pendidikan'}</span><IconChevronDown />
               </button>
             </div>
             <div>
-              <div className="mblf-field-label">Minimal Pengalaman (Tahun)</div>
+              <div className="mblf-field-label">Minimal Pengalaman (Tahun) <span className="req">*</span></div>
               <input className="mblf-input" type="number" inputMode="numeric" placeholder="mis. 3" value={form.pengalaman} onChange={e => setField('pengalaman', e.target.value)} />
             </div>
 
@@ -221,7 +265,7 @@ export default function MobileBuatLowonganForm({ navigate }) {
 
           <div className="mblf-footer mblf-footer-col">
             <MobileReportKendalaButton halaman="buat-lowongan-form-mobile" variant="bar" />
-            <button className="mblf-btn-primary" onClick={() => { syncDeskripsiFromEditor(); setPhase('review'); }}>
+            <button className="mblf-btn-primary" disabled={!canGoToReview} onClick={goToReview}>
               Lanjut ke Review<IconChevronRight />
             </button>
           </div>

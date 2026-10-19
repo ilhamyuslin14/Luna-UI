@@ -438,41 +438,63 @@
 .mblw-sum-btn-primary svg { width: 14px; height: 14px; }
 
 /* ── halaman "sudah tayang" ── */
-.mblw-pub-body { padding-top: calc(24px + env(safe-area-inset-top, 0px)); }
-.mblw-pub-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
-.mblw-pub-header-text { min-width: 0; }
-.mblw-pub-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 800; color: var(--luna-ink-900); margin: 0 0 5px; line-height: 1.2; }
+.mblw-pub-body { flex: 1; overflow-y: auto; padding: calc(24px + env(safe-area-inset-top, 0px)) 18px 20px; display: flex; flex-direction: column; }
+.mblw-pub-badge-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.mblw-pub-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--luna-ink-900); margin: 0 0 4px; line-height: 1.2; }
 .mblw-pub-sub { font-size: 12px; color: var(--luna-ink-500); line-height: 1.5; margin: 0; }
 .mblw-pub-icon {
-  width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--luna-orange-500); display: flex; align-items: center; justify-content: center;
-  color: #fff; box-shadow: 0 10px 24px -8px rgba(255,123,0,0.5);
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px;
+  background: linear-gradient(145deg, var(--luna-orange-400), var(--luna-orange-600));
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 12px 22px -10px rgba(255,123,0,0.55);
 }
-.mblw-pub-icon svg { width: 22px; height: 22px; }
+.mblw-pub-icon svg { width: 19px; height: 19px; }
 
-.mblw-pub-link-card { background: var(--luna-orange-050); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
-.mblw-pub-link-label { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--luna-orange-600); margin-bottom: 6px; }
-.mblw-pub-link-url { font-size: 12.5px; font-weight: 700; color: var(--luna-ink-800); word-break: break-all; margin-bottom: 12px; }
-.mblw-pub-copy-btn {
-  width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; background: #fff; border: 1px solid var(--luna-orange-200);
-  color: var(--luna-orange-600); border-radius: 10px; padding: 10px; font-size: 12px; font-weight: 800; font-family: inherit;
-}
-.mblw-pub-copy-btn svg { width: 13px; height: 13px; }
+.mblw-pub-stats { display: flex; gap: 16px; padding: 11px 0; border-top: 1px solid var(--luna-ink-100); border-bottom: 1px solid var(--luna-ink-100); margin-bottom: 18px; }
+.mblw-pub-stat-val { display: block; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--luna-ink-900); }
+.mblw-pub-stat-label { display: block; font-size: 10px; color: var(--luna-ink-400); font-weight: 700; letter-spacing: 0.02em; }
 
-.mblw-pub-share-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--luna-ink-900); margin: 0 0 6px; }
-.mblw-pub-share-sub { font-size: 11.5px; color: var(--luna-ink-500); line-height: 1.55; margin: 0 0 14px; }
-.mblw-pub-share-btn {
-  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--luna-orange-500); color: #fff;
+.mblw-pub-flow-copy { font-size: 12.5px; color: var(--luna-ink-700); line-height: 1.6; margin: 0 0 14px; }
+
+.mblw-pub-share-col { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+.mblw-pub-share-primary {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px; background: #0A66C2; color: #fff;
   border: none; border-radius: 12px; padding: 13px; font-size: 12.5px; font-weight: 800; font-family: inherit;
-  box-shadow: 0 10px 20px -10px rgba(255,123,0,0.5);
+  box-shadow: 0 12px 22px -12px rgba(10,102,194,0.55);
 }
-.mblw-pub-share-btn svg { width: 14px; height: 14px; }
+.mblw-pub-share-primary svg { width: 16px; height: 16px; }
+.mblw-pub-share-more {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; background: #fff;
+  border: 1.5px solid var(--luna-ink-200); color: var(--luna-ink-700); border-radius: 12px; padding: 11.5px; font-size: 12px; font-weight: 700; font-family: inherit;
+}
+.mblw-pub-share-more svg { width: 12px; height: 12px; }
 
-/* Netral (bukan oranye) sengaja dibedain dari "Mulai Sebar" — biar share
-   tetap kebaca sebagai aksi utama di halaman ini. */
+.mblw-pub-mini-browser { margin-top: auto; background: var(--luna-ink-050); border: 1px solid var(--luna-ink-100); border-radius: 14px; overflow: hidden; }
+.mblw-pub-mini-bar { display: flex; align-items: center; gap: 5px; padding: 8px 10px; border-bottom: 1px solid var(--luna-ink-100); }
+.mblw-pub-mini-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--luna-ink-200); }
+.mblw-pub-mini-url { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--luna-ink-400); margin-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mblw-pub-mini-row { padding: 12px; display: flex; align-items: center; gap: 9px; }
+.mblw-pub-mini-ic { width: 26px; height: 26px; border-radius: 7px; background: var(--luna-semantic-success); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mblw-pub-mini-ic svg { width: 13px; height: 13px; }
+.mblw-pub-mini-t { font-size: 11px; font-weight: 700; color: var(--luna-ink-900); }
+.mblw-pub-mini-d { font-size: 10px; color: var(--luna-ink-400); }
+
+.mblw-pub-reach-link {
+  margin-top: 14px; background: none; border: none; font-family: inherit; color: var(--luna-ink-500);
+  font-size: 12px; font-weight: 700; padding: 4px 0; text-align: left;
+}
+
 .mblw-pub-view-btn {
   width: 100%; background: var(--luna-ink-900); color: #fff; border: none; border-radius: 999px;
   padding: 14px; font-size: 14px; font-weight: 700; font-family: inherit;
 }
+
+/* Sheet "Channel Lain" — isinya pakai .msh-sheet-item generik dari shell.css,
+   cuma icon chip & divider-nya lokal di sini. */
+.mblw-pub-sheet-title { font-size: 12px; font-weight: 800; color: var(--luna-ink-400); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 8px 6px; }
+.mblw-pub-share-item-ic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mblw-pub-share-item-ic svg { width: 16px; height: 16px; }
+.mblw-pub-sheet-sep { height: 1px; background: var(--luna-ink-100); margin: 5px 8px; }
 
 /* ── confetti (halaman "sudah tayang") ── */
 .mblw-confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }

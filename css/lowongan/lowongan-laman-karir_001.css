@@ -43,9 +43,17 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--karir-border);
+  /* padding:0 eksplisit — tanpa ini, rule global "header { padding: 0 20px }"
+     punya dari shell dashboard ikut bocor ke sini (specificity tag vs class
+     cuma menang kalau class-nya set properti itu sendiri), bikin logo geser
+     60px dari tepi padahal .lk-header-container sudah punya padding 40px
+     sendiri — itu sebab logo kelihatan beda posisi dibanding navbar lain. */
+  padding: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 8px 24px -16px rgba(15, 23, 42, 0.12);
   height: 72px;
 }
 
@@ -115,6 +123,62 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
   background: #E2E8F0;
   color: var(--karir-ink-900);
 }
+
+/* Masuk / Untuk Perusahaan — kelompok CTA akun di kanan header, dipisah
+   dari aksi halaman (Bagikan/Kembali) dengan divider tipis. "Masuk" sengaja
+   tanpa latar (sekunder, teks saja); "Untuk Perusahaan" solid & paling kanan
+   supaya jadi penutup visual header yang jelas. */
+.lk-nav-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--karir-border);
+  flex-shrink: 0;
+}
+
+.lk-link-masuk {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--karir-ink-600);
+  padding: 4px 0;
+  border-bottom: 1.5px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+.lk-link-masuk:hover { color: var(--karir-ink-900); border-color: var(--karir-ink-900); }
+
+.lk-btn-perusahaan {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--karir-card-bg);
+  color: var(--karir-ink-900);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1.5px solid var(--karir-border);
+  border-radius: 999px;
+  padding: 7px 14px 7px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.lk-btn-perusahaan:hover { border-color: var(--karir-ink-400); background: #F8FAFC; }
+.lk-btn-perusahaan-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--karir-navy-900);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.lk-btn-perusahaan-badge svg { width: 11px; height: 11px; }
 
 .lk-btn-share {
   display: inline-flex;

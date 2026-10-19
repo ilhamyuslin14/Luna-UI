@@ -29,6 +29,8 @@ import LamanKarir from './views/lowongan/Lowongan-LamanKarir.jsx';
 import LamanKarir_001 from './views/lowongan/Lowongan-LamanKarir_001.jsx';
 import LamanPerusahaan_001 from './views/lowongan/Lowongan-Perusahaan_001.jsx';
 import SemuaLowongan from './views/lowongan/SemuaLowongan.jsx';
+import SemuaLowongan_002 from './views/lowongan/SemuaLowongan_002.jsx';
+import SemuaLowonganMobile_002 from './mobile/views/lowongan/SemuaLowonganMobile_002.jsx';
 import LamanKarirMobile from './mobile/views/lowongan/LamanKarirMobile.jsx';
 import LamanPerusahaanMobile from './mobile/views/lowongan/LamanPerusahaanMobile.jsx';
 import SemuaLowonganMobile from './mobile/views/lowongan/SemuaLowonganMobile.jsx';
@@ -68,6 +70,10 @@ import Docs from './views/docs/Docs.jsx';
 import LunaAnalytic from './views/analytic/LunaAnalytic.jsx';
 import GettingStartedLowongan from './mobile/views/getting-started-lowongan/GettingStartedLowongan.jsx';
 import GettingStartedProfil from './mobile/views/getting-started-profil/GettingStartedProfil.jsx';
+import ProfilPelamar_001 from './views/pelamar/ProfilPelamar_001.jsx';
+import StatusLamaran_001 from './views/pelamar/StatusLamaran_001.jsx';
+import PelamarMasuk_001 from './views/pelamar/PelamarMasuk_001.jsx';
+import PelamarDaftar_001 from './views/pelamar/PelamarDaftar_001.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
 const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
 
@@ -225,7 +231,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-perusahaan', 'semua-lowongan', 'sandbox', 'docs'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar'];
     const authMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -272,7 +278,27 @@ export default function App() {
   }
 
   if (activeMenu === 'semua-lowongan') {
-    return isMobile ? <SemuaLowonganMobile /> : <SemuaLowongan />;
+    return isMobile ? <SemuaLowonganMobile navigate={navigate} /> : <SemuaLowongan navigate={navigate} />;
+  }
+
+  if (activeMenu === 'semua-lowongan_002') {
+    return isMobile ? <SemuaLowonganMobile_002 navigate={navigate} /> : <SemuaLowongan_002 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'profil-pelamar_001' || activeMenu === 'profil-pelamar') {
+    return <ProfilPelamar_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'status-lamaran_001' || activeMenu === 'status-lamaran') {
+    return <StatusLamaran_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'pelamar-masuk') {
+    return <PelamarMasuk_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'pelamar-daftar') {
+    return <PelamarDaftar_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage') {
@@ -403,6 +429,10 @@ export default function App() {
 
   if (location.pathname === '/getting-started-profil' || activeMenu === 'getting-started-profil') {
     return <GettingStartedProfil navigate={navigate} />;
+  }
+
+  if (location.pathname === '/profil-pelamar' || activeMenu === 'profil-pelamar_001') {
+    return <ProfilPelamar_001 navigate={navigate} />;
   }
 
   if (isMobile) {

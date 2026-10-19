@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../../hooks/lowongan/useSemuaLowonganData.js';
 import { formatUpah } from '../../../hooks/lowongan/useLamanKarirData.js';
 import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 import '../../../../css/mobile/lowongan/semua-lowongan_001.css';
 
@@ -15,6 +16,8 @@ const IconClock = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const IconBriefcase = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>);
 const IconChevronLeft = () => (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>);
 const IconChevronRight = () => (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>);
+const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
+const IconCompany = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>);
 
 // Palet avatar inisial (fallback saat perusahaan belum punya logo_url) —
 // sama persis dengan versi desktop (SemuaLowongan.jsx), deterministik dari
@@ -132,7 +135,13 @@ function FilterSheet({
 // "Muat Lebih Banyak" — baris nomor dibuat scroll horizontal & auto-scroll
 // ke halaman aktif supaya tetap gampang di-tap di layar sempit; sidebar
 // filter desktop dipindah jadi bottom sheet karena tidak muat di lebar mobile.
-export default function SemuaLowonganMobile() {
+export default function SemuaLowonganMobile({ navigate }) {
+  const { companyId } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const {
     loading, search, setSearch, sort, setSort, page, setPage,
     tipeKerja, toggleTipeKerja,
@@ -165,6 +174,10 @@ export default function SemuaLowonganMobile() {
           <span className="lk-logo-divider" />
           <span className="lk-badge-portal">PORTAL KARIR</span>
         </a>
+        <div className="lk-head-actions">
+          <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+          <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+        </div>
       </div>
 
       <div className="slm-hero">

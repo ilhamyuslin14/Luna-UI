@@ -12,6 +12,8 @@ import { extractTextFromFile } from '../../utils/extractTextFromFile';
 import { formatDeskripsiToHtml } from '../../utils/formatDeskripsiToHtml.js';
 import { reportLastError } from '../../utils/lastErrorMemory.js';
 import ReportKendalaButton from '../../components/ReportKendalaButton.jsx';
+import LowonganPublishedScreen from '../../components/LowonganPublishedScreen.jsx';
+import { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
 
 const SP001_DRAFT_KEY = 'sp001-draft';
 
@@ -28,6 +30,13 @@ function clearDraft() {
   try { sessionStorage.removeItem(SP001_DRAFT_KEY); } catch {}
 }
 
+function fmtDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 const CalendarIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <rect x="1.5" y="3" width="15" height="13.5" rx="1.5" stroke="#abb2c1" strokeWidth="1.2" />
@@ -40,6 +49,16 @@ const ChevronIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
     <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="#abb2c1" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
+);
+
+const IconBack = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+);
+const IconChevronRight = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+);
+const IconCheckRv = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
 );
 
 const SpinnerIcon = () => (
@@ -128,7 +147,7 @@ const TBtn = ({ title, cmd, val, children, onClick }) => (
 
 // ── Memoized contenteditable ─────────────────────────────────────
 const EditableContent = React.memo(
-  ({ htmlRef, initialHtml }) => (
+  ({ htmlRef, initialHtml, onInput }) => (
     <div
       ref={htmlRef}
       contentEditable
@@ -136,13 +155,14 @@ const EditableContent = React.memo(
       className="sp001-editor-area"
       style={{ minHeight: '200px', maxHeight: '400px', overflowY: 'auto' }}
       dangerouslySetInnerHTML={{ __html: initialHtml }}
+      onInput={onInput}
     />
   ),
   () => true
 );
 
 export default function LowonganSetupPenilaian_001({ navigate }) {
-  const { companyId, companyPlan } = useAuth();
+  const { companyId, companyName, companyPlan } = useAuth();
   const isFreePlan = companyPlan === 'free';
   const statusOptions = isFreePlan
     ? DROPDOWN_OPTIONS.statusRekrutmen.filter(s => s === 'Rencana' || s === 'Aktif')
@@ -162,6 +182,17 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
 
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const [published, setPublished] = useState(null);
+  const [phase, setPhase] = useState('form'); // 'form' | 'review'
+  const [descExpanded, setDescExpanded] = useState(false);
+  // Panjang teks polos deskripsi, dilacak lewat textContent tiap ketikan
+  // (contentEditable itu uncontrolled, jadi form.deskripsi sendiri tidak
+  // ikut berubah tiap huruf) — dipakai buat nge-disable "Lanjut ke Review"
+  // sampai deskripsi beneran diisi, tanpa perlu re-render editor-nya.
+  const [liveDescLen, setLiveDescLen] = useState(() => (draftRef.current?.form?.deskripsi || '').replace(/<[^>]*>/g, '').trim().length);
+  const handleDescInput = () => {
+    if (editorRef.current) setLiveDescLen(editorRef.current.textContent.trim().length);
+  };
 
   const showToast = (message, subMessage, type = 'success') => {
     setToast({ message, subMessage, type });
@@ -329,10 +360,39 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
     e.target.value = '';
   };
 
+  const departemenNama = departments.find(d => d.id === form.departemen)?.name || '';
+
+  const canGoToReview = !!(
+    form.jabatan && form.levelJabatan && form.lokasi && form.statusRekrutmen &&
+    form.jumlahRekrut && form.ikatanKerja && form.upahMin && form.siklusUpah &&
+    form.pendidikan && form.pengalaman && liveDescLen > 0
+  );
+
+  // Semua field wajib diisi kecuali Departemen, Upah Maksimum, Tgl Mulai
+  // Rekrutmen & Target On-boarding (ditandai "(Opsional)" di form).
+  const isFormComplete = (htmlDeskripsi) => {
+    const plainText = htmlDeskripsi.replace(/<[^>]*>/g, '').trim();
+    return !!(
+      form.jabatan && form.levelJabatan && form.lokasi && form.statusRekrutmen &&
+      form.jumlahRekrut && form.ikatanKerja && form.upahMin && form.siklusUpah &&
+      form.pendidikan && form.pengalaman && plainText
+    );
+  };
+
+  const goToReview = () => {
+    const htmlDeskripsi = editorRef.current ? editorRef.current.innerHTML : form.deskripsi;
+    if (!isFormComplete(htmlDeskripsi)) {
+      showToast('Lengkapi Form', 'Harap isi semua field wajib (*)', 'error');
+      return;
+    }
+    setForm(prev => ({ ...prev, deskripsi: htmlDeskripsi }));
+    setPhase('review');
+  };
+
   const handleSimpan = async () => {
     if (!companyId) return;
     const htmlDeskripsi = editorRef.current ? editorRef.current.innerHTML : form.deskripsi;
-    if (!form.jabatan || !form.statusRekrutmen || !htmlDeskripsi) {
+    if (!isFormComplete(htmlDeskripsi)) {
       showToast('Lengkapi Form', 'Harap isi semua field wajib (*)', 'error');
       return;
     }
@@ -344,6 +404,7 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
       // simpan data lowongan-nya, kriteria dibiarkan kosong (state terkunci
       // ditangani di Seleksi-Ringkasan/KriteriaPenilaian).
       const isSufficientDesc = !isFreePlan && meetsDescLength;
+      const kode = `LUN-${Math.floor(Math.random() * 10000)}`;
 
       const dataBaru = await createSeleksi(companyId, {
         department_id: form.departemen || null,
@@ -361,7 +422,7 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
         pendidikan: form.pendidikan,
         pengalaman: form.pengalaman,
         deskripsi: htmlDeskripsi,
-        kode: `LUN-${Math.floor(Math.random() * 10000)}`,
+        kode,
         kriteria: isSufficientDesc ? [{ _isGenerating: true }] : []
       });
       invalidate('seleksi');
@@ -377,7 +438,15 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
 
       discardedRef.current = true;
       clearDraft();
-      navigate('lowongan-detail_001', { seleksiId: dataBaru.id, jabatan: form.jabatan, activeTab: 'ringkasan' });
+      setPublished({
+        seleksiId: dataBaru.id,
+        jobTitle: form.jabatan,
+        publishedUrl: buildLamanKarirUrl({ companyName, jabatan: form.jabatan, kode }),
+        publishedKode: kode,
+        chips: [form.levelJabatan, form.ikatanKerja, form.lokasi],
+        lokasi: form.lokasi,
+        description: plainText,
+      });
     } catch (err) {
       const msg = err.message || 'Terjadi kesalahan saat menyimpan lowongan seleksi';
       showToast('Gagal', msg, 'error');
@@ -387,30 +456,101 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
     }
   };
 
+  if (published) {
+    return (
+      <div className="sp001-view">
+        <LowonganPublishedScreen
+          jobTitle={published.jobTitle}
+          companyName={companyName}
+          publishedUrl={published.publishedUrl}
+          publishedKode={published.publishedKode}
+          chips={published.chips}
+          lokasi={published.lokasi}
+          description={published.description}
+          onLihatLowongan={() => navigate('lowongan-detail_001', { seleksiId: published.seleksiId, jabatan: published.jobTitle, activeTab: 'ringkasan' })}
+          onMulaiSebar={() => navigate('sebar_001')}
+          showToast={(message, subMessage) => showToast(message, subMessage)}
+        />
+        {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
+      </div>
+    );
+  }
+
   return (
     <div className="sp001-view">
       {/* Header Bar */}
       <div className="sp001-header">
         <div className="sp001-header-left">
-          <div className="sp001-header-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="4" y="2" width="16" height="20" rx="2" stroke="var(--luna-orange-500)" strokeWidth="1.8" />
-              <path d="M8 7h8M8 11h8M8 15h5" stroke="var(--luna-orange-500)" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </div>
+          {phase === 'review' ? (
+            <button className="sp001-rv-back" onClick={() => setPhase('form')}><IconBack /></button>
+          ) : (
+            <div className="sp001-header-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="4" y="2" width="16" height="20" rx="2" stroke="var(--luna-orange-500)" strokeWidth="1.8" />
+                <path d="M8 7h8M8 11h8M8 15h5" stroke="var(--luna-orange-500)" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+          )}
           <div className="sp001-header-text">
-            <h1 className="sp001-header-title">Buat Lowongan Pekerjaan</h1>
-            <p className="sp001-header-subtitle">Mulai buat lowongan pekerjaan baru. Luna akan membaca Deskripsi Pekerjaan Anda dan menyiapkan kriteria kualifikasi AI secara otomatis.</p>
+            <h1 className="sp001-header-title">{phase === 'review' ? 'Review & Terbitkan' : 'Buat Lowongan Pekerjaan'}</h1>
+            {phase === 'form' && (
+              <p className="sp001-header-subtitle">Mulai buat lowongan pekerjaan baru. Luna akan membaca Deskripsi Pekerjaan Anda dan menyiapkan kriteria kualifikasi AI secara otomatis.</p>
+            )}
           </div>
         </div>
         <div className="sp001-header-actions">
           <ReportKendalaButton halaman="buat-lowongan-form" />
           <button className="sp001-btn-cancel" onClick={() => { discardedRef.current = true; clearDraft(); navigate('lowongan_001'); }}>Batal</button>
-          <button className="sp001-btn-primary" onClick={handleSimpan}>Terbitkan Lowongan</button>
+          {phase === 'review' ? (
+            <button className="sp001-btn-primary" disabled={isSaving} onClick={handleSimpan}>
+              {isSaving ? 'Menerbitkan…' : 'Terbitkan Lowongan'}
+            </button>
+          ) : (
+            <button className="sp001-btn-primary" disabled={!canGoToReview} onClick={goToReview}>Lanjut ke Review</button>
+          )}
         </div>
       </div>
 
       {/* Body */}
+      {phase === 'review' ? (
+        <div className="sp001-rv-body">
+          <div className="sp001-rv-card">
+            <div className="sp001-rv-top">
+              <div className="sp001-rv-job">{form.jabatan || 'Belum diisi'}</div>
+              <button className="sp001-rv-edit" onClick={() => setPhase('form')}>Ubah</button>
+            </div>
+            <div className="sp001-rv-badges">
+              {form.levelJabatan && <span className="sp001-rv-badge">{form.levelJabatan}</span>}
+              {departemenNama && <span className="sp001-rv-badge">{departemenNama}</span>}
+              {form.lokasi && <span className="sp001-rv-badge">{form.lokasi}</span>}
+              {form.ikatanKerja && <span className="sp001-rv-badge">{form.ikatanKerja}</span>}
+            </div>
+            <div className="sp001-rv-divider" />
+            <span className="sp001-rv-status">{form.statusRekrutmen}</span>
+            <div className="sp001-rv-row"><span>Jumlah Rekrut</span><span>{form.jumlahRekrut ? `${form.jumlahRekrut} orang` : '-'}</span></div>
+            <div className="sp001-rv-row"><span>Estimasi Upah</span><span>{form.upahMin || form.upahMax ? `${form.upahMin || '-'} – ${form.upahMax || '-'}` : '-'}</span></div>
+            <div className="sp001-rv-row"><span>Tgl Mulai</span><span>{fmtDate(form.tglMulai) || '-'}</span></div>
+            <div className="sp001-rv-row"><span>Target Onboard</span><span>{fmtDate(form.tglOnboarding) || '-'}</span></div>
+            <div className="sp001-rv-row"><span>Pendidikan Min.</span><span>{form.pendidikan || '-'}</span></div>
+            <div className="sp001-rv-row"><span>Pengalaman Min.</span><span>{form.pengalaman ? `${form.pengalaman} Tahun` : '-'}</span></div>
+            <div className="sp001-rv-desc-label">Deskripsi</div>
+            {form.deskripsi.trim() ? (
+              <>
+                <div className={`sp001-rv-desc${descExpanded ? ' expanded' : ''}`} dangerouslySetInnerHTML={{ __html: form.deskripsi }} />
+                <span className="sp001-rv-more" onClick={() => setDescExpanded(v => !v)}>{descExpanded ? 'Sembunyikan' : 'Lihat selengkapnya'}</span>
+              </>
+            ) : (
+              <div className="sp001-rv-desc empty">Belum diisi</div>
+            )}
+          </div>
+          {!isFreePlan && (
+            <div className="sp001-rv-ai-hint">
+              <IconCheckRv />
+              <p>Begitu diterbitkan, <b>kriteria penilaian AI</b> disusun otomatis di latar belakang (±30 detik) — bisa dipantau &amp; diedit di halaman detail lowongan.</p>
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="sp001-body">
         {/* Left Column */}
         <div className="sp001-col">
@@ -462,7 +602,7 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
               <input className="sp001-input" placeholder="Isi Nama Jabatan" value={form.jabatan} onChange={set('jabatan')} />
             </div>
             <div className="sp001-field sp001-field-flex">
-              <label className="sp001-label">Level Jabatan</label>
+              <label className="sp001-label">Level Jabatan <span className="sp001-req">*</span></label>
               <div className="sp001-select-wrapper">
                 <select className="sp001-select" style={{ color: form.levelJabatan ? '#171e2c' : '#abb2c1' }} value={form.levelJabatan} onChange={set('levelJabatan')}>
                   <option value="" disabled>Pilih Level</option>
@@ -571,11 +711,11 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
           {/* Upah Min + Max */}
           <div className="sp001-row">
             <div className="sp001-field sp001-field-flex">
-              <label className="sp001-label">Upah Minimum</label>
+              <label className="sp001-label">Upah Minimum <span className="sp001-req">*</span></label>
               <input className="sp001-input" placeholder="Masukan Nominal" value={form.upahMin} onChange={handleUpah('upahMin')} />
             </div>
             <div className="sp001-field sp001-field-flex">
-              <label className="sp001-label">Upah Maksimum</label>
+              <label className="sp001-label">Upah Maksimum <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></label>
               <input className="sp001-input" placeholder="Masukan Nominal" value={form.upahMax} onChange={handleUpah('upahMax')} />
             </div>
           </div>
@@ -595,14 +735,14 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
           {/* Tanggal */}
           <div className="sp001-row">
             <div className="sp001-field sp001-field-flex">
-              <label className="sp001-label">Tanggal Mulai Rekrutmen</label>
+              <label className="sp001-label">Tanggal Mulai Rekrutmen <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></label>
               <div className="sp001-date-wrapper">
                 <input type="date" className="sp001-input sp001-input-date" placeholder="Pilih Tanggal" value={form.tglMulai} onChange={set('tglMulai')} />
                 <span className="sp001-date-icon"><CalendarIcon /></span>
               </div>
             </div>
             <div className="sp001-field sp001-field-flex">
-              <label className="sp001-label">Tanggal Target On-boarding</label>
+              <label className="sp001-label">Tanggal Target On-boarding <span style={{ color: '#9aa3b0', fontWeight: 400, marginLeft: 4 }}>(Opsional)</span></label>
               <div className="sp001-date-wrapper">
                 <input type="date" className="sp001-input sp001-input-date" placeholder="Pilih Tanggal" value={form.tglOnboarding} onChange={set('tglOnboarding')} />
                 <span className="sp001-date-icon"><CalendarIcon /></span>
@@ -680,12 +820,13 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
                 <TBtn title="Justify" cmd="justifyFull"><IcAlignJustify /></TBtn>
               </div>
               <div style={{ border: '1px solid #d1d5dc', borderRadius: '0 0 10px 10px' }}>
-                <EditableContent htmlRef={editorRef} initialHtml={form.deskripsi} />
+                <EditableContent htmlRef={editorRef} initialHtml={form.deskripsi} onInput={handleDescInput} />
               </div>
             </div>
           </div>
         </div>
       </div>
+      )}
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
       
       {/* Modal Departemen Baru */}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
 } from '../../hooks/lowongan/useLamanKarirData.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/lowongan-perusahaan_001.css';
 import '../../../css/lowongan/lowongan_001.css';
@@ -10,6 +11,12 @@ import '../../../css/lowongan/lowongan_001.css';
 const IconLink = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const IconBriefcase = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
   </svg>
 );
 
@@ -69,7 +76,13 @@ const SHARE_PLATFORMS = [
   { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
 ];
 
-export default function LowonganLamanKarir_001({ kode }) {
+export default function LowonganLamanKarir_001({ kode, navigate }) {
+  const { companyId } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const {
     pageState, seleksiData, viewCount,
     form, handleChange, handlePhoneChange, linkedinError,
@@ -206,12 +219,17 @@ export default function LowonganLamanKarir_001({ kode }) {
               <span className="lk-brand-divider" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
             </a>
-            <button className="lk-back-ghost" onClick={resetApply}>
-              <span className="lk-back-ghost-icon">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              </span>
-              Kembali ke Lowongan
-            </button>
+            <div className="lk-header-actions">
+              <button className="lk-back-ghost" onClick={resetApply}>
+                <span className="lk-back-ghost-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </span>
+                Kembali ke Lowongan
+              </button>
+              <span className="lk-nav-divider" />
+              <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+              <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
+            </div>
           </div>
         </header>
 
@@ -456,7 +474,8 @@ export default function LowonganLamanKarir_001({ kode }) {
             <span className="lk-brand-badge">PORTAL KARIR</span>
           </a>
 
-          <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+          <div className="lk-header-actions">
+            <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button
               type="button"
               className={`lpr-btn-share${showShareMenu ? ' active' : ''}`}
@@ -488,6 +507,10 @@ export default function LowonganLamanKarir_001({ kode }) {
                 </div>
               </div>
             )}
+          </div>
+            <span className="lk-nav-divider" />
+            <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
       </header>

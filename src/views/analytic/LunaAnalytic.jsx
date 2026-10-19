@@ -507,6 +507,86 @@ export default function LunaAnalytic({ navigate }) {
     ];
   }, [dateFilteredData]);
 
+  // Chart: Monthly Cohort Conversion Funnel (Agustus 2026 ke atas, termasuk data perangkat)
+  const monthlyChartData = useMemo(() => {
+    // Map to group by YYYY-MM
+    const monthMap = {};
+
+    const monthNames = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    data.forEach((item) => {
+      if (!item.tanggal_daftar) return;
+      const d = new Date(item.tanggal_daftar);
+      if (isNaN(d.getTime())) return;
+
+      const year = d.getFullYear();
+      const monthIdx = d.getMonth();
+      const key = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+
+      // Filter: Hanya tampilkan mulai Agustus 2026 ke atas (hilangkan yang di bawah Agustus)
+      if (key < '2026-08') return;
+
+      const label = `${monthNames[monthIdx]} ${year}`;
+
+      if (!monthMap[key]) {
+        monthMap[key] = {
+          key,
+          label,
+          total_daftar: 0,
+          punya_lowongan: 0,
+          ada_kandidat: 0,
+          desktop: 0,
+          mobile: 0,
+          other_device: 0,
+          mobile_punya_lowongan: 0,
+          desktop_punya_lowongan: 0,
+          mobile_ada_kandidat: 0,
+          desktop_ada_kandidat: 0
+        };
+      }
+
+      // 1. Akun Terdaftar
+      monthMap[key].total_daftar += 1;
+
+      // Perangkat Pengguna
+      const device = (item.kategori_perangkat || '').toLowerCase();
+      const isDesktop = device.includes('desktop');
+      const isMobile = device.includes('mobile');
+
+      if (isDesktop) {
+        monthMap[key].desktop += 1;
+      } else if (isMobile) {
+        monthMap[key].mobile += 1;
+      } else {
+        monthMap[key].other_device += 1;
+      }
+
+      // 2. Punya Minimal 1 Lowongan Asli
+      const hasJob = (Number(item.total_lowongan_asli) || 0) >= 1;
+      if (hasJob) {
+        monthMap[key].punya_lowongan += 1;
+        if (isMobile) monthMap[key].mobile_punya_lowongan += 1;
+        if (isDesktop) monthMap[key].desktop_punya_lowongan += 1;
+      }
+
+      // 3. Lowongan Ada Kandidat Riil
+      const hasCand = (Number(item.total_kandidat) || 0) >= 1;
+      if (hasCand) {
+        monthMap[key].ada_kandidat += 1;
+        if (isMobile) monthMap[key].mobile_ada_kandidat += 1;
+        if (isDesktop) monthMap[key].desktop_ada_kandidat += 1;
+      }
+    });
+
+    // Sort chronologically by YYYY-MM key
+    return Object.keys(monthMap)
+      .sort()
+      .map((k) => monthMap[k]);
+  }, [data]);
+
   // Precomputed totals for accurate percentage calculation in tooltips
   const totalChannels = useMemo(() => channelChartData.reduce((acc, c) => acc + c.value, 0), [channelChartData]);
   const totalDevices = useMemo(() => deviceChartData.reduce((acc, c) => acc + c.value, 0), [deviceChartData]);
@@ -881,6 +961,131 @@ export default function LunaAnalytic({ navigate }) {
                     <Cell key={`cell-day-${index}`} fill={BAR_COLORS_DAYS[index % BAR_COLORS_DAYS.length]} />
                   ))}
                 </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 4. Monthly Cohort Conversion Funnel (All-Time / Independent) */}
+        <div className="luna-analytic-chart-card luna-chart-card-full">
+          <div className="luna-analytic-chart-title">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>Tren Pertumbuhan & Funnel Konversi Bulanan</span>
+              <span className="luna-badge-all-time" title="Chart ini merangkum seluruh kohort historis bulanan secara utuh, tidak dipotong oleh filter tanggal/query di atas">
+                All-Time Cohort (Independen)
+              </span>
+            </div>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>Pendaftaran vs Buat Lowongan vs Punya Kandidat</span>
+          </div>
+          <div style={{ height: '320px', width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={monthlyChartData}
+                margin={{ top: 20, right: 30, left: 10, bottom: 25 }}
+                barGap={8}
+                barCategoryGap="25%"
+              >
+                <XAxis dataKey="label" tick={{ fontSize: 12, fontWeight: 600, fill: '#334155' }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const row = payload[0].payload;
+                      const totalDaftar = row.total_daftar || 0;
+                      const punyaLowongan = row.punya_lowongan || 0;
+                      const adaKandidat = row.ada_kandidat || 0;
+                      const pctJob = totalDaftar > 0 ? ((punyaLowongan / totalDaftar) * 100).toFixed(1) : 0;
+                      const pctCand = punyaLowongan > 0 ? ((adaKandidat / punyaLowongan) * 100).toFixed(1) : 0;
+                      const pctTotalCand = totalDaftar > 0 ? ((adaKandidat / totalDaftar) * 100).toFixed(1) : 0;
+
+                      return (
+                        <div style={{
+                          background: 'rgba(255, 255, 255, 0.98)',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          padding: '12px 14px',
+                          boxShadow: '0 4px 14px rgba(15, 23, 42, 0.12)',
+                          fontSize: '12px',
+                          minWidth: '260px'
+                        }}>
+                          <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '4px' }}>
+                            📅 Periode: {label}
+                          </div>
+                          
+                          {/* 1. Akun Terdaftar & Rincian Perangkat */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0284c7', fontWeight: 600 }}>
+                              <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#0284c7' }} />
+                              <span>Akun Terdaftar: <strong>{totalDaftar} Akun</strong></span>
+                            </div>
+                            <div style={{ paddingLeft: '18px', fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              <span>📱 Mobile: <strong>{row.mobile || 0}</strong> ({totalDaftar > 0 ? (((row.mobile || 0) / totalDaftar) * 100).toFixed(1) : 0}%)</span>
+                              <span style={{ margin: '0 6px' }}>•</span>
+                              <span>💻 Desktop: <strong>{row.desktop || 0}</strong> ({totalDaftar > 0 ? (((row.desktop || 0) / totalDaftar) * 100).toFixed(1) : 0}%)</span>
+                              {row.other_device > 0 && (
+                                <>
+                                  <span style={{ margin: '0 6px' }}>•</span>
+                                  <span>Lainnya: <strong>{row.other_device}</strong></span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* 2. Punya Minimal 1 Lowongan & Konversi Perangkat */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366f1', fontWeight: 600 }}>
+                              <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#6366f1' }} />
+                              <span>Punya Lowongan: <strong>{punyaLowongan} Akun</strong> ({pctJob}% dari pendaftar)</span>
+                            </div>
+                            <div style={{ paddingLeft: '18px', fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              <span>📱 Mobile: <strong>{row.mobile_punya_lowongan || 0} akun</strong> ({row.mobile > 0 ? (((row.mobile_punya_lowongan || 0) / row.mobile) * 100).toFixed(1) : 0}% konversi)</span>
+                              <span style={{ margin: '0 6px' }}>•</span>
+                              <span>💻 Desktop: <strong>{row.desktop_punya_lowongan || 0} akun</strong> ({row.desktop > 0 ? (((row.desktop_punya_lowongan || 0) / row.desktop) * 100).toFixed(1) : 0}% konversi)</span>
+                            </div>
+                          </div>
+
+                          {/* 3. Ada Kandidat Masuk & Konversi Perangkat */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 600 }}>
+                              <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#10b981' }} />
+                              <span>Ada Kandidat Riil: <strong>{adaKandidat} Akun</strong> ({pctTotalCand}% dari pendaftar)</span>
+                            </div>
+                            <div style={{ paddingLeft: '18px', fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              <span>📱 Mobile: <strong>{row.mobile_ada_kandidat || 0} akun</strong></span>
+                              <span style={{ margin: '0 6px' }}>•</span>
+                              <span>💻 Desktop: <strong>{row.desktop_ada_kandidat || 0} akun</strong></span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: '15px', fontSize: '12px' }}
+                />
+                <Bar
+                  dataKey="total_daftar"
+                  name="Akun Terdaftar"
+                  fill="#0284c7"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="punya_lowongan"
+                  name="Punya Minimal 1 Lowongan"
+                  fill="#6366f1"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="ada_kandidat"
+                  name="Lowongan Ada Kandidat"
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

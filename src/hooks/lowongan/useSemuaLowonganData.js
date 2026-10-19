@@ -107,7 +107,8 @@ export default function useSemuaLowonganData(pageSize = 9) {
         const matchesSearch =
           (job.jabatan || '').toLowerCase().includes(q) ||
           (job.companies?.name || '').toLowerCase().includes(q) ||
-          (job.lokasi || '').toLowerCase().includes(q);
+          (job.lokasi || '').toLowerCase().includes(q) ||
+          (job.departments?.name || '').toLowerCase().includes(q);
         if (!matchesSearch) return false;
       }
       if (tipeKerja.length > 0 && !tipeKerja.includes(job.ikatan_kerja)) return false;

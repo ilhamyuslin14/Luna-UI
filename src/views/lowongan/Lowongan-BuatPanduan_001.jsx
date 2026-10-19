@@ -5,6 +5,7 @@ import { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.
 import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ReportKendalaButton from '../../components/ReportKendalaButton.jsx';
+import LowonganPublishedScreen from '../../components/LowonganPublishedScreen.jsx';
 
 const IconAi = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -30,13 +31,6 @@ const IconBrain = () => (
     <path d="M9 8a2 2 0 0 1 2 2" /><path d="M15 8a2 2 0 0 0-2 2" /><path d="M8 14a2 2 0 0 0 2-2" /><path d="M16 14a2 2 0 0 1-2-2" />
   </svg>
 );
-const IconCopy = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-);
-const IconShareGlyph = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
-);
-
 // Textarea jawaban bebas — mulai 2 baris, tumbuh otomatis mengikuti isi
 // sampai maksimal 6 baris, lewat itu scroll internal (bukan terus melar).
 const FREE_INPUT_MIN_ROWS = 1;
@@ -112,7 +106,6 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
   const [toast, setToast] = useState(null);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
-  const [copied, setCopied] = useState(false);
   const publishedUrl = buildLamanKarirUrl({ companyName, jabatan: draft?.jobTitle, kode: publishedKode });
 
   const handleCancel = () => {
@@ -122,17 +115,6 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
   const showToast = (message, subMessage) => {
     setToast({ message, subMessage });
     setTimeout(() => setToast(null), 2200);
-  };
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(publishedUrl);
-      setCopied(true);
-      showToast('Tautan disalin');
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      showToast('Gagal menyalin', 'Coba salin manual dari kotak tautan');
-    }
   };
 
   const mulaiSebar = () => navigate('sebar_001');
@@ -334,32 +316,18 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
       )}
 
       {step === 'published' && (
-        <>
-          <div className="blw-sum-body blw-pub-body">
-            <div className="blw-pub-header">
-              <div className="blw-pub-header-text">
-                <div className="blw-pub-title">Lowongan kamu sudah tayang</div>
-                <p className="blw-pub-sub">{draft?.jobTitle} sekarang bisa dilamar siapa saja.</p>
-              </div>
-              <div className="blw-pub-icon"><IconCheck /></div>
-            </div>
-
-            <div className="blw-pub-link-card">
-              <div className="blw-pub-link-label">Tautan Lowongan</div>
-              <div className="blw-pub-link-url">{publishedUrl}</div>
-              <button className="blw-pub-copy-btn" onClick={copyLink}>
-                {copied ? <IconCheck /> : <IconCopy />}{copied ? 'Tersalin' : 'Salin Tautan'}
-              </button>
-            </div>
-
-            <div className="blw-pub-share-title">Sekarang sebarkan lowongannya</div>
-            <p className="blw-pub-share-sub">Lowongan tidak akan dapat pelamar kalau tidak disebar. Bagikan tautannya ke WhatsApp, Instagram, atau grup lowongan kerja.</p>
-            <button className="blw-pub-share-btn" onClick={mulaiSebar}><IconShareGlyph />Mulai Sebar</button>
-          </div>
-          <div className="blw-sum-footer">
-            <button className="blw-pub-view-btn" onClick={lihatLowongan}>Lihat Lowongan</button>
-          </div>
-        </>
+        <LowonganPublishedScreen
+          jobTitle={draft?.jobTitle}
+          companyName={companyName}
+          publishedUrl={publishedUrl}
+          publishedKode={publishedKode}
+          chips={[draft?.detail?.levelJabatan, draft?.detail?.ikatanKerja, draft?.detail?.lokasi]}
+          lokasi={draft?.detail?.lokasi}
+          description={(draft?.sections || []).find(s => s.type === 'text')?.content}
+          onLihatLowongan={lihatLowongan}
+          onMulaiSebar={mulaiSebar}
+          showToast={showToast}
+        />
       )}
 
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
