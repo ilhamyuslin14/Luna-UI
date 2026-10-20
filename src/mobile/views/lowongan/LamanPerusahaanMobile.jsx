@@ -100,7 +100,7 @@ export default function LamanPerusahaanMobile({ slug }) {
   return (
     <div className="lk-page">
       <div className="lk-head">
-        <a className="lk-logo" href="/?view=semua-lowongan">
+        <a className="lk-logo" href="/?view=semua-lowongan_002">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
           <span className="lk-logo-divider" />
           <span className="lk-badge-portal">PORTAL KARIR</span>

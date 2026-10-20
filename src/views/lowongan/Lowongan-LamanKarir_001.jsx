@@ -214,7 +214,7 @@ export default function LowonganLamanKarir_001({ kode, navigate }) {
         {/* Header Navbar */}
         <header className="lk-header">
           <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <a className="lk-brand" href="/?view=semua-lowongan">
+            <a className="lk-brand" href="/?view=semua-lowongan_002">
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-divider" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
@@ -468,7 +468,7 @@ export default function LowonganLamanKarir_001({ kode, navigate }) {
       {/* Top Clean Professional Header Navbar */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <a className="lk-brand" href="/?view=semua-lowongan">
+          <a className="lk-brand" href="/?view=semua-lowongan_002">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-divider" />
             <span className="lk-brand-badge">PORTAL KARIR</span>
