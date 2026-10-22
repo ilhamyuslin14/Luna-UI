@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getAllActiveJobs } from '../../services/seleksiService.js';
+import { getAllJobs } from '../../services/lowonganPublikService.js';
 
 // Hook ringan khusus laman publik "Semua Lowongan" (?view=semua-lowongan) —
 // beda dari useLamanKarirData yang dibangun untuk 1 lowongan spesifik +
@@ -33,18 +33,15 @@ const GAJI_RANGES = {
   over10: [10_000_000, Infinity],
 };
 
+// experience_years null = sumber tidak menyediakan pengalaman (lowongan
+// eksternal) → tidak masuk bucket manapun, supaya tidak salah dianggap fresh.
 function pengalamanBucketOf(job) {
-  const n = parseInt(job.pengalaman, 10);
-  if (!n || n <= 0) return 'fresh';
+  const n = job.experience_years;
+  if (n == null) return null;
+  if (n <= 0) return 'fresh';
   if (n < 3) return '1-3';
   if (n < 5) return '3-5';
   return '5+';
-}
-
-function parseRupiah(val) {
-  if (!val) return null;
-  const digits = String(val).replace(/[^\d]/g, '');
-  return digits ? parseInt(digits, 10) : null;
 }
 
 // Bucket gaji cuma bisa dibandingkan kalau siklusnya bulanan — membandingkan
@@ -52,9 +49,9 @@ function parseRupiah(val) {
 // lowongan dengan siklus lain sengaja tidak match filter gaji manapun
 // (bukan bug, ini memang bukan sesuatu yang bisa dinormalisasi dengan aman).
 function jobGajiRange(job) {
-  if ((job.siklus_upah || '').toLowerCase() !== 'bulanan') return null;
-  const min = parseRupiah(job.upah_min);
-  const max = parseRupiah(job.upah_maks);
+  if (job.salary_cycle !== 'bulanan') return null;
+  const min = job.salary_min;
+  const max = job.salary_max;
   if (min == null && max == null) return null;
   return [min ?? max, max ?? min];
 }
@@ -70,7 +67,7 @@ function toggleInArray(arr, value) {
   return arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value];
 }
 
-export default function useSemuaLowonganData(pageSize = 9) {
+export default function useSemuaLowonganData(pageSize = 9, { includeExternal = false } = {}) {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState('');
@@ -89,14 +86,14 @@ export default function useSemuaLowonganData(pageSize = 9) {
 
   useEffect(() => {
     let active = true;
-    getAllActiveJobs().then(data => {
+    getAllJobs({ includeExternal }).then(data => {
       if (active) {
         setJobs(data || []);
         setLoading(false);
       }
     });
     return () => { active = false; };
-  }, []);
+  }, [includeExternal]);
 
   useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket]);
 
@@ -105,13 +102,13 @@ export default function useSemuaLowonganData(pageSize = 9) {
     return jobs.filter(job => {
       if (q) {
         const matchesSearch =
-          (job.jabatan || '').toLowerCase().includes(q) ||
-          (job.companies?.name || '').toLowerCase().includes(q) ||
-          (job.lokasi || '').toLowerCase().includes(q) ||
-          (job.departments?.name || '').toLowerCase().includes(q);
+          (job.title || '').toLowerCase().includes(q) ||
+          (job.company_name || '').toLowerCase().includes(q) ||
+          (job.location || '').toLowerCase().includes(q) ||
+          (job.category || '').toLowerCase().includes(q);
         if (!matchesSearch) return false;
       }
-      if (tipeKerja.length > 0 && !tipeKerja.includes(job.ikatan_kerja)) return false;
+      if (tipeKerja.length > 0 && !tipeKerja.includes(job.employment_type)) return false;
       if (pengalamanBucket.length > 0 && !pengalamanBucket.includes(pengalamanBucketOf(job))) return false;
       if (gajiBucket.length > 0 && !gajiBucket.some(b => matchesGajiBucket(job, b))) return false;
       return true;
@@ -121,7 +118,7 @@ export default function useSemuaLowonganData(pageSize = 9) {
   const sortedJobs = useMemo(() => {
     if (sort === 'terbaru') return filteredJobs;
     return [...filteredJobs].sort((a, b) => {
-      const cmp = (a.jabatan || '').localeCompare(b.jabatan || '', 'id');
+      const cmp = (a.title || '').localeCompare(b.title || '', 'id');
       return sort === 'az' ? cmp : -cmp;
     });
   }, [filteredJobs, sort]);

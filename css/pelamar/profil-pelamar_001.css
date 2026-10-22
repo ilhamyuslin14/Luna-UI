@@ -524,6 +524,12 @@
   text-align: center;
 }
 
+.pp001-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .pp001-btn-primary:hover {
   background: var(--pp-orange-hover);
   transform: translateY(-1px);
@@ -717,6 +723,13 @@
   font-size: 13px;
   color: var(--pp-ink-muted);
   margin: -6px 0 16px 0;
+}
+
+.pp001-empty-hint {
+  font-size: 12.5px;
+  color: var(--pp-ink-subtle);
+  font-style: italic;
+  margin: 0;
 }
 
 /* ─── Timeline / List Items (Experience & Education) ─── */
@@ -1078,6 +1091,7 @@
   align-items: center;
   justify-content: center;
   font-size: 9px;
+  line-height: 1;
   flex-shrink: 0;
 }
 

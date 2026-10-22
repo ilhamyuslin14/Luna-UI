@@ -9,6 +9,17 @@
   font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+.pm001-error {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #B91C1C;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
 /* ── Panel kiri: hero bercerita ──
    Kedua panel berbagi ruang rata (flex:1), full-bleed sampai tepi layar.
    Tipografi hero dibesarkan supaya kontennya "mengisi" panel secara alami,
@@ -104,7 +115,29 @@
   display: flex; align-items: flex-start; gap: 9px; cursor: pointer;
   font-size: 12px; line-height: 1.5; color: var(--luna-ink-600, #5E5C56);
 }
-.pm001-check-row input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--luna-orange-500, #FF7B00); flex-shrink: 0; cursor: pointer; }
+.pm001-check-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--luna-ink-200, #DCDAD5);
+  border-radius: 4px;
+  background: #fff;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+/* Centang digambar manual pakai SVG putih — accent-color saja TIDAK cukup:
+   warna tanda centang bawaan browser tetap gelap meski kotaknya oranye. */
+.pm001-check-row input:checked {
+  background-color: var(--luna-orange-500, #FF7B00);
+  border-color: var(--luna-orange-500, #FF7B00);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
 .pm001-check-row a { color: var(--luna-orange-500, #FF7B00); font-weight: 600; text-decoration: none; }
 .pm001-check-row a:hover { color: var(--luna-orange-600, #D66800); }
 

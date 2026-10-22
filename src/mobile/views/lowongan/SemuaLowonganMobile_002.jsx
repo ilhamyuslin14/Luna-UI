@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../../hooks/lowongan/useSemuaLowonganData.js';
-import { formatUpah } from '../../../hooks/lowongan/useLamanKarirData.js';
 import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import PelamarMobileNav from '../../../components/pelamar/PelamarMobileNav.jsx';
+import SumberLowonganBadge from '../../../components/lowongan/SumberLowonganBadge.jsx';
+import CompanyLogoBox from '../../../components/lowongan/CompanyLogoBox.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 import '../../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../../css/mobile/lowongan/semua-lowongan_002.css';
@@ -35,11 +37,6 @@ function initials(name) {
   if (parts.length === 0) return 'P';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-function pengalamanLabel(job) {
-  const n = parseInt(job.pengalaman, 10);
-  if (!n || n <= 0) return 'Fresh graduate';
-  return `${n}+ tahun`;
 }
 
 function FilterSheet({ open, onClose, tipeKerja, toggleTipeKerja, pengalamanBucket, togglePengalamanBucket, gajiBucket, toggleGajiBucket, resetFilters, activeFilterCount }) {
@@ -118,7 +115,7 @@ function SortSheet({ open, onClose, value, onSelect }) {
 }
 
 export default function SemuaLowonganMobile_002({ navigate }) {
-  const { companyId } = useAuth() || {};
+  const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
   const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
   const goPerusahaan = () => {
     const target = companyId ? 'beranda_002' : 'landingpage_003';
@@ -132,7 +129,7 @@ export default function SemuaLowonganMobile_002({ navigate }) {
     gajiBucket, toggleGajiBucket,
     resetFilters, activeFilterCount,
     pagedJobs, totalPages,
-  } = useSemuaLowonganData(6);
+  } = useSemuaLowonganData(6, { includeExternal: true });
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
@@ -147,7 +144,8 @@ export default function SemuaLowonganMobile_002({ navigate }) {
   };
 
   const openJob = (job) => {
-    const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
+    const view = job.is_external ? 'laman-karir-eksternal' : 'laman-karir';
+    const url = job.kode ? `/?view=${view}&kode=${encodeURIComponent(job.kode)}` : `/?view=${view}&jabatan=${encodeURIComponent(job.title)}`;
     window.open(url, '_blank');
   };
 
@@ -163,8 +161,14 @@ export default function SemuaLowonganMobile_002({ navigate }) {
           <span className="lk-badge-portal">PORTAL KARIR</span>
         </a>
         <div className="lk-head-actions">
-          <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-          <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+          {isPelamar ? (
+            <PelamarMobileNav navigate={navigate} pelamarProfile={pelamarProfile} goPerusahaan={goPerusahaan} activeTab="cari" />
+          ) : (
+            <>
+              <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+              <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+            </>
+          )}
         </div>
       </div>
 
@@ -199,38 +203,38 @@ export default function SemuaLowonganMobile_002({ navigate }) {
           <div className="sl2m-empty">Memuat lowongan…</div>
         ) : pagedJobs.length > 0 ? (
           pagedJobs.map(job => {
-            const companyName = job.companies?.name || 'Perusahaan';
-            const isSaved = savedJobs.has(job.id);
+            const companyName = job.company_name;
+            const isSaved = savedJobs.has(job.key);
             return (
-              <article key={job.id} className="sl2m-job" onClick={() => openJob(job)}>
+              <article key={job.key} className={`sl2m-job${job.is_external ? ' ext' : ''}`} onClick={() => openJob(job)}>
                 <span className="sl2m-job-bar" />
                 <div className="sl2m-job-content">
                   <div className="sl2m-job-top">
-                    <div className="sl2m-job-logo" style={{ background: avatarColor(companyName) }}>
-                      {job.companies?.logo_url ? <img src={job.companies.logo_url} alt={companyName} /> : initials(companyName)}
-                    </div>
+                    <CompanyLogoBox className="sl2m-job-logo" src={job.logo_url} alt={companyName} color={avatarColor(companyName)} initials={initials(companyName)} />
                     <div className="sl2m-job-body">
-                      <h4 className="sl2m-job-title">{job.jabatan}</h4>
+                      <SumberLowonganBadge job={job} className="sl2m-src" />
+                      <h4 className="sl2m-job-title">{job.title}</h4>
                       <div className="sl2m-job-meta">
                         <b>{companyName}</b>
                         <span className="sep">·</span>
-                        <span>{job.lokasi || 'Indonesia'}</span>
+                        <span>{job.location || 'Indonesia'}</span>
                       </div>
                       <div className="sl2m-job-meta">
-                        {job.ikatan_kerja && <><span>{job.ikatan_kerja}</span><span className="sep">·</span></>}
-                        <span>{pengalamanLabel(job)}</span>
+                        {job.employment_label && <span>{job.employment_label}</span>}
+                        {job.employment_label && job.experience_label && <span className="sep">·</span>}
+                        {job.experience_label && <span>{job.experience_label}</span>}
                       </div>
                     </div>
                     <button
                       type="button"
                       className={`sl2m-save-btn${isSaved ? ' active' : ''}`}
-                      onClick={e => toggleSaveJob(e, job.id)}
+                      onClick={e => toggleSaveJob(e, job.key)}
                       aria-label={isSaved ? 'Hapus dari lowongan tersimpan' : 'Simpan lowongan'}
                     >
                       <IconBookmark filled={isSaved} />
                     </button>
                   </div>
-                  {formatUpah(job) && <div className="sl2m-job-salary">Rp {formatUpah(job)}</div>}
+                  {job.salary_label && <div className={`sl2m-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div>}
                 </div>
               </article>
             );

@@ -479,32 +479,34 @@
   border-radius: 10px;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
-  color: #475569;
+  color: #64748B;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sebar-icon-action-btn:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
-  color: #0F172A;
+.sebar-icon-action-btn:hover,
+.sebar-icon-action-btn.active {
+  background: #FFF7ED;
+  border-color: #FF8D21;
+  color: #EA580C;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
 }
 
 .sebar-icon-action-btn.primary-subtle {
-  background: #FFF7ED;
-  border-color: rgba(255, 141, 33, 0.3);
-  color: #EA580C;
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  color: #64748B;
 }
 
 .sebar-icon-action-btn.primary-subtle:hover {
-  background: #FFEDD5;
-  border-color: #FF7B00;
-  color: #C2410C;
+  background: #FFF7ED;
+  border-color: #FF8D21;
+  color: #EA580C;
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
 }
 
@@ -932,18 +934,55 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* QR Code Accent Button (Matching subtle orange theme) */
+/* QR Code Accent Button */
 .sebar-icon-action-btn.qr-accent {
-  background: #FFF7ED;
-  border-color: rgba(255, 141, 33, 0.3);
-  color: #EA580C;
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  color: #64748B;
 }
 
 .sebar-icon-action-btn.qr-accent:hover {
-  background: #FFEDD5;
-  border-color: #FF7B00;
-  color: #C2410C;
+  background: #FFF7ED;
+  border-color: #FF8D21;
+  color: #EA580C;
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+}
+
+/* Share Accent Button */
+.sebar-icon-action-btn.share-accent {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  color: #64748B;
+}
+
+.sebar-icon-action-btn.share-accent:hover,
+.sebar-icon-action-btn.share-accent.active {
+  background: #FFF7ED;
+  border-color: #FF8D21;
+  color: #EA580C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+}
+
+/* Ensure Share Menu is placed on top and positioned properly within the card */
+.sebar-icon-cta-wrap .lw001-share-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 284px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.22);
+  padding: 14px;
+  z-index: 100;
+  animation: sebar-dropdown-in 0.15s ease-out;
+}
+
+@keyframes sebar-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* QR Code Modal Overlay & Card */
@@ -1025,20 +1064,28 @@
   background: rgba(255, 255, 255, 0.1);
   border: none;
   color: #FFFFFF;
-  font-size: 20px;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
-  line-height: 1;
+  padding: 0;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sebar-qr-close svg {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .sebar-qr-close:hover {
   background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
 }
 
 .sebar-qr-body {

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
 import '../../../css/pelamar/pelamar-masuk_001.css';
 
-// Prototipe UI murni — belum nyambung Supabase/akun pelamar sungguhan.
-// Submit langsung "berhasil" dan diarahkan ke ProfilPelamar_001 (yang juga
-// masih data dummy), sekadar menunjukkan alur & desainnya dulu. Tombol
-// Google/Facebook juga dummy (dekoratif) — belum ada OAuth sungguhan.
+// Login pakai Supabase Auth sungguhan (akun pelamar hidup di
+// pelamar_profiles, terpisah dari akun perusahaan — lihat
+// handle_new_user() di DB). Tombol Google/Facebook masih dekoratif,
+// belum ada OAuth sungguhan.
 const IconEye = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
 );
@@ -23,31 +24,38 @@ const IconFacebook = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" /></svg>
 );
 
+const LOGIN_ERROR_MESSAGES = {
+  'Invalid login credentials': 'Email atau kata sandi salah.',
+  'Email not confirmed': 'Email belum dikonfirmasi — cek inbox kamu dulu.',
+};
+
 export default function PelamarMasuk_001({ navigate }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const isValid = email.trim() && password.trim();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
     setLoading(true);
-    // Dummy — belum ada auth pelamar sungguhan, langsung "berhasil" habis jeda singkat.
-    setTimeout(() => {
-      setLoading(false);
+    setError('');
+    try {
+      await login(email.trim(), password);
       navigate?.('profil-pelamar_001');
-    }, 650);
+    } catch (err) {
+      setError(LOGIN_ERROR_MESSAGES[err.message] || 'Gagal masuk. Coba lagi beberapa saat lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSocialLogin = (provider) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate?.('profil-pelamar_001');
-    }, 450);
+  const handleSocialLogin = () => {
+    setError('Login via akun sosial belum tersedia — masuk pakai email dulu ya.');
   };
 
   return (
@@ -76,6 +84,8 @@ export default function PelamarMasuk_001({ navigate }) {
         </div>
 
         <form className="pm001-form" onSubmit={handleSubmit}>
+          {error && <div className="pm001-error">{error}</div>}
+
           <div className="pm001-field">
             <label className="pm001-label" htmlFor="pm001-email">Email</label>
             <input

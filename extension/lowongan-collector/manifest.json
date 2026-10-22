@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Luna Lowongan Collector",
+  "version": "0.1.0",
+  "description": "Ambil data lowongan dari halaman JobStreet dan simpan ke tabel lowongan_eksternal Luna.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Kumpulkan lowongan ke Luna"
+  },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://qxmkwfncpxcibjnwnmup.supabase.co/*"]
+}

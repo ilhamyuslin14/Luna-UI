@@ -27,8 +27,8 @@ export function UploadProvider({ children }) {
   useEffect(() => {
     async function loadConfig() {
       try {
-        const { data } = await supabase.from('sandbox_configs').select('concurrent_limit').limit(1).maybeSingle();
-        if (data?.concurrent_limit) concurrentLimitRef.current = data.concurrent_limit;
+        const { data } = await supabase.rpc('get_concurrent_limit');
+        if (data) concurrentLimitRef.current = data;
       } catch (_) {}
     }
     loadConfig();

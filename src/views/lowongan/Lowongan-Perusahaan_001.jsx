@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import useLamanPerusahaanData, { formatDeskripsiToHtml, getYoutubeEmbedUrl } from '../../hooks/lowongan/useLamanPerusahaanData.js';
+import { useAuth } from '../../context/AuthContext.jsx';
+import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
+import '../../../css/lowongan/semua-lowongan_002.css';
 import '../../../css/lowongan/lowongan-perusahaan_001.css';
 import '../../../css/lowongan/lowongan_001.css';
+import '../../../css/pelamar/profil-pelamar_001.css';
+
+const IconBriefcase = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
 
 // Icons
 const IconLink = () => (
@@ -122,7 +132,15 @@ const SHARE_PLATFORMS = [
   { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
 ];
 
-export default function LowonganPerusahaan_001({ slug }) {
+export default function LowonganPerusahaan_001({ slug, navigate }) {
+  const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goProfilSaya = () => isPelamar ? navigate?.('profil-pelamar_001') : goMasuk();
+  const goLamaranSaya = () => isPelamar ? navigate?.('status-lamaran_001') : goMasuk();
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const { pageState, company, jobs, filteredJobs, jobSearch, setJobSearch, handleShareAction } = useLamanPerusahaanData(slug);
 
   const [copiedToast, setCopiedToast] = useState(false);
@@ -188,12 +206,20 @@ export default function LowonganPerusahaan_001({ slug }) {
       {/* Header Bar Top */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <a className="lk-brand" href="/?view=semua-lowongan_002">
-            <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
-            <span className="lk-brand-divider" />
-            <span className="lk-brand-badge">PORTAL KARIR</span>
-          </a>
+          <div className="sl2-nav-left">
+            <a className="lk-brand" href="/?view=semua-lowongan_002">
+              <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
+              <span className="lk-brand-divider" />
+              <span className="lk-brand-badge">PORTAL KARIR</span>
+            </a>
+            <nav className="sl2-nav-links">
+              <span className="sl2-nav-link" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</span>
+              <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
+              <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>
+            </nav>
+          </div>
 
+          <div className="lk-header-actions">
           <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button
               type="button"
@@ -226,6 +252,14 @@ export default function LowonganPerusahaan_001({ slug }) {
                 </div>
               </div>
             )}
+          </div>
+            {isPelamar ? (
+              <PelamarNavMenu navigate={navigate} pelamarProfile={pelamarProfile} />
+            ) : (
+              <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+            )}
+            <span className="lk-nav-divider" />
+            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
       </header>
@@ -375,6 +409,9 @@ export default function LowonganPerusahaan_001({ slug }) {
 
         {/* Right Sidebar Column (32%) */}
         <div className="lk-right-col">
+          {/* Dua kartu ini satu paket: wadahnya yang sticky, jadi keduanya ikut
+              bergulir bersama dan tidak saling menimpa. */}
+          <div className="lpr-side-stack">
           {/* Card: Lowongan Pekerjaan Aktif */}
           <div className="lpr-job-panel">
             <div className="lpr-panel-header">
@@ -426,10 +463,11 @@ export default function LowonganPerusahaan_001({ slug }) {
                 ))}
               </div>
             )}
+
           </div>
 
           {/* Card: Ringkasan Informasi Perusahaan */}
-          <div className="lpr-info-card" style={{ marginTop: '20px' }}>
+          <div className="lpr-info-card">
             <h3 className="lpr-info-card-title">Ringkasan Perusahaan</h3>
             <div className="lpr-info-list">
               {company.industri && (
@@ -463,6 +501,7 @@ export default function LowonganPerusahaan_001({ slug }) {
                 </div>
               )}
             </div>
+          </div>
           </div>
         </div>
       </div>

@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import useLamanPerusahaanData, { formatDeskripsiToHtml, getYoutubeEmbedUrl } from '../../../hooks/lowongan/useLamanPerusahaanData.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
+import PelamarMobileNav from '../../../components/pelamar/PelamarMobileNav.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 
+const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
+const IconCompany = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>);
 const IconShare = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>);
 const IconAlert = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const IconSpin = () => (<svg className="lk-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.22-8.56" /></svg>);
@@ -58,7 +62,13 @@ function ShareSheet({ open, onClose, onShare, pageUrl }) {
 // Padanan mobile dari Lowongan-Perusahaan_001.jsx (desktop) — laman profil
 // perusahaan publik (tanpa login), dibuka lewat `?view=laman-perusahaan&slug=`.
 // Pakai hook `useLamanPerusahaanData` yang sama persis dengan desktop.
-export default function LamanPerusahaanMobile({ slug }) {
+export default function LamanPerusahaanMobile({ slug, navigate }) {
+  const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
+  const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goPerusahaan = () => {
+    const target = companyId ? 'beranda_002' : 'landingpage_003';
+    if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
+  };
   const { pageState, company, filteredJobs, jobs, jobSearch, setJobSearch, handleShareAction } = useLamanPerusahaanData(slug);
 
   const [shareOpen, setShareOpen] = useState(false);
@@ -105,7 +115,18 @@ export default function LamanPerusahaanMobile({ slug }) {
           <span className="lk-logo-divider" />
           <span className="lk-badge-portal">PORTAL KARIR</span>
         </a>
-        <button className="lk-share-btn" onClick={() => setShareOpen(true)} title="Bagikan"><IconShare /></button>
+        <div className="lk-head-actions">
+          <button className="lk-share-btn" onClick={() => setShareOpen(true)} title="Bagikan"><IconShare /></button>
+          <span className="lk-head-divider" />
+          {isPelamar ? (
+            <PelamarMobileNav navigate={navigate} pelamarProfile={pelamarProfile} goPerusahaan={goPerusahaan} />
+          ) : (
+            <>
+              <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+              <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="lk-cohero">

@@ -423,6 +423,7 @@ export default function LowonganSetupPenilaian_001({ navigate }) {
         pengalaman: form.pengalaman,
         deskripsi: htmlDeskripsi,
         kode,
+        sumber_buat: 'form',
         kriteria: isSufficientDesc ? [{ _isGenerating: true }] : []
       });
       invalidate('seleksi');

@@ -10,7 +10,7 @@ const supabaseUrl = 'https://qxmkwfncpxcibjnwnmup.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4bWt3Zm5jcHhjaWJqbndubXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzA3NDQsImV4cCI6MjA5NjA0Njc0NH0.igrn_j_7WK0vmHjwDNEid15g_3aYbHeaX7tLvI7N-94';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const USD_TO_IDR = 17900;
+const USD_TO_IDR = 17800;
 
 /**
  * Ambil semua baris `api_prices` dan susun jadi map { model_name: row }.

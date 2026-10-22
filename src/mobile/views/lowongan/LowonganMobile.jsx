@@ -26,6 +26,13 @@ const STATUS_TINT = {
   dibatalkan: '#FDEBEC',
 };
 
+const IconSparkle = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+  </svg>
+);
+
 const IconSearch = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 );
@@ -199,17 +206,25 @@ export default function LowonganMobile({ navigate }) {
                 >
                   <div className={`mlw001-card${row.arsip ? ' archived' : ''}`}>
                     <div className="mlw001-card-top">
-                      <div onClick={() => !row.arsip && goDetail(row)} style={{ cursor: row.arsip ? 'default' : 'pointer' }}>
+                      <div onClick={() => !row.arsip && goDetail(row)} style={{ cursor: row.arsip ? 'default' : 'pointer', flex: 1, minWidth: 0 }}>
                         <div className="mlw001-card-posisi">{row.posisi}</div>
                         <div className="mlw001-card-meta">
                           {row.dept}<span className="mlw001-dot" />{row.lokasi}<span className="mlw001-dot" />{row.levelJabatan}
                         </div>
                       </div>
-                      {!row.arsip && (
-                        <button className="mlw001-kebab" onClick={() => setActionRow(row)}>
-                          <IconKebab />
-                        </button>
-                      )}
+                      <div className="mlw001-card-actions">
+                        {row.sumberBuat === 'ai' && (
+                          <span className="mlw001-ai-tag" title="Dibuat dengan Bantuan Luna / AI">
+                            <IconSparkle />
+                            <span>Dibantu Luna</span>
+                          </span>
+                        )}
+                        {!row.arsip && (
+                          <button className="mlw001-kebab" onClick={() => setActionRow(row)}>
+                            <IconKebab />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mlw001-card-badges">

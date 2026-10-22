@@ -4,6 +4,7 @@ import { slugify } from '../../utils/slug.js';
 import { createSeleksi } from '../../services/seleksiService.js';
 import { invalidate } from '../../services/dataCache.js';
 import { reportLastError } from '../../utils/lastErrorMemory.js';
+import { parseUpahText } from '../../utils/parseUpahText.js';
 
 // Versi produksi — porting dari Sandbox (Sandbox-BuatLowongan.jsx), setelah
 // dites di sana. Beda utama dari versi sandbox: di sini panggilan AI lewat
@@ -242,15 +243,14 @@ export default function useBuatLowonganPanduan(companyId, companyPlan) {
           status: 'Aktif',
           jumlah_rekrut: jumlahRekrut,
           ikatan_kerja: draft.detail.ikatanKerja,
-          upah_min: draft.detail.upah,
-          upah_maks: '',
-          siklus_upah: '',
+          ...parseUpahText(draft.detail.upah),
           tgl_mulai: null,
           tgl_onboard: null,
           pendidikan: draft.detail.pendidikan,
           pengalaman: draft.detail.pengalaman,
           deskripsi: htmlDeskripsi,
           kode: `LUN-${Math.floor(Math.random() * 10000)}`,
+          sumber_buat: 'ai',
           kriteria: isSufficientDesc ? [{ _isGenerating: true }] : [],
         });
         invalidate('seleksi');

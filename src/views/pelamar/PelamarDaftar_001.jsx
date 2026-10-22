@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
 import '../../../css/pelamar/pelamar-masuk_001.css';
 
-// Prototipe UI murni — belum nyambung Supabase/akun pelamar sungguhan.
-// Submit langsung "berhasil" dan diarahkan ke ProfilPelamar_001 (yang juga
-// masih data dummy), sekadar menunjukkan alur & desainnya dulu. Tombol
-// Google/Facebook juga dummy (dekoratif) — belum ada OAuth sungguhan.
+// Daftar pakai Supabase Auth sungguhan (akun pelamar hidup di
+// pelamar_profiles, terpisah dari akun perusahaan — lihat
+// handle_new_user() di DB). Tombol Google/Facebook masih dekoratif,
+// belum ada OAuth sungguhan.
 const IconEye = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
 );
@@ -24,32 +25,56 @@ const IconFacebook = () => (
 );
 
 export default function PelamarDaftar_001({ navigate }) {
+  const { registerPelamar, login, addPelamarRole } = useAuth();
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [checkEmail, setCheckEmail] = useState(false);
 
   const isValid = nama.trim() && email.trim() && password.trim().length >= 6 && agree;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
     setLoading(true);
-    // Dummy — belum ada auth pelamar sungguhan, langsung "berhasil" habis jeda singkat.
-    setTimeout(() => {
+    setError('');
+    try {
+      const { session } = await registerPelamar(email.trim(), password, { nama_lengkap: nama.trim() });
+      if (session) {
+        navigate?.('profil-pelamar_001');
+      } else {
+        // Proyek ini mewajibkan konfirmasi email — belum ada sesi aktif
+        // sampai link di email itu diklik, jadi jangan diarahkan ke
+        // halaman yang seolah-olah sudah login.
+        setCheckEmail(true);
+      }
+    } catch (err) {
+      if (err.message === 'User already registered') {
+        // Email ini sudah punya akun lain (mis. akun HR) — satu email tetap
+        // satu identitas login, jadi kalau password yang baru diisi memang
+        // cocok dengan akun itu, tambahkan peran pelamar ke akun yang sama
+        // (tetap 2x "daftar" terpisah per peran, bukan otomatis nyambung).
+        try {
+          await login(email.trim(), password);
+          await addPelamarRole({ nama_lengkap: nama.trim() });
+          navigate?.('profil-pelamar_001');
+        } catch {
+          setError('Email ini sudah terdaftar dengan password yang berbeda. Masuk pakai password akun itu dulu, atau gunakan email lain.');
+        }
+      } else {
+        setError(err.message || 'Gagal mendaftar. Coba lagi beberapa saat lagi.');
+      }
+    } finally {
       setLoading(false);
-      navigate?.('profil-pelamar_001');
-    }, 650);
+    }
   };
 
-  const handleSocialRegister = (provider) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate?.('profil-pelamar_001');
-    }, 450);
+  const handleSocialRegister = () => {
+    setError('Daftar via akun sosial belum tersedia — pakai email dulu ya.');
   };
 
   return (
@@ -72,12 +97,21 @@ export default function PelamarDaftar_001({ navigate }) {
 
       <div className="pm001-form-side">
        <div className="pm001-form-col">
+        {checkEmail ? (
+          <div className="pm001-form-head">
+            <h1>Cek email kamu</h1>
+            <p>Kami kirim link konfirmasi ke <b>{email.trim()}</b>. Klik link itu dulu, baru akun kamu aktif dan bisa dipakai masuk.</p>
+          </div>
+        ) : (
+        <>
         <div className="pm001-form-head">
           <h1>Buat akun pelamar</h1>
           <p>Gratis, cuma butuh beberapa detik buat mulai.</p>
         </div>
 
         <form className="pm001-form" onSubmit={handleSubmit}>
+          {error && <div className="pm001-error">{error}</div>}
+
           <div className="pm001-field">
             <label className="pm001-label" htmlFor="pm001-nama">Nama Lengkap</label>
             <input
@@ -150,6 +184,8 @@ export default function PelamarDaftar_001({ navigate }) {
         <div className="pm001-note">
           Atau tenang — kamu tetap bisa <b>melamar langsung tanpa daftar</b> lewat halaman lowongan.
         </div>
+        </>
+        )}
 
         <a className="pm001-company-link" href="/?view=landingpage_003">Punya perusahaan &amp; ingin merekrut? Masuk sebagai perusahaan →</a>
        </div>

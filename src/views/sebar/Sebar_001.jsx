@@ -46,6 +46,38 @@ const IconThreads = () => (
   </svg>
 );
 
+const IconShare = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const IconLink = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const IconLinkedIn = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <line x1="7.5" y1="10.5" x2="7.5" y2="16.5" />
+    <circle cx="7.5" cy="7" r="0.6" fill="currentColor" stroke="none" />
+    <path d="M11 16.5v-3.7a2.3 2.3 0 0 1 4.5 0v3.7" />
+    <line x1="11" y1="10.5" x2="11" y2="16.5" />
+  </svg>
+);
+
+const SHARE_PLATFORMS = [
+  { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
+
 const PLATFORM_ICONS = {
   Facebook: IconFacebook,
   Instagram: IconInstagram,
@@ -73,6 +105,14 @@ export default function Sebar_001({ onNavigate, navigate }) {
   const [expandedCards, setExpandedCards] = useState({});
   const [qrModalData, setQrModalData] = useState(null);
   const [page, setPage] = useState(1);
+  const [openShareKey, setOpenShareKey] = useState(null);
+
+  // Close share dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = () => setOpenShareKey(null);
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   // Reset ke halaman 1 setiap kali pencarian atau tab berubah
   useEffect(() => {
@@ -86,6 +126,40 @@ export default function Sebar_001({ onNavigate, navigate }) {
   const handleCopy = (job, mode) => {
     const fullText = mode === 'lain' ? getPartnerMessage(job) : getBroadcastText(job);
     copyText(`${job.id}:${mode}`, fullText, mode === 'lain' ? 'Pesan untuk admin berhasil disalin!' : 'Teks & link lowongan berhasil disalin!');
+  };
+
+  const handleShareAction = (platform, job) => {
+    const posisi = job.posisi || job.jabatan || 'Lowongan';
+    const karirLink = getKarirLink(job);
+    const text = `Lowongan ${posisi} di ${job.company_name || namaPerusahaan}`;
+    setOpenShareKey(null);
+
+    switch (platform) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${karirLink}`)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(karirLink)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(karirLink)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'x':
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(karirLink)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'telegram':
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(karirLink)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        break;
+      case 'instagram':
+        navigator.clipboard.writeText(karirLink).then(() => {
+          showToast('Link disalin! Tempelkan di bio atau story Instagram.');
+        });
+        break;
+      default:
+        navigator.clipboard.writeText(karirLink).then(() => {
+          showToast('Tautan Laman Karir tersalin!');
+        });
+    }
   };
 
   // Mock data fallback if database has no active jobs
@@ -239,6 +313,50 @@ export default function Sebar_001({ onNavigate, navigate }) {
                 </svg>
               </button>
               <span className="sebar-icon-cta-tooltip">QR Code Laman Karir</span>
+            </div>
+
+            {/* Icon CTA 4: Bagikan Laman Karier with Tooltip & Dropdown Menu */}
+            <div className="sebar-icon-cta-wrap" onClick={(e) => e.stopPropagation()}>
+              <button
+                className={`sebar-icon-action-btn share-accent ${openShareKey === key ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenShareKey(openShareKey === key ? null : key);
+                }}
+                aria-label="Bagikan Laman Karier"
+              >
+                <IconShare />
+              </button>
+              <span className="sebar-icon-cta-tooltip">Bagikan Laman Karier</span>
+
+              {openShareKey === key && (
+                <div className="lw001-share-menu" onClick={(e) => e.stopPropagation()}>
+                  <div className="lw001-share-eyebrow">BAGIKAN LAMAN KARIER</div>
+                  <div className="lw001-share-linkcard">
+                    <span className="lw001-share-linkcard-url">{karirLink}</span>
+                    <button
+                      className="lw001-share-linkcard-copy"
+                      onClick={() => handleShareAction('copy', job)}
+                    >
+                      <IconLink />
+                      Salin
+                    </button>
+                  </div>
+                  <div className="lw001-share-divider" />
+                  <div className="lw001-share-grid">
+                    {SHARE_PLATFORMS.map(({ key: platKey, label, Icon }) => (
+                      <button
+                        key={platKey}
+                        className="lw001-share-gridbtn"
+                        onClick={() => handleShareAction(platKey, job)}
+                      >
+                        <span className="lw001-share-gridbtn-icon"><Icon /></span>
+                        <span className="lw001-share-gridbtn-label">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
@@ -600,7 +718,12 @@ export default function Sebar_001({ onNavigate, navigate }) {
                 <h3 className="sebar-qr-title">{qrModalData.job?.jabatan || qrModalData.job?.posisi || 'Lowongan Pekerjaan'}</h3>
                 <p className="sebar-qr-subtitle">{qrModalData.companyName}</p>
               </div>
-              <button className="sebar-qr-close" onClick={() => setQrModalData(null)}>×</button>
+              <button className="sebar-qr-close" onClick={() => setQrModalData(null)} aria-label="Tutup">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
 
             <div className="sebar-qr-body">

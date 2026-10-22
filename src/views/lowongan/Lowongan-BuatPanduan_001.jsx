@@ -4,6 +4,7 @@ import PopupKonfirmasi from '../../components/PopupKonfirmasi.jsx';
 import { buildLamanKarirUrl } from '../../hooks/lowongan/useBuatLowonganPanduan.js';
 import { useBuatLowonganPanduanContext } from '../../context/BuatLowonganPanduanContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { formatUpahDraft } from '../../utils/parseUpahText.js';
 import ReportKendalaButton from '../../components/ReportKendalaButton.jsx';
 import LowonganPublishedScreen from '../../components/LowonganPublishedScreen.jsx';
 
@@ -236,7 +237,7 @@ export default function LowonganBuatPanduan_001({ navigate, back }) {
                 <div className="blw-sum-detail-row"><span>Lokasi</span><b>{draft?.detail.lokasi || '-'}</b></div>
                 <div className="blw-sum-detail-row"><span>Jumlah rekrut</span><b>{draft?.detail.jumlahRekrut || '-'}</b></div>
                 <div className="blw-sum-detail-row"><span>Ikatan kerja</span><b>{draft?.detail.ikatanKerja || '-'}</b></div>
-                <div className="blw-sum-detail-row"><span>Upah</span><b>{draft?.detail.upah || '-'}</b></div>
+                <div className="blw-sum-detail-row"><span>Upah</span><b>{formatUpahDraft(draft?.detail.upah) || '-'}</b></div>
                 <div className="blw-sum-detail-row"><span>Pendidikan minimal</span><b>{draft?.detail.pendidikan || '-'}</b></div>
                 <div className="blw-sum-detail-row"><span>Pengalaman minimal</span><b>{draft?.detail.pengalaman || '-'}</b></div>
               </div>

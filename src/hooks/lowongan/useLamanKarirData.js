@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getSeleksiByKode, getAllActiveJobs, recordJobView } from '../../services/seleksiService.js';
 import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
+import { formatSiklusLabel } from '../../utils/siklusUpah.js';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILE_SIZE_MB = 10;
@@ -101,9 +102,10 @@ export function formatUpah(data) {
   const min = data.upah_min || data.gaji_min || null;
   const maks = data.upah_maks || data.gaji_maks || null;
   if (min || maks) {
-    const minStr = stripRupiahPrefix(min) || '-';
-    const maksStr = stripRupiahPrefix(maks) || '-';
-    return `${minStr} – ${maksStr}${data.siklus_upah ? ' / ' + data.siklus_upah : ''}`;
+    const minStr = stripRupiahPrefix(min);
+    const maksStr = stripRupiahPrefix(maks);
+    const nominal = minStr && maksStr ? `${minStr} – ${maksStr}` : (minStr || maksStr);
+    return `${nominal}${data.siklus_upah ? ' / ' + formatSiklusLabel(data.siklus_upah) : ''}`;
   }
   if (data.gaji || data.upah) return stripRupiahPrefix(data.gaji || data.upah);
   return null;

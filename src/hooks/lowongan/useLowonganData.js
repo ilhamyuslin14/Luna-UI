@@ -114,6 +114,7 @@ export default function useLowonganData(companyId, companyPlan, { searchQuery = 
           status: STATUS_NORMALIZE[item.status] || 'rencana',
           arsip: item.arsip || false,
           kode: item.kode || null,
+          sumberBuat: item.sumber_buat || (item.deskripsi?.includes('Catatan dari Luna') ? 'ai' : 'form'),
         };
       });
       setRows(formattedRows);

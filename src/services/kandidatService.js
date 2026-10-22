@@ -111,7 +111,7 @@ function sha256Fallback(bytes) {
 // browser menganggapnya insecure context dan crypto.subtle jadi undefined.
 // Fallback ke implementasi SHA-256 sendiri (bukan algoritma lain) supaya
 // hasil hash-nya tetap sama persis dengan crypto.subtle di context lain.
-async function computeFileHash(file) {
+export async function computeFileHash(file) {
   const arrayBuffer = await file.arrayBuffer();
   if (window.crypto?.subtle?.digest) {
     try {

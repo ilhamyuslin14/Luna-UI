@@ -12,6 +12,13 @@ import FilterDropdown from '../../components/FilterDropdown.jsx';
 import SortDropdown from '../../components/SortDropdown.jsx';
 import Toast from '../../components/Toast.jsx';
 
+const IconSparkle = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+  </svg>
+);
+
 const IconEye = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" />
@@ -433,13 +440,21 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
                             className="lw001-board-card"
                           >
                             <div className="lw001-board-card-top">
-                              <span
-                                className="lw001-board-card-title"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('lowongan-detail_001', { seleksiId: card.id, jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
-                              >
-                                {card.posisi}
-                              </span>
+                              <div className="lw001-board-card-title-wrap">
+                                <span
+                                  className="lw001-board-card-title"
+                                  style={{ cursor: 'pointer' }}
+                                  onClick={() => navigate('lowongan-detail_001', { seleksiId: card.id, jabatan: card.posisi, activeTab: card.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
+                                >
+                                  {card.posisi}
+                                </span>
+                                {card.sumberBuat === 'ai' && (
+                                  <span className="lw001-ai-tag" title="Dibuat dengan Bantuan Luna / AI">
+                                    <IconSparkle />
+                                    <span>Dibantu Luna</span>
+                                  </span>
+                                )}
+                              </div>
                               <div className="lw001-board-card-menu-wrap">
                                 <button
                                   className="lw001-board-card-menu"
@@ -524,7 +539,7 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
             <thead>
               <tr>
                 <th width="24"><input type="checkbox" className="lw001-checkbox-all" checked={selectAll} onChange={toggleSelectAll} /></th>
-                <th width="184">Posisi</th>
+                <th width="220">Posisi</th>
                 <th width="110">Level</th>
                 <th width="130">Departemen</th>
                 <th width="120">Lokasi</th>
@@ -551,7 +566,17 @@ export default function Lowongan_001({ navigate, searchQuery = '' }) {
                       className={`lw001-posisi${row.arsip ? '' : ' clickable'}`}
                       onClick={row.arsip ? undefined : () => navigate('lowongan-detail_001', { seleksiId: row.id, jabatan: row.posisi, activeTab: row.kandidat > 0 ? 'kandidat' : 'ringkasan' })}
                       style={row.arsip ? { cursor: 'default', opacity: 0.5 } : {}}
-                    >{row.posisi}</td>
+                    >
+                      <div className="lw001-posisi-cell-inner">
+                        <span className="lw001-posisi-text">{row.posisi}</span>
+                        {row.sumberBuat === 'ai' && (
+                          <span className="lw001-ai-tag" title="Dibuat dengan Bantuan Luna / AI">
+                            <IconSparkle />
+                            <span>Dibantu Luna</span>
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td>{row.levelJabatan}</td>
                     <td>{row.dept}</td>
                     <td>{row.lokasi}</td>

@@ -21,7 +21,25 @@ export function AuthProvider({ children }) {
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [otpVerified, setOtpVerified] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
+  const [pelamarProfile, setPelamarProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Akun pelamar hidup di pelamar_profiles (tabel terpisah dari profiles
+  // milik perusahaan — lihat handle_new_user() di DB), jadi dicek lewat
+  // query sendiri, bukan ikut fetchCompanyId. Tidak error kalau usernya
+  // ternyata akun perusahaan (baris cuma tidak ketemu, pelamarProfile null).
+  const fetchPelamarProfile = async (userId) => {
+    if (!userId) {
+      setPelamarProfile(null);
+      return;
+    }
+    const { data, error } = await supabase
+      .from('pelamar_profiles')
+      .select('nama_lengkap, email, phone')
+      .eq('id', userId)
+      .maybeSingle();
+    setPelamarProfile(!error && data ? data : null);
+  };
 
   const fetchCompanyId = async (userId) => {
     if (!userId) {
@@ -93,7 +111,10 @@ export function AuthProvider({ children }) {
       try {
         if (session?.user) {
           localStorage.setItem('luna_admin_last_login', new Date().toISOString());
-          const cid = await fetchCompanyId(session.user.id);
+          const [cid] = await Promise.all([
+            fetchCompanyId(session.user.id),
+            fetchPelamarProfile(session.user.id),
+          ]);
           if (cid) {
             localStorage.setItem(`luna_admin_last_login_${cid}`, new Date().toISOString());
           }
@@ -106,6 +127,7 @@ export function AuthProvider({ children }) {
           setMustChangePassword(false);
           setOtpVerified(true);
           setOnboardingCompleted(true);
+          setPelamarProfile(null);
         }
       } catch (err) {
         // Kalau fetchCompanyId gagal (query error, RLS, dsb), jangan biarkan
@@ -144,6 +166,42 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const registerPelamar = async (email, password, { nama_lengkap, phone }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          account_type: 'pelamar',
+          nama_lengkap,
+          phone,
+        }
+      }
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  // Menambahkan peran pelamar ke akun yang SUDAH login (satu identitas auth
+  // bisa punya profil perusahaan dan profil pelamar sekaligus — tapi
+  // masing-masing tetap harus "didaftarkan" eksplisit, tidak otomatis ikut
+  // saat signUp yang satu lagi). Dipakai saat email yang dipakai daftar
+  // pelamar ternyata sudah punya akun (mis. akun HR) dan passwordnya cocok.
+  const addPelamarRole = async ({ nama_lengkap, phone }) => {
+    const { data: { user: authedUser } } = await supabase.auth.getUser();
+    if (!authedUser) throw new Error('Tidak ada sesi aktif.');
+    const { error } = await supabase.from('pelamar_profiles').insert({
+      id: authedUser.id,
+      nama_lengkap,
+      email: authedUser.email,
+      phone: phone || null,
+    });
+    // 23505 = sudah ada row pelamar_profiles buat akun ini (sudah pernah
+    // daftar pelamar juga sebelumnya) — bukan error, anggap sukses.
+    if (error && error.code !== '23505') throw error;
+    await fetchPelamarProfile(authedUser.id);
+  };
+
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -166,9 +224,13 @@ export function AuthProvider({ children }) {
     mustChangePassword,
     otpVerified,
     onboardingCompleted,
+    pelamarProfile,
+    isPelamar: !!pelamarProfile,
     loading,
     login,
     register,
+    registerPelamar,
+    addPelamarRole,
     logout,
     refreshCompanyData: fetchCompanyId,
   };

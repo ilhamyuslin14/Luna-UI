@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useLamanKarirData, {
-  formatDeskripsiToHtml, formatTanggal, formatPengalaman, formatUpah, getApplyErrorInfo, getAdminActivityState,
+  formatDeskripsiToHtml, formatPengalaman, formatUpah, getApplyErrorInfo,
 } from '../../../hooks/lowongan/useLamanKarirData.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
+import PelamarMobileNav from '../../../components/pelamar/PelamarMobileNav.jsx';
+import KecocokanCard from '../../../components/lowongan/KecocokanCard.jsx';
+import { formatWaktuPosting, formatTanggalPosting } from '../../../utils/tanggalPosting.js';
+import { GAJI_TIDAK_DITAMPILKAN } from '../../../utils/siklusUpah.js';
+import LowonganHeader, { LunaHeaderBadges } from '../../../components/lowongan/LowonganHeader.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
+import '../../../../css/mobile/lowongan/semua-lowongan_002.css';
 
 const IconShare = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>);
 const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
 const IconCompany = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>);
 const IconLink = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 17H7A5 5 0 017 7h2" /><path d="M15 7h2a5 5 0 010 10h-2" /><line x1="8" y1="12" x2="16" y2="12" /></svg>);
-const IconEye = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>);
-const IconPin = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>);
-const IconBriefcase = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>);
-const IconMoney = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /></svg>);
 const IconDoc = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>);
 const IconChevronRight = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>);
 const IconChevronLeft = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M15 6l-6 6 6 6" /></svg>);
@@ -82,7 +84,7 @@ function CompanyLogo({ url, name, className }) {
     : <div className={className}>{(name || '?').charAt(0).toUpperCase()}</div>;
 }
 
-function Header({ onShare, shareDisabled, onMasuk, onPerusahaan }) {
+function Header({ onShare, shareDisabled, onMasuk, onPerusahaan, isPelamar, pelamarProfile, navigate }) {
   return (
     <div className="lk-head">
       <a className="lk-logo" href="/?view=semua-lowongan_002">
@@ -93,8 +95,14 @@ function Header({ onShare, shareDisabled, onMasuk, onPerusahaan }) {
       <div className="lk-head-actions">
         <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
         <span className="lk-head-divider" />
-        <button className="lk-share-btn" onClick={onMasuk} title="Masuk"><IconUser /></button>
-        <button className="lk-share-btn primary" onClick={onPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+        {isPelamar ? (
+          <PelamarMobileNav navigate={navigate} pelamarProfile={pelamarProfile} goPerusahaan={onPerusahaan} />
+        ) : (
+          <>
+            <button className="lk-share-btn" onClick={onMasuk} title="Masuk"><IconUser /></button>
+            <button className="lk-share-btn primary" onClick={onPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -131,7 +139,7 @@ function ShareSheet({ open, onClose, onShare, pageUrl }) {
 // form, alur submit upload→ekstrak AI→scoring) — cuma markup & CSS beda
 // total (2-kolom sticky sidebar di desktop vs sheet+sticky-bar di sini).
 export default function LamanKarirMobile({ kode, navigate }) {
-  const { companyId } = useAuth() || {};
+  const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
   const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
   const goPerusahaan = () => {
     const target = companyId ? 'beranda_002' : 'landingpage_003';
@@ -189,7 +197,6 @@ export default function LamanKarirMobile({ kode, navigate }) {
   const companyLogoUrl = seleksiData.companies?.logo_url || null;
   const companyPageUrl = companySlug ? `/?view=laman-perusahaan&slug=${encodeURIComponent(companySlug)}` : null;
   const departemenName = seleksiData.departments?.name || null;
-  const adminActivity = getAdminActivityState(seleksiData);
   const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   // ── layar berhasil melamar + portal semua lowongan (list ringkas + pagination) ──
@@ -224,8 +231,14 @@ export default function LamanKarirMobile({ kode, navigate }) {
           <div className="lk-head-actions">
             <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>
             <span className="lk-head-divider" />
-            <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-            <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+            {isPelamar ? (
+              <PelamarMobileNav navigate={navigate} pelamarProfile={pelamarProfile} goPerusahaan={goPerusahaan} />
+            ) : (
+              <>
+                <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+                <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+              </>
+            )}
           </div>
         </div>
 
@@ -289,6 +302,36 @@ export default function LamanKarirMobile({ kode, navigate }) {
           </div>
         )}
 
+        <footer className="sl2m-footer">
+          <div className="sl2m-footer-brand">
+            <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+            <b>Luna</b>
+          </div>
+          <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+
+          <div className="sl2m-footer-cols">
+            <div className="sl2m-footer-col">
+              <h5>Untuk Pelamar</h5>
+              <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
+              <button type="button" onClick={() => navigate?.('pelamar-daftar')}>Buat Profil</button>
+              <button type="button" onClick={() => navigate?.('pelamar-masuk')}>Status Lamaran</button>
+            </div>
+            <div className="sl2m-footer-col">
+              <h5>Untuk Perusahaan</h5>
+              <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+              <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+            </div>
+          </div>
+
+          <div className="sl2m-footer-bottom">
+            <span>© {new Date().getFullYear()} Luna. Semua hak dilindungi.</span>
+            <div className="sl2m-footer-social">
+              <span><IconLinkedIn /></span>
+              <span><IconInstagram /></span>
+            </div>
+          </div>
+        </footer>
+
         <SortSheet
           open={sortSheetOpen}
           onClose={() => setSortSheetOpen(false)}
@@ -302,51 +345,43 @@ export default function LamanKarirMobile({ kode, navigate }) {
   // ── layar detail lowongan + form lamar ──
   return (
     <div className="lk-page">
-      <Header onShare={() => setShareOpen(true)} onMasuk={goMasuk} onPerusahaan={goPerusahaan} />
+      <Header onShare={() => setShareOpen(true)} onMasuk={goMasuk} onPerusahaan={goPerusahaan} isPelamar={isPelamar} pelamarProfile={pelamarProfile} navigate={navigate} />
       <div className="lk-crumb">
         {companyPageUrl ? <a href={companyPageUrl}>{companyName}</a> : <span>{companyName || 'Lowongan Pekerjaan'}</span>}
         {' / '}<b>{seleksiData.jabatan}</b>
       </div>
 
-      <div className="lk-hero-wrap">
-        <div className="lk-hero">
-          <div className="lk-hero-top">
-            <CompanyLogo url={companyLogoUrl} name={companyName} className="lk-co-logo" />
-            <div className="lk-hero-top-meta">
-              <div className="lk-co-name">{companyName}</div>
-              <div className="lk-hero-badges">
-                <span className="lk-pill-mini active"><span className="dot" />Lowongan Aktif</span>
-                <span className="lk-pill-mini views"><IconEye />{viewCount.toLocaleString('id-ID')} Dilihat</span>
-                <span className={`lk-pill-mini${adminActivity.isOnline ? ' active' : ''}`} style={!adminActivity.isOnline ? { background: 'rgba(255,255,255,0.16)', color: '#fff' } : undefined}>
-                  {adminActivity.isOnline && <span className="dot" />}{adminActivity.text}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="lk-job-title">{seleksiData.jabatan}</div>
-          <div className="lk-hero-pills">
-            {seleksiData.lokasi && <span className="lk-hero-pill"><IconPin />{seleksiData.lokasi}</span>}
-            {seleksiData.remote && <span className="lk-hero-pill">{seleksiData.remote}</span>}
-            {seleksiData.ikatan_kerja && seleksiData.ikatan_kerja !== seleksiData.remote && (
-              <span className="lk-hero-pill"><IconBriefcase />{seleksiData.ikatan_kerja}</span>
-            )}
-          </div>
-          {upahStr && <div className="lk-hero-salary"><span>Estimasi Gaji</span>Rp {upahStr}</div>}
-        </div>
+      <div className="lkh-m-wrap">
+        <LowonganHeader
+          companyName={companyName}
+          companyHref={companyPageUrl}
+          logoUrl={companyLogoUrl}
+          badges={<LunaHeaderBadges job={seleksiData} viewCount={viewCount} />}
+          title={seleksiData.jabatan}
+          meta={[
+            seleksiData.lokasi && { icon: 'pin', text: seleksiData.lokasi },
+            seleksiData.remote && { icon: 'desk', text: seleksiData.remote },
+            seleksiData.ikatan_kerja && seleksiData.ikatan_kerja !== seleksiData.remote && { icon: 'brief', text: seleksiData.ikatan_kerja },
+            formatWaktuPosting(seleksiData.created_at) && { icon: 'clock', text: formatWaktuPosting(seleksiData.created_at) },
+          ].filter(Boolean)}
+          salaryLabel={upahStr ? `Rp ${upahStr}` : GAJI_TIDAK_DITAMPILKAN}
+          salaryMuted={!upahStr}
+        />
       </div>
 
       <div className="lk-body">
+        <KecocokanCard jobKey={`luna:${seleksiData.id}`} jobTitle={seleksiData.jabatan} navigate={navigate} />
         <div className="lk-card">
           <div className="lk-card-title">Detail Pekerjaan</div>
           <div className="lk-detail-row"><span>Departemen</span><span>{departemenName || '-'}</span></div>
           <div className="lk-detail-row"><span>Level Jabatan</span><span>{seleksiData.level_jabatan || '-'}</span></div>
           <div className="lk-detail-row"><span>Lokasi</span><span>{seleksiData.lokasi || '-'}</span></div>
           <div className="lk-detail-row"><span>Ikatan Kerja</span><span>{seleksiData.ikatan_kerja || '-'}</span></div>
-          {upahStr && <div className="lk-detail-row"><span>Upah / Gaji</span><span style={{ color: 'var(--luna-orange-600)' }}>Rp {upahStr}</span></div>}
+          <div className="lk-detail-row"><span>Upah / Gaji</span><span style={upahStr ? { color: 'var(--luna-orange-600)' } : { color: 'var(--luna-ink-400)', fontWeight: 500 }}>{upahStr ? `Rp ${upahStr}` : GAJI_TIDAK_DITAMPILKAN}</span></div>
           <div className="lk-detail-row"><span>Min. Pendidikan</span><span>{seleksiData.pendidikan || '-'}</span></div>
           <div className="lk-detail-row"><span>Min. Pengalaman</span><span>{formatPengalaman(seleksiData.pengalaman) || '-'}</span></div>
           <div className="lk-detail-row"><span>Jumlah Posisi</span><span>{seleksiData.jumlah_rekrut ? `${seleksiData.jumlah_rekrut} Orang` : '-'}</span></div>
-          <div className="lk-detail-row"><span>Tanggal Buka</span><span>{formatTanggal(seleksiData.tgl_onboard || seleksiData.target_onboarding || seleksiData.target_date || seleksiData.created_at)}</span></div>
+          <div className="lk-detail-row"><span>Tanggal Posting</span><span>{formatTanggalPosting(seleksiData.created_at)}</span></div>
         </div>
 
         <div className="lk-card">
@@ -380,6 +415,36 @@ export default function LamanKarirMobile({ kode, navigate }) {
           </div>
         </div>
       </div>
+
+      <footer className="sl2m-footer">
+        <div className="sl2m-footer-brand">
+          <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+          <b>Luna</b>
+        </div>
+        <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+
+        <div className="sl2m-footer-cols">
+          <div className="sl2m-footer-col">
+            <h5>Untuk Pelamar</h5>
+            <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
+            <button type="button" onClick={() => navigate?.('pelamar-daftar')}>Buat Profil</button>
+            <button type="button" onClick={() => navigate?.('pelamar-masuk')}>Status Lamaran</button>
+          </div>
+          <div className="sl2m-footer-col">
+            <h5>Untuk Perusahaan</h5>
+            <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+            <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+          </div>
+        </div>
+
+        <div className="sl2m-footer-bottom">
+          <span>© {new Date().getFullYear()} Luna. Semua hak dilindungi.</span>
+          <div className="sl2m-footer-social">
+            <span><IconLinkedIn /></span>
+            <span><IconInstagram /></span>
+          </div>
+        </div>
+      </footer>
 
       <div className="lk-stickybar">
         <div className="lk-stickybar-info">

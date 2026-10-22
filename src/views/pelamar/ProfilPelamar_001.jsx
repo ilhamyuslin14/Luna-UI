@@ -1,25 +1,113 @@
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getPelamarResume, uploadAndParseResume } from '../../services/pelamarResumeService.js';
+import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
+import PelamarMobileNav from '../../components/pelamar/PelamarMobileNav.jsx';
+import useIsMobile from '../../hooks/useIsMobile.js';
+import '../../../css/mobile/shell.css';
+import '../../../css/mobile/lowongan/laman-karir.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
 
+const BULAN_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+// AI selalu kasih tanggal ISO (YYYY-MM-DD) atau literal "Sekarang" (lihat
+// parse-cv-pelamar) — dipecah jadi {month, year} buat field form yang sudah
+// ada di halaman ini (startMonth/startYear dst, bukan ISO string).
+function isoToMonthYear(iso) {
+  if (!iso || iso === 'Sekarang') return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return { month: BULAN_ID[d.getMonth()], year: String(d.getFullYear()) };
+}
+
+function formatRelativeTime(iso) {
+  if (!iso) return '-';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diffMs / 86400000);
+  if (days <= 0) return 'Hari ini';
+  if (days === 1) return '1 hari lalu';
+  if (days < 30) return `${days} hari lalu`;
+  return `${Math.floor(days / 30)} bulan lalu`;
+}
+
+// Mapping hasil parsing AI (public.pelamar_resumes) ke bentuk kartu yang
+// sudah dipakai halaman ini — TIDAK pernah mengarang nilai untuk field yang
+// memang tidak diekstrak AI (tipe kerja & lokasi per-pengalaman, IPK, dst):
+// dibiarkan string kosong, bukan placeholder palsu.
+function mapPengalamanFromResume(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item, idx) => {
+    const start = isoToMonthYear(item.start);
+    const isCurrent = (item.end || '').toLowerCase() === 'sekarang' || !item.end;
+    const end = isCurrent ? null : isoToMonthYear(item.end);
+    const periode = start
+      ? `${start.month} ${start.year} – ${isCurrent ? 'Sekarang' : (end ? `${end.month} ${end.year}` : '')}`
+      : '';
+    return {
+      id: `resume-exp-${idx}`,
+      jabatan: item.jabatan || '',
+      perusahaan: item.perusahaan || '',
+      tipe: '',
+      startMonth: start?.month || 'Jan',
+      startYear: start?.year || '',
+      endMonth: end?.month || 'Des',
+      endYear: end?.year || '',
+      isCurrent,
+      lokasi: '',
+      deskripsi: Array.isArray(item.deskripsi) ? item.deskripsi.join(' ') : (item.deskripsi || ''),
+      periode,
+    };
+  });
+}
+
+function mapPendidikanFromResume(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item, idx) => {
+    const start = isoToMonthYear(item.start);
+    const end = isoToMonthYear(item.end);
+    return {
+      id: `resume-edu-${idx}`,
+      institusi: item.institusi || '',
+      gelar: item.jenjang || '',
+      jurusan: item.jurusan || '',
+      startYear: start?.year || '',
+      endYear: end?.year || (item.end === 'Sekarang' ? 'Sekarang' : ''),
+      ipk: item.gpa || '',
+      periode: `${start?.year || ''} – ${item.end === 'Sekarang' ? 'Sekarang' : (end?.year || '')}`,
+    };
+  });
+}
+
+function mapSertifikasiFromResume(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item, idx) => {
+    const start = isoToMonthYear(item.start);
+    return {
+      id: `resume-cert-${idx}`,
+      nama: item.nama || '',
+      penerbit: item.penerbit || '',
+      terbitMonth: start?.month || '',
+      terbitYear: start?.year || '',
+      terbit: start ? `${start.month} ${start.year}` : '',
+      kredensial: '',
+    };
+  });
+}
+
+// Skill dari AI cuma nama string polos, TANPA level — jangan pernah dikasih
+// level default yang dikarang FE (lihat permintaan eksplisit: biarkan kosong,
+// chip-nya ditampilkan tanpa badge level sama sekali kalau belum ada levelnya).
+function mapSkillsFromResume(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(nama => ({ nama, level: null }));
+}
+
 export default function ProfilPelamar_001({ navigate }) {
+  const { user, pelamarProfile } = useAuth();
+  const isMobile = useIsMobile();
   // State interaktif mockup
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-
-  // State user dropdown menu & modal logout
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const userMenuRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setShowUserDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -27,145 +115,165 @@ export default function ProfilPelamar_001({ navigate }) {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  // State data profil terstruktur
+  // State data profil terstruktur — dimulai KOSONG (bukan mock "Ilham
+  // Yuslin"), karena halaman ini sekarang jalan untuk akun pelamar
+  // sungguhan. nama/email diisi dari pelamar_profiles (akun asli) lewat
+  // effect di bawah; pengalaman/pendidikan/sertifikasi/keahlian diisi dari
+  // resume yang diunggah (kalau ada). headline/ringkasan/bahasa/preferensi
+  // memang manual-only sesuai kesepakatan — tetap kosong sampai diisi user.
   const [profile, setProfile] = useState({
-    nama: 'Ilham Yuslin',
-    headline: 'Senior Product Designer & UI/UX Specialist',
-    lokasi: 'Jakarta Selatan, DKI Jakarta, Indonesia',
-    email: 'ilham.yuslin14@gmail.com',
-    telepon: '+62 812-3456-7890',
-    linkedinUrl: 'linkedin.com/in/ilham-yuslin',
-    websiteUrl: '', // URL Portofolio / Website (misal dribbble.com/ilham atau github.com)
-    avatarUrl: null, // string URL / DataURL jika ada foto, null = initial avatar
-    ringkasan: 'Product Designer dengan 6+ tahun pengalaman merancang platform SaaS, ATS, dan mobile app berskala jutaan pengguna. Berfokus pada arsitektur sistem desain terukur, konversi produk yang berorientasi pada data pengguna, dan kolaborasi erat dengan tim engineering.',
-    pengalaman: [
-      {
-        id: 1,
-        jabatan: 'Lead Product Designer',
-        perusahaan: 'Tech Recruitment Solutions',
-        tipe: 'Penuh Waktu · Hybrid',
-        periode: 'Jan 2023 – Sekarang · 2 thn 3 bln',
-        lokasi: 'Jakarta, Indonesia',
-        isCurrent: true,
-        deskripsi: 'Memimpin tim desain 4 orang dalam merancang modul ATS berbasis AI. Meningkatkan completion rate formulir seleksi sebesar 34% dan memangkas waktu screening rekruter hingga 50%.'
-      },
-      {
-        id: 2,
-        jabatan: 'Senior UI/UX Designer',
-        perusahaan: 'Creative Digital Studio',
-        tipe: 'Penuh Waktu · On-site',
-        periode: 'Jul 2020 – Des 2022 · 2 thn 6 bln',
-        lokasi: 'Jakarta Selatan, Indonesia',
-        isCurrent: false,
-        deskripsi: 'Merancang design system lintas platform (Web & Mobile) untuk berbagai klien startup fintech dan enterprise. Melakukan riset pengguna kualitatif dan pengujian usabilitas berkelanjutan.'
-      }
-    ],
-    pendidikan: [
-      {
-        id: 1,
-        institusi: 'Universitas Indonesia (UI)',
-        gelar: 'Sarjana Komputer (S.Kom)',
-        jurusan: 'Sistem Informasi',
-        startYear: '2016',
-        endYear: '2020',
-        periode: '2016 – 2020',
-        ipk: '3.82 / 4.00'
-      }
-    ],
-    sertifikasi: [
-      {
-        id: 1,
-        nama: 'Google UX Design Professional Certificate',
-        penerbit: 'Google Career Certificates',
-        terbitMonth: 'Agu',
-        terbitYear: '2022',
-        terbit: 'Agu 2022',
-        kredensial: 'GGL-UX-892109'
-      },
-      {
-        id: 2,
-        nama: 'Certified Scrum Product Owner (CSPO)',
-        penerbit: 'Scrum Alliance',
-        terbitMonth: 'Mei',
-        terbitYear: '2023',
-        terbit: 'Mei 2023',
-        kredensial: 'SA-CSPO-44129'
-      }
-    ],
-    keahlian: [
-      { nama: 'UI/UX Design', level: 'Expert' },
-      { nama: 'Design System', level: 'Expert' },
-      { nama: 'Figma & Prototyping', level: 'Expert' },
-      { nama: 'User Research', level: 'Tingkat Lanjut' },
-      { nama: 'Information Architecture', level: 'Tingkat Lanjut' },
-      { nama: 'Interaction Design', level: 'Tingkat Lanjut' },
-      { nama: 'HTML/CSS Awareness', level: 'Menengah' },
-      { nama: 'Usability Testing', level: 'Tingkat Lanjut' }
-    ],
-    bahasa: [
-      { bahasa: 'Bahasa Indonesia', kefasihan: 'Penutur Asli / Fasih Penuh' },
-      { bahasa: 'Bahasa Inggris', kefasihan: 'Kemampuan Kerja Profesional (IELTS 7.5)' }
-    ],
+    nama: '',
+    headline: '',
+    lokasi: '',
+    email: '',
+    telepon: '',
+    linkedinUrl: '',
+    websiteUrl: '',
+    avatarUrl: null,
+    ringkasan: '',
+    pengalaman: [],
+    pendidikan: [],
+    sertifikasi: [],
+    keahlian: [],
+    bahasa: [],
     preferensi: {
-      ketersediaan: '1 Bulan Pemberitahuan (1 Month Notice)',
-      targetPosisi: 'Lead Product Designer / Principal UI/UX',
-      tipeKerja: 'Penuh Waktu (Full-time)',
-      modelKerja: 'Hybrid / Remote Diutamakan',
-      lokasiDiharapkan: 'Jakarta Selatan',
-      gajiDiharapkan: 'Rp 28.000.000 / bln',
-      statusPencarian: 'Aktif Menjelajah Peluang'
+      ketersediaan: '',
+      targetPosisi: '',
+      tipeKerja: '',
+      modelKerja: '',
+      lokasiDiharapkan: '',
+      gajiDiharapkan: '',
+      statusPencarian: ''
     }
   });
 
-  // State: Resume (Berkas CV Utama)
-  // Bisa bernilai object resume atau null (state kosong ketika unduh / dihapus)
-  const [resumeData, setResumeData] = useState({
-    fileName: 'Ilham_Yuslin_Resume_2026.pdf',
-    fileSize: '1.4 MB',
-    fileType: 'PDF',
-    updatedAt: '3 hari yang lalu'
-  });
+  // Nama & email sumbernya akun asli (pelamar_profiles), bukan field yang
+  // diedit lewat modal "Info Dasar" di halaman ini — begitu context auth
+  // selesai load, isi otomatis (kalau user belum sempat override manual).
+  useEffect(() => {
+    if (!pelamarProfile) return;
+    setProfile(prev => ({
+      ...prev,
+      nama: prev.nama || pelamarProfile.nama_lengkap || '',
+      email: prev.email || pelamarProfile.email || '',
+      telepon: prev.telepon || pelamarProfile.phone || '',
+    }));
+  }, [pelamarProfile]);
+
+  // State: Resume (Berkas CV Utama) — resumeRow = baris mentah dari
+  // public.pelamar_resumes (atau null kalau belum pernah unggah), dipakai
+  // dua arah: ditampilkan di kartu resume DAN dipakai mengisi
+  // pengalaman/pendidikan/sertifikasi/keahlian lewat mapper di atas.
+  const [resumeRow, setResumeRow] = useState(null);
+  const [resumeLoading, setResumeLoading] = useState(true);
   const [showModalResume, setShowModalResume] = useState(false);
-  const [resumeTempFile, setResumeTempFile] = useState(null);
+  const [resumeTempFile, setResumeTempFile] = useState(null); // File asli yang dipilih, belum diunggah
+  const [resumeUploadError, setResumeUploadError] = useState('');
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeProgress, setResumeProgress] = useState({ percent: 0, label: '' });
   const resumeInputRef = useRef(null);
 
-  // Handler: Unduh Resume -> Mockup mensimulasikan unduh & beralih ke state tidak ada resume
-  const handleDownloadResume = () => {
-    triggerToast('Mengunduh resume... (Beralih ke state tanpa resume untuk simulasi)');
-    setTimeout(() => {
-      setResumeData(null);
-    }, 800);
-  };
-
-  // Handler: Unggah Resume Baru
-  const handleResumeFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      const ext = file.name.split('.').pop().toUpperCase();
-      setResumeTempFile({
-        fileName: file.name,
-        fileSize: `${sizeMb > 0 ? sizeMb : '0.8'} MB`,
-        fileType: ext === 'DOCX' || ext === 'DOC' ? 'DOCX' : 'PDF',
-        updatedAt: 'Baru saja'
-      });
-    }
-  };
-
-  const handleSaveResume = () => {
-    if (!resumeTempFile) {
-      setResumeData({
-        fileName: 'Resume_Ilham_Yuslin_Terbaru.pdf',
-        fileSize: '1.2 MB',
-        fileType: 'PDF',
-        updatedAt: 'Baru saja'
-      });
-    } else {
-      setResumeData(resumeTempFile);
-    }
+  // Saat memproses, modal tidak boleh ditutup (termasuk menutup tab) supaya
+  // pelamar tahu prosesnya sedang berjalan dan tidak terputus di tengah jalan.
+  const closeResumeModal = () => {
+    if (resumeUploading) return;
     setShowModalResume(false);
     setResumeTempFile(null);
-    triggerToast('Resume baru berhasil diunggah & diproses AI!');
+    setResumeUploadError('');
+    setResumeProgress({ percent: 0, label: '' });
+  };
+
+  useEffect(() => {
+    if (!resumeUploading) return undefined;
+    const warn = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [resumeUploading]);
+
+  // Tahap "Parsing data dengan AI" tidak melapor progres sendiri; bar dijalankan
+  // pelan-pelan sampai 92% agar terlihat bergerak, lalu loncat ke akhir saat selesai.
+  useEffect(() => {
+    if (!resumeUploading || resumeProgress.percent < 60 || resumeProgress.percent >= 92) return undefined;
+    const t = setTimeout(() => setResumeProgress(p => ({ ...p, percent: Math.min(92, p.percent + 1) })), 600);
+    return () => clearTimeout(t);
+  }, [resumeUploading, resumeProgress.percent]);
+
+  const applyResumeRow = (row) => {
+    setResumeRow(row);
+    setProfile(prev => ({
+      ...prev,
+      pengalaman: mapPengalamanFromResume(row?.pengalaman_kerja),
+      pendidikan: mapPendidikanFromResume(row?.pendidikan),
+      sertifikasi: mapSertifikasiFromResume(row?.sertifikasi),
+      keahlian: mapSkillsFromResume(row?.skills),
+    }));
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    getPelamarResume(user.id)
+      .then(row => { if (active) applyResumeRow(row); })
+      .catch(err => console.error('Gagal memuat resume pelamar:', err))
+      .finally(() => { if (active) setResumeLoading(false); });
+    return () => { active = false; };
+  }, [user?.id]);
+
+  // resumeData = bentuk tampilan kartu resume, diturunkan dari resumeRow.
+  const resumeData = resumeRow ? {
+    fileName: resumeRow.file_name || 'resume.pdf',
+    fileType: (resumeRow.file_name || '').split('.').pop()?.toUpperCase() || 'PDF',
+    fileSize: resumeRow.file_size ? `${(resumeRow.file_size / (1024 * 1024)).toFixed(1)} MB` : null,
+    updatedAt: formatRelativeTime(resumeRow.updated_at),
+    cv_url: resumeRow.cv_url,
+  } : null;
+
+  // Unduh = beneran buka file aslinya di tab baru, BUKAN menghapus resume
+  // (versi mockup sebelumnya cuma simulasi "beralih ke state kosong").
+  const handleDownloadResume = () => {
+    if (resumeData?.cv_url) window.open(resumeData.cv_url, '_blank');
+  };
+
+  const handleResumeFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    setResumeUploadError('');
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setResumeUploadError('Ukuran file melebihi batas maksimal 5MB.');
+      return;
+    }
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf', 'doc', 'docx'].includes(ext)) {
+      setResumeUploadError('Format file tidak didukung. Harap unggah PDF atau DOCX.');
+      return;
+    }
+    setResumeTempFile(file);
+  };
+
+  const handleSaveResume = async () => {
+    if (!resumeTempFile || !user?.id) return;
+    setResumeUploading(true);
+    setResumeUploadError('');
+    setResumeProgress({ percent: 3, label: 'Memulai…' });
+    try {
+      const { resume, duplicate } = await uploadAndParseResume(
+        user.id,
+        resumeTempFile,
+        (percent, label) => setResumeProgress(p => ({ percent: Math.max(p.percent, percent), label })),
+      );
+      setResumeProgress({ percent: 100, label: 'Selesai' });
+      applyResumeRow(resume);
+      setShowModalResume(false);
+      setResumeTempFile(null);
+      setResumeProgress({ percent: 0, label: '' });
+      triggerToast(duplicate
+        ? 'File ini sama dengan resume yang sudah tersimpan.'
+        : 'Resume baru berhasil diunggah & diproses AI!');
+    } catch (err) {
+      setResumeUploadError(err.message || 'Gagal memproses resume. Coba lagi.');
+    } finally {
+      setResumeUploading(false);
+    }
   };
 
   // State & Handlers: Modal Unggah Foto Profil
@@ -674,145 +782,75 @@ export default function ProfilPelamar_001({ navigate }) {
 
   const overallStrengthScore = profileFactors.reduce((acc, cur) => acc + (cur.isDone ? cur.weight : 0), 0);
 
+  const goPerusahaan = () => navigate?.('beranda_002');
+
   return (
     <div className="pp001-layout">
-      {/* ─── Topbar Selaras Portal Karir / Semua Lowongan ─── */}
-      <header className="pp001-navbar">
-        <div className="pp001-navbar-container">
-          <div className="pp001-nav-left">
-            <a className="pp001-nav-brand" href="/?view=semua-lowongan_002" onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
-              <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
-              <span className="pp001-nav-divider" />
-              <span className="pp001-nav-badge">PORTAL KARIR</span>
-            </a>
-
-            <div className="pp001-nav-links">
-              <span className="pp001-nav-link" onClick={() => navigate?.('semua-lowongan_002')}>
-                Cari Lowongan
-              </span>
-              <span className="pp001-nav-link active">
-                Profil Saya
-              </span>
-              <span className="pp001-nav-link" onClick={() => navigate?.('status-lamaran_001')}>
-                Lamaran Saya
-                <span style={{ marginLeft: 6, fontSize: 10, background: '#E2E8F0', color: '#1E293B', padding: '1px 6px', borderRadius: 10, fontWeight: 700 }}>4</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="pp001-nav-right">
-            {/* User Profile Pill & Dropdown Menu */}
-            <div className="pp001-user-menu-wrapper" ref={userMenuRef}>
-              <div
-                className={`pp001-nav-user-pill ${showUserDropdown ? 'active' : ''}`}
-                onClick={() => setShowUserDropdown(prev => !prev)}
-                title="Menu Akun"
-              >
-                <div className="pp001-nav-avatar" style={{ overflow: 'hidden' }}>
-                  {profile.avatarUrl ? (
-                    <img src={profile.avatarUrl} alt={profile.nama} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    getInitials(profile.nama)
-                  )}
-                </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0908' }}>
-                  {profile.nama.split(' ')[0]}
-                </span>
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#5E5C56"
-                  strokeWidth="2"
-                  style={{ transform: showUserDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }}
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-
-              {/* Dropdown Menu Pengguna */}
-              {showUserDropdown && (
-                <div className="pp001-user-dropdown">
-                  <div className="pp001-user-dropdown-header">
-                    <div className="pp001-user-dropdown-name">{profile.nama}</div>
-                    <div className="pp001-user-dropdown-email">{profile.email}</div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="pp001-dropdown-item"
-                    onClick={() => {
-                      setShowUserDropdown(false);
-                      handleOpenInfoModal();
-                    }}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                    Edit Profil
-                  </button>
-
-                  <button
-                    type="button"
-                    className="pp001-dropdown-item"
-                    onClick={() => {
-                      setShowUserDropdown(false);
-                      navigate?.('status-lamaran_001');
-                    }}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                      <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                    Lamaran Saya
-                  </button>
-
-                  <div className="pp001-dropdown-divider" />
-
-                  <button
-                    type="button"
-                    className="pp001-dropdown-item danger"
-                    onClick={() => {
-                      setShowUserDropdown(false);
-                      setShowLogoutModal(true);
-                    }}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Keluar (Logout)
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <span className="pp001-nav-separator" />
-
-            {/* CTA Untuk Perusahaan: Persis di paling kanan dengan styling lingkaran ikon briefcase */}
-            <button
-              type="button"
-              className="pp001-btn-perusahaan"
-              onClick={() => navigate?.('beranda_002')}
-              title="Untuk Perusahaan (Masuk ke Dashboard Recruiter)"
-            >
-              <span className="pp001-btn-perusahaan-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-              </span>
-              Untuk Perusahaan
-            </button>
+      {isMobile ? (
+        /* ─── Navbar mobile ("Opsi 2" — avatar + sheet konsolidasi) ─── */
+        <div className="lk-head">
+          <a className="lk-logo" href="/?view=semua-lowongan_002" onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+            <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+            <span className="lk-logo-divider" />
+            <span className="lk-badge-portal">PORTAL KARIR</span>
+          </a>
+          <div className="lk-head-actions">
+            <PelamarMobileNav
+              navigate={navigate}
+              pelamarProfile={{ nama_lengkap: profile.nama, email: profile.email }}
+              goPerusahaan={goPerusahaan}
+              activeTab="profil"
+            />
           </div>
         </div>
-      </header>
+      ) : (
+        /* ─── Topbar Selaras Portal Karir / Semua Lowongan ─── */
+        <header className="pp001-navbar">
+          <div className="pp001-navbar-container">
+            <div className="pp001-nav-left">
+              <a className="pp001-nav-brand" href="/?view=semua-lowongan_002" onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+                <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
+                <span className="pp001-nav-divider" />
+                <span className="pp001-nav-badge">PORTAL KARIR</span>
+              </a>
+
+              <div className="pp001-nav-links">
+                <span className="pp001-nav-link" onClick={() => navigate?.('semua-lowongan_002')}>
+                  Cari Lowongan
+                </span>
+                <span className="pp001-nav-link active">
+                  Profil Saya
+                </span>
+                <span className="pp001-nav-link" onClick={() => navigate?.('status-lamaran_001')}>
+                  Lamaran Saya
+                </span>
+              </div>
+            </div>
+
+            <div className="pp001-nav-right">
+              <PelamarNavMenu navigate={navigate} pelamarProfile={{ nama_lengkap: profile.nama, email: profile.email }} />
+
+              <span className="pp001-nav-separator" />
+
+              {/* CTA Untuk Perusahaan: Persis di paling kanan dengan styling lingkaran ikon briefcase */}
+              <button
+                type="button"
+                className="pp001-btn-perusahaan"
+                onClick={goPerusahaan}
+                title="Untuk Perusahaan (Masuk ke Dashboard Recruiter)"
+              >
+                <span className="pp001-btn-perusahaan-badge">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                </span>
+                Untuk Perusahaan
+              </button>
+            </div>
+          </div>
+        </header>
+      )}
 
       {/* ─── Hero Cover Pattern ─── */}
       <div className="pp001-hero-cover">
@@ -856,43 +894,49 @@ export default function ProfilPelamar_001({ navigate }) {
                 <p className="pp001-headline">{profile.headline}</p>
 
                 <div className="pp001-meta-list">
-                  <span className="pp001-meta-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    {profile.lokasi}
-                  </span>
+                  {profile.lokasi && (
+                    <span className="pp001-meta-item">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      {profile.lokasi}
+                    </span>
+                  )}
 
-                  <span className="pp001-meta-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                      <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                    {profile.email}
-                  </span>
+                  {profile.email && (
+                    <span className="pp001-meta-item">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                      </svg>
+                      {profile.email}
+                    </span>
+                  )}
 
-                  <span className="pp001-meta-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#0A66C2' }}>
-                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                    </svg>
-                    <a
-                      href={`https://${profile.linkedinUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="pp001-meta-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigator.clipboard?.writeText(`https://${profile.linkedinUrl}`);
-                        triggerToast('Tautan LinkedIn berhasil disalin!');
-                      }}
-                      title="Klik untuk salin tautan LinkedIn"
-                    >
-                      {profile.linkedinUrl}
-                    </a>
-                  </span>
+                  {profile.linkedinUrl && (
+                    <span className="pp001-meta-item">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#0A66C2' }}>
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                      </svg>
+                      <a
+                        href={`https://${profile.linkedinUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pp001-meta-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigator.clipboard?.writeText(`https://${profile.linkedinUrl}`);
+                          triggerToast('Tautan LinkedIn berhasil disalin!');
+                        }}
+                        title="Klik untuk salin tautan LinkedIn"
+                      >
+                        {profile.linkedinUrl}
+                      </a>
+                    </span>
+                  )}
 
-                  {profile.websiteUrl ? (
+                  {profile.websiteUrl && (
                     <span className="pp001-meta-item">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D66800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
@@ -915,7 +959,9 @@ export default function ProfilPelamar_001({ navigate }) {
                         {profile.websiteUrl.replace(/^https?:\/\//, '')}
                       </a>
                     </span>
-                  ) : (
+                  )}
+
+                  {(!profile.lokasi || !profile.linkedinUrl || !profile.websiteUrl) && (
                     <button
                       type="button"
                       style={{
@@ -936,7 +982,7 @@ export default function ProfilPelamar_001({ navigate }) {
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                       </svg>
-                      Tambah Portofolio
+                      Tambah Detail
                     </button>
                   )}
                 </div>
@@ -983,13 +1029,15 @@ export default function ProfilPelamar_001({ navigate }) {
                 Unggah dokumen resume (PDF/DOCX). AI LUNA otomatis membaca berkas ini untuk mengisi profil dan melamar ke lowongan perusahaan.
               </p>
 
-              {resumeData ? (
+              {resumeLoading ? (
+                <p className="pp001-empty-hint">Memuat resume…</p>
+              ) : resumeData ? (
                 <div className="pp001-resume-box">
                   <div className="pp001-resume-info">
                     <div className="pp001-resume-icon-badge">{resumeData.fileType || 'PDF'}</div>
                     <div className="pp001-resume-meta">
                       <h5>{resumeData.fileName}</h5>
-                      <p>{resumeData.fileSize} · Terakhir diperbarui {resumeData.updatedAt}</p>
+                      <p>{resumeData.fileSize ? `${resumeData.fileSize} · ` : ''}Terakhir diperbarui {resumeData.updatedAt}</p>
                     </div>
                   </div>
 
@@ -1070,9 +1118,16 @@ export default function ProfilPelamar_001({ navigate }) {
                   Ubah
                 </button>
               </div>
-              <p style={{ margin: 0, fontSize: 14, color: '#3D3B36', lineHeight: 1.65 }}>
-                {profile.ringkasan}
+              <p className="pp001-section-desc">
+                Ceritakan singkat siapa Anda, fokus keahlian, dan apa yang Anda cari — ini yang pertama kali dibaca recruiter.
               </p>
+              {profile.ringkasan ? (
+                <p style={{ margin: 0, fontSize: 14, color: '#3D3B36', lineHeight: 1.65 }}>
+                  {profile.ringkasan}
+                </p>
+              ) : (
+                <p className="pp001-empty-hint">Belum ada ringkasan — ceritakan singkat pengalaman dan keahlian Anda.</p>
+              )}
             </section>
 
             {/* 3. Riwayat Karier (Work Experience) */}
@@ -1101,6 +1156,9 @@ export default function ProfilPelamar_001({ navigate }) {
               </p>
 
               <div className="pp001-item-list">
+                {profile.pengalaman.length === 0 && (
+                  <p className="pp001-empty-hint">Belum ada riwayat karier — unggah resume atau tambah manual lewat "Tambah Jabatan".</p>
+                )}
                 {profile.pengalaman.map((exp) => (
                   <div key={exp.id} className="pp001-item">
                     <div className="pp001-item-icon">
@@ -1181,8 +1239,14 @@ export default function ProfilPelamar_001({ navigate }) {
                   Tambah Pendidikan
                 </button>
               </div>
+              <p className="pp001-section-desc">
+                Riwayat pendidikan membantu perusahaan menilai kualifikasi dasar Anda untuk posisi yang mensyaratkan jenjang tertentu.
+              </p>
 
               <div className="pp001-item-list">
+                {profile.pendidikan.length === 0 && (
+                  <p className="pp001-empty-hint">Belum ada riwayat pendidikan — unggah resume atau tambah manual lewat "Tambah Pendidikan".</p>
+                )}
                 {profile.pendidikan.map((edu) => (
                   <div key={edu.id} className="pp001-item">
                     <div className="pp001-item-icon">
@@ -1258,8 +1322,14 @@ export default function ProfilPelamar_001({ navigate }) {
                   Tambah Sertifikat
                 </button>
               </div>
+              <p className="pp001-section-desc">
+                Sertifikasi dan lisensi resmi jadi bukti tambahan kompetensi Anda di luar riwayat pendidikan formal.
+              </p>
 
               <div className="pp001-item-list">
+                {profile.sertifikasi.length === 0 && (
+                  <p className="pp001-empty-hint">Belum ada lisensi atau sertifikasi — unggah resume atau tambah manual lewat "Tambah Sertifikat".</p>
+                )}
                 {profile.sertifikasi.map((cert) => (
                   <div key={cert.id} className="pp001-item">
                     <div className="pp001-item-icon">
@@ -1339,10 +1409,13 @@ export default function ProfilPelamar_001({ navigate }) {
               </p>
 
               <div className="pp001-skills-grid">
+                {profile.keahlian.length === 0 && (
+                  <p className="pp001-empty-hint">Belum ada keahlian — unggah resume atau tambah manual lewat "Kelola Keahlian".</p>
+                )}
                 {profile.keahlian.map((skill, idx) => (
                   <div key={idx} className="pp001-skill-chip">
                     <span>{skill.nama}</span>
-                    <span className="pp001-skill-level">{skill.level}</span>
+                    {skill.level && <span className="pp001-skill-level">{skill.level}</span>}
                   </div>
                 ))}
               </div>
@@ -1370,8 +1443,14 @@ export default function ProfilPelamar_001({ navigate }) {
                   Kelola Bahasa
                 </button>
               </div>
+              <p className="pp001-section-desc">
+                Cantumkan bahasa yang Anda kuasai dan tingkat kefasihannya, terutama kalau posisi incaran butuh bahasa asing.
+              </p>
 
               <div>
+                {profile.bahasa.length === 0 && (
+                  <p className="pp001-empty-hint">Belum ada bahasa yang ditambahkan — kelola lewat "Kelola Bahasa".</p>
+                )}
                 {profile.bahasa.map((item, idx) => (
                   <div key={idx} className="pp001-lang-row">
                     <span className="pp001-lang-name">{item.bahasa}</span>
@@ -1413,43 +1492,45 @@ export default function ProfilPelamar_001({ navigate }) {
               <div className="pp001-pref-table">
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Ketersediaan Memulai</span>
-                  <div className="pp001-pref-value">{profile.preferensi.ketersediaan}</div>
+                  <div className="pp001-pref-value">{profile.preferensi.ketersediaan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Posisi yang Dicari</span>
-                  <div className="pp001-pref-value">{profile.preferensi.targetPosisi}</div>
+                  <div className="pp001-pref-value">{profile.preferensi.targetPosisi || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Jenis Pekerjaan</span>
-                  <div className="pp001-pref-value">{profile.preferensi.tipeKerja}</div>
+                  <div className="pp001-pref-value">{profile.preferensi.tipeKerja || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Model Kerja Diinginkan</span>
-                  <div className="pp001-pref-value">{profile.preferensi.modelKerja}</div>
+                  <div className="pp001-pref-value">{profile.preferensi.modelKerja || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Lokasi yang Diharapkan</span>
-                  <div className="pp001-pref-value">{profile.preferensi.lokasiDiharapkan}</div>
+                  <div className="pp001-pref-value">{profile.preferensi.lokasiDiharapkan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Ekspektasi Gaji Bersih</span>
-                  <div className="pp001-pref-value" style={{ color: '#D66800', fontWeight: 600 }}>
-                    {profile.preferensi.gajiDiharapkan}
+                  <div className="pp001-pref-value" style={profile.preferensi.gajiDiharapkan ? { color: '#D66800', fontWeight: 600 } : undefined}>
+                    {profile.preferensi.gajiDiharapkan || <span className="pp001-empty-hint">Belum diisi</span>}
                   </div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Status Pencarian</span>
                   <div className="pp001-pref-value">
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1F8A4E' }} />
-                      {profile.preferensi.statusPencarian}
-                    </span>
+                    {profile.preferensi.statusPencarian ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1F8A4E' }} />
+                        {profile.preferensi.statusPencarian}
+                      </span>
+                    ) : <span className="pp001-empty-hint">Belum diisi</span>}
                   </div>
                 </div>
               </div>
@@ -1464,7 +1545,7 @@ export default function ProfilPelamar_001({ navigate }) {
             {/* Widget 1: Kekuatan Profil (Dinamis Berdasarkan Data Profil) */}
             <div className="pp001-side-widget">
               <h3 className="pp001-widget-title">
-                <span>Kekuatan Profil</span>
+                <span>Kelengkapan</span>
                 <span className="pp001-progress-percent">{overallStrengthScore}%</span>
               </h3>
 
@@ -1505,7 +1586,16 @@ export default function ProfilPelamar_001({ navigate }) {
                     title={factor.isDone ? 'Klik untuk melihat/mengubah data' : 'Klik untuk melengkapi data ini'}
                   >
                     <span className={`pp001-check-dot ${factor.isDone ? 'done' : ''}`}>
-                      {factor.isDone ? '✓' : '+'}
+                      {factor.isDone ? (
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      ) : (
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round">
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                      )}
                     </span>
                     <span style={{
                       fontWeight: factor.isDone ? 400 : 600,
@@ -1516,24 +1606,6 @@ export default function ProfilPelamar_001({ navigate }) {
                     </span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Widget 2: Skor Kesiapan ATS LUNA */}
-            <div className="pp001-side-widget">
-              <h3 className="pp001-widget-title">
-                <span>Skor Kesiapan ATS</span>
-                <span style={{ fontSize: 11, background: '#E8F7EE', color: '#1F8A4E', padding: '2px 8px', borderRadius: 10, fontWeight: 700 }}>
-                  Sangat Siap
-                </span>
-              </h3>
-
-              <div className="pp001-ats-meter">
-                <div className="pp001-ats-score">92</div>
-                <div className="pp001-ats-desc">
-                  <h6>Ramah Algoritma Screening</h6>
-                  <p>Keyword pengalaman dan keahlian Anda sangat sesuai dengan standar pencarian HR.</p>
-                </div>
               </div>
             </div>
 
@@ -1834,21 +1906,23 @@ export default function ProfilPelamar_001({ navigate }) {
 
       {/* ─── Modal 3: Unggah Resume Baru ─── */}
       {showModalResume && (
-        <div className="pp001-modal-overlay" onClick={() => setShowModalResume(false)}>
+        <div className="pp001-modal-overlay" onClick={closeResumeModal}>
           <div className="pp001-modal-card" onClick={e => e.stopPropagation()}>
             <div className="pp001-modal-header">
               <div>
                 <h3 className="pp001-modal-title">Unggah Resume / CV Baru</h3>
                 <p className="pp001-modal-subtitle">Format didukung: PDF atau DOCX (Maks. 5 MB). File ini akan dijadikan CV utama Anda.</p>
               </div>
-              <button
-                type="button"
-                className="pp001-modal-close"
-                onClick={() => setShowModalResume(false)}
-                title="Tutup"
-              >
-                ✕
-              </button>
+              {!resumeUploading && (
+                <button
+                  type="button"
+                  className="pp001-modal-close"
+                  onClick={closeResumeModal}
+                  title="Tutup"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             <div className="pp001-modal-body">
@@ -1860,29 +1934,31 @@ export default function ProfilPelamar_001({ navigate }) {
                 onChange={handleResumeFileSelect}
               />
 
-              <div
-                className="pp001-dropzone"
-                onClick={() => resumeInputRef.current?.click()}
-              >
-                <div className="pp001-dropzone-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="12" y1="18" x2="12" y2="12" />
-                    <line x1="9" y1="15" x2="15" y2="15" />
-                  </svg>
+              {!resumeTempFile && (
+                <div
+                  className="pp001-dropzone"
+                  onClick={() => resumeInputRef.current?.click()}
+                >
+                  <div className="pp001-dropzone-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="12" y1="18" x2="12" y2="12" />
+                      <line x1="9" y1="15" x2="15" y2="15" />
+                    </svg>
+                  </div>
+                  <p className="pp001-dropzone-title">
+                    <span>Klik untuk pilih file resume</span> atau tarik &amp; lepas di sini
+                  </p>
+                  <p className="pp001-dropzone-sub">
+                    PDF, DOCX hingga 5MB. AI LUNA akan langsung menyelaraskan data kompetensi.
+                  </p>
                 </div>
-                <p className="pp001-dropzone-title">
-                  <span>Klik untuk pilih file resume</span> atau tarik &amp; lepas di sini
-                </p>
-                <p className="pp001-dropzone-sub">
-                  PDF, DOCX hingga 5MB. AI LUNA akan langsung menyelaraskan data kompetensi.
-                </p>
-              </div>
+              )}
 
               {resumeTempFile && (
                 <div style={{
-                  marginTop: 16,
+                  marginTop: 0,
                   padding: 12,
                   background: '#F0F9FF',
                   border: '1px solid #BAE6FD',
@@ -1903,34 +1979,65 @@ export default function ProfilPelamar_001({ navigate }) {
                     fontSize: 11,
                     fontWeight: 800
                   }}>
-                    {resumeTempFile.fileType}
+                    {resumeTempFile.name.split('.').pop().toUpperCase()}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0C4A6E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {resumeTempFile.fileName}
+                      {resumeTempFile.name}
                     </div>
                     <div style={{ fontSize: 11, color: '#0284C7' }}>
-                      {resumeTempFile.fileSize} · Siap disimpan
+                      {(resumeTempFile.size / (1024 * 1024)).toFixed(1)} MB · {resumeUploading ? 'Sedang diproses' : 'Siap disimpan'}
                     </div>
                   </div>
+                  {!resumeUploading && (
+                    <button
+                      type="button"
+                      onClick={() => resumeInputRef.current?.click()}
+                      style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, fontWeight: 700, color: '#0369A1', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+                    >
+                      Ganti file
+                    </button>
+                  )}
                 </div>
+              )}
+
+              {resumeUploading && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A' }}>{resumeProgress.label || 'Memproses…'}</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 800, color: '#EA580C', fontVariantNumeric: 'tabular-nums' }}>{Math.round(resumeProgress.percent)}%</span>
+                  </div>
+                  <div style={{ height: 8, borderRadius: 999, background: '#E2E8F0', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${resumeProgress.percent}%`, borderRadius: 999, background: '#FF8D21', transition: 'width 0.5s ease' }} />
+                  </div>
+                  <p style={{ margin: '8px 0 0', fontSize: 11.5, color: '#64748B', lineHeight: 1.5 }}>
+                    Jangan tutup halaman ini sampai selesai. Proses ini biasanya memakan waktu sekitar setengah menit.
+                  </p>
+                </div>
+              )}
+
+              {resumeUploadError && (
+                <p style={{ marginTop: 12, fontSize: 12.5, fontWeight: 600, color: '#B91C1C' }}>{resumeUploadError}</p>
               )}
             </div>
 
             <div className="pp001-modal-footer">
-              <button
-                type="button"
-                className="pp001-btn-secondary"
-                onClick={() => setShowModalResume(false)}
-              >
-                Batal
-              </button>
+              {!resumeUploading && (
+                <button
+                  type="button"
+                  className="pp001-btn-secondary"
+                  onClick={closeResumeModal}
+                >
+                  Batal
+                </button>
+              )}
               <button
                 type="button"
                 className="pp001-btn-primary"
                 onClick={handleSaveResume}
+                disabled={!resumeTempFile || resumeUploading}
               >
-                Simpan &amp; Terapkan Resume
+                {resumeUploading ? 'Memproses…' : 'Simpan & Terapkan Resume'}
               </button>
             </div>
           </div>
@@ -2310,91 +2417,6 @@ export default function ProfilPelamar_001({ navigate }) {
                 onClick={handleConfirmDelete}
               >
                 Ya, Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Modal Pop-up Notif: Konfirmasi Logout (Compact & Clean) ─── */}
-      {showLogoutModal && (
-        <div className="pp001-modal-overlay" onClick={() => setShowLogoutModal(false)} style={{ zIndex: 10000 }}>
-          <div
-            className="pp001-modal-card"
-            onClick={e => e.stopPropagation()}
-            style={{
-              maxWidth: 360,
-              padding: '24px 22px 20px 22px',
-              borderRadius: 14,
-              textAlign: 'center',
-              boxShadow: '0 20px 40px -8px rgba(0, 0, 0, 0.22)'
-            }}
-          >
-            <h4 style={{ margin: '0 0 8px 0', fontSize: 17, fontWeight: 700, color: '#0A0908' }}>
-              Keluar dari Akun?
-            </h4>
-            <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#5E5C56', lineHeight: 1.5, padding: '0 6px' }}>
-              Anda akan keluar dari sesi akun pelamar saat ini. Apakah Anda yakin ingin melanjutkan?
-            </p>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 10
-            }}>
-              <button
-                type="button"
-                style={{
-                  height: 40,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#FFFFFF',
-                  color: '#3D3B36',
-                  border: '1px solid #D5D3CD',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  padding: '0 12px',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseOver={e => e.currentTarget.style.background = '#F6F5F2'}
-                onMouseOut={e => e.currentTarget.style.background = '#FFFFFF'}
-                onClick={() => setShowLogoutModal(false)}
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                style={{
-                  height: 40,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#DC2626',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  padding: '0 12px',
-                  transition: 'background 0.15s ease'
-                }}
-                onMouseOver={e => e.currentTarget.style.background = '#B91C1C'}
-                onMouseOut={e => e.currentTarget.style.background = '#DC2626'}
-                onClick={() => {
-                  setShowLogoutModal(false);
-                  triggerToast('Berhasil keluar. Mengalihkan ke laman lowongan...');
-                  setTimeout(() => {
-                    navigate?.('semua-lowongan_002');
-                  }, 600);
-                }}
-              >
-                Ya, Keluar
               </button>
             </div>
           </div>

@@ -1,0 +1,11 @@
+/* Scrollbar Sandbox: tersembunyi, muncul tipis dan samar hanya saat sedang digulir.
+   Kelas .is-scrolling dipasang/dilepas oleh Sandbox.jsx lewat event scroll. */
+.sbx-root * {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+.sbx-root *.is-scrolling {
+  scrollbar-color: rgba(100, 116, 139, 0.22) transparent;
+}

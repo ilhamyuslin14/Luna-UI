@@ -5,6 +5,10 @@
 
 .sl2m-page { background: var(--karir-bg, #F8FAFC); min-height: 100vh; font-family: 'Inter Tight', sans-serif; color: var(--karir-ink-800, #1E293B); padding-bottom: 24px; }
 
+/* Avatar inisial pelamar di header mobile, pakai slot .lk-share-btn yang
+   sama dengan tombol "Masuk" — tinggal ganti isi & warna saat sudah login. */
+.sl2m-user-btn { background: linear-gradient(135deg, #FFB76B, var(--karir-primary, #FF8D21)); color: #fff; font-weight: 700; font-size: 11px; }
+
 /* ── Hero ── */
 .sl2m-hero { padding: 20px 16px 18px; background: radial-gradient(120% 100% at 100% 0%, var(--karir-primary-light, #FFF4EC), transparent 60%), #fff; border-bottom: 1px solid var(--karir-border, #E2E8F0); }
 .sl2m-hero h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 21px; font-weight: 800; line-height: 1.22; margin: 0 0 8px; color: var(--karir-ink-900, #0F172A); text-wrap: balance; }
@@ -43,6 +47,19 @@
 .sl2m-save-btn { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--karir-border, #E2E8F0); background: #fff; color: var(--karir-ink-400, #94A3B8); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
 .sl2m-save-btn svg { width: 12px; height: 12px; }
 .sl2m-save-btn.active { background: var(--karir-primary-light, #FFF4EC); border-color: var(--karir-primary, #FF8D21); color: var(--karir-primary, #FF8D21); }
+/* Penanda asal lowongan (Luna vs agregat) */
+.src-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; line-height: 1; padding: 4px 8px; border-radius: 999px; white-space: nowrap; font-family: 'Inter Tight', sans-serif; }
+.src-badge { padding-left: 4px; }
+.src-badge .src-ic { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.src-badge.luna { background: var(--karir-primary-light, #FFF4EC); color: var(--karir-primary-hover, #E87A13); }
+.src-badge.luna .src-ic { background: var(--karir-primary, #FF8D21); color: #fff; }
+.src-badge.ext { background: #EEF2F7; color: var(--karir-ink-600, #475569); }
+.src-badge.ext .src-ic { background: var(--karir-navy-800, #1E293B); color: #fff; }
+.src-badge.sl2m-src { font-size: 9.5px; padding: 4px 7px; margin-bottom: 5px; }
+.sl2m-job.ext .sl2m-job-bar { background: #CBD5E1; }
+.sl2m-job-logo.has-img { border: 1px solid var(--karir-border, #E2E8F0); box-sizing: border-box; }
+.sl2m-job-logo.has-img img { object-fit: contain; padding: 3px; box-sizing: border-box; }
+.sl2m-job-salary.muted { font-weight: 600; color: var(--karir-ink-400, #94A3B8); }
 .sl2m-job-salary { margin-top: 10px; padding-top: 10px; border-top: 1px solid #F1F5F9; font-size: 12px; font-weight: 700; color: var(--karir-ink-900, #0F172A); }
 
 .sl2m-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 8px; padding: 14px 0 4px; }

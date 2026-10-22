@@ -7,13 +7,17 @@
 
 .sl2-page { background: var(--karir-bg, #F8FAFC); min-height: 100vh; font-family: 'Inter Tight', sans-serif; color: var(--karir-ink-800, #1E293B); }
 
-/* ── Header: nav-links baru (selaras ProfilPelamar_001), state SEBELUM
-   login — kanan tetap pakai .lk-link-masuk/.lk-btn-perusahaan existing. ── */
+/* ── Header: nav-links baru (selaras ProfilPelamar_001). Kanan ikut status
+   auth: belum login -> .lk-link-masuk existing; sudah login -> .sl2-user-pill. ── */
 .sl2-nav-left { display: flex; align-items: center; gap: 32px; }
 .sl2-nav-links { display: flex; align-items: center; gap: 6px; }
 .sl2-nav-link { font-size: 13px; font-weight: 600; color: var(--karir-ink-500, #64748B); padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; }
 .sl2-nav-link:hover { color: var(--karir-ink-900, #0F172A); background: #F1F5F9; }
 .sl2-nav-link.active { color: var(--karir-ink-900, #0F172A); font-weight: 700; background: #F1F5F9; }
+
+.sl2-user-pill { display: flex; align-items: center; gap: 9px; padding: 4px 12px 4px 5px; border-radius: 999px; background: #fff; border: 1px solid var(--karir-border, #E2E8F0); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--karir-ink-900, #0F172A); transition: border-color 0.15s, box-shadow 0.15s; }
+.sl2-user-pill:hover { border-color: #CBD5E1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.sl2-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FFB76B, var(--karir-primary, #FF8D21)); color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 @media (max-width: 900px) { .sl2-nav-links { display: none; } }
 
 /* ── Hero ──
@@ -119,7 +123,24 @@
 
 .sl2-job-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 13px; padding-top: 12px; border-top: 1px solid #F1F5F9; }
 .sl2-job-salary { font-size: 12.5px; font-weight: 700; color: var(--karir-ink-900, #0F172A); background: var(--karir-bg, #F8FAFC); border-radius: 8px; padding: 5px 10px; white-space: nowrap; }
+/* logo dari situs lain: latar putih, gambar utuh (tidak dipotong) */
+.sl2-job-logo.has-img { border: 1px solid var(--karir-border, #E2E8F0); box-sizing: border-box; }
+.sl2-job-logo.has-img img { object-fit: contain; padding: 3px; box-sizing: border-box; }
+.sl2-job-salary.muted { font-weight: 600; color: var(--karir-ink-400, #94A3B8); background: transparent; padding-left: 0; }
 .sl2-job-detail { font-size: 12px; font-weight: 700; color: var(--karir-primary-hover, #E87A13); display: inline-flex; align-items: center; gap: 5px; }
+
+/* Penanda asal lowongan (Luna vs agregat) — dipakai kartu & laman detail eksternal */
+.sl2-job-titlerow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+.sl2-job-titlerow .sl2-job-title { margin: 0; }
+.src-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; line-height: 1; padding: 4px 8px; border-radius: 999px; white-space: nowrap; font-family: 'Inter Tight', sans-serif; }
+.src-badge { padding-left: 4px; }
+.src-badge .src-ic { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.src-badge.luna { background: var(--karir-primary-light, #FFF4EC); color: var(--karir-primary-hover, #E87A13); }
+.src-badge.luna .src-ic { background: var(--karir-primary, #FF8D21); color: #fff; }
+.src-badge.ext { background: #EEF2F7; color: var(--karir-ink-600, #475569); }
+.src-badge.ext .src-ic { background: var(--karir-navy-800, #1E293B); color: #fff; }
+.sl2-job.ext .sl2-job-bar { background: #CBD5E1; }
+.sl2-job.ext:hover { border-color: #94A3B8; }
 
 .sl2-empty { text-align: center; padding: 40px 20px; font-size: 13px; color: var(--karir-ink-400, #94A3B8); background: #fff; border: 1px dashed var(--karir-border, #E2E8F0); border-radius: 14px; }
 

@@ -1,0 +1,31 @@
+/* Form "Laporkan kendala" — dipakai di modal desktop & bottom sheet mobile */
+.lkd-form, .lkd-done { font-family: 'Inter Tight', sans-serif; color: var(--karir-ink-800, #1E293B); }
+.lkd-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; color: var(--karir-ink-900, #0F172A); margin: 0 0 4px; }
+.lkd-sub { font-size: 12.5px; line-height: 1.55; color: var(--karir-ink-500, #64748B); margin: 0 0 16px; }
+
+.lkd-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.lkd-option { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 11px 13px; border-radius: 11px; border: 1.5px solid var(--karir-border, #E2E8F0); background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--karir-ink-800, #1E293B); cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.lkd-option:hover { border-color: var(--karir-primary, #FF8D21); }
+.lkd-option.active { border-color: var(--karir-primary, #FF8D21); background: var(--karir-primary-light, #FFF4EC); color: var(--karir-primary-hover, #E87A13); }
+.lkd-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #CBD5E1; flex-shrink: 0; position: relative; }
+.lkd-option.active .lkd-radio { border-color: var(--karir-primary, #FF8D21); }
+.lkd-option.active .lkd-radio::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--karir-primary, #FF8D21); }
+
+.lkd-label { display: block; font-size: 12px; font-weight: 700; color: var(--karir-ink-600, #475569); margin-bottom: 6px; }
+.lkd-label span { font-weight: 600; color: var(--karir-ink-400, #94A3B8); }
+.lkd-textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; border: 1.5px solid var(--karir-border, #E2E8F0); border-radius: 11px; padding: 10px 12px; font-family: inherit; font-size: 13px; color: var(--karir-ink-900, #0F172A); background: #fff; }
+.lkd-textarea:focus { outline: none; border-color: var(--karir-primary, #FF8D21); }
+
+.lkd-error { margin-top: 10px; font-size: 12px; font-weight: 600; color: #B91C1C; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 9px; padding: 8px 11px; }
+
+.lkd-actions { display: flex; gap: 10px; margin-top: 16px; }
+.lkd-btn { flex: 1; height: 42px; border-radius: 10px; border: 1px solid var(--karir-border, #E2E8F0); background: #fff; color: var(--karir-ink-700, #334155); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.lkd-btn.primary { background: var(--karir-primary, #FF8D21); border-color: var(--karir-primary, #FF8D21); color: #fff; }
+.lkd-btn.primary:hover:not(:disabled) { background: var(--karir-primary-hover, #E87A13); }
+.lkd-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.lkd-done { text-align: center; padding: 8px 4px 2px; }
+.lkd-done-icon { width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; color: #15803D; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.lkd-done h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--karir-ink-900, #0F172A); margin: 0 0 6px; }
+.lkd-done p { font-size: 12.5px; line-height: 1.55; color: var(--karir-ink-500, #64748B); margin: 0 0 16px; }
+.lkd-done .lkd-btn { width: 100%; flex: none; }

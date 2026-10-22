@@ -150,6 +150,12 @@ html:has(.lk-page-wrapper), body:has(.lk-page-wrapper) {
 }
 .lk-link-masuk:hover { color: var(--karir-ink-900); border-color: var(--karir-ink-900); }
 
+/* Pengganti .lk-link-masuk saat pelamar sudah login — avatar pill, dipakai
+   di SemuaLowongan_002.jsx (.sl2-user-pill) dan Lowongan-LamanKarir_001.jsx. */
+.lk-user-pill { display: flex; align-items: center; gap: 9px; padding: 4px 12px 4px 5px; border-radius: 999px; background: #fff; border: 1px solid var(--karir-border); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--karir-ink-900); transition: border-color 0.15s, box-shadow 0.15s; }
+.lk-user-pill:hover { border-color: #CBD5E1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.lk-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FFB76B, var(--karir-primary, #FF8D21)); color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
 .lk-btn-perusahaan {
   display: inline-flex;
   align-items: center;

@@ -532,8 +532,25 @@
 }
 
 .luna-query-chart-sync-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
   cursor: pointer;
-  accent-color: #6366f1;
+  transition: border-color 0.15s, background 0.15s;
+}
+/* Centang digambar manual pakai SVG putih — accent-color saja TIDAK cukup:
+   warna tanda centang bawaan browser tetap gelap meski kotaknya berwarna. */
+.luna-query-chart-sync-label input[type="checkbox"]:checked {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 9px;
 }
 
 .luna-query-btn-reset {

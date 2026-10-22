@@ -1,0 +1,15 @@
+/* Laman karir varian lowongan eksternal (desktop). Memakai kelas lk-* yang
+   sudah ada; hanya elemen khas eksternal yang didefinisikan di sini. */
+.lke-btn-apply { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 48px; border-radius: 12px; background: var(--karir-primary, #FF8D21); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; text-decoration: none; transition: background 0.15s; box-sizing: border-box; }
+.lke-btn-apply:hover { background: var(--karir-primary-hover, #E87A13); }
+
+.lke-apply-notes { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lke-apply-notes li { position: relative; padding-left: 16px; font-size: 12.5px; line-height: 1.5; color: var(--karir-ink-600, #475569); }
+.lke-apply-notes li::before { content: ''; position: absolute; left: 3px; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--karir-ink-400, #94A3B8); }
+
+.lke-report { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--karir-border, #E2E8F0); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--karir-ink-500, #64748B); }
+.lke-report-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 9px; border: 1px solid var(--karir-border, #E2E8F0); background: #fff; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--karir-ink-700, #334155); cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.lke-report-btn:hover { border-color: var(--karir-primary, #FF8D21); color: var(--karir-primary-hover, #E87A13); }
+
+.lke-modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(15, 23, 42, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.lke-modal-card { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); }

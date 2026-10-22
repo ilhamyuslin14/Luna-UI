@@ -27,11 +27,13 @@ import KandidatTambah from './views/kandidat/Kandidat-Tambah.jsx';
 import LowonganTambahKandidat from './views/lowongan/Lowongan-TambahKandidat.jsx';
 import LamanKarir from './views/lowongan/Lowongan-LamanKarir.jsx';
 import LamanKarir_001 from './views/lowongan/Lowongan-LamanKarir_001.jsx';
+import LamanKarirEksternal_001 from './views/lowongan/Lowongan-LamanKarirEksternal_001.jsx';
 import LamanPerusahaan_001 from './views/lowongan/Lowongan-Perusahaan_001.jsx';
 import SemuaLowongan from './views/lowongan/SemuaLowongan.jsx';
 import SemuaLowongan_002 from './views/lowongan/SemuaLowongan_002.jsx';
 import SemuaLowonganMobile_002 from './mobile/views/lowongan/SemuaLowonganMobile_002.jsx';
 import LamanKarirMobile from './mobile/views/lowongan/LamanKarirMobile.jsx';
+import LamanKarirEksternalMobile from './mobile/views/lowongan/LamanKarirEksternalMobile.jsx';
 import LamanPerusahaanMobile from './mobile/views/lowongan/LamanPerusahaanMobile.jsx';
 import SemuaLowonganMobile from './mobile/views/lowongan/SemuaLowonganMobile.jsx';
 import KandidatDetail from './views/kandidat/KandidatDetail.jsx';
@@ -231,7 +233,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar'];
     const authMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -267,14 +269,20 @@ export default function App() {
       : <LamanKarir_001 kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
+  if (activeMenu === 'laman-karir-eksternal') {
+    return isMobile
+      ? <LamanKarirEksternalMobile kode={lamanKarirKode} navigate={navigate} />
+      : <LamanKarirEksternal_001 kode={lamanKarirKode} navigate={navigate} />;
+  }
+
   if (activeMenu === 'laman-karir_old') {
     return <LamanKarir kode={lamanKarirKode} jabatan={seleksiJabatan} navigate={navigate} />;
   }
 
   if (activeMenu === 'laman-perusahaan') {
     return isMobile
-      ? <LamanPerusahaanMobile slug={lamanPerusahaanSlug} />
-      : <LamanPerusahaan_001 slug={lamanPerusahaanSlug} />;
+      ? <LamanPerusahaanMobile slug={lamanPerusahaanSlug} navigate={navigate} />
+      : <LamanPerusahaan_001 slug={lamanPerusahaanSlug} navigate={navigate} />;
   }
 
   if (activeMenu === 'semua-lowongan') {

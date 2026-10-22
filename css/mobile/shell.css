@@ -297,6 +297,65 @@
   color: #e5484d;
 }
 
+.msh-sheet-item.active {
+  background: var(--luna-orange-050, #FFF4EC);
+  color: var(--luna-orange-600, #D66800);
+  font-weight: 700;
+}
+.msh-sheet-item.active svg {
+  color: var(--luna-orange-500, #FF8D21);
+}
+
+/* ── PelamarMobileNav (navbar mobile "Opsi 2" — avatar pill + sheet
+   konsolidasi) — dipakai di semua halaman publik portal karir sisi
+   pelamar (Semua Lowongan, Laman Karir, Profil Saya). ── */
+.pmn-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 3px;
+  border-radius: 999px;
+  border: 1px solid var(--luna-ink-100);
+  background: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pmn-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--luna-orange-400), var(--luna-orange-500));
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 10.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pmn-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--luna-ink-900);
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pmn-section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--luna-ink-400);
+  padding: 10px 8px 4px;
+}
+.pmn-sheet-divider {
+  height: 1px;
+  background: var(--luna-ink-100);
+  margin: 6px 0;
+}
+
 /* ── Full-screen takeover chrome — dipakai lebih dari satu fitur (Search,
    Buat Lowongan Panduan AI), makanya digenericin di shell.css ── */
 .msh-fullscreen-panel {

@@ -4,6 +4,7 @@ import { buildLamanKarirUrl } from '../../../hooks/lowongan/useBuatLowonganPandu
 import { useBuatLowonganPanduanContext } from '../../../context/BuatLowonganPanduanContext.jsx';
 import PopupKonfirmasi from '../../../components/PopupKonfirmasi.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { formatUpahDraft } from '../../../utils/parseUpahText.js';
 import MobileReportKendalaButton from '../../components/MobileReportKendalaButton.jsx';
 import MobileLowonganPublishedScreen from '../../components/MobileLowonganPublishedScreen.jsx';
 
@@ -268,7 +269,7 @@ export default function MobileBuatLowonganQA({ navigate, back }) {
                   <div className="mblw-sum-detail-row"><span>Lokasi</span><b>{draft?.detail.lokasi || '-'}</b></div>
                   <div className="mblw-sum-detail-row"><span>Jumlah rekrut</span><b>{draft?.detail.jumlahRekrut || '-'}</b></div>
                   <div className="mblw-sum-detail-row"><span>Ikatan kerja</span><b>{draft?.detail.ikatanKerja || '-'}</b></div>
-                  <div className="mblw-sum-detail-row"><span>Upah</span><b>{draft?.detail.upah || '-'}</b></div>
+                  <div className="mblw-sum-detail-row"><span>Upah</span><b>{formatUpahDraft(draft?.detail.upah) || '-'}</b></div>
                   <div className="mblw-sum-detail-row"><span>Pendidikan minimal</span><b>{draft?.detail.pendidikan || '-'}</b></div>
                   <div className="mblw-sum-detail-row"><span>Pengalaman minimal</span><b>{draft?.detail.pengalaman || '-'}</b></div>
                 </div>

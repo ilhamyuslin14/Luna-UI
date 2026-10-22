@@ -37,28 +37,11 @@
 }
 
 .lpr-hero-body {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  border: 1px solid #334155;
-  border-radius: 24px;
-  padding: 32px 36px;
-  color: #FFFFFF;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.lpr-hero-body::after {
-  content: '';
-  position: absolute;
-  top: -100px;
-  right: -100px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 141, 33, 0.25), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
+  /* Editorial flat: tanpa kartu, hanya garis tipis di bawah */
+  background: transparent;
+  padding: 28px 0 28px;
+  border-bottom: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 .lpr-hero-top-row {
@@ -73,8 +56,7 @@
   border-radius: 16px;
   background: #FFFFFF;
   padding: 2px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid #E2E8F0;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -118,9 +100,9 @@
 
 .lpr-hero-name {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -142,14 +124,14 @@
 .lpr-legal-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #E2E8F0;
+  background: #EEF2F7;
+  color: #475569;
   font-family: 'Inter Tight', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 8px;
   text-transform: uppercase;
 }
 
@@ -165,47 +147,43 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #CBD5E1;
+  color: #475569;
   font-family: 'Inter Tight', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .lpr-meta-item svg {
-  color: var(--luna-orange-400);
+  color: #64748B;
 }
 
 .lpr-hero-links-strip {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
+  margin-top: 22px;
 }
 
 .lpr-link-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #F1F5F9;
+  gap: 7px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #334155;
   font-family: 'Inter Tight', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 8px 14px;
+  border-radius: 999px;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .lpr-link-pill:hover {
-  background: rgba(255, 141, 33, 0.2);
-  border-color: rgba(255, 141, 33, 0.4);
-  color: #FFFFFF;
-  transform: translateY(-1px);
+  border-color: var(--luna-orange-400);
+  color: #C2410C;
 }
 
 /* ── Content Section Cards ── */
@@ -260,10 +238,24 @@
 }
 
 /* ── Lowongan Aktif Sidebar Panel ── */
-.lpr-job-panel {
+/* Wadah sticky untuk dua kartu sidebar (Lowongan Aktif + Ringkasan Perusahaan):
+   keduanya bergulir sebagai satu paket. Kalau layar pendek, paketnya sendiri
+   yang bisa digulir supaya bagian bawah tetap terjangkau. */
+.lpr-side-stack {
   position: -webkit-sticky;
   position: sticky;
   top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 2px;
+  margin: -2px;
+}
+
+.lpr-job-panel {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 18px;
@@ -312,13 +304,20 @@
   box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.15);
 }
 
+/* Tinggi daftar dibatasi sekitar 3 kartu; sisanya digulir di dalam daftar. */
 .lpr-job-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 480px;
+  max-height: 322px;
   overflow-y: auto;
-  padding-right: 2px;
+  scrollbar-width: thin;
+  padding: 2px 4px 2px 2px;
+  margin: -2px -4px -2px -2px;
+}
+
+.lpr-job-card {
+  flex-shrink: 0;
 }
 
 .lpr-job-card {
@@ -487,8 +486,10 @@
 
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
-  .lpr-job-panel {
+  .lpr-side-stack {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 

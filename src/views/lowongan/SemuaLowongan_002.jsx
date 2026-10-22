@@ -1,10 +1,13 @@
 import { useRef, useState } from 'react';
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
-import { formatUpah } from '../../hooks/lowongan/useLamanKarirData.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
+import SumberLowonganBadge from '../../components/lowongan/SumberLowonganBadge.jsx';
+import CompanyLogoBox from '../../components/lowongan/CompanyLogoBox.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
+import '../../../css/pelamar/profil-pelamar_001.css';
 
 const IconBriefcase = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -58,19 +61,16 @@ function initials(name) {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
-function pengalamanLabel(job) {
-  const n = parseInt(job.pengalaman, 10);
-  if (!n || n <= 0) return 'Fresh graduate';
-  return `${n}+ tahun`;
-}
 // Revamp "Opsi 1 — Trusted & Structured" dari artifact review (search-forward
 // hero, kategori populer, kartu lowongan lebih informatif, footer lengkap).
 // Sengaja dibuat sebagai KOMPONEN BARU (bukan timpa SemuaLowongan.jsx) atas
 // permintaan user — biar versi lama tetap ada & bisa dibandingkan. Header
 // TIDAK diubah, tetap pakai lk-header/lk-brand yang sudah ada.
 export default function SemuaLowongan_002({ navigate }) {
-  const { companyId } = useAuth() || {};
+  const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
   const goMasuk = () => navigate ? navigate('pelamar-masuk') : (window.location.href = '/?view=pelamar-masuk');
+  const goProfilSaya = () => isPelamar ? navigate?.('profil-pelamar_001') : goMasuk();
+  const goLamaranSaya = () => isPelamar ? navigate?.('status-lamaran_001') : goMasuk();
   const goPerusahaan = () => {
     const target = companyId ? 'beranda_002' : 'landingpage_003';
     if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
@@ -82,7 +82,7 @@ export default function SemuaLowongan_002({ navigate }) {
     gajiBucket, toggleGajiBucket,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize,
-  } = useSemuaLowonganData(8);
+  } = useSemuaLowonganData(8, { includeExternal: true });
 
   const mainRef = useRef(null);
   const scrollToListing = () => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -100,7 +100,8 @@ export default function SemuaLowongan_002({ navigate }) {
   };
 
   const openJob = (job) => {
-    const url = job.kode ? `/?view=laman-karir&kode=${encodeURIComponent(job.kode)}` : `/?view=laman-karir&jabatan=${encodeURIComponent(job.jabatan)}`;
+    const view = job.is_external ? 'laman-karir-eksternal' : 'laman-karir';
+    const url = job.kode ? `/?view=${view}&kode=${encodeURIComponent(job.kode)}` : `/?view=${view}&jabatan=${encodeURIComponent(job.title)}`;
     window.open(url, '_blank');
   };
 
@@ -108,12 +109,12 @@ export default function SemuaLowongan_002({ navigate }) {
 
   return (
     <div className="sl2-page">
-      {/* Header — navbar baru ala ProfilPelamar_001 (nav-links Cari Lowongan /
-          Profil Saya / Lamaran Saya), tapi state SEBELUM login: kanan masih
-          CTA "Masuk" + "Untuk Perusahaan" yang sekarang (bukan avatar pill),
-          karena pelamar belum login di halaman listing publik ini. Klik
-          "Profil Saya"/"Lamaran Saya" saat belum login mengarahkan ke
-          halaman Masuk dulu. */}
+      {/* Header — navbar ala ProfilPelamar_001 (nav-links Cari Lowongan /
+          Profil Saya / Lamaran Saya). State kanan ikut auth sungguhan
+          (isPelamar dari pelamar_profiles): sudah login -> avatar pill,
+          belum -> CTA "Masuk" seperti biasa. Navigasi antar halaman TIDAK
+          lagi memutus sesi — cuma lk-header yang berubah tampilan sesuai
+          status login, logout tetap cuma lewat halaman Profil. */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="sl2-nav-left">
@@ -124,12 +125,17 @@ export default function SemuaLowongan_002({ navigate }) {
             </a>
             <nav className="sl2-nav-links">
               <span className="sl2-nav-link active">Cari Lowongan</span>
-              <span className="sl2-nav-link" onClick={goMasuk}>Profil Saya</span>
-              <span className="sl2-nav-link" onClick={goMasuk}>Lamaran Saya</span>
+              <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
+              <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>
             </nav>
           </div>
           <div className="lk-header-actions">
-            <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+            {isPelamar ? (
+              <PelamarNavMenu navigate={navigate} pelamarProfile={pelamarProfile} />
+            ) : (
+              <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+            )}
+            <span className="lk-nav-divider" />
             <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
@@ -247,31 +253,31 @@ export default function SemuaLowongan_002({ navigate }) {
             <div className="sl2-empty">Memuat lowongan…</div>
           ) : pagedJobs.length > 0 ? (
             pagedJobs.map(job => {
-              const companyName = job.companies?.name || 'Perusahaan';
-              const isSaved = savedJobs.has(job.id);
+              const companyName = job.company_name;
+              const isSaved = savedJobs.has(job.key);
               return (
-                <article key={job.id} className="sl2-job" onClick={() => openJob(job)}>
+                <article key={job.key} className={`sl2-job${job.is_external ? ' ext' : ''}`} onClick={() => openJob(job)}>
                   <span className="sl2-job-bar" />
                   <div className="sl2-job-content">
                     <div className="sl2-job-top">
-                      <div className="sl2-job-logo" style={{ background: avatarColor(companyName) }}>
-                        {job.companies?.logo_url ? <img src={job.companies.logo_url} alt={companyName} /> : initials(companyName)}
-                      </div>
+                      <CompanyLogoBox className="sl2-job-logo" src={job.logo_url} alt={companyName} color={avatarColor(companyName)} initials={initials(companyName)} />
                       <div className="sl2-job-body">
-                        <h4 className="sl2-job-title">{job.jabatan}</h4>
+                        <div className="sl2-job-titlerow">
+                          <h4 className="sl2-job-title">{job.title}</h4>
+                          <SumberLowonganBadge job={job} />
+                        </div>
                         <div className="sl2-job-meta">
                           <b>{companyName}</b>
                           <span className="sep">·</span>
-                          <span>{job.lokasi || 'Indonesia'}</span>
-                          {job.ikatan_kerja && <><span className="sep">·</span><span>{job.ikatan_kerja}</span></>}
-                          <span className="sep">·</span>
-                          <span>{pengalamanLabel(job)}</span>
+                          <span>{job.location || 'Indonesia'}</span>
+                          {job.employment_label && <><span className="sep">·</span><span>{job.employment_label}</span></>}
+                          {job.experience_label && <><span className="sep">·</span><span>{job.experience_label}</span></>}
                         </div>
                       </div>
                       <button
                         type="button"
                         className={`sl2-save-btn${isSaved ? ' active' : ''}`}
-                        onClick={e => toggleSaveJob(e, job.id)}
+                        onClick={e => toggleSaveJob(e, job.key)}
                         aria-label={isSaved ? 'Hapus dari lowongan tersimpan' : 'Simpan lowongan'}
                       >
                         <IconBookmark filled={isSaved} />
@@ -279,8 +285,8 @@ export default function SemuaLowongan_002({ navigate }) {
                     </div>
 
                     <div className="sl2-job-bottom">
-                      {formatUpah(job) ? (
-                        <div className="sl2-job-salary">Rp {formatUpah(job)}</div>
+                      {job.salary_label ? (
+                        <div className={`sl2-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div>
                       ) : <span />}
                       <span className="sl2-job-detail">
                         Lihat Detail <IconArrowRight />

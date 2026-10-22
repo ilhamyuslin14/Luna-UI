@@ -10,11 +10,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default function SandboxRiwayat() {
   const [logs, setLogs] = useState([]);
   const [prices, setPrices] = useState({});
-  const [usdToIdr, setUsdToIdr] = useState(16000);
+  const [usdToIdr, setUsdToIdr] = useState(17800);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [timeFilter, setTimeFilter] = useState('7'); // '7', '30', 'all'
+  const [modelFilter, setModelFilter] = useState('all'); // 'all' atau nama model
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -66,13 +67,25 @@ export default function SandboxRiwayat() {
     fetchLogs();
   }, []);
 
+  // Daftar model untuk dropdown filter, diambil dari log yang ada (nama tanpa prefix "models/").
+  const modelOptions = useMemo(() => {
+    const set = new Set();
+    logs.forEach(log => { if (log.model_used) set.add(log.model_used.replace('models/', '')); });
+    return Array.from(set).sort();
+  }, [logs]);
+
   const filteredLogs = useMemo(() => {
-    if (timeFilter === 'all') return logs;
-    const days = parseInt(timeFilter);
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    return logs.filter(log => new Date(log.created_at) >= cutoff);
-  }, [logs, timeFilter]);
+    let result = logs;
+    if (timeFilter !== 'all') {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - parseInt(timeFilter));
+      result = result.filter(log => new Date(log.created_at) >= cutoff);
+    }
+    if (modelFilter !== 'all') {
+      result = result.filter(log => (log.model_used || '').replace('models/', '') === modelFilter);
+    }
+    return result;
+  }, [logs, timeFilter, modelFilter]);
 
   const metrics = useMemo(() => {
     let inputTokens = 0;
@@ -251,7 +264,7 @@ export default function SandboxRiwayat() {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [timeFilter]);
+  }, [timeFilter, modelFilter]);
 
   return (
     <div className="max-w-[1200px] mx-auto pb-8 animate-in fade-in duration-300">
@@ -269,9 +282,17 @@ export default function SandboxRiwayat() {
               value={usdToIdr}
               onChange={(e) => setUsdToIdr(e.target.value)}
               className="border-none px-3 py-2 outline-none w-24 text-sm font-semibold text-slate-900"
-              placeholder="16000"
+              placeholder="17800"
             />
           </div>
+          <select
+            value={modelFilter}
+            onChange={(e) => setModelFilter(e.target.value)}
+            className="p-2.5 rounded-lg border border-slate-300 bg-white text-sm outline-none cursor-pointer shadow-sm font-medium text-slate-700 hover:border-orange-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+          >
+            <option value="all">Semua Model</option>
+            {modelOptions.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
           <select 
             value={timeFilter} 
             onChange={(e) => setTimeFilter(e.target.value)}

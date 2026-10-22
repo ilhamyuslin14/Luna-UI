@@ -1,0 +1,45 @@
+/* Header detail lowongan — editorial, tanpa kartu (desktop & mobile) */
+.lkh { display: flex; flex-direction: column; gap: 16px; padding: 6px 0 24px; border-bottom: 1px solid var(--karir-border, #E2E8F0); font-family: 'Inter Tight', sans-serif; color: var(--karir-ink-800, #1E293B); }
+.lkh-company-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.lkh-logo { width: 40px; height: 40px; border-radius: 11px; background: var(--karir-primary-light, #FFF4EC); color: var(--karir-primary-hover, #E87A13); display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; flex-shrink: 0; overflow: hidden; }
+.lkh-logo-link { display: flex; flex-shrink: 0; text-decoration: none; }
+.lkh-logo img { width: 100%; height: 100%; object-fit: cover; }
+.lkh-logo.has-img { border: 1px solid var(--karir-border, #E2E8F0); box-sizing: border-box; }
+.lkh-logo.has-img img { object-fit: contain; padding: 4px; box-sizing: border-box; }
+.lkh-company { font-size: 15px; font-weight: 700; color: var(--karir-ink-700, #334155); text-decoration: none; }
+a.lkh-company:hover { color: var(--karir-ink-900, #0F172A); text-decoration: underline; }
+
+.lkh-title { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 42px; font-weight: 800; line-height: 1.1; letter-spacing: -0.025em; color: var(--karir-ink-900, #0F172A); text-wrap: balance; }
+
+.lkh-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; font-size: 14px; font-weight: 600; color: var(--karir-ink-600, #475569); }
+.lkh-meta-item { display: inline-flex; align-items: center; gap: 7px; }
+.lkh-meta-item svg { color: var(--karir-ink-500, #64748B); flex-shrink: 0; }
+
+.lkh-salary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.lkh-salary-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -0.01em; color: #C2410C; }
+.lkh-salary-per { font-size: 14px; font-weight: 600; color: var(--karir-ink-500, #64748B); }
+.lkh-salary.muted { font-size: 14px; font-weight: 600; color: var(--karir-ink-500, #64748B); }
+
+/* badge status (versi terang) */
+.lkh-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap; }
+.lkh-badge.live { background: #DCFCE7; color: #15803D; }
+.lkh-badge.idle { background: #F1F5F9; color: var(--karir-ink-600, #475569); }
+.lkh-dot { width: 6px; height: 6px; border-radius: 50%; background: #16A34A; flex-shrink: 0; }
+.lkh-dot.pulse { animation: lkh-pulse 2s infinite; }
+@keyframes lkh-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.55); }
+  70% { box-shadow: 0 0 0 5px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+/* mobile: header berada di .lkh-m-wrap, di atas isi halaman */
+.lkh-m-wrap { padding: 14px 16px 4px; }
+.lkh-m-wrap .lkh { padding: 0 0 18px; gap: 12px; }
+.lkh-m-wrap .lkh-logo { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+.lkh-m-wrap .lkh-company { font-size: 13.5px; }
+.lkh-m-wrap .lkh-title { font-size: 26px; line-height: 1.15; }
+.lkh-m-wrap .lkh-meta { font-size: 12.5px; gap: 6px 14px; }
+.lkh-m-wrap .lkh-meta-item svg { width: 14px; height: 14px; }
+.lkh-m-wrap .lkh-salary-num { font-size: 20px; }
+.lkh-m-wrap .lkh-salary-per, .lkh-m-wrap .lkh-salary.muted { font-size: 12.5px; }
+.lkh-m-wrap .lkh-badge { font-size: 10px; padding: 4px 8px; }
