@@ -1,12 +1,62 @@
 {
   "manifest_version": 3,
   "name": "Luna Lowongan Collector",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "description": "Ambil data lowongan dari halaman JobStreet dan simpan ke tabel lowongan_eksternal Luna.",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Kumpulkan lowongan ke Luna"
+    "default_title": "Luna Collector: masuk dan nyalakan"
   },
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["https://qxmkwfncpxcibjnwnmup.supabase.co/*"]
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://qxmkwfncpxcibjnwnmup.supabase.co/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.jobstreet.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "parsers.js",
+        "extractors.js"
+      ],
+      "matches": [
+        "https://*.jobstreet.com/*"
+      ]
+    }
+  ],
+  "commands": {
+    "toggle-detail": {
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      },
+      "description": "Lihat Detail: buka/tutup form"
+    },
+    "refresh-job": {
+      "suggested_key": {
+        "default": "Alt+Shift+A"
+      },
+      "description": "Refresh Data dari halaman"
+    },
+    "save-job": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Simpan lowongan ke Luna"
+    }
+  }
 }

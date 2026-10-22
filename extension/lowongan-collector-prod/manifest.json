@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Luna Lowongan Collector (PROD)",
+  "version": "0.1.0",
+  "description": "PRODUCTION: ambil data lowongan dari JobStreet dan simpan ke database production. Tanpa login.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Luna Collector PROD: nyalakan atau matikan"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.supabase.co/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.jobstreet.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "parsers.js",
+        "extractors.js"
+      ],
+      "matches": [
+        "https://*.jobstreet.com/*"
+      ]
+    }
+  ],
+  "commands": {
+    "prod-toggle-detail": {
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      },
+      "description": "PROD: Lihat Detail (buka/tutup form)"
+    },
+    "prod-refresh-job": {
+      "suggested_key": {
+        "default": "Alt+Shift+A"
+      },
+      "description": "PROD: Refresh Data dari halaman"
+    },
+    "prod-save-job": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "PROD: Simpan lowongan ke database production"
+    }
+  }
+}

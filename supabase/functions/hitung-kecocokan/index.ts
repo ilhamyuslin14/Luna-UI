@@ -18,7 +18,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-const BATAS_HARIAN = 20 // jumlah perhitungan AI baru per pelamar per hari (cache tidak dihitung)
+// Batas perhitungan AI baru per pelamar per hari dibaca dari prompt_settings.batas_harian (cache tidak dihitung).
 const BOBOT = { keahlian: 35, pengalaman: 30, kualifikasi: 20, pendidikan: 15 } as const
 const ASPEK = Object.keys(BOBOT) as Array<keyof typeof BOBOT>
 const BATAS_ATAS_DARI_INTI = 10 // skor total <= rata-rata (keahlian, pengalaman) + angka ini
@@ -365,12 +365,16 @@ serve(async (req) => {
       return jsonResponse({ cached: true, result: formatHasil(ada) })
     }
 
-    const { data: diberi, error: kuotaErr } = await supabase.rpc('klaim_kuota_kecocokan', { p_pelamar: pelamarId, p_batas: BATAS_HARIAN })
-    if (kuotaErr) throw kuotaErr
-    if (!diberi) {
-      return jsonResponse({ error: true, code: 'kuota', message: `Batas ${BATAS_HARIAN} pengecekan kecocokan hari ini sudah tercapai. Coba lagi besok.` })
+    // Batas harian diatur dari Sandbox (prompt_settings.batas_harian); kosong = tanpa batas.
+    const batas = setting.batas_harian
+    if (batas != null) {
+      const { data: diberi, error: kuotaErr } = await supabase.rpc('klaim_kuota_kecocokan', { p_pelamar: pelamarId, p_batas: Number(batas) })
+      if (kuotaErr) throw kuotaErr
+      if (!diberi) {
+        return jsonResponse({ error: true, code: 'kuota', message: `Batas ${batas} pengecekan kecocokan hari ini sudah tercapai. Coba lagi besok.` })
+      }
+      kuotaDiambil = true
     }
-    kuotaDiambil = true
 
     const { parsed, usage, latency } = await panggilAI({
       provider,

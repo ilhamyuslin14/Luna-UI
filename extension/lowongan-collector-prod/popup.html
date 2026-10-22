@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Luna Lowongan Collector PROD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; width: 340px; font: 13px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #1e293b; background: #fff; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #0f172a; color: #fff; }
+    header h1 { font-size: 14px; margin: 0; font-weight: 700; }
+    header h1 span { color: #ff8d21; }
+    .env { font-size: 10px; font-weight: 800; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: #dc2626; color: #fff; }
+    main { padding: 16px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+    .switch-row b { display: block; font-size: 13px; color: #0f172a; }
+    .switch-row small { display: block; color: #64748b; font-size: 11.5px; margin-top: 2px; }
+    .switch { position: relative; flex-shrink: 0; width: 46px; height: 26px; }
+    .switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+    .track { position: absolute; inset: 0; border-radius: 999px; background: #cbd5e1; transition: background 0.18s ease; }
+    .track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform 0.18s ease; }
+    .switch input:checked + .track { background: #ff8d21; }
+    .switch input:checked + .track::after { transform: translateX(20px); }
+    .switch input:focus-visible + .track { box-shadow: 0 0 0 3px #ffedd5; }
+    .target { margin: 12px 0 0; padding: 9px 11px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 12px; word-break: break-all; }
+    .howto { margin: 14px 2px 0; padding: 0 0 0 18px; color: #64748b; font-size: 12px; }
+    .howto li + li { margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Luna <span>Collector</span></h1>
+    <span class="env" id="env">PROD</span>
+  </header>
+  <main>
+    <div class="switch-row">
+      <div>
+        <b>Collector di JobStreet</b>
+        <small id="switch-state">Aktif</small>
+      </div>
+      <label class="switch" aria-label="Aktifkan collector di JobStreet">
+        <input id="toggle-enabled" type="checkbox" />
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="target" id="target"></div>
+    <ol class="howto">
+      <li>Nyalakan, lalu buka JobStreet.</li>
+      <li>Panel Luna muncul di kiri bawah halaman.</li>
+      <li>Buka satu lowongan, lalu <b>Lihat Detail</b> atau <b>Simpan</b>.</li>
+    </ol>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -32,6 +32,10 @@ export default function SandboxKonfigurasi() {
   const [configId, setConfigId] = useState(null);
   const [concurrentLimit, setConcurrentLimit] = useState(5);
   const [activeProvider, setActiveProvider] = useState('gemini'); // 'gemini' | 'openai'
+  // Batas pengecekan kecocokan CV per pelamar per hari (mulai 20; tanpa batas = NULL di database).
+  const MIN_BATAS_KECOCOKAN = 20;
+  const [batasKecocokan, setBatasKecocokan] = useState(MIN_BATAS_KECOCOKAN);
+  const [batasTanpaLimit, setBatasTanpaLimit] = useState(false);
 
   const defaultPromptJD = `Berdasarkan teks mentah dari Job Description berikut, hasilkan Kriteria Penilaian yang komprehensif dan kembalikan sesuai format JSON yang diminta. Pastikan kriteria yang dibuat relevan, spesifik, dan dapat diukur.`;
   const defaultPromptCV = `Berdasarkan dokumen CV berikut, ekstrak informasi pribadi, pengalaman kerja, pendidikan, dan keahlian yang relevan.`;
@@ -154,6 +158,10 @@ Return purely JSON. No preamble, no markdown.
               BuatLowonganDraft: { model: '', model_openai: '', prompt: defaultPromptBuatLowonganDraft, use_flex: false, temperature: 0.2, reasoning_effort: 'low' }
             };
             psData.forEach(ps => {
+              if (ps.type === 'KecocokanCV') {
+                if (ps.batas_harian == null) setBatasTanpaLimit(true);
+                else setBatasKecocokan(Math.max(MIN_BATAS_KECOCOKAN, Number(ps.batas_harian)));
+              }
               if (ps.type === 'JD' || ps.type === 'CV' || ps.type === 'Scoring' || ps.type === 'KecocokanCV' || ps.type === 'BuatLowonganTanya' || ps.type === 'BuatLowonganDraft') {
                 let defaultPsPrompt = defaultPromptJD;
                 if (ps.type === 'CV') defaultPsPrompt = defaultPromptCV;
@@ -393,6 +401,10 @@ Return purely JSON. No preamble, no markdown.
         use_flex: configs[type].use_flex,
         temperature: configs[type].temperature,
         reasoning_effort: configs[type].reasoning_effort,
+        // Hanya dipakai KecocokanCV; NULL = tanpa batas.
+        batas_harian: type === 'KecocokanCV'
+          ? (batasTanpaLimit ? null : Math.max(MIN_BATAS_KECOCOKAN, Math.round(Number(batasKecocokan) || MIN_BATAS_KECOCOKAN)))
+          : null,
         updated_at: new Date().toISOString()
       }));
 
@@ -668,6 +680,37 @@ Return purely JSON. No preamble, no markdown.
                     />
                     <p className="text-xs text-slate-500 mt-1">Teks mentah dari dokumen akan otomatis disisipkan di bawah prompt ini saat diproses.</p>
                   </div>
+
+                  {type === 'KecocokanCV' && (
+                    <div className="flex flex-col gap-2 mt-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                      <label className="text-sm font-semibold text-slate-700">Batas Pengecekan per Pelamar per Hari</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="number"
+                          min={MIN_BATAS_KECOCOKAN}
+                          step="1"
+                          value={batasKecocokan}
+                          disabled={batasTanpaLimit}
+                          onChange={(e) => setBatasKecocokan(e.target.value)}
+                          onBlur={() => setBatasKecocokan(v => Math.max(MIN_BATAS_KECOCOKAN, Math.round(Number(v) || MIN_BATAS_KECOCOKAN)))}
+                          className="w-28 bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                        <span className="text-sm text-slate-600">{batasTanpaLimit ? 'Tanpa batas' : 'kali per hari'}</span>
+                        <label className="ml-auto flex items-center cursor-pointer select-none text-sm font-semibold text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={batasTanpaLimit}
+                            onChange={(e) => setBatasTanpaLimit(e.target.checked)}
+                            className="w-4 h-4 mr-2 accent-orange-600 cursor-pointer rounded border-slate-300"
+                          />
+                          Tanpa batas
+                        </label>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Minimal {MIN_BATAS_KECOCOKAN}. Yang dihitung hanya perhitungan AI baru (termasuk tombol refresh); hasil yang diambil dari simpanan tidak memakai jatah. Hari dihitung mengikuti WIB. Berlaku setelah disimpan.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-1.5 mt-2">
                     <label className="flex items-center cursor-pointer select-none text-sm font-semibold text-slate-700">
