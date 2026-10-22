@@ -7,6 +7,7 @@ import LaporanKendalaForm from '../../../components/lowongan/LaporanKendalaForm.
 import KecocokanCard from '../../../components/lowongan/KecocokanCard.jsx';
 import LowonganShareSheet from '../../components/LowonganShareSheet.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
+import { itemProfilPerusahaan } from '../../../utils/profilPerusahaan.js';
 import LowonganHeader, { ViewCountBadge } from '../../../components/lowongan/LowonganHeader.jsx';
 import SumberLowonganBadge from '../../../components/lowongan/SumberLowonganBadge.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
@@ -95,6 +96,7 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
           companyName={job.company_name}
           logoUrl={job.logo_url}
           badges={<><SumberLowonganBadge job={job} /><ViewCountBadge count={viewCount} /></>}
+          companyInfo={itemProfilPerusahaan(job)}
           title={job.title}
           meta={[
             job.location && { icon: 'pin', text: job.location },

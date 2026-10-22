@@ -85,6 +85,16 @@ export function extractJobstreetRaw() {
     const out = [];
     walk(desc, out);
     description = out.join('').replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    // Butir bernomor/bullet yang masing-masing ditulis sebagai paragraf terpisah menghasilkan
+    // baris kosong di antaranya; dirapatkan supaya terbaca sebagai satu daftar.
+    const isItem = (l) => /^\s*(\d+[.)]|[-•*])\s/.test(l);
+    const rows = description.split('\n');
+    description = rows.filter((l, i) => {
+      if (l.trim()) return true;
+      const prev = rows.slice(0, i).reverse().find(x => x.trim());
+      const next = rows.slice(i + 1).find(x => x.trim());
+      return !(prev && next && isItem(prev) && isItem(next));
+    }).join('\n');
   }
 
   // Logo perusahaan. Hanya gambar DI ATAS judul dalam area detail yang dipakai:
@@ -121,7 +131,43 @@ export function extractJobstreetRaw() {
   }
   const logoUrl = logoImg ? imgSrc(logoImg) : null;
 
+  // Profil perusahaan: hanya bidang dan jumlah karyawan. Penanda data-automation-nya tidak
+  // diketahui, jadi dicari lewat teks: judul "Profil perusahaan", lalu baris berpola
+  // "101-1,000 employees"; bidang = baris tepat sebelum baris itu (selain judul dan nama perusahaan).
+  let companyIndustry = null;
+  let companySize = null;
+  try {
+    const sizeRe = /^\s*[\d.,]+(?:\s*[-–]\s*[\d.,]+)?\+?\s*(employees|karyawan|pegawai)\s*$/i;
+    const headRe = /^\s*(profil perusahaan|company profile)\s*$/i;
+    const isLeaf = (el) => !el.children.length && el.textContent.trim();
+    const headings = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6,[role="heading"],span,div,p')]
+      .filter(el => isLeaf(el) && headRe.test(el.textContent));
+    for (const head of headings) {
+      let box = head.parentElement;
+      let leaves = [];
+      while (box && box !== document.body) {
+        leaves = [...box.querySelectorAll('*')].filter(isLeaf);
+        if (leaves.some(el => sizeRe.test(el.textContent))) break;
+        box = box.parentElement;
+      }
+      if (!box || box === document.body) continue;
+      const sizeIdx = leaves.findIndex(el => sizeRe.test(el.textContent));
+      companySize = leaves[sizeIdx].textContent.trim();
+      const companyName = (textOf(q('advertiser-name')) || '').toLowerCase();
+      for (let i = sizeIdx - 1; i >= 0; i--) {
+        const t = leaves[i].textContent.trim();
+        if (!t || headRe.test(t) || t.length > 120 || t.toLowerCase() === companyName) continue;
+        if (leaves[i] === head) break;
+        companyIndustry = t;
+        break;
+      }
+      break;
+    }
+  } catch { /* profil perusahaan hanya tambahan */ }
+
   return {
+    companyIndustry,
+    companySize,
     logoUrl,
     title: textOf(q('job-detail-title')),
     company: textOf(q('advertiser-name')),

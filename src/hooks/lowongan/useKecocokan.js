@@ -9,7 +9,7 @@ import { STEPS, dummyResult } from './useKecocokanDummy.js';
 // membaca hasil tersimpan (lewat RLS) atau meminta fungsi menghitungnya.
 //
 // Untuk pratinjau tampilan tanpa data sungguhan, query URL tetap didukung:
-//   ?kecocokan=guest | no-cv | processing | done | error | limit
+//   ?kecocokan=guest | no-cv | ready | processing | done | error | limit
 
 const STEP_MS = 1100;
 const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // lebih lama dari ini dihitung ulang (lowongan bisa berubah)
@@ -29,7 +29,7 @@ export default function useKecocokan({ jobKey, jobTitle }) {
   const { user, isPelamar } = useAuth() || {};
   const demo = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('kecocokan') : null;
 
-  const [state, setState] = useState('checking'); // checking | guest | no-cv | processing | done | error | limit
+  const [state, setState] = useState('checking'); // checking | guest | no-cv | ready | processing | done | error | limit
   const [step, setStep] = useState(0);
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState('');
@@ -82,6 +82,7 @@ export default function useKecocokan({ jobKey, jobTitle }) {
 
     if (demo === 'guest') { setState('guest'); return undefined; }
     if (demo === 'no-cv') { setState('no-cv'); return undefined; }
+    if (demo === 'ready') { setState('ready'); return undefined; }
     if (demo === 'error') { setState('error'); return undefined; }
     if (demo === 'limit') { setMessage('Batas 20 pengecekan kecocokan hari ini sudah tercapai. Coba lagi besok.'); setState('limit'); return undefined; }
     if (demo === 'done') { setResult(dummyResult(jobKey, jobTitle)); setState('done'); return undefined; }
@@ -115,6 +116,15 @@ export default function useKecocokan({ jobKey, jobTitle }) {
           && Date.now() - new Date(row.updated_at || row.created_at).getTime() < CACHE_MAX_AGE_MS;
         if (fresh) { setResult(rowToResult(row)); setState('done'); return; }
 
+        // Mode (otomatis/manual) diatur dari Sandbox. Gagal membacanya = otomatis, seperti semula.
+        let manual = false;
+        try {
+          const { data: mode } = await supabase.rpc('get_kecocokan_mode');
+          manual = mode === 'manual';
+        } catch { /* pakai otomatis */ }
+        if (!active) return;
+        if (manual) { setState('ready'); return; }
+
         hitung(false);
       } catch (err) {
         console.error('Gagal memuat kecocokan:', err);
@@ -126,8 +136,10 @@ export default function useKecocokan({ jobKey, jobTitle }) {
   }, [demo, isPelamar, user?.id, jobKey, jobTitle, hitung]);
 
   const retry = useCallback(() => hitung(false), [hitung]);
+  // Mode manual: dijalankan saat pelamar menekan "Cek kecocokan".
+  const generate = useCallback(() => hitung(false), [hitung]);
   // Prototipe: hitung ulang paksa (abaikan cache). Tetap memakai kuota harian.
   const regenerate = useCallback(() => hitung(true), [hitung]);
 
-  return { state, step, result, message, retry, regenerate, isDemoParam: !!demo };
+  return { state, step, result, message, retry, generate, regenerate, isDemoParam: !!demo };
 }

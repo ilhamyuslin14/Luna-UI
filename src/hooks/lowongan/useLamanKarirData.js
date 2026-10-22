@@ -26,13 +26,26 @@ export function formatDeskripsiToHtml(text) {
   let listType = null; // 'ul' | 'ol'
   let html = '';
 
-  lines.forEach(line => {
+  // Jenis butir sebuah baris: 'ul' (bullet), 'ol' (bernomor), atau null (teks biasa).
+  const kindOf = (t) => {
+    if (t.startsWith('•') || t.startsWith('-') || t.startsWith('*')) return 'ul';
+    if (/^\d+[\.\)]\s*/.test(t)) return 'ol';
+    return null;
+  };
+
+  lines.forEach((line, idx) => {
     const trimmed = line.trim();
     if (!trimmed) {
       if (inList) {
-        html += listType === 'ul' ? '</ul>' : '</ol>';
-        inList = false;
-        listType = null;
+        // Baris kosong di antara butir yang sejenis (umum pada deskripsi hasil salinan,
+        // mis. "1. ...\n\n2. ...") tidak memutus daftar; kalau tidak, tiap butir menjadi
+        // daftar sendiri dan semuanya bernomor "1.".
+        const next = lines.slice(idx + 1).find(l => l.trim());
+        if (!next || kindOf(next.trim()) !== listType) {
+          html += listType === 'ul' ? '</ul>' : '</ol>';
+          inList = false;
+          listType = null;
+        }
       }
       return;
     }

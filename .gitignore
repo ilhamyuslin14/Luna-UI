@@ -30,3 +30,6 @@ css/sandbox.css
 
 # Claude Code local settings (may contain machine-specific tokens)
 .claude/settings.local.json
+
+# Paket extension untuk dibagikan (dibuat ulang dari folder sumbernya)
+extension/*.zip

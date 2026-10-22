@@ -188,6 +188,11 @@
         <input id="f-category" />
 
         <div class="row">
+          <div><label for="f-industry">Bidang perusahaan</label><input id="f-industry" /></div>
+          <div><label for="f-size">Jumlah karyawan</label><input id="f-size" /></div>
+        </div>
+
+        <div class="row">
           <div><label for="f-emp">Ikatan kerja</label><select id="f-emp"></select></div>
           <div><label for="f-posted">Tanggal posting</label><input id="f-posted" type="date" /></div>
         </div>
@@ -360,6 +365,8 @@
       logo_url: /^https?:\/\//i.test(v.logo_url || '') ? v.logo_url : null,
       location: v.location || null,
       category: v.category || null,
+      company_industry: v.company_industry || null,
+      company_size: v.company_size || null,
       employment_type_raw: raw,
       employment_type: EMPLOYMENT_NORM[raw] ?? null,
       salary_min: v.salary_min,
@@ -412,6 +419,7 @@
   // ── Panel detail (form dari sisi kanan) ────────────────────────────────
   const FIELDS = {
     title: 'f-title', company_name: 'f-company', logo_url: 'f-logo', location: 'f-location', category: 'f-category',
+    company_industry: 'f-industry', company_size: 'f-size',
     posted_at: 'f-posted', salary_text: 'f-stext', description: 'f-desc',
   };
 
@@ -526,6 +534,8 @@
       logo_url: $('f-logo').value.trim(),
       location: $('f-location').value.trim(),
       category: $('f-category').value.trim(),
+      company_industry: $('f-industry').value.trim(),
+      company_size: $('f-size').value.trim(),
       employment_type_raw: $('f-emp').value,
       salary_min: smin,
       salary_max: smax,

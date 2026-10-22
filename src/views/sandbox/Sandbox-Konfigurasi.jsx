@@ -36,6 +36,8 @@ export default function SandboxKonfigurasi() {
   const MIN_BATAS_KECOCOKAN = 20;
   const [batasKecocokan, setBatasKecocokan] = useState(MIN_BATAS_KECOCOKAN);
   const [batasTanpaLimit, setBatasTanpaLimit] = useState(false);
+  // Mode pembuatan hasil kecocokan CV: 'otomatis' (saat halaman dibuka) atau 'manual' (pelamar klik tombol).
+  const [modeKecocokan, setModeKecocokan] = useState('otomatis');
 
   const defaultPromptJD = `Berdasarkan teks mentah dari Job Description berikut, hasilkan Kriteria Penilaian yang komprehensif dan kembalikan sesuai format JSON yang diminta. Pastikan kriteria yang dibuat relevan, spesifik, dan dapat diukur.`;
   const defaultPromptCV = `Berdasarkan dokumen CV berikut, ekstrak informasi pribadi, pengalaman kerja, pendidikan, dan keahlian yang relevan.`;
@@ -159,6 +161,7 @@ Return purely JSON. No preamble, no markdown.
             };
             psData.forEach(ps => {
               if (ps.type === 'KecocokanCV') {
+                setModeKecocokan(ps.mode_generate === 'manual' ? 'manual' : 'otomatis');
                 if (ps.batas_harian == null) setBatasTanpaLimit(true);
                 else setBatasKecocokan(Math.max(MIN_BATAS_KECOCOKAN, Number(ps.batas_harian)));
               }
@@ -401,6 +404,7 @@ Return purely JSON. No preamble, no markdown.
         use_flex: configs[type].use_flex,
         temperature: configs[type].temperature,
         reasoning_effort: configs[type].reasoning_effort,
+        mode_generate: type === 'KecocokanCV' ? modeKecocokan : null,
         // Hanya dipakai KecocokanCV; NULL = tanpa batas.
         batas_harian: type === 'KecocokanCV'
           ? (batasTanpaLimit ? null : Math.max(MIN_BATAS_KECOCOKAN, Math.round(Number(batasKecocokan) || MIN_BATAS_KECOCOKAN)))
@@ -680,6 +684,36 @@ Return purely JSON. No preamble, no markdown.
                     />
                     <p className="text-xs text-slate-500 mt-1">Teks mentah dari dokumen akan otomatis disisipkan di bawah prompt ini saat diproses.</p>
                   </div>
+
+                  {type === 'KecocokanCV' && (
+                    <div className="flex flex-col gap-2 mt-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                      <label className="text-sm font-semibold text-slate-700">Cara Hasil Dibuat</label>
+                      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Cara hasil kecocokan dibuat">
+                        {[
+                          { id: 'otomatis', title: 'Otomatis', desc: 'Dihitung begitu halaman lowongan dibuka.' },
+                          { id: 'manual', title: 'Manual', desc: 'Pelamar menekan tombol "Cek kecocokan" dulu.' },
+                        ].map(opt => {
+                          const active = modeKecocokan === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={active}
+                              onClick={() => setModeKecocokan(opt.id)}
+                              className={`text-left p-3 rounded-lg border transition-all ${active ? 'bg-orange-50 border-orange-300 shadow-sm' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                            >
+                              <span className={`block text-sm font-bold ${active ? 'text-orange-700' : 'text-slate-800'}`}>{opt.title}</span>
+                              <span className="block text-xs text-slate-500 mt-0.5">{opt.desc}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Manual menghemat biaya AI dan jatah harian: yang dihitung hanya lowongan yang memang ingin dicek pelamar. Hasil yang sudah pernah dibuat tetap tampil langsung di kedua mode. Berlaku setelah disimpan, saat halaman lowongan dibuka berikutnya.
+                      </p>
+                    </div>
+                  )}
 
                   {type === 'KecocokanCV' && (
                     <div className="flex flex-col gap-2 mt-2 p-4 rounded-xl bg-slate-50 border border-slate-200">

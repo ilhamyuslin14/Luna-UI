@@ -50,7 +50,7 @@ function ScoreBanner({ score, onRefresh }) {
 // Kartu "Kecocokan dengan CV kamu" di laman detail lowongan (Luna & eksternal).
 // Hasilnya dari edge function hitung-kecocokan (lihat useKecocokan).
 export default function KecocokanCard({ jobKey, jobTitle, navigate }) {
-  const { state, step, result, message, retry, regenerate } = useKecocokan({ jobKey, jobTitle });
+  const { state, step, result, message, retry, generate, regenerate } = useKecocokan({ jobKey, jobTitle });
   const go = (menu) => (navigate ? navigate(menu) : (window.location.href = `/?view=${menu}`));
   const isDone = state === 'done' && result;
 
@@ -77,6 +77,14 @@ export default function KecocokanCard({ jobKey, jobTitle, navigate }) {
         <div className="kcc-body">
           <p className="kcc-text">Unggah CV di profil kamu, lalu kami hitung kecocokannya dengan setiap lowongan yang kamu buka.</p>
           <button type="button" className="kcc-btn" onClick={() => go('profil-pelamar_001')}>Unggah CV di profil</button>
+        </div>
+      )}
+
+      {state === 'ready' && (
+        <div className="kcc-body">
+          <p className="kcc-text">CV kamu sudah siap dicocokkan dengan lowongan ini. Klik tombol di bawah untuk melihat hasilnya.</p>
+          <button type="button" className="kcc-btn" onClick={generate}>Cek kecocokan sekarang</button>
+          <p className="kcc-hint">Hasilnya tersimpan, jadi tidak perlu dihitung ulang kalau kamu membuka lowongan ini lagi.</p>
         </div>
       )}
 

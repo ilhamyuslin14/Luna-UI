@@ -6,6 +6,7 @@ import SumberLowonganBadge from '../../components/lowongan/SumberLowonganBadge.j
 import LaporanKendalaForm from '../../components/lowongan/LaporanKendalaForm.jsx';
 import KecocokanCard from '../../components/lowongan/KecocokanCard.jsx';
 import ShareButton from '../../components/lowongan/ShareButton.jsx';
+import { itemProfilPerusahaan } from '../../utils/profilPerusahaan.js';
 import LowonganHeader, { ViewCountBadge } from '../../components/lowongan/LowonganHeader.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
@@ -141,6 +142,7 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
             companyName={job.company_name}
             logoUrl={job.logo_url}
             badges={<><SumberLowonganBadge job={job} /><ViewCountBadge count={viewCount} /></>}
+            companyInfo={itemProfilPerusahaan(job)}
             title={job.title}
             meta={[
               job.location && { icon: 'pin', text: job.location },

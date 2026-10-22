@@ -100,6 +100,8 @@ function toExternalJob(row) {
     external_url: row.external_url,
     description: row.description,
     view_count: row.view_count ?? 0,
+    company_industry: row.company_industry || null,
+    company_size: row.company_size || null,
   };
 }
 

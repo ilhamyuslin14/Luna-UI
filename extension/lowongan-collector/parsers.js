@@ -119,6 +119,8 @@ export function buildRecord(raw, { source, url, now = new Date() }) {
     salary_text: salary.text,
     salary_raw: raw.salaryText || null,
     logo_url: raw.logoUrl || null,
+    company_industry: (raw.companyIndustry || '').trim() || null,
+    company_size: (raw.companySize || '').trim() || null,
     description: (raw.description || '').trim(),
     posted_at: parsePosted(raw.postedText, now) || ymd(now),
   };
