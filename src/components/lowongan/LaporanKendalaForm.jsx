@@ -3,7 +3,7 @@ import '../../../css/lowongan/laporan-kendala.css';
 
 // Isi dialog "Laporkan kendala" untuk lowongan eksternal. Dipakai di modal
 // (desktop) dan bottom sheet (mobile); pembungkusnya yang beda, formnya sama.
-export default function LaporanKendalaForm({ laporan, sourceLabel }) {
+export default function LaporanKendalaForm({ laporan }) {
   const { alasan, setAlasan, catatan, setCatatan, state, kirimLaporan, tutupLaporan } = laporan;
   const sending = state === 'sending';
 
@@ -14,7 +14,7 @@ export default function LaporanKendalaForm({ laporan, sourceLabel }) {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </span>
         <h4>Terima kasih atas laporanmu</h4>
-        <p>Tim kami akan memeriksa lowongan ini dan menonaktifkannya kalau memang sudah tidak tersedia di {sourceLabel}.</p>
+        <p>Tim kami akan memeriksa lowongan ini dan menonaktifkannya kalau memang sudah tidak tersedia.</p>
         <button type="button" className="lkd-btn primary" onClick={tutupLaporan}>Tutup</button>
       </div>
     );

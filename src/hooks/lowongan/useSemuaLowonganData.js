@@ -8,6 +8,7 @@ import { getAllJobs } from '../../services/lowonganPublikService.js';
 // (SemuaLowongan.jsx) dan mobile (SemuaLowonganMobile.jsx).
 export const SEMUA_LOWONGAN_SORT_OPTIONS = [
   { value: 'terbaru', label: 'Terbaru' },
+  { value: 'gaji', label: 'Gaji tertinggi' },
   { value: 'az', label: 'Nama A-Z' },
   { value: 'za', label: 'Nama Z-A' },
 ];
@@ -117,6 +118,13 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
 
   const sortedJobs = useMemo(() => {
     if (sort === 'terbaru') return filteredJobs;
+    if (sort === 'gaji') {
+      // Dibandingkan dari batas atas gaji bulanan. Yang tanpa nominal atau bukan siklus
+      // bulanan tidak bisa dibandingkan, jadi ditaruh di bawah. Sort stabil: urutan
+      // "terbaru" tetap berlaku di antara gaji yang sama.
+      const tertinggi = (job) => jobGajiRange(job)?.[1] ?? -1;
+      return [...filteredJobs].sort((a, b) => tertinggi(b) - tertinggi(a));
+    }
     return [...filteredJobs].sort((a, b) => {
       const cmp = (a.title || '').localeCompare(b.title || '', 'id');
       return sort === 'az' ? cmp : -cmp;

@@ -9,7 +9,6 @@ import LowonganShareSheet from '../../components/LowonganShareSheet.jsx';
 import MobileToast from '../../components/MobileToast.jsx';
 import { itemProfilPerusahaan } from '../../../utils/profilPerusahaan.js';
 import LowonganHeader, { ViewCountBadge } from '../../../components/lowongan/LowonganHeader.jsx';
-import SumberLowonganBadge from '../../../components/lowongan/SumberLowonganBadge.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 import '../../../../css/mobile/lowongan/semua-lowongan_002.css';
 import '../../../../css/mobile/lowongan/laman-karir-eksternal.css';
@@ -63,7 +62,6 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
     );
   }
 
-  const sumber = job.source_label;
 
   return (
     <div className="lk-page">
@@ -95,7 +93,7 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
         <LowonganHeader
           companyName={job.company_name}
           logoUrl={job.logo_url}
-          badges={<><SumberLowonganBadge job={job} /><ViewCountBadge count={viewCount} /></>}
+          badges={<ViewCountBadge count={viewCount} />}
           companyInfo={itemProfilPerusahaan(job)}
           title={job.title}
           meta={[
@@ -118,7 +116,6 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
           <div className="lk-detail-row"><span>Ikatan Kerja</span><span>{job.employment_label || '-'}</span></div>
           <div className="lk-detail-row"><span>Upah / Gaji</span><span style={!job.salary_text_only ? { color: 'var(--luna-orange-600)' } : { color: 'var(--luna-ink-400)', fontWeight: 500 }}>{job.salary_label}</span></div>
           <div className="lk-detail-row"><span>Tanggal Posting</span><span>{formatTanggalPosting(job.posted_at)}</span></div>
-          <div className="lk-detail-row"><span>Sumber</span><span>{sumber}</span></div>
         </div>
 
         <div className="lk-card">
@@ -131,10 +128,6 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
         </div>
 
         <div className="lk-card">
-          <div className="lk-card-title">Tentang lamaran ini</div>
-          <ul className="lkem-notes">
-            <li>Kamu akan dialihkan ke halaman resmi {sumber}.</li>
-          </ul>
           <div className="lkem-report">
             <span>Lowongan sudah ditutup atau link bermasalah?</span>
             <button type="button" className="lkem-report-btn" onClick={laporan.bukaLaporan}><IconFlag />Laporkan kendala</button>
@@ -174,11 +167,11 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
 
       <div className="lk-stickybar">
         <div className="lk-stickybar-info">
-          <div className="lk-stickybar-label">Dikelola oleh</div>
-          <div className="lk-stickybar-val">{sumber}</div>
+          <div className="lk-stickybar-label">Upah / Gaji</div>
+          <div className="lk-stickybar-val">{job.salary_label}</div>
         </div>
         <a className="lk-apply-btn lkem-apply" href={job.external_url} target="_blank" rel="noopener noreferrer nofollow">
-          Lamar Lowongan<IconExternal />
+          Lamar Sekarang<IconExternal />
         </a>
       </div>
 
@@ -188,7 +181,7 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
           <div className={`msh-sheet${laporan.open ? ' open' : ''}`}>
             <div className="msh-sheet-handle" />
             <div className="lkem-sheet-body">
-              <LaporanKendalaForm laporan={laporan} sourceLabel={sumber} />
+              <LaporanKendalaForm laporan={laporan} />
             </div>
           </div>
         </>,

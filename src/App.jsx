@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import MobileApp from './mobile/MobileApp.jsx';
+import MockupApp from './mockup/MockupApp.jsx';
 import Navbar from './components/Navbar.jsx';
 import Sidebar_001 from './components/Sidebar_001.jsx';
 import TourGuide_001 from './components/TourGuide_001.jsx';
@@ -76,6 +77,8 @@ import ProfilPelamar_001 from './views/pelamar/ProfilPelamar_001.jsx';
 import StatusLamaran_001 from './views/pelamar/StatusLamaran_001.jsx';
 import PelamarMasuk_001 from './views/pelamar/PelamarMasuk_001.jsx';
 import PelamarDaftar_001 from './views/pelamar/PelamarDaftar_001.jsx';
+import PelamarVerifikasiOtp_001 from './views/pelamar/PelamarVerifikasiOtp_001.jsx';
+import PelamarOnboarding_001 from './views/pelamar/PelamarOnboarding_001.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
 const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
 
@@ -233,7 +236,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'mockup'];
     const authMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -244,6 +247,9 @@ export default function App() {
       navigate('beranda_002');
     }
   }, [user, loading, activeMenu]);
+
+  // Mockup presentasi pelamar (data dummy, tanpa auth/database) berdiri sendiri; lihat src/mockup/MockupApp.jsx.
+  if (activeMenu === 'mockup') return <MockupApp />;
 
   if (loading) {
     return (
@@ -307,6 +313,14 @@ export default function App() {
 
   if (activeMenu === 'pelamar-daftar') {
     return <PelamarDaftar_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'pelamar-verifikasi-otp') {
+    return <PelamarVerifikasiOtp_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'pelamar-onboarding') {
+    return <PelamarOnboarding_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage') {

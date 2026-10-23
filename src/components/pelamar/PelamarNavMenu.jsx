@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 // Menu akun pelamar (avatar pill + dropdown) dipakai di SEMUA navbar yang
@@ -102,7 +103,7 @@ export default function PelamarNavMenu({ navigate, pelamarProfile }) {
         )}
       </div>
 
-      {showLogoutConfirm && (
+      {showLogoutConfirm && createPortal(
         <div className="pp001-modal-overlay" onClick={() => setShowLogoutConfirm(false)} style={{ zIndex: 10000 }}>
           <div
             className="pp001-modal-card"
@@ -130,7 +131,8 @@ export default function PelamarNavMenu({ navigate, pelamarProfile }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

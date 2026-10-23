@@ -2,11 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { supabase } from '../../config/supabase.js';
 import { getPelamarResume } from '../../services/pelamarResumeService.js';
+import { mulaiHitung, sedangDihitung } from '../../services/kecocokanService.js';
 import { STEPS, dummyResult } from './useKecocokanDummy.js';
 
 // Kecocokan CV pelamar dengan satu lowongan. Hasil dihitung edge function
 // `hitung-kecocokan` dan disimpan di public.pelamar_kecocokan; hook ini hanya
 // membaca hasil tersimpan (lewat RLS) atau meminta fungsi menghitungnya.
+// Permintaan yang sedang berjalan dicatat di kecocokanService, jadi komponen yang
+// dipasang ulang (mis. panel detail ditutup lalu dibuka lagi) menyambung ke prosesnya.
 //
 // Untuk pratinjau tampilan tanpa data sungguhan, query URL tetap didukung:
 //   ?kecocokan=guest | no-cv | ready | processing | done | error | limit
@@ -25,7 +28,7 @@ function rowToResult(row) {
   };
 }
 
-export default function useKecocokan({ jobKey, jobTitle }) {
+export default function useKecocokan({ jobKey, jobTitle, tundaOtomatis = 0 }) {
   const { user, isPelamar } = useAuth() || {};
   const demo = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('kecocokan') : null;
 
@@ -40,23 +43,19 @@ export default function useKecocokan({ jobKey, jobTitle }) {
 
   // Animasi langkah berjalan sambil menunggu AI, tapi berhenti di langkah terakhir
   // sampai hasilnya benar-benar datang (tidak pernah menampilkan "selesai" duluan).
-  const startSteps = (id) => {
-    setStep(0);
-    for (let i = 1; i < STEPS.length; i++) {
-      timers.current.push(setTimeout(() => { if (runId.current === id) setStep(i); }, STEP_MS * i));
+  // `elapsed` = sudah berapa lama prosesnya berjalan, supaya yang disambung tidak mulai dari nol.
+  const startSteps = (id, elapsed = 0) => {
+    const mulai = Math.min(STEPS.length - 1, Math.floor(elapsed / STEP_MS));
+    setStep(mulai);
+    for (let i = mulai + 1; i < STEPS.length; i++) {
+      timers.current.push(setTimeout(() => { if (runId.current === id) setStep(i); }, Math.max(0, STEP_MS * i - elapsed)));
     }
   };
 
-  const hitung = useCallback(async (force) => {
-    clearTimers();
-    const id = ++runId.current;
-    setResult(null);
-    setMessage('');
-    setState('processing');
-    startSteps(id);
-
+  // Menunggu hasil sebuah permintaan (baru, atau yang sudah berjalan sebelumnya).
+  const tunggu = useCallback(async (job, id) => {
     try {
-      const { data, error } = await supabase.functions.invoke('hitung-kecocokan', { body: { jobKey, force: !!force } });
+      const { data, error } = await job.promise;
       if (runId.current !== id) return;
       clearTimers();
       if (error) throw new Error(error.message || 'Gagal menghubungi server.');
@@ -74,7 +73,18 @@ export default function useKecocokan({ jobKey, jobTitle }) {
       clearTimers();
       setState('error');
     }
-  }, [jobKey]);
+  }, []);
+
+  const hitung = useCallback((force) => {
+    clearTimers();
+    const id = ++runId.current;
+    setResult(null);
+    setMessage('');
+    setState('processing');
+    const job = mulaiHitung(user?.id, jobKey, force);
+    startSteps(id, Date.now() - job.mulai);
+    return tunggu(job, id);
+  }, [jobKey, user?.id, tunggu]);
 
   useEffect(() => {
     let active = true;
@@ -94,6 +104,19 @@ export default function useKecocokan({ jobKey, jobTitle }) {
     }
 
     if (!isPelamar || !user?.id) { setState('guest'); return undefined; }
+
+    // Proses untuk lowongan ini masih berjalan (mis. panel ditutup lalu dibuka lagi):
+    // langsung tampilkan "sedang diproses" dan sambung, jangan mulai dari keadaan awal.
+    const berjalan = sedangDihitung(user.id, jobKey);
+    if (berjalan) {
+      const id = ++runId.current;
+      setResult(null);
+      setMessage('');
+      setState('processing');
+      startSteps(id, Date.now() - berjalan.mulai);
+      tunggu(berjalan, id);
+      return () => { active = false; clearTimers(); };
+    }
 
     setState('checking');
     (async () => {
@@ -125,6 +148,12 @@ export default function useKecocokan({ jobKey, jobTitle }) {
         if (!active) return;
         if (manual) { setState('ready'); return; }
 
+        // Jeda opsional (panel detail di daftar lowongan): lowongan yang hanya dilewati saat
+        // menelusuri cepat tidak memicu perhitungan AI.
+        if (tundaOtomatis > 0) {
+          timers.current.push(setTimeout(() => { if (active) hitung(false); }, tundaOtomatis));
+          return;
+        }
         hitung(false);
       } catch (err) {
         console.error('Gagal memuat kecocokan:', err);
@@ -133,7 +162,7 @@ export default function useKecocokan({ jobKey, jobTitle }) {
     })();
 
     return () => { active = false; clearTimers(); };
-  }, [demo, isPelamar, user?.id, jobKey, jobTitle, hitung]);
+  }, [demo, isPelamar, user?.id, jobKey, jobTitle, hitung, tunggu, tundaOtomatis]);
 
   const retry = useCallback(() => hitung(false), [hitung]);
   // Mode manual: dijalankan saat pelamar menekan "Cek kecocokan".

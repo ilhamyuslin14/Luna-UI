@@ -1,0 +1,49 @@
+/* ─── LUNA UI — Verifikasi OTP Pelamar (mockup) ─── */
+/* Memakai shell dan komponen dasar .pm001- dari pelamar-masuk_001.css; di sini hanya
+   bagian khusus OTP: kotak kode, spinner pengiriman, dan blok kirim ulang. */
+
+.pm001-otp-sending { text-align: center; padding: 24px 0; }
+.pm001-otp-sending h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 21px; font-weight: 800; color: var(--luna-ink-900, #0A0908); margin: 22px 0 6px; }
+.pm001-otp-sending p { font-size: 12.5px; color: var(--luna-ink-500, #5E5C56); line-height: 1.55; margin: 0; }
+
+.pm001-otp-spinner {
+  width: 48px; height: 48px; margin: 0 auto; border-radius: 50%;
+  border: 4px solid rgba(255, 123, 0, 0.15);
+  border-top-color: var(--luna-orange-500, #FF7B00);
+  animation: pm001-otp-spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+}
+@keyframes pm001-otp-spin { to { transform: rotate(360deg); } }
+
+.pm001-otp-email { color: var(--luna-ink-900, #0A0908); word-break: break-all; }
+
+.pm001-otp-boxes { display: flex; justify-content: space-between; gap: 10px; margin: 4px 0 18px; }
+.pm001-otp-box {
+  flex: 1 1 0; min-width: 0; max-width: 56px; aspect-ratio: 1 / 1.08;
+  box-sizing: border-box; text-align: center;
+  border: 1.5px solid var(--luna-ink-100, #EFEEEC); border-radius: 11px; background: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--luna-ink-900, #0A0908);
+  caret-color: var(--luna-orange-500, #FF7B00); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pm001-otp-box:focus { border-color: var(--luna-orange-400, #FF8D21); box-shadow: 0 0 0 3px rgba(255, 141, 33, 0.16); }
+.pm001-otp-box.filled { border-color: var(--luna-orange-500, #FF7B00); }
+
+.pm001-otp-submit { margin-top: 6px; }
+
+.pm001-otp-resend { margin-top: 22px; text-align: center; }
+.pm001-otp-resend p { margin: 0 0 6px; font-size: 12.5px; color: var(--luna-ink-600, #5E5C56); }
+.pm001-otp-resend button {
+  background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 800;
+  color: var(--luna-orange-500, #FF7B00); text-decoration: underline;
+}
+.pm001-otp-resend button:disabled { color: var(--luna-ink-300, #B8B5AE); text-decoration: none; cursor: default; }
+.pm001-otp-resend button:not(:disabled):hover { color: var(--luna-orange-600, #D66800); }
+
+@media (max-width: 380px) {
+  .pm001-otp-boxes { gap: 6px; }
+  .pm001-otp-box { font-size: 18px; border-radius: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm001-otp-spinner { animation-duration: 3s; }
+}

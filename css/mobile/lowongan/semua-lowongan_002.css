@@ -56,9 +56,13 @@
 .src-badge.ext { background: #EEF2F7; color: var(--karir-ink-600, #475569); }
 .src-badge.ext .src-ic { background: var(--karir-navy-800, #1E293B); color: #fff; }
 .src-badge.sl2m-src { font-size: 9.5px; padding: 4px 7px; margin-bottom: 5px; }
-.sl2m-job.ext .sl2m-job-bar { background: #CBD5E1; }
 .sl2m-job-logo.has-img { border: 1px solid var(--karir-border, #E2E8F0); box-sizing: border-box; }
 .sl2m-job-logo.has-img img { object-fit: contain; padding: 3px; box-sizing: border-box; }
+.sl2m-job-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #F1F5F9; }
+.sl2m-job-bottom .sl2m-job-salary { margin: 0; padding: 0; border: 0; min-width: 0; }
+.sl2m-job-apply { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px 0 15px; border: 1.5px solid var(--karir-primary, #FF8D21); border-radius: 10px; background: #fff; color: #C2410C; font-family: 'Inter Tight', sans-serif; font-size: 12.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.sl2m-job-apply:active { background: #FFF4EC; }
+.sl2m-job.active { border-color: var(--karir-primary, #FF8D21); }
 .sl2m-job-salary.muted { font-weight: 600; color: var(--karir-ink-400, #94A3B8); }
 .sl2m-job-salary { margin-top: 10px; padding-top: 10px; border-top: 1px solid #F1F5F9; font-size: 12px; font-weight: 700; color: var(--karir-ink-900, #0F172A); }
 

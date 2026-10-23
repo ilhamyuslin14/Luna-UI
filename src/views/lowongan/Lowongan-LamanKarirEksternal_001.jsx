@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import useLamanKarirEksternalData, { formatTanggalPosting, formatDeskripsiEksternal, formatWaktuPosting } from '../../hooks/lowongan/useLamanKarirEksternalData.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
-import SumberLowonganBadge from '../../components/lowongan/SumberLowonganBadge.jsx';
 import LaporanKendalaForm from '../../components/lowongan/LaporanKendalaForm.jsx';
 import KecocokanCard from '../../components/lowongan/KecocokanCard.jsx';
 import ShareButton from '../../components/lowongan/ShareButton.jsx';
@@ -92,8 +91,6 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
     );
   }
 
-  const sumber = job.source_label;
-
   return (
     <div className="lk-page-wrapper">
       {copied && (
@@ -141,7 +138,7 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
           <LowonganHeader
             companyName={job.company_name}
             logoUrl={job.logo_url}
-            badges={<><SumberLowonganBadge job={job} /><ViewCountBadge count={viewCount} /></>}
+            badges={<ViewCountBadge count={viewCount} />}
             companyInfo={itemProfilPerusahaan(job)}
             title={job.title}
             meta={[
@@ -183,10 +180,6 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
                 <span className="lk-detail-row-label">Tanggal Posting</span>
                 <span className="lk-detail-row-value">{formatTanggalPosting(job.posted_at)}</span>
               </div>
-              <div className="lk-detail-row-001">
-                <span className="lk-detail-row-label">Sumber</span>
-                <span className="lk-detail-row-value">{sumber}</span>
-              </div>
             </div>
           </div>
 
@@ -204,7 +197,7 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
           <div className="lk-apply-card">
             <div className="lk-apply-header">
               <h3 className="lk-apply-title">Lamar Lowongan Ini</h3>
-              <p className="lk-apply-sub">Lowongan ini dikelola oleh {sumber}. Lamaran dikirim langsung di sana.</p>
+              <p className="lk-apply-sub">Tertarik dengan lowongan ini? Lamar sekarang.</p>
             </div>
 
             <a
@@ -213,13 +206,9 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
               target="_blank"
               rel="noopener noreferrer nofollow"
             >
-              <span>Lamar Lowongan</span>
+              <span>Lamar Sekarang</span>
               <IconExternal />
             </a>
-
-            <ul className="lke-apply-notes">
-              <li>Kamu akan dialihkan ke halaman resmi {sumber}.</li>
-            </ul>
 
             <div className="lke-report">
               <span>Lowongan sudah ditutup atau link bermasalah?</span>
@@ -270,7 +259,7 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
       {laporan.open && (
         <div className="lke-modal-overlay" onClick={laporan.tutupLaporan}>
           <div className="lke-modal-card" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
-            <LaporanKendalaForm laporan={laporan} sourceLabel={sumber} />
+            <LaporanKendalaForm laporan={laporan} />
           </div>
         </div>
       )}

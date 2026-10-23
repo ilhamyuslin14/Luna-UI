@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { OTP_MOCKUP_AKTIF, simpanEmailOtp } from '../../utils/pelamarOtpMockup.js';
 import '../../../css/pelamar/pelamar-masuk_001.css';
 
 // Daftar pakai Supabase Auth sungguhan (akun pelamar hidup di
@@ -44,7 +45,11 @@ export default function PelamarDaftar_001({ navigate }) {
     setError('');
     try {
       const { session } = await registerPelamar(email.trim(), password, { nama_lengkap: nama.trim() });
-      if (session) {
+      if (OTP_MOCKUP_AKTIF) {
+        // Mockup alur verifikasi OTP email (belum ada pengiriman sungguhan); lihat utils/pelamarOtpMockup.js.
+        simpanEmailOtp(email.trim());
+        navigate?.('pelamar-verifikasi-otp');
+      } else if (session) {
         navigate?.('profil-pelamar_001');
       } else {
         // Proyek ini mewajibkan konfirmasi email — belum ada sesi aktif

@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import useKecocokan from '../../hooks/lowongan/useKecocokan.js';
 import { STEPS, labelFor } from '../../hooks/lowongan/useKecocokanDummy.js';
+import { VARIAN_KECOCOKAN_DEFAULT } from './kecocokanVarian.js';
 import '../../../css/lowongan/kecocokan-card.css';
 
 const IconSpark = () => (
@@ -49,10 +51,15 @@ function ScoreBanner({ score, onRefresh }) {
 
 // Kartu "Kecocokan dengan CV kamu" di laman detail lowongan (Luna & eksternal).
 // Hasilnya dari edge function hitung-kecocokan (lihat useKecocokan).
-export default function KecocokanCard({ jobKey, jobTitle, navigate }) {
-  const { state, step, result, message, retry, generate, regenerate } = useKecocokan({ jobKey, jobTitle });
+export default function KecocokanCard({ jobKey, jobTitle, navigate, varian = VARIAN_KECOCOKAN_DEFAULT, onHasil, tundaOtomatis = 0 }) {
+  const { state, step, result, message, retry, generate, regenerate } = useKecocokan({ jobKey, jobTitle, tundaOtomatis });
   const go = (menu) => (navigate ? navigate(menu) : (window.location.href = `/?view=${menu}`));
   const isDone = state === 'done' && result;
+
+  // Kabari halaman induk saat hasil tersedia (mis. untuk tag skor di daftar lowongan).
+  useEffect(() => {
+    if (isDone && onHasil) onHasil(result.score, result.label);
+  }, [isDone, result?.score]);
 
   return (
     <section className={`kcc-card${isDone ? ' is-done' : ''}`} aria-live="polite">
@@ -122,6 +129,7 @@ export default function KecocokanCard({ jobKey, jobTitle, navigate }) {
       {isDone && (
         <>
           <ScoreBanner score={result.score} onRefresh={regenerate} />
+          {varian === 'lengkap' && (
           <div className="kcc-body kcc-done-body">
             {result.pros.length > 0 && (
             <div className="kcc-group">
@@ -142,6 +150,7 @@ export default function KecocokanCard({ jobKey, jobTitle, navigate }) {
 
             <p className="kcc-hint">Dihitung otomatis oleh Luna dari CV dan deskripsi lowongan. Bukan penentu keputusan perekrut.</p>
           </div>
+          )}
         </>
       )}
     </section>

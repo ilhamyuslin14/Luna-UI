@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const EXIT_DURATION = 180;
 
@@ -11,7 +12,9 @@ export default function PopupKonfirmasi({ title, body, confirmLabel = 'Konfirmas
     setTimeout(action, EXIT_DURATION);
   };
 
-  return (
+  // Lewat portal ke <body>: dipanggil dari dalam navbar yang punya backdrop-filter/sticky, position: fixed
+  // jadi terjebak di area navbar dan popup muncul di atas halaman, bukan di tengah.
+  return createPortal(
     <div className={`cm-overlay${closing ? ' cm-closing' : ''}`} onClick={() => dismiss(onClose)}>
       <div className="cm-modal" onClick={e => e.stopPropagation()}>
         <div className="cm-text">
@@ -23,6 +26,7 @@ export default function PopupKonfirmasi({ title, body, confirmLabel = 'Konfirmas
           <button className={`cm-btn-confirm${danger ? ' danger' : ''}`} onClick={() => dismiss(onConfirm)}>{confirmLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -4,8 +4,11 @@ import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, 
 import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import PelamarMobileNav from '../../../components/pelamar/PelamarMobileNav.jsx';
-import SumberLowonganBadge from '../../../components/lowongan/SumberLowonganBadge.jsx';
 import CompanyLogoBox from '../../../components/lowongan/CompanyLogoBox.jsx';
+import LowonganDrawer from '../../../components/lowongan/LowonganDrawer.jsx';
+import KecocokanMini from '../../../components/lowongan/KecocokanMini.jsx';
+import useKecocokanSkor from '../../../hooks/lowongan/useKecocokanSkor.js';
+import { bukaLamar } from '../../../utils/lamarLowongan.js';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 import '../../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../../css/mobile/lowongan/semua-lowongan_002.css';
@@ -20,7 +23,6 @@ const IconSearch = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 const IconFilter = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7" /><circle cx="9" cy="7" r="2" fill="currentColor" stroke="none" /><line x1="4" y1="12" x2="20" y2="12" /><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none" /><line x1="4" y1="17" x2="20" y2="17" /><circle cx="11" cy="17" r="2" fill="currentColor" stroke="none" /></svg>);
 const IconSort = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M7 12h10M11 18h2" /></svg>);
 const IconCheck = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>);
-const IconBookmark = ({ filled }) => (<svg viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>);
 const IconChevronLeft = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M15 6l-6 6 6 6" /></svg>);
 const IconChevronRight = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>);
 const IconLinkedIn = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /><path d="M10 9v12M10 13a4 4 0 0 1 8 0v8" /></svg>);
@@ -129,31 +131,25 @@ export default function SemuaLowonganMobile_002({ navigate }) {
     gajiBucket, toggleGajiBucket,
     resetFilters, activeFilterCount,
     pagedJobs, totalPages,
-  } = useSemuaLowonganData(6, { includeExternal: true });
+  } = useSemuaLowonganData(10, { includeExternal: true });
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [savedJobs, setSavedJobs] = useState(() => new Set());
-  const toggleSaveJob = (e, jobId) => {
-    e.stopPropagation();
-    setSavedJobs(prev => {
-      const next = new Set(prev);
-      next.has(jobId) ? next.delete(jobId) : next.add(jobId);
-      return next;
-    });
-  };
 
-  const openJob = (job) => {
-    const view = job.is_external ? 'laman-karir-eksternal' : 'laman-karir';
-    const url = job.kode ? `/?view=${view}&kode=${encodeURIComponent(job.kode)}` : `/?view=${view}&jabatan=${encodeURIComponent(job.title)}`;
-    window.open(url, '_blank');
-  };
+  // Klik kartu membuka lembar detail dari bawah; "Lamar Sekarang" langsung ke tujuan lamaran.
+  const [drawerJob, setDrawerJob] = useState(null);
+  const { skorMap, setSkor } = useKecocokanSkor();
+  const openJob = (job) => setDrawerJob(job);
+  const lamar = (e, job) => { e.stopPropagation(); bukaLamar(job); };
 
   const popularSearches = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
   const currentSortLabel = SEMUA_LOWONGAN_SORT_OPTIONS.find(o => o.value === sort)?.label || 'Terbaru';
 
   return (
     <div className="sl2m-page">
+      {drawerJob && (
+        <LowonganDrawer job={drawerJob} navigate={navigate} onClose={() => setDrawerJob(null)} onHasilKecocokan={setSkor} />
+      )}
       <div className="lk-head">
         <a className="lk-logo" href="/?view=semua-lowongan_002">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
@@ -204,15 +200,13 @@ export default function SemuaLowonganMobile_002({ navigate }) {
         ) : pagedJobs.length > 0 ? (
           pagedJobs.map(job => {
             const companyName = job.company_name;
-            const isSaved = savedJobs.has(job.key);
             return (
-              <article key={job.key} className={`sl2m-job${job.is_external ? ' ext' : ''}`} onClick={() => openJob(job)}>
+              <article key={job.key} className="sl2m-job" onClick={() => openJob(job)}>
                 <span className="sl2m-job-bar" />
                 <div className="sl2m-job-content">
                   <div className="sl2m-job-top">
                     <CompanyLogoBox className="sl2m-job-logo" src={job.logo_url} alt={companyName} color={avatarColor(companyName)} initials={initials(companyName)} />
                     <div className="sl2m-job-body">
-                      <SumberLowonganBadge job={job} className="sl2m-src" />
                       <h4 className="sl2m-job-title">{job.title}</h4>
                       <div className="sl2m-job-meta">
                         <b>{companyName}</b>
@@ -225,16 +219,14 @@ export default function SemuaLowonganMobile_002({ navigate }) {
                         {job.experience_label && <span>{job.experience_label}</span>}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className={`sl2m-save-btn${isSaved ? ' active' : ''}`}
-                      onClick={e => toggleSaveJob(e, job.key)}
-                      aria-label={isSaved ? 'Hapus dari lowongan tersimpan' : 'Simpan lowongan'}
-                    >
-                      <IconBookmark filled={isSaved} />
-                    </button>
+                    {skorMap[job.key] != null
+                      ? <KecocokanMini score={skorMap[job.key]} />
+                      : isPelamar && <KecocokanMini ghost />}
                   </div>
-                  {job.salary_label && <div className={`sl2m-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div>}
+                  <div className="sl2m-job-bottom">
+                    {job.salary_label ? <div className={`sl2m-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div> : <span />}
+                    <button type="button" className="sl2m-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                  </div>
                 </div>
               </article>
             );
