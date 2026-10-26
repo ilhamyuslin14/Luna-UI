@@ -18,6 +18,14 @@ async function lookup(record) {
   return { existing: null, similar: similar || [] };
 }
 
+// Dari sekumpulan ID lowongan, mana yang sudah ada di Luna (untuk mode otomatis: yang sudah ada tidak perlu diklik).
+async function exists(source, ids) {
+  const bersih = (ids || []).map((i) => String(i).replace(/[^\d]/g, '')).filter(Boolean);
+  if (!bersih.length) return { ids: [] };
+  const rows = await api(`lowongan_eksternal?select=external_id&source=eq.${enc(source)}&external_id=in.(${bersih.join(',')})`);
+  return { ids: (rows || []).map((r) => String(r.external_id)) };
+}
+
 async function save(record) {
   const { existing, similar } = await lookup(record);
   await api('lowongan_eksternal?on_conflict=source,external_id', {
@@ -42,7 +50,8 @@ async function shortcuts() {
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   const run = msg?.type === 'lookup' ? lookup(msg.record)
     : msg?.type === 'save' ? save(msg.record)
-      : msg?.type === 'shortcuts' ? shortcuts()
+      : msg?.type === 'exists' ? exists(msg.source, msg.ids)
+        : msg?.type === 'shortcuts' ? shortcuts()
         : Promise.reject(new Error('Pesan tidak dikenal.'));
   run.then((data) => sendResponse({ ok: true, ...data }))
     .catch((e) => sendResponse({ ok: false, error: e.message || 'Terjadi kesalahan.' }));

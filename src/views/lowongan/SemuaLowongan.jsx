@@ -1,3 +1,4 @@
+import { halamanRingkas, ELIPSIS } from '../../utils/paginasi.js';
 import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
 import { formatUpah } from '../../hooks/lowongan/useLamanKarirData.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
@@ -223,7 +224,9 @@ export default function SemuaLowongan({ navigate }) {
                   <button className="sl-page-btn" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  {halamanRingkas(page, totalPages).map((p, i) => p === ELIPSIS ? (
+                    <span key={`e${i}`} className="pg-ellipsis" aria-hidden="true">…</span>
+                  ) : (
                     <button key={p} className={`sl-page-btn${p === page ? ' active' : ''}`} onClick={() => setPage(p)}>
                       {p}
                     </button>

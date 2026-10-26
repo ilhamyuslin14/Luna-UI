@@ -1,6 +1,7 @@
 // MOCKUP: salinan SemuaLowongan_002 untuk presentasi. Data dari LOWONGAN_DUMMY, sesi dari MockSession, tanpa
 // database. Ubah tampilan asli di views/lowongan/SemuaLowongan_002.jsx; salin ulang perubahan visual ke sini bila perlu.
 import { useEffect, useRef, useState } from 'react';
+import { halamanRingkas, ELIPSIS } from '../../utils/paginasi.js';
 import { LOWONGAN_DUMMY } from '../data/lowonganDummy.js';
 import useSemuaLowonganMock, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../hooks/useSemuaLowonganMock.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
@@ -323,7 +324,9 @@ export default function SemuaLowonganMock({ navigate, awal }) {
                 <button className="sl2-page-btn" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                {halamanRingkas(page, totalPages).map((p, i) => p === ELIPSIS ? (
+                  <span key={`e${i}`} className="pg-ellipsis" aria-hidden="true">…</span>
+                ) : (
                   <button key={p} className={`sl2-page-btn${p === page ? ' active' : ''}`} onClick={() => setPage(p)}>{p}</button>
                 ))}
                 <button className="sl2-page-btn" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>

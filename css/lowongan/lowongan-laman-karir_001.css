@@ -2317,3 +2317,6 @@ a.lk-navy-company-card:hover {
   .lk-job-row { flex-direction: column; align-items: stretch; }
   .lk-job-row-side { justify-content: space-between; }
 }
+
+/* Elipsis paginasi ringkas (… antar nomor halaman), dipakai bersama di daftar lowongan */
+.pg-ellipsis { min-width: 22px; height: 30px; display: inline-flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 14px; font-weight: 700; letter-spacing: 1px; user-select: none; }

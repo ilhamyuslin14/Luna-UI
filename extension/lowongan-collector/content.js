@@ -61,6 +61,22 @@
     .save .t { flex: 1; font-size: 13px; font-weight: 700; }
     .save kbd { background: rgba(0,0,0,.16); color: #fff; font-weight: 700; }
 
+    .d-auto { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .d-auto .d-label { padding-top: 2px; }
+    .a-row { display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; }
+    .a-row label { margin: 0; font-size: 10.5px; }
+    .a-pair { display: flex; align-items: center; gap: 5px; }
+    .a-pair span { color: #94a3b8; }
+    .d-auto input { padding: 5px 7px; font-size: 12px; text-align: center; }
+    .d-auto input:disabled { background: #f1f5f9; color: #94a3b8; }
+    .b-auto { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 12px; border: 1.5px solid #ff8d21; border-radius: 12px; background: #fff7ed; color: #c2410c; font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; transition: background .15s ease; }
+    .b-auto:hover { background: #ffedd5; }
+    .b-auto.stop { background: #dc2626; border-color: #dc2626; color: #fff; }
+    .b-auto.stop:hover { background: #b91c1c; }
+    .b-auto kbd { background: rgba(0,0,0,.08); }
+    .b-auto.stop kbd { background: rgba(0,0,0,.2); color: #fff; }
+    .a-line { font-size: 12px; font-weight: 700; color: #0f172a; }
+    .a-sub { font-size: 11.5px; color: #64748b; margin-top: 2px; word-break: break-word; }
     .d-log { padding: 2px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
     .d-log .d-label { padding: 8px 0 2px; }
     .d-log-empty { font-size: 12px; color: #64748b; padding: 2px 0 4px; }
@@ -148,6 +164,17 @@
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               <span class="t">Simpan ke Luna</span><kbd id="k-save-job"></kbd>
             </button>
+          </div>
+          <div class="d-auto">
+            <div class="d-label">Otomatis</div>
+            <div class="a-row">
+              <div><label for="a-batas">Maks. lowongan</label><input id="a-batas" type="number" min="1" max="1000" inputmode="numeric"></div>
+              <div><label for="a-jmin">Jeda antar lowongan (detik)</label>
+                <div class="a-pair"><input id="a-jmin" type="number" min="1" max="120" inputmode="numeric"><span>–</span><input id="a-jmaks" type="number" min="1" max="180" inputmode="numeric"></div>
+              </div>
+            </div>
+            <button class="b-auto" id="b-auto" type="button"><span class="t">Mulai otomatis</span><kbd id="k-toggle-auto"></kbd></button>
+            <div id="a-stat" aria-live="polite"></div>
           </div>
           <div class="d-log">
             <div class="d-label">Aktivitas</div>
@@ -559,6 +586,302 @@
     }
   }
 
+  // ── Otomatis: klik lowongan satu per satu, baca, simpan ─────────────────
+  // Mengulang pekerjaan yang biasa dilakukan tangan: klik kartu di daftar kiri, tunggu panel kanan
+  // berganti ke lowongan itu, baca dan simpan lewat jalur yang sama dengan tombol "Simpan ke Luna",
+  // lalu kartu berikutnya. Berjalan hanya setelah dinyalakan dari dock, dengan tab JobStreet terbuka.
+  // Pengaman: jeda acak antar lowongan, batas per jalan dan per hari, tombol/pintasan berhenti,
+  // dan berhenti sendiri bila halaman menampilkan pemeriksaan keamanan atau gagal beruntun.
+  const AUTO_DEFAULT = { batas: 300, jedaMin: 3, jedaMaks: 7, batasHari: 600 };
+  const AUTO_GAGAL_BERUNTUN = 3;
+  const CARD_SELECTOR = 'a[data-automation="job-list-item-link-overlay"]';
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const acak = (a, b) => a + Math.random() * Math.max(0, b - a);
+  const idDariHref = (h) => (String(h || '').match(/\/job\/(\d+)/) || [])[1] || null;
+  const hariIni = () => new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, zona waktu lokal
+
+  const auto = { aktif: false, henti: false, stats: null, batas: 0, status: '', sudah: new Set() };
+  const kosongStats = () => ({ diproses: 0, tersimpan: 0, diperbarui: 0, dilewati: 0, gagal: 0 });
+
+  function kartuTampak() {
+    const hasil = [];
+    const lihat = new Set();
+    document.querySelectorAll(CARD_SELECTOR).forEach((el) => {
+      const id = idDariHref(el.getAttribute('href'));
+      if (id && !lihat.has(id)) { lihat.add(id); hasil.push({ id, el }); }
+    });
+    return hasil;
+  }
+
+  // Pemeriksaan keamanan / penolakan akses: berhenti, jangan dilawan.
+  function anomali() {
+    const t = (document.title || '').toLowerCase();
+    if (/access denied|just a moment|attention required|captcha|are you human|too many requests|akses ditolak/.test(t)) {
+      return 'Halaman menampilkan pemeriksaan keamanan atau penolakan akses.';
+    }
+    // Hanya tantangan yang benar-benar tampil di layar. JobStreet memasang iframe captcha tak kasatmata (lencana
+    // reCAPTCHA kecil) di setiap halaman, jadi keberadaan iframe saja bukan tanda ada pemeriksaan.
+    const terlihat = (f) => {
+      const r = f.getBoundingClientRect();
+      const cs = getComputedStyle(f);
+      return r.width >= 280 && r.height >= 250 && cs.visibility !== 'hidden' && cs.display !== 'none' && parseFloat(cs.opacity || '1') > 0.1
+        && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+    };
+    if ([...document.querySelectorAll('iframe[src*="captcha" i], iframe[src*="recaptcha" i], iframe[src*="hcaptcha" i]')].some(terlihat)) {
+      return 'Halaman meminta verifikasi (captcha).';
+    }
+    return null;
+  }
+
+  function klikKartu(el, penuh) {
+    if (!penuh) { el.click(); return; }
+    // Cadangan: urutan peristiwa mouse lengkap, untuk halaman yang mendengarkan lebih dari "click".
+    for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+      el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+    }
+  }
+
+  // Tunggu panel kanan memuat lowongan dengan ID yang diklik (dan deskripsinya sudah terisi).
+  async function tungguPanel(id, batasMs) {
+    const mulai = Date.now();
+    while (Date.now() - mulai < batasMs) {
+      if (auto.henti) return null;
+      const rec = readPage();
+      if (rec && String(rec.external_id) === String(id) && rec.title && rec.description && rec.description.length > 30) return rec;
+      await sleep(250);
+    }
+    return null;
+  }
+
+  async function simpanSetelan(set) { try { await chrome.storage.local.set({ autoSet: set }); } catch { /* abaikan */ } }
+  async function bacaSetelan() {
+    try { const { autoSet } = await chrome.storage.local.get('autoSet'); return { ...AUTO_DEFAULT, ...(autoSet || {}) }; } catch { return { ...AUTO_DEFAULT }; }
+  }
+  const nilaiInput = (id, def, min, max) => {
+    const n = parseInt($(id)?.value, 10);
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def;
+  };
+  function setelanDariUi() {
+    const jedaMin = nilaiInput('a-jmin', AUTO_DEFAULT.jedaMin, 1, 120);
+    const jedaMaks = Math.max(jedaMin, nilaiInput('a-jmaks', AUTO_DEFAULT.jedaMaks, 1, 180));
+    return { batas: nilaiInput('a-batas', AUTO_DEFAULT.batas, 1, 1000), jedaMin, jedaMaks, batasHari: AUTO_DEFAULT.batasHari };
+  }
+
+  async function jumlahHariIni() {
+    try { const { autoHari } = await chrome.storage.local.get('autoHari'); return autoHari?.tgl === hariIni() ? autoHari.n : 0; } catch { return 0; }
+  }
+  async function tambahHariIni() {
+    try { const n = (await jumlahHariIni()) + 1; await chrome.storage.local.set({ autoHari: { tgl: hariIni(), n } }); return n; } catch { return 0; }
+  }
+  async function simpanJalan(set) {
+    try {
+      await chrome.storage.local.set({ autoRun: { aktif: auto.aktif, stats: auto.stats, set, sudah: [...auto.sudah].slice(-400), ts: Date.now() } });
+    } catch { /* abaikan */ }
+  }
+
+  function renderAuto() {
+    if (!root) return;
+    const btn = $('b-auto');
+    btn.classList.toggle('stop', auto.aktif);
+    btn.querySelector('.t').textContent = auto.aktif ? 'Berhenti' : 'Mulai otomatis';
+    for (const id of ['a-batas', 'a-jmin', 'a-jmaks']) $(id).disabled = auto.aktif;
+    const s = auto.stats;
+    const st = $('a-stat');
+    if (!s) { st.textContent = ''; return; }
+    st.textContent = '';
+    const baris1 = document.createElement('div');
+    baris1.className = 'a-line';
+    baris1.textContent = `Hal. ${halamanSekarang()} · ${s.diproses}/${auto.batas} · tersimpan ${s.tersimpan} · dilewati ${s.dilewati} · gagal ${s.gagal}`;
+    st.appendChild(baris1);
+    if (auto.status) {
+      const baris2 = document.createElement('div');
+      baris2.className = 'a-sub';
+      baris2.textContent = auto.status;
+      st.appendChild(baris2);
+    }
+  }
+  const setStatus = (t) => { auto.status = t; renderAuto(); };
+
+  // Nomor halaman hasil pencarian yang sedang dibuka (dari penanda halaman aktif, atau ?page=).
+  function halamanSekarang() {
+    const aktif = document.querySelector('[aria-current="page"]');
+    const n = parseInt(aktif?.textContent, 10);
+    if (Number.isFinite(n)) return n;
+    try { return parseInt(new URL(location.href).searchParams.get('page') || '1', 10) || 1; } catch { return 1; }
+  }
+
+  // Tombol "Selanjutnya": utamakan penanda khusus, lalu tombol bertuliskan Selanjutnya/Berikutnya/Next, lalu tautan angka
+  // halaman berikutnya (mis. 2 saat di halaman 1). Yang dinonaktifkan atau tersembunyi tidak dihitung.
+  function cariTombolNext() {
+    const bisa = (el) => el && !el.hasAttribute('disabled') && el.getAttribute('aria-disabled') !== 'true' && el.offsetParent !== null;
+    const khusus = document.querySelector('a[data-automation="page-next"], [data-automation*="pagination" i] a[aria-label*="next" i], a[aria-label*="berikut" i], a[aria-label*="selanjut" i], a[aria-label*="next" i], button[aria-label*="next" i]');
+    if (bisa(khusus)) return khusus;
+    const semua = [...document.querySelectorAll('a, button')];
+    const teks = semua.find((el) => /^(selanjutnya|berikutnya|next)$/i.test((el.textContent || '').trim()) && bisa(el));
+    if (teks) return teks;
+    const angka = String(halamanSekarang() + 1);
+    return semua.find((el) => (el.textContent || '').trim() === angka && bisa(el) && el.closest('nav, ul, [data-automation*="pagination" i]')) || null;
+  }
+
+  // Pindah ke kumpulan lowongan berikutnya: gulir daftar (muat lebih banyak), tombol halaman berikutnya, atau ?page=.
+  // Mengembalikan 'baru' (ada kartu baru), 'navigasi' (halaman dimuat ulang; jalan dilanjutkan oleh script baru), atau null (habis).
+  async function lanjutKumpulan(set) {
+    const belumDiproses = () => kartuTampak().some((k) => !auto.sudah.has(k.id));
+    // Daftar bisa baru dimuat (setelah pindah halaman): beri waktu muncul. Kalau tetap kosong, berarti habis.
+    for (let i = 0; i < 16 && !kartuTampak().length; i++) await sleep(500);
+    const kartu = kartuTampak();
+    if (!kartu.length) return null;
+    if (kartu.length) {
+      kartu[kartu.length - 1].el.scrollIntoView({ block: 'end' });
+      await sleep(1800);
+      if (belumDiproses()) return 'baru';
+    }
+    const next = cariTombolNext();
+    if (next) {
+      setStatus(`Halaman ${halamanSekarang()} selesai, pindah ke halaman berikutnya…`);
+      next.scrollIntoView({ block: 'center' });
+      await sleep(400);
+      await simpanJalan(set);
+      next.click();
+      // Halaman diganti tanpa memuat ulang: tunggu kartu baru. Kalau dimuat ulang, script ini berhenti di sini dan script baru melanjutkan.
+      await sleep(1500);
+      for (let i = 0; i < 14 && !belumDiproses(); i++) await sleep(500);
+      return belumDiproses() ? 'baru' : null;
+    }
+    try {
+      const u = new URL(location.href);
+      const halaman = parseInt(u.searchParams.get('page') || '1', 10) || 1;
+      u.searchParams.set('page', String(halaman + 1));
+      await simpanJalan(set);
+      location.assign(u.toString());
+      return 'navigasi';
+    } catch { return null; }
+  }
+
+  async function autoJalan(set, lanjut) {
+    auto.aktif = true;
+    auto.henti = false;
+    auto.batas = set.batas;
+    if (!lanjut || !auto.stats) auto.stats = kosongStats();
+    if (!lanjut) auto.sudah = new Set();
+    setPanelOpen(false);
+    renderAuto();
+    await simpanJalan(set);
+    let gagalBeruntun = 0;
+    let alasan = '';
+
+    try {
+      while (!auto.henti) {
+        if (!root) { alasan = 'Extension dimatikan.'; break; }
+        const masalah = anomali();
+        if (masalah) { alasan = masalah; break; }
+        if (auto.stats.diproses >= set.batas) { alasan = `Mencapai batas ${set.batas} lowongan.`; break; }
+        if ((await jumlahHariIni()) >= set.batasHari) { alasan = `Mencapai batas harian ${set.batasHari}.`; break; }
+
+        let kartu = kartuTampak().filter((k) => !auto.sudah.has(k.id));
+        if (!kartu.length) {
+          setStatus('Mencari lowongan berikutnya…');
+          const hasil = await lanjutKumpulan(set);
+          if (hasil === 'navigasi') { return; } // halaman dimuat ulang; script baru melanjutkan dari penyimpanan
+          if (!hasil) { alasan = 'Tidak ada lowongan lagi di hasil pencarian ini.'; break; }
+          kartu = kartuTampak().filter((k) => !auto.sudah.has(k.id));
+          if (!kartu.length) { alasan = 'Tidak ada lowongan lagi di hasil pencarian ini.'; break; }
+        }
+
+        // Periksa sekaligus mana yang sudah ada di Luna, supaya tidak perlu diklik.
+        const idKartu = kartu.map((k) => k.id);
+        let sudahAda = new Set();
+        try { sudahAda = new Set((await send({ type: 'exists', source: 'jobstreet', ids: idKartu })).ids || []); } catch { /* lanjut tanpa pemeriksaan awal */ }
+
+        for (const k of kartu) {
+          if (auto.henti) break;
+          auto.sudah.add(k.id);
+          if (sudahAda.has(k.id)) { auto.stats.dilewati += 1; auto.stats.diproses += 1; renderAuto(); continue; }
+          if (auto.stats.diproses >= set.batas) break;
+
+          setStatus('Membuka lowongan…');
+          k.el.scrollIntoView({ block: 'center' });
+          await sleep(acak(300, 700));
+          klikKartu(k.el, false);
+          let rec = await tungguPanel(k.id, 4500);
+          if (!rec && !auto.henti) { klikKartu(k.el, true); rec = await tungguPanel(k.id, 6000); }
+          auto.stats.diproses += 1;
+
+          if (!rec) {
+            if (auto.henti) break;
+            auto.stats.gagal += 1;
+            gagalBeruntun += 1;
+            setStatus('Panel tidak berganti, lowongan dilewati.');
+          } else if (!rec.company_name) {
+            auto.stats.gagal += 1;
+            gagalBeruntun += 1;
+            setStatus(`Perusahaan tidak terbaca: ${rec.title}`);
+          } else {
+            try {
+              const res = await send({ type: 'save', record: toDb(rec, rec) });
+              if (res.updated) auto.stats.diperbarui += 1; else auto.stats.tersimpan += 1;
+              gagalBeruntun = 0;
+              await tambahHariIni();
+              showLoaded(rec, 'existing');
+              setStatus(`Tersimpan: ${rec.title}`);
+            } catch (e) {
+              auto.stats.gagal += 1;
+              gagalBeruntun += 1;
+              setStatus(`Gagal menyimpan: ${e.message}`);
+            }
+          }
+          renderAuto();
+          await simpanJalan(set);
+          if (gagalBeruntun >= AUTO_GAGAL_BERUNTUN) { alasan = `${AUTO_GAGAL_BERUNTUN} lowongan gagal berturut-turut.`; break; }
+          if (anomali()) break;
+
+          const jeda = acak(set.jedaMin, set.jedaMaks) * 1000;
+          const akhir = Date.now() + jeda;
+          while (Date.now() < akhir && !auto.henti) await sleep(200);
+
+          // Di jendela sempit lowongan terbuka sebagai halaman penuh, bukan panel: kembali ke daftar, lalu susun ulang kartu.
+          if (/\/job\/\d+/.test(location.pathname)) {
+            history.back();
+            for (let i = 0; i < 25 && !kartuTampak().length; i++) await sleep(300);
+            break;
+          }
+        }
+        if (gagalBeruntun >= AUTO_GAGAL_BERUNTUN) break;
+      }
+    } catch (e) {
+      console.error('[Luna Collector] otomatis berhenti karena galat:', e);
+      alasan = `Galat: ${e.message}`;
+    }
+
+    auto.aktif = false;
+    const s = auto.stats;
+    const ringkas = `${s.diproses} diproses · ${s.tersimpan} tersimpan · ${s.dilewati} dilewati · ${s.gagal} gagal`;
+    setStatus(auto.henti ? 'Dihentikan.' : alasan);
+    try { await chrome.storage.local.remove('autoRun'); } catch { /* abaikan */ }
+    renderAuto();
+    toast(s.gagal && !s.tersimpan ? 'err' : 'ok', auto.henti ? 'Otomatis dihentikan' : 'Otomatis selesai', [alasan, ringkas].filter(Boolean).join(' · '));
+  }
+
+  async function autoToggle() {
+    if (auto.aktif) { auto.henti = true; setStatus('Menghentikan…'); return; }
+    const set = setelanDariUi();
+    await simpanSetelan(set);
+    autoJalan(set, false);
+  }
+
+  // Setelah halaman dimuat ulang saat otomatis berjalan (mis. pindah halaman hasil), lanjutkan bila
+  // barusan aktif; jalan yang sudah lama ditinggalkan tidak dilanjutkan sendiri.
+  async function autoLanjutkanBilaPerlu() {
+    try {
+      const { autoRun } = await chrome.storage.local.get('autoRun');
+      if (!autoRun?.aktif || Date.now() - (autoRun.ts || 0) > 90000) { await chrome.storage.local.remove('autoRun'); return; }
+      auto.stats = autoRun.stats || kosongStats();
+      auto.sudah = new Set(autoRun.sudah || []);
+      await sleep(2500); // beri waktu halaman memuat daftar
+      autoJalan({ ...AUTO_DEFAULT, ...(autoRun.set || {}) }, true);
+    } catch { /* abaikan */ }
+  }
+
   // ── Pasang / lepas ─────────────────────────────────────────────────────
   function mount() {
     if (host) return;
@@ -585,16 +908,26 @@
       $('d-body').hidden = minimized;
       $('b-collapse').setAttribute('aria-expanded', String(!minimized));
     });
+    $('b-auto').addEventListener('click', () => COMMANDS['toggle-auto']());
+    bacaSetelan().then((set) => {
+      if (!root) return;
+      $('a-batas').value = set.batas;
+      $('a-jmin').value = set.jedaMin;
+      $('a-jmaks').value = set.jedaMaks;
+    });
+    renderAuto();
     renderEvents();
     agoTimer = setInterval(renderEvents, 5000);
     showShortcutHints();
     // Kalau sudah ada lowongan terbuka saat tombol dipasang, langsung tampilkan.
     const first = readPage();
     if (first) trackLoaded(first);
+    autoLanjutkanBilaPerlu();
   }
 
   function unmount() {
     if (!host) return;
+    auto.henti = true; // extension dimatikan: otomatis ikut berhenti
     clearInterval(agoTimer);
     events = [];
     loadedRecord = null;
@@ -619,13 +952,16 @@
       .catch((e) => console.error('[Luna Collector] aksi gagal:', name, e))
       .finally(() => { busy[name] = false; });
   };
+  // Selama otomatis berjalan, aksi manual dimatikan (membaca/menyimpan sendiri bisa bertabrakan dengan yang sedang diproses).
+  const manual = (fn) => () => (auto.aktif ? undefined : fn());
   const COMMANDS = {
-    'toggle-detail': guarded('toggle-detail', toggleDetail),
-    'refresh-job': guarded('refresh-job', refreshData),
-    'save-job': guarded('save-job', saveAction),
+    'toggle-detail': guarded('toggle-detail', manual(toggleDetail)),
+    'refresh-job': guarded('refresh-job', manual(refreshData)),
+    'save-job': guarded('save-job', manual(saveAction)),
+    'toggle-auto': guarded('toggle-auto', autoToggle),
   };
-  const DEFAULT_KEYS = { 'toggle-detail': 'Alt+Shift+D', 'refresh-job': 'Alt+Shift+A', 'save-job': 'Alt+Shift+S' };
-  const KEY_CODES = { KeyD: 'toggle-detail', KeyA: 'refresh-job', KeyS: 'save-job' };
+  const DEFAULT_KEYS = { 'toggle-detail': 'Alt+Shift+D', 'refresh-job': 'Alt+Shift+A', 'save-job': 'Alt+Shift+S', 'toggle-auto': 'Alt+Shift+X' };
+  const KEY_CODES = { KeyD: 'toggle-detail', KeyA: 'refresh-job', KeyS: 'save-job', KeyX: 'toggle-auto' };
   const lastRun = {};
 
   function runCommand(name, via) {
