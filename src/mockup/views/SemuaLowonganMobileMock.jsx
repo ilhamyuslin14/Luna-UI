@@ -1,5 +1,6 @@
 // MOCKUP: salinan SemuaLowonganMobile_002 untuk presentasi (data dummy, sesi palsu, tanpa database).
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { LOWONGAN_DUMMY } from '../data/lowonganDummy.js';
 import { createPortal } from 'react-dom';
 import useSemuaLowonganMock, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../hooks/useSemuaLowonganMock.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
@@ -127,7 +128,7 @@ function SortSheet({ open, onClose, value, onSelect, options }) {
   );
 }
 
-export default function SemuaLowonganMobileMock({ navigate }) {
+export default function SemuaLowonganMobileMock({ navigate, awal }) {
   const { isPelamar, skor: skorMap } = useMockSession();
   const goMasuk = () => navigate?.('pelamar-masuk');
   const goPerusahaan = () => {}; // mockup: tombol tampil tapi tidak berpindah halaman
@@ -137,6 +138,7 @@ export default function SemuaLowonganMobileMock({ navigate }) {
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     sumber, toggleSumber, sumberOptions,
+    kota, setKota,
     resetFilters, activeFilterCount,
     pagedJobs, totalPages, pinKeys,
   } = useSemuaLowonganMock(10, { skorMap });
@@ -147,6 +149,14 @@ export default function SemuaLowonganMobileMock({ navigate }) {
   // Klik kartu membuka panel detail. "Lamar Sekarang": lowongan Luna membuka popup lamar dengan profil,
   // lowongan eksternal membuka halaman aslinya (JobStreet) di tab baru.
   const [drawerJob, setDrawerJob] = useState(null);
+  // Datang dari landing: kata kunci posisi, kota, atau lowongan yang langsung dibuka panel detailnya.
+  useEffect(() => {
+    if (!awal) return;
+    setSearch(awal.q || '');
+    setKota(awal.kota || '');
+    if (awal.buka) { const j = LOWONGAN_DUMMY.find((x) => x.key === awal.buka); if (j) setDrawerJob(j); }
+  }, [awal]);
+
   const openJob = (job) => setDrawerJob(job);
   const [lamarJob, setLamarJob] = useState(null);
   const lamarSekarang = (job) => (job.is_external ? window.open(job.external_url, '_blank', 'noopener,noreferrer') : setLamarJob(job));
@@ -162,7 +172,7 @@ export default function SemuaLowonganMobileMock({ navigate }) {
         <LowonganDrawerMock job={drawerJob} onClose={() => setDrawerJob(null)} onLamar={lamarSekarang} />
       )}
       <div className="lk-head">
-        <a className="lk-logo" href="#" onClick={e => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+        <a className="lk-logo" href="#" onClick={e => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
           <span className="lk-logo-divider" />
           <span className="lk-badge-portal">PORTAL KARIR</span>
@@ -206,6 +216,13 @@ export default function SemuaLowonganMobileMock({ navigate }) {
       </div>
 
       <section className="sl2m-list">
+        {kota && (
+          <div className="sl2m-kota-chip">
+            Kota: <b>{kota}</b>
+            <button type="button" onClick={() => setKota('')} aria-label="Hapus filter kota">×</button>
+          </div>
+        )}
+
         {loading ? (
           <div className="sl2m-empty">Memuat lowongan…</div>
         ) : pagedJobs.length > 0 ? (

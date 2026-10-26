@@ -1,6 +1,7 @@
 // MOCKUP: salinan SemuaLowongan_002 untuk presentasi. Data dari LOWONGAN_DUMMY, sesi dari MockSession, tanpa
 // database. Ubah tampilan asli di views/lowongan/SemuaLowongan_002.jsx; salin ulang perubahan visual ke sini bila perlu.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { LOWONGAN_DUMMY } from '../data/lowonganDummy.js';
 import useSemuaLowonganMock, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../hooks/useSemuaLowonganMock.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { useMockSession } from '../MockSession.jsx';
@@ -65,7 +66,7 @@ function initials(name) {
 // Sengaja dibuat sebagai KOMPONEN BARU (bukan timpa SemuaLowongan.jsx) atas
 // permintaan user — biar versi lama tetap ada & bisa dibandingkan. Header
 // TIDAK diubah, tetap pakai lk-header/lk-brand yang sudah ada.
-export default function SemuaLowonganMock({ navigate }) {
+export default function SemuaLowonganMock({ navigate, awal }) {
   const { isPelamar, skor: skorMap } = useMockSession();
   const goMasuk = () => navigate?.('pelamar-masuk');
   const goProfilSaya = () => (isPelamar ? navigate?.('profil-pelamar_001') : goMasuk());
@@ -76,6 +77,7 @@ export default function SemuaLowonganMock({ navigate }) {
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     sumber, toggleSumber, sumberOptions,
+    kota, setKota,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize, pinKeys,
   } = useSemuaLowonganMock(10, { skorMap });
@@ -86,6 +88,14 @@ export default function SemuaLowonganMock({ navigate }) {
   // Klik kartu membuka panel detail. "Lamar Sekarang": lowongan Luna membuka popup lamar dengan profil,
   // lowongan eksternal membuka halaman aslinya (JobStreet) di tab baru.
   const [drawerJob, setDrawerJob] = useState(null);
+  // Datang dari landing: kata kunci posisi, kota, atau lowongan yang langsung dibuka panel detailnya.
+  useEffect(() => {
+    if (!awal) return;
+    setSearch(awal.q || '');
+    setKota(awal.kota || '');
+    if (awal.buka) { const j = LOWONGAN_DUMMY.find((x) => x.key === awal.buka); if (j) setDrawerJob(j); }
+  }, [awal]);
+
   const openJob = (job) => setDrawerJob(job);
   const [lamarJob, setLamarJob] = useState(null);
   const lamarSekarang = (job) => (job.is_external ? window.open(job.external_url, '_blank', 'noopener,noreferrer') : setLamarJob(job));
@@ -108,7 +118,7 @@ export default function SemuaLowonganMock({ navigate }) {
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="sl2-nav-left">
-            <a className="lk-brand" href="#" onClick={e => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+            <a className="lk-brand" href="#" onClick={e => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-divider" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
@@ -250,6 +260,13 @@ export default function SemuaLowonganMock({ navigate }) {
               </select>
             </div>
           </div>
+
+          {kota && (
+            <div className="sl2-kota-chip">
+              Kota: <b>{kota}</b>
+              <button type="button" onClick={() => setKota('')} aria-label="Hapus filter kota">×</button>
+            </div>
+          )}
 
           {loading ? (
             <div className="sl2-empty">Memuat lowongan…</div>

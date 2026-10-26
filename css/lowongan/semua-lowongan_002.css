@@ -186,3 +186,6 @@
 .sl2-auto-note { margin: 0 0 12px; padding: 9px 13px; border-radius: 10px; background: #FFF7ED; color: #9A3412; font-size: 12.5px; font-weight: 500; }
 .sl2-auto-note.warn { background: #F8FAFC; color: #475569; border: 1px solid #E2E8F0; }
 .sl2-job-pin { display: inline-flex; align-items: center; flex-shrink: 0; margin-left: 10px; padding: 2px 9px; border-radius: 999px; background: #FFF4EC; color: #B34F00; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.sl2-kota-chip { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 12px; padding: 5px 6px 5px 12px; border-radius: 999px; background: #F1F5F9; border: 1px solid #E2E8F0; font-size: 12.5px; color: #334155; }
+.sl2-kota-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #CBD5E1; color: #fff; font-size: 14px; line-height: 1; cursor: pointer; }
+.sl2-kota-chip button:hover { background: #94A3B8; }

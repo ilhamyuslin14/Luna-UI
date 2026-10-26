@@ -58,15 +58,16 @@ export default function useSemuaLowonganMock(pageSize = 10, { skorMap = {} } = {
   const [pengalamanBucket, setPengalamanBucket] = useState([]);
   const [gajiBucket, setGajiBucket] = useState([]);
   const [sumber, setSumber] = useState([]);
+  const [kota, setKota] = useState('');
 
   const toggleTipeKerja = (v) => setTipeKerja(prev => toggleInArray(prev, v));
   const togglePengalamanBucket = (v) => setPengalamanBucket(prev => toggleInArray(prev, v));
   const toggleGajiBucket = (v) => setGajiBucket(prev => toggleInArray(prev, v));
   const toggleSumber = (v) => setSumber(prev => toggleInArray(prev, v));
-  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); setSumber([]); };
+  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); setSumber([]); setKota(''); };
   const activeFilterCount = tipeKerja.length + pengalamanBucket.length + gajiBucket.length + sumber.length;
 
-  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket, sumber, kota]);
 
   const sumberOptions = useMemo(() => {
     const peta = new Map();
@@ -76,7 +77,9 @@ export default function useSemuaLowonganMock(pageSize = 10, { skorMap = {} } = {
 
   const filteredJobs = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const k = kota.trim().toLowerCase();
     return LOWONGAN_DUMMY.filter(job => {
+      if (k && !(job.location || '').toLowerCase().includes(k)) return false;
       if (q) {
         const cocok =
           (job.title || '').toLowerCase().includes(q) ||
@@ -91,7 +94,7 @@ export default function useSemuaLowonganMock(pageSize = 10, { skorMap = {} } = {
       if (sumber.length > 0 && !sumber.includes(job.source)) return false;
       return true;
     });
-  }, [search, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+  }, [search, kota, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
 
   // Urutan bawaan: sampai 5 lowongan Luna yang sejalan dengan preferensi posisi didahulukan (terlepas dari skor),
   // lalu yang bernilai dari skor tertinggi, lalu yang belum bernilai dari yang paling sejalan dengan preferensi.
@@ -141,6 +144,7 @@ export default function useSemuaLowonganMock(pageSize = 10, { skorMap = {} } = {
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     sumber, toggleSumber, sumberOptions,
+    kota, setKota,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize,
     pinKeys: sort === 'kecocokan' ? urutRekomendasi.pinKeys : new Set(),

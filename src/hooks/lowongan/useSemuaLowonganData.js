@@ -89,12 +89,13 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
   const [pengalamanBucket, setPengalamanBucket] = useState([]);
   const [gajiBucket, setGajiBucket] = useState([]);
   const [sumber, setSumber] = useState([]); // nilai job.source: 'luna', 'jobstreet', ...
+  const [kota, setKota] = useState('');      // dari pencarian di landing pelamar; ditampilkan sebagai chip yang bisa dihapus
 
   const toggleTipeKerja = (value) => setTipeKerja(prev => toggleInArray(prev, value));
   const togglePengalamanBucket = (value) => setPengalamanBucket(prev => toggleInArray(prev, value));
   const toggleGajiBucket = (value) => setGajiBucket(prev => toggleInArray(prev, value));
   const toggleSumber = (value) => setSumber(prev => toggleInArray(prev, value));
-  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); setSumber([]); };
+  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); setSumber([]); setKota(''); };
   const activeFilterCount = tipeKerja.length + pengalamanBucket.length + gajiBucket.length + sumber.length;
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
     return () => { active = false; };
   }, [includeExternal]);
 
-  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket, sumber, kota]);
 
   // Pilihan filter "Lamar lewat": sumber yang memang ada di data, Luna dulu.
   const sumberOptions = useMemo(() => {
@@ -119,7 +120,9 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
 
   const filteredJobs = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const k = kota.trim().toLowerCase();
     return jobs.filter(job => {
+      if (k && !(job.location || '').toLowerCase().includes(k)) return false;
       if (q) {
         const matchesSearch =
           (job.title || '').toLowerCase().includes(q) ||
@@ -134,7 +137,7 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
       if (sumber.length > 0 && !sumber.includes(job.source)) return false;
       return true;
     });
-  }, [jobs, search, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+  }, [jobs, search, kota, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
 
   // Urutan bawaan pelamar login:
   //  1. sampai ${MAKS_SLOT_LUNA} lowongan Luna yang judul/deskripsinya sejalan dengan posisi di preferensi didahulukan,
@@ -195,6 +198,7 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     sumber, toggleSumber, sumberOptions,
+    kota, setKota,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize,
     // Kunci lowongan Luna yang didahulukan karena sejalan dengan preferensi (hanya terisi di urutan bawaan).

@@ -156,8 +156,8 @@ export default function StatusLamaran_001({ navigate }) {
           <div className="pp001-nav-left">
             <a
               className="pp001-nav-brand"
-              href="/?view=semua-lowongan_002"
-              onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}
+              href="/?view=landingpage-pelamar"
+              onClick={(e) => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}
             >
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
               <span className="pp001-nav-divider" />

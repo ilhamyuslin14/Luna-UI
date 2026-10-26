@@ -101,6 +101,7 @@ const FAQ_ITEMS = [
 export default function LandingPage_003({ navigate }) {
   const goDaftar = () => navigate?.('landingpage-daftar_001');
   const goMasuk = () => navigate?.('landingpage-masuk_001');
+  const goPelamar = () => navigate?.('landingpage-pelamar');
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
@@ -115,6 +116,7 @@ export default function LandingPage_003({ navigate }) {
           <span className="lp003-nav-tagline">PORTAL KARIR</span>
         </div>
         <div className="lp003-nav-right">
+          <button className="lp003-nav-login lp003-nav-pelamar" onClick={goPelamar}>Cari Kerja?</button>
           <button className="lp003-nav-login" onClick={goMasuk}>Masuk</button>
           <span className="lp003-nav-divider" />
           <button className="lp003-nav-cta" onClick={goDaftar}>

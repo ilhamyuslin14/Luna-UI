@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import useSemuaLowonganData, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
@@ -89,9 +90,20 @@ export default function SemuaLowongan_002({ navigate }) {
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
     sumber, toggleSumber, sumberOptions,
+    kota, setKota,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize, pinKeys,
   } = useSemuaLowonganData(10, { includeExternal: true, skorMap: skorBeku.current, urutKecocokan: !!isPelamar, posisiPref: pelamarProfile?.pref_posisi, lokasiPref: pelamarProfile?.pref_lokasi });
+
+  // Datang dari landing pelamar: ?q= (posisi) dan ?kota= mengisi pencarian dan filter kota.
+  const { search: urlSearch } = useLocation();
+  useEffect(() => {
+    const p = new URLSearchParams(urlSearch);
+    const q = p.get('q');
+    const k = p.get('kota');
+    if (q !== null) setSearch(q);
+    setKota(k || '');
+  }, [urlSearch]);
 
   const mainRef = useRef(null);
   const otomatis = useHitungOtomatis({ jobs: pagedJobs, skorMap, prosesMap, siap: skorSiap });
@@ -125,7 +137,7 @@ export default function SemuaLowongan_002({ navigate }) {
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="sl2-nav-left">
-            <a className="lk-brand" href="/?view=semua-lowongan_002">
+            <a className="lk-brand" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-divider" />
               <span className="lk-brand-badge">PORTAL KARIR</span>
@@ -271,6 +283,13 @@ export default function SemuaLowongan_002({ navigate }) {
 
           {otomatis.berjalan && <div className="sl2-auto-note">Menghitung kecocokan CV kamu dengan lowongan di halaman ini…</div>}
           {!otomatis.berjalan && otomatis.berhenti === 'kuota' && <div className="sl2-auto-note warn">Batas pengecekan kecocokan hari ini sudah tercapai. Sisanya dihitung besok, atau buka detail lowongan setelah kuota kembali.</div>}
+          {kota && (
+            <div className="sl2-kota-chip">
+              Kota: <b>{kota}</b>
+              <button type="button" onClick={() => setKota('')} aria-label="Hapus filter kota">×</button>
+            </div>
+          )}
+
           {loading ? (
             <div className="sl2-empty">Memuat lowongan…</div>
           ) : pagedJobs.length > 0 ? (

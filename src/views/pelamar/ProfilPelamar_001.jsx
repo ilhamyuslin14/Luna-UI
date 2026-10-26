@@ -786,7 +786,7 @@ export default function ProfilPelamar_001({ navigate }) {
       {isMobile ? (
         /* ─── Navbar mobile ("Opsi 2" — avatar + sheet konsolidasi) ─── */
         <div className="lk-head">
-          <a className="lk-logo" href="/?view=semua-lowongan_002" onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+          <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-divider" />
             <span className="lk-badge-portal">PORTAL KARIR</span>
@@ -806,7 +806,7 @@ export default function ProfilPelamar_001({ navigate }) {
         <header className="pp001-navbar">
           <div className="pp001-navbar-container">
             <div className="pp001-nav-left">
-              <a className="pp001-nav-brand" href="/?view=semua-lowongan_002" onClick={(e) => { e.preventDefault(); navigate?.('semua-lowongan_002'); }}>
+              <a className="pp001-nav-brand" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
                 <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
                 <span className="pp001-nav-divider" />
                 <span className="pp001-nav-badge">PORTAL KARIR</span>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
@@ -58,6 +58,7 @@ import LandingPage from './views/landing/LandingPage.jsx';
 import LandingPage_001 from './views/landing/LandingPage_001.jsx';
 import LandingPage_002 from './views/landing/LandingPage_002.jsx';
 import LandingPage_003 from './views/landing/LandingPage_003.jsx';
+import LandingPagePelamar_001 from './views/landing/LandingPagePelamar_001.jsx';
 import LandingPageMasuk from './views/landing/LandingPage-Masuk.jsx';
 import LandingPageDaftar from './views/landing/LandingPage-Daftar.jsx';
 import LandingPageOTP from './views/landing/LandingPage-OTP.jsx';
@@ -115,6 +116,10 @@ export default function App() {
   const [selectedCycle, setSelectedCycle] = useState('bulanan');
   const [searchQuery, setSearchQuery] = useState(urlParams.get('search') || '');
 
+  // Pindah halaman selalu mulai dari atas. Tanpa ini, posisi gulir halaman sebelumnya terbawa (mis. dari landing yang
+  // digulir ke bawah ke Cari Lowongan atau Profil Saya, halaman baru langsung terbuka di tengah atau bawah).
+  useLayoutEffect(() => { window.scrollTo(0, 0); }, [activeMenu]);
+
   // Bangun search-string baru sambil mempertahankan param yang tidak eksplisit
   // ditangani di sini (mis. kode/slug laman karir) — sama seperti updateUrl()
   // versi lama yang mulai dari URL saat ini, bukan dari kosongan.
@@ -132,6 +137,10 @@ export default function App() {
     if (params.departemenId) newParams.set('departemenId', params.departemenId); else newParams.delete('departemenId');
     if (params.filter) newParams.set('filter', params.filter); else newParams.delete('filter');
     if (params.search) newParams.set('search', params.search); else newParams.delete('search');
+    // Pencarian dari landing pelamar ke daftar lowongan: kata kunci posisi dan kota.
+    if (params.q) newParams.set('q', params.q); else newParams.delete('q');
+    if (params.kode) newParams.set('kode', params.kode);
+    if (params.kota) newParams.set('kota', params.kota); else newParams.delete('kota');
     return `${location.pathname}?${newParams.toString()}`;
   };
 
@@ -236,7 +245,7 @@ export default function App() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'mockup'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'landingpage-pelamar', 'mockup'];
     const authMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -333,6 +342,10 @@ export default function App() {
 
   if (activeMenu === 'landingpage_002') {
     return <LandingPage_002 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'landingpage-pelamar') {
+    return <LandingPagePelamar_001 navigate={navigate} />;
   }
 
   if (activeMenu === 'landingpage_003') {

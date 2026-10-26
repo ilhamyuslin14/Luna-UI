@@ -88,7 +88,7 @@ function CompanyLogo({ url, name, className }) {
 function Header({ onShare, shareDisabled, onMasuk, onPerusahaan, isPelamar, pelamarProfile, navigate }) {
   return (
     <div className="lk-head">
-      <a className="lk-logo" href="/?view=semua-lowongan_002">
+      <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
         <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
         <span className="lk-logo-divider" />
         <span className="lk-badge-portal">PORTAL KARIR</span>
@@ -224,7 +224,7 @@ export default function LamanKarirMobile({ kode, navigate }) {
     return (
       <div className="lk-page">
         <div className="lk-head">
-          <a className="lk-logo" href="/?view=semua-lowongan_002">
+          <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-divider" />
             <span className="lk-badge-portal">PORTAL KARIR</span>
