@@ -28,6 +28,12 @@ const IconBriefcase = () => (
     <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
   </svg>
 );
+const IconLinkedIn = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /><path d="M10 9v12M10 13a4 4 0 0 1 8 0v8" /></svg>
+);
+const IconInstagram = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /></svg>
+);
 const IconSearch = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7.5" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 );
@@ -102,7 +108,6 @@ export default function LandingPagePelamar_001({ navigate }) {
     e?.preventDefault();
     navigate?.('semua-lowongan_002', { q: (qOverride ?? posisi).trim(), kota: kota.trim() });
   };
-  const gulirKe = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div className="lp003-page lpp-page">
@@ -358,34 +363,40 @@ export default function LandingPagePelamar_001({ navigate }) {
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="lp003-footer">
-        <div className="lp003-footer-top">
-          <div className="lp003-footer-brand">
-            <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lp003-footer-logo" />
-            <p className="lp003-footer-desc">Portal karier yang menilai kecocokan CV-mu dengan tiap lowongan, supaya kamu melamar dengan lebih yakin.</p>
+      {/* ── Footer: sama dengan halaman Semua Lowongan ── */}
+      <footer className="sl2-footer">
+        <div className="sl2-footer-top">
+          <div>
+            <div className="sl2-footer-brand">
+              <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+              <b>Luna</b>
+            </div>
+            <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
           </div>
-          <div className="lp003-footer-links">
-            <div className="lp003-footer-col">
-              <p className="lp003-footer-col-title">Untuk Pelamar</p>
-              <div className="lp003-footer-col-links">
-                <span onClick={goDaftarLowongan}>Cari Lowongan</span>
-                <span onClick={goDaftar}>Buat Profil</span>
-                <span onClick={() => gulirKe('fitur')}>Fitur</span>
-              </div>
-            </div>
-            <div className="lp003-footer-col">
-              <p className="lp003-footer-col-title">Perusahaan</p>
-              <div className="lp003-footer-col-links">
-                <span onClick={goPerusahaan}>Untuk Perusahaan</span>
-                <span>Tentang Kami</span>
-                <span>Kebijakan Privasi</span>
-              </div>
-            </div>
+          <div className="sl2-footer-col">
+            <h4>Untuk Pelamar</h4>
+            <button type="button" onClick={goDaftarLowongan}>Cari Lowongan</button>
+            <button type="button" onClick={goDaftar}>Buat Profil</button>
+          </div>
+          <div className="sl2-footer-col">
+            <h4>Untuk Perusahaan</h4>
+            <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+            <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+          </div>
+          <div className="sl2-footer-col">
+            <h4>Luna</h4>
+            <span>Tentang Kami</span>
+            <span>Bantuan</span>
+            <span>Kebijakan Privasi</span>
           </div>
         </div>
-        <div className="lp003-footer-divider" />
-        <p className="lp003-footer-copy">© 2026 Lunasys</p>
+        <div className="sl2-footer-bottom">
+          <span>© 2026 Luna. Seluruh hak cipta dilindungi.</span>
+          <div className="sl2-footer-social">
+            <span><IconLinkedIn /></span>
+            <span><IconInstagram /></span>
+          </div>
+        </div>
       </footer>
     </div>
   );

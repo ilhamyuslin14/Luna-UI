@@ -315,7 +315,6 @@ export default function LamanKarirMobile({ kode, navigate }) {
               <h5>Untuk Pelamar</h5>
               <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
               <button type="button" onClick={() => navigate?.('pelamar-daftar')}>Buat Profil</button>
-              <button type="button" onClick={() => navigate?.('pelamar-masuk')}>Status Lamaran</button>
             </div>
             <div className="sl2m-footer-col">
               <h5>Untuk Perusahaan</h5>
@@ -429,7 +428,6 @@ export default function LamanKarirMobile({ kode, navigate }) {
             <h5>Untuk Pelamar</h5>
             <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
             <button type="button" onClick={() => navigate?.('pelamar-daftar')}>Buat Profil</button>
-            <button type="button" onClick={() => navigate?.('pelamar-masuk')}>Status Lamaran</button>
           </div>
           <div className="sl2m-footer-col">
             <h5>Untuk Perusahaan</h5>

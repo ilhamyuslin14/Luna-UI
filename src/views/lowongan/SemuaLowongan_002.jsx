@@ -373,7 +373,6 @@ export default function SemuaLowongan_002({ navigate }) {
             <h4>Untuk Pelamar</h4>
             <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
             <button type="button" onClick={() => navigate?.('pelamar-daftar')}>Buat Profil</button>
-            <button type="button" onClick={() => navigate?.('pelamar-masuk')}>Status Lamaran</button>
           </div>
           <div className="sl2-footer-col">
             <h4>Untuk Perusahaan</h4>
