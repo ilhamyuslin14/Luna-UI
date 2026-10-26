@@ -21,7 +21,7 @@ const IconCheck = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
 );
 
-const TONE = { 'Tinggi': 'great', 'Sedang': 'amber', 'Rendah': 'red', 'Tidak Sesuai': 'gray' };
+const TONE = { 'Tinggi': 'great', 'Sedang': 'amber', 'Rendah': 'red' };
 
 export default function KecocokanCardMock({ jobKey }) {
   const { skor, proses, mulaiCek, DURASI_CEK_MS } = useMockSession();

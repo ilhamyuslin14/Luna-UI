@@ -13,6 +13,15 @@ export const PELAMAR_DUMMY = {
   nama_lengkap: 'Dina Pratama',
   email: 'dina.pratama@email.com',
   phone: '0812-3456-7890',
+  // Kolom preferensi di profil (bentuk sama dengan pelamar_profiles.pref_*), dipakai urutan rekomendasi di daftar.
+  pref_posisi: ['Business Analyst', 'Data Analyst', 'Product Analyst'],
+  pref_lokasi: ['Jakarta', 'Tangerang Selatan', 'Remote'],
+  pref_gaji_min: 8000000,
+  pref_gaji_nego: true,
+  pref_ketersediaan: '1 Bulan Pemberitahuan (1 Month Notice)',
+  pref_tipe_kerja: ['Penuh Waktu (Full-time)', 'Kontrak / Proyek'],
+  pref_model_kerja: 'Hybrid / Remote Diutamakan',
+  pref_status_pencarian: 'Aktif Menjelajah Peluang',
 };
 
 const Ctx = createContext(null);
@@ -24,6 +33,8 @@ export function MockSessionProvider({ children }) {
   const [masuk, setMasuk] = useState(bacaMasuk);
   const [skor, setSkor] = useState(SKOR_AWAL);   // { [job.key]: angka }
   const [proses, setProses] = useState({});      // { [job.key]: waktuMulai }
+  const [dilamar, setDilamar] = useState({});         // { [job.key]: true } lowongan Luna yang sudah dilamar
+  const [lamarProses, setLamarProses] = useState({}); // { [job.key]: true } lamaran yang sedang "dikirim"
   const timers = useRef({});
 
   const login = useCallback(() => { tulisMasuk(true); setMasuk(true); }, []);
@@ -36,6 +47,8 @@ export function MockSessionProvider({ children }) {
     timers.current = {};
     setSkor(SKOR_AWAL);
     setProses({});
+    setDilamar({});
+    setLamarProses({});
   }, []);
 
   // Cek kecocokan tiruan: "memproses" beberapa detik, lalu hasilnya muncul.
@@ -49,6 +62,18 @@ export function MockSessionProvider({ children }) {
     }, DURASI_CEK_MS);
   }, []);
 
+  // Lamaran cepat tiruan: berjalan sebentar lalu tercatat "sudah melamar". Disimpan di sesi (bukan di popup),
+  // jadi menutup popup saat dikirim tidak menghentikannya, sama seperti di aplikasi.
+  const lamar = useCallback((key) => {
+    if (timers.current['lamar:' + key]) return;
+    setLamarProses(p => ({ ...p, [key]: true }));
+    timers.current['lamar:' + key] = setTimeout(() => {
+      delete timers.current['lamar:' + key];
+      setDilamar(d => ({ ...d, [key]: true }));
+      setLamarProses(p => { const n = { ...p }; delete n[key]; return n; });
+    }, 2000);
+  }, []);
+
   const value = useMemo(() => ({
     masuk,
     user: masuk ? { id: PELAMAR_DUMMY.id, email: PELAMAR_DUMMY.email } : null,
@@ -56,7 +81,9 @@ export function MockSessionProvider({ children }) {
     isPelamar: masuk,
     login, logout,
     skor, proses, mulaiCek, DURASI_CEK_MS,
-  }), [masuk, skor, proses, login, logout, mulaiCek]);
+    dilamar, lamarProses, lamar,
+    simpanPreferensi: async () => true, // mockup: preferensi tidak disimpan ke mana pun
+  }), [masuk, skor, proses, login, logout, mulaiCek, dilamar, lamarProses, lamar]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

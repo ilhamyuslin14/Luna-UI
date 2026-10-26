@@ -56,12 +56,13 @@ export const PROFIL_DUMMY = {
     { bahasa: 'Bahasa Inggris', level: 'Kemampuan Kerja Profesional', kefasihan: 'Kemampuan Kerja Profesional' },
   ],
   preferensi: {
+    posisi: ['Business Analyst', 'Data Analyst', 'Product Analyst'],
+    lokasi: ['Jakarta', 'Tangerang Selatan', 'Remote'],
+    gajiMin: 8000000,
+    gajiNego: true,
     ketersediaan: '1 Bulan Pemberitahuan (1 Month Notice)',
-    targetPosisi: 'Business Analyst, Product Analyst',
-    tipeKerja: 'Penuh Waktu (Full-time)',
+    tipeKerja: ['Penuh Waktu (Full-time)', 'Kontrak / Proyek'],
     modelKerja: 'Hybrid / Remote Diutamakan',
-    lokasiDiharapkan: 'Jakarta, Tangerang Selatan',
-    gajiDiharapkan: 'Rp 8.000.000 / bln',
     statusPencarian: 'Aktif Menjelajah Peluang',
   },
 };

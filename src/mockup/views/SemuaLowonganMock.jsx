@@ -1,12 +1,13 @@
 // MOCKUP: salinan SemuaLowongan_002 untuk presentasi. Data dari LOWONGAN_DUMMY, sesi dari MockSession, tanpa
 // database. Ubah tampilan asli di views/lowongan/SemuaLowongan_002.jsx; salin ulang perubahan visual ke sini bila perlu.
 import { useRef, useState } from 'react';
-import useSemuaLowonganMock, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../hooks/useSemuaLowonganMock.js';
+import useSemuaLowonganMock, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../hooks/useSemuaLowonganMock.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
 import { useMockSession } from '../MockSession.jsx';
 import { MockNavMenu } from '../components/MockNav.jsx';
 import CompanyLogoBox from '../../components/lowongan/CompanyLogoBox.jsx';
 import LowonganDrawerMock from '../components/LowonganDrawerMock.jsx';
+import LamarCepatMock from '../components/LamarCepatMock.jsx';
 import KecocokanMini from '../../components/lowongan/KecocokanMini.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
@@ -70,31 +71,40 @@ export default function SemuaLowonganMock({ navigate }) {
   const goProfilSaya = () => (isPelamar ? navigate?.('profil-pelamar_001') : goMasuk());
   const goPerusahaan = () => {}; // mockup: tombol tampil tapi tidak berpindah halaman
   const {
-    loading, search, setSearch, sort, setSort, page, setPage,
+    loading, search, setSearch, sort, setSort, sortOptions, page, setPage,
     tipeKerja, toggleTipeKerja,
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
+    sumber, toggleSumber, sumberOptions,
     resetFilters, activeFilterCount,
-    sortedJobs, pagedJobs, totalPages, pageSize,
-  } = useSemuaLowonganMock(10);
+    sortedJobs, pagedJobs, totalPages, pageSize, pinKeys,
+  } = useSemuaLowonganMock(10, { skorMap });
 
   const mainRef = useRef(null);
   const scrollToListing = () => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Klik kartu membuka panel detail di sisi kanan (tanpa pindah halaman). "Lamar Sekarang"
-  // langsung ke tujuan lamaran: halaman asli (eksternal) atau laman karir di tab baru (Luna).
+  // Klik kartu membuka panel detail. "Lamar Sekarang": lowongan Luna membuka popup lamar dengan profil,
+  // lowongan eksternal membuka halaman aslinya (JobStreet) di tab baru.
   const [drawerJob, setDrawerJob] = useState(null);
   const openJob = (job) => setDrawerJob(job);
-  const lamar = (e, job) => { e.stopPropagation(); window.open(job.external_url, '_blank', 'noopener,noreferrer'); };
+  const [lamarJob, setLamarJob] = useState(null);
+  const lamarSekarang = (job) => (job.is_external ? window.open(job.external_url, '_blank', 'noopener,noreferrer') : setLamarJob(job));
+  const lamar = (e, job) => { e.stopPropagation(); lamarSekarang(job); };
 
   const popularSearches = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
 
   return (
     <div className="sl2-page">
+      {lamarJob && <LamarCepatMock job={lamarJob} onClose={() => setLamarJob(null)} />}
       {drawerJob && (
-        <LowonganDrawerMock job={drawerJob} onClose={() => setDrawerJob(null)} />
+        <LowonganDrawerMock job={drawerJob} onClose={() => setDrawerJob(null)} onLamar={lamarSekarang} />
       )}
-      {/* Header — navbar pelamar (Cari Lowongan / Profil Saya). Sudah masuk -> avatar pill, belum -> tombol Masuk. */}
+      {/* Header — navbar ala ProfilPelamar_001 (nav-links Cari Lowongan /
+          Profil Saya / Lamaran Saya). State kanan ikut auth sungguhan
+          (isPelamar dari pelamar_profiles): sudah login -> avatar pill,
+          belum -> CTA "Masuk" seperti biasa. Navigasi antar halaman TIDAK
+          lagi memutus sesi — cuma lk-header yang berubah tampilan sesuai
+          status login, logout tetap cuma lewat halaman Profil. */}
       <header className="lk-header">
         <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="sl2-nav-left">
@@ -209,6 +219,19 @@ export default function SemuaLowonganMock({ navigate }) {
             </div>
           </div>
 
+          {sumberOptions.length > 1 && (
+            <div className="sl2-filter-group">
+              <div className="sl2-flabel">Lamar Lewat</div>
+              <div className="sl2-pill-group">
+                {sumberOptions.map(o => (
+                  <button type="button" key={o.value} className={`sl2-pill${sumber.includes(o.value) ? ' active' : ''}`} onClick={() => toggleSumber(o.value)}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <button type="button" className="sl2-apply-btn" onClick={scrollToListing}>
             Terapkan Filter
             {activeFilterCount > 0 && <span className="sl2-apply-count">{activeFilterCount}</span>}
@@ -217,11 +240,11 @@ export default function SemuaLowonganMock({ navigate }) {
 
         <div className="sl2-main" ref={mainRef}>
           <div className="sl2-listing-head">
-            <h2>{sort === 'terbaru' ? 'Lowongan terbaru' : 'Semua lowongan'}</h2>
+            <h2>{sort === 'kecocokan' ? 'Paling cocok untuk kamu' : sort === 'terbaru' ? 'Lowongan terbaru' : 'Semua lowongan'}</h2>
             <div className="sl2-sort-box">
               Urutkan
               <select value={sort} onChange={e => setSort(e.target.value)}>
-                {SEMUA_LOWONGAN_SORT_OPTIONS.map(opt => (
+                {sortOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
@@ -242,6 +265,7 @@ export default function SemuaLowonganMock({ navigate }) {
                       <div className="sl2-job-body">
                         <div className="sl2-job-titlerow">
                           <h4 className="sl2-job-title">{job.title}</h4>
+                          {pinKeys.has(job.key) && <span className="sl2-job-pin">Lowongan Luna</span>}
                         </div>
                         <div className="sl2-job-meta">
                           <b>{companyName}</b>
@@ -260,7 +284,10 @@ export default function SemuaLowonganMock({ navigate }) {
                       {job.salary_label ? (
                         <div className={`sl2-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div>
                       ) : <span />}
-                      <button type="button" className="sl2-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                      <div className="sl2-job-cta">
+                        <button type="button" className="sl2-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                        {job.source_label && <span className="sl2-job-note">Lamar lewat {job.source_label}</span>}
+                      </div>
                     </div>
                   </div>
                 </article>

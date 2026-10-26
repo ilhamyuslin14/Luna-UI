@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import LowonganHeader from '../../components/lowongan/LowonganHeader.jsx';
 import KecocokanCardMock from './KecocokanCardMock.jsx';
+import { formatDeskripsiToHtml } from '../../hooks/lowongan/useLamanKarirData.js';
 import { formatDeskripsiEksternal } from '../../hooks/lowongan/useLamanKarirEksternalData.js';
 import { formatTanggalPosting, formatWaktuPosting } from '../../utils/tanggalPosting.js';
 import { itemProfilPerusahaan } from '../../utils/profilPerusahaan.js';
@@ -11,13 +12,15 @@ import '../../../css/lowongan/lowongan-drawer.css';
 // LowonganDrawer asli, bedanya: tidak mencatat tayangan ke database, tidak ada tombol "buka di tab
 // baru", dan "Lamar Sekarang" membuka tautan JobStreet asli lowongan itu di tab baru.
 function baris(job) {
-  const rows = [['Perusahaan', job.company_name], ['Lokasi', job.location], ['Kategori', job.category], ['Ikatan Kerja', job.employment_label]];
+  const rows = job.is_external
+    ? [['Perusahaan', job.company_name], ['Lokasi', job.location], ['Kategori', job.category], ['Ikatan Kerja', job.employment_label]]
+    : [['Departemen', job.departments?.name], ['Level Jabatan', job.level_jabatan], ['Lokasi', job.location], ['Ikatan Kerja', job.employment_label], ['Min. Pendidikan', job.pendidikan], ['Min. Pengalaman', job.experience_label]];
   rows.push(['Upah / Gaji', job.salary_label, job.salary_text_only ? 'muted' : 'accent']);
   rows.push(['Tanggal Posting', formatTanggalPosting(job.posted_at)]);
   return rows.filter(([, v]) => v && v !== '-');
 }
 
-export default function LowonganDrawerMock({ job, onClose }) {
+export default function LowonganDrawerMock({ job, onClose, onLamar }) {
   const [shown, setShown] = useState(false);
   const bodyRef = useRef(null);
   const closeRef = useRef(null);
@@ -53,8 +56,7 @@ export default function LowonganDrawerMock({ job, onClose }) {
 
   useEffect(() => { bodyRef.current?.scrollTo({ top: 0 }); }, [job.key]);
 
-  const lamar = () => window.open(job.external_url, '_blank', 'noopener,noreferrer');
-  const deskripsiHtml = formatDeskripsiEksternal(job.description);
+  const deskripsiHtml = job.is_external ? formatDeskripsiEksternal(job.description) : formatDeskripsiToHtml(job.deskripsi);
 
   return createPortal(
     <div className="ldr-root" role="dialog" aria-modal="true" aria-label={`Detail lowongan ${job.title}`}>
@@ -74,7 +76,7 @@ export default function LowonganDrawerMock({ job, onClose }) {
           <LowonganHeader
             companyName={job.company_name}
             logoUrl={job.logo_url}
-            companyInfo={itemProfilPerusahaan(job)}
+            companyInfo={job.is_external ? itemProfilPerusahaan(job) : []}
             title={job.title}
             meta={[
               job.location && { icon: 'pin', text: job.location },
@@ -104,7 +106,8 @@ export default function LowonganDrawerMock({ job, onClose }) {
         </div>
 
         <div className="ldr-foot">
-          <button type="button" className="ldr-apply" onClick={lamar}>Lamar Sekarang</button>
+          <button type="button" className="ldr-apply" onClick={() => onLamar(job)}>Lamar Sekarang</button>
+          {job.source_label && <p className="ldr-apply-note">Lamar lewat {job.source_label}</p>}
         </div>
       </aside>
     </div>,

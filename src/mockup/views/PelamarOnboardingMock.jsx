@@ -141,7 +141,7 @@ export default function PelamarOnboardingMock({ navigate }) {
   const langkah1Selesai = idx > 0;
   const langkah2Selesai = stage === 'selesai';
   const sedangTanya = idx >= 1 && idx <= 3;
-  const subLangkah2 = sedangTanya ? ['Posisi yang kamu cari', 'Lokasi kerja', 'Gaji yang diharapkan'][idx - 1] : 'Posisi, lokasi, dan gaji yang kamu inginkan.';
+  const subLangkah2 = sedangTanya ? ['Posisi yang kamu cari', 'Lokasi kerja', 'Gaji yang diharapkan'][idx - 1] : 'Posisi, lokasi, dan gaji.';
   const labelTahap = stage === 'cv' ? 'Langkah 1 · Unggah CV' : (stage === 'selesai' ? 'Selesai' : 'Langkah 2 · Preferensi kerja');
 
   return (
@@ -153,8 +153,8 @@ export default function PelamarOnboardingMock({ navigate }) {
         </div>
 
         <div className="pm001-hero-mid pob001-hero-mid">
-          <h2>Kenalan dulu, biar kami bisa merekomendasikan lowongan yang sesuai buat kamu.</h2>
-          <p>Dua langkah singkat. Dari CV dan preferensi kamu, kami menyusun rekomendasi lowongan dan menilai kecocokannya.</p>
+          <h2>Kenalan dulu, biar rekomendasinya pas.</h2>
+          <p>Dua langkah singkat: unggah CV, lalu atur preferensi kerja.</p>
 
           <ol className="pob001-steps">
             <li className="pob001-step">
@@ -164,7 +164,7 @@ export default function PelamarOnboardingMock({ navigate }) {
               </div>
               <div className="pob001-step-text">
                 <b>Unggah CV</b>
-                <span>{langkah1Selesai && file ? file.name : 'Dasar penilaian kecocokan dengan lowongan.'}</span>
+                <span>{langkah1Selesai && file ? file.name : 'Dasar skor kecocokan.'}</span>
               </div>
             </li>
             <li className="pob001-step">
@@ -183,7 +183,7 @@ export default function PelamarOnboardingMock({ navigate }) {
           <div className="pob001-why-score"><b>86</b><span>/100</span></div>
           <div>
             <b>Kenapa CV wajib?</b>
-            <p>CV dipakai untuk menghitung skor kecocokan di tiap lowongan (contoh tampilan di kiri).</p>
+            <p>CV dipakai menghitung skor kecocokan tiap lowongan.</p>
           </div>
         </div>
       </div>
@@ -222,9 +222,6 @@ export default function PelamarOnboardingMock({ navigate }) {
                       
                     </label>
                     {fileError && <div className="pm001-error" role="alert" style={{ marginTop: 12, marginBottom: 0 }}>{fileError}</div>}
-                    <div className="pob001-demo">
-                      <button type="button" className="pob001-link" onClick={() => { setFile({ name: 'CV_Andini_Pratama.pdf', size: '482 KB' }); setFileError(''); }}>Belum punya file? Coba dengan contoh CV</button>
-                    </div>
                   </>
                 ) : (
                   <>
