@@ -22,8 +22,19 @@ const IconFacebook = () => (<svg viewBox="0 0 24 24" fill="none" stroke="current
 const IconInstagram = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" /></svg>);
 const IconTelegram = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>);
 const IconWhatsApp = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>);
+const IconLinkedIn = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" /><line x1="7.5" y1="10.5" x2="7.5" y2="16.5" /><circle cx="7.5" cy="7" r="0.6" fill="currentColor" stroke="none" /><path d="M11 16.5v-3.7a2.3 2.3 0 0 1 4.5 0v3.7" /><line x1="11" y1="10.5" x2="11" y2="16.5" /></svg>);
 const IconX = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>);
 const IconThreads = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 8a4 4 0 1 0 4 4v.5a1.5 1.5 0 0 1-3 0V12" /></svg>);
+
+// Tujuan bagikan laman karier: sama dengan SHARE_PLATFORMS di Sebar_001.jsx (desktop).
+const SHARE_PLATFORMS = [
+  { key: 'whatsapp', label: 'WhatsApp', Icon: IconWhatsApp },
+  { key: 'linkedin', label: 'LinkedIn', Icon: IconLinkedIn },
+  { key: 'instagram', label: 'Instagram', Icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', Icon: IconFacebook },
+  { key: 'x', label: 'X', Icon: IconX },
+  { key: 'telegram', label: 'Telegram', Icon: IconTelegram },
+];
 
 const PLATFORM_ICONS = {
   Facebook: IconFacebook,
@@ -53,6 +64,7 @@ export default function SebarMobile({ navigate }) {
   const [activeTab, setActiveTab] = useState('sendiri');
   const [expanded, setExpanded] = useState({});
   const [qrJob, setQrJob] = useState(null);
+  const [shareJob, setShareJob] = useState(null);
 
   const isExpanded = (job, idx, mode) => {
     const key = `${job.id}:${mode}`;
@@ -83,6 +95,24 @@ export default function SebarMobile({ navigate }) {
         window.URL.revokeObjectURL(url);
       })
       .catch(() => window.open(qrUrl, '_blank', 'noopener,noreferrer'));
+  };
+
+  // Bagikan laman karier: logika sama dengan handleShareAction di Sebar_001.jsx (desktop).
+  const bagikan = (platform, job) => {
+    const posisi = job.posisi || job.jabatan || 'Lowongan';
+    const link = getKarirLink(job);
+    const teks = `Lowongan ${posisi} di ${job.company_name || namaPerusahaan}`;
+    setShareJob(null);
+    const buka = (url) => window.open(url, '_blank', 'noopener,noreferrer');
+    switch (platform) {
+      case 'whatsapp': buka(`https://wa.me/?text=${encodeURIComponent(`${teks}\n${link}`)}`); break;
+      case 'linkedin': buka(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`); break;
+      case 'facebook': buka(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`); break;
+      case 'x': buka(`https://twitter.com/intent/tweet?url=${encodeURIComponent(link)}&text=${encodeURIComponent(teks)}`); break;
+      case 'telegram': buka(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(teks)}`); break;
+      case 'instagram': copyText('share-ig', link, 'Link disalin! Tempelkan di bio atau story Instagram.'); break;
+      default: copyText('share-link', link, 'Tautan Laman Karir tersalin!');
+    }
   };
 
   const renderJobCard = (job, idx, mode) => {
@@ -116,6 +146,7 @@ export default function SebarMobile({ navigate }) {
           <button className="msb-icon-btn" onClick={() => openKarir(job)} aria-label="Lihat Laman Karier"><IconEye /></button>
           <button className="msb-icon-btn" onClick={() => openRingkasan(job)} aria-label="Lihat Ringkasan Lowongan"><IconFile /></button>
           <button className="msb-icon-btn qr" onClick={() => setQrJob(job)} aria-label="Kode QR Laman Karier"><IconQr /></button>
+          <button className={`msb-icon-btn share${shareJob?.id === job.id ? ' active' : ''}`} onClick={() => setShareJob(job)} aria-label="Bagikan Laman Karier"><IconShare /></button>
           <button
             className={`msb-copy-btn${isCopied ? ' copied' : ''}`}
             onClick={() => copyText(
@@ -275,6 +306,37 @@ export default function SebarMobile({ navigate }) {
             </div>
           )}
         </>
+      )}
+
+      {/* ── sheet: bagikan laman karier ── */}
+      {createPortal(
+        <>
+          <div className={`msh-sheet-overlay${shareJob ? ' open' : ''}`} onClick={() => setShareJob(null)} />
+          <div className={`msh-sheet${shareJob ? ' open' : ''}`}>
+            <div className="msh-sheet-handle" />
+            {shareJob && (
+              <>
+                <div className="msb-qr-eyebrow">Bagikan Laman Karier</div>
+                <div className="msb-qr-title">{shareJob.posisi || shareJob.jabatan}</div>
+                <div className="msb-qr-sub">{namaPerusahaan}</div>
+                <div className="msb-qr-url-row">
+                  <span>{getKarirLink(shareJob)}</span>
+                  <button onClick={() => bagikan('copy', shareJob)}>Salin</button>
+                </div>
+                <div className="msb-share-grid">
+                  {SHARE_PLATFORMS.map(({ key, label, Icon }) => (
+                    <button key={key} className="msb-share-btn" onClick={() => bagikan(key, shareJob)}>
+                      <span className="msb-share-ic"><Icon /></span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+                <button className="msb-qr-cancel" onClick={() => setShareJob(null)}>Tutup</button>
+              </>
+            )}
+          </div>
+        </>,
+        document.body
       )}
 
       {/* ── sheet: kode QR ── */}

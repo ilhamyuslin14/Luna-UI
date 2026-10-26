@@ -117,6 +117,22 @@ const IconFooterInstagram = () => (
 export default function ProfilPelamar_001({ navigate }) {
   const { user, pelamarProfile, simpanPreferensi } = useAuth();
   const isMobile = useIsMobile();
+
+  // Di mobile, daftar yang bisa panjang (riwayat karier, pendidikan, sertifikasi, keahlian) hanya menampilkan
+  // beberapa item pertama dengan tombol "lihat lainnya"; deskripsi karier panjang dipotong dengan "Selengkapnya".
+  const [lihatSemua, setLihatSemua] = useState({});
+  const [deskripsiBuka, setDeskripsiBuka] = useState({});
+  const potong = (daftar, kunci, batas) => (isMobile && !lihatSemua[kunci] ? daftar.slice(0, batas) : daftar);
+  const tombolLebih = (daftar, kunci, batas, satuan) => {
+    if (!isMobile || daftar.length <= batas) return null;
+    const terbuka = !!lihatSemua[kunci];
+    return (
+      <button type="button" className="pp001-more-btn" aria-expanded={terbuka} onClick={() => setLihatSemua((v) => ({ ...v, [kunci]: !v[kunci] }))}>
+        {terbuka ? 'Tampilkan lebih sedikit' : `Lihat ${daftar.length - batas} ${satuan} lainnya`}
+      </button>
+    );
+  };
+  const deskripsiPanjang = (teks) => isMobile && (teks || '').length > 150;
   // State interaktif mockup
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -1168,7 +1184,7 @@ export default function ProfilPelamar_001({ navigate }) {
                 {profile.pengalaman.length === 0 && (
                   <p className="pp001-empty-hint">Belum ada riwayat karier — unggah resume atau tambah manual lewat "Tambah Jabatan".</p>
                 )}
-                {profile.pengalaman.map((exp) => (
+                {potong(profile.pengalaman, 'pengalaman', 2).map((exp) => (
                   <div key={exp.id} className="pp001-item">
                     <div className="pp001-item-icon">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -1220,11 +1236,17 @@ export default function ProfilPelamar_001({ navigate }) {
                         <span>{exp.lokasi}</span>
                       </div>
 
-                      <p className="pp001-item-desc">{exp.deskripsi}</p>
+                      <p className={`pp001-item-desc${deskripsiPanjang(exp.deskripsi) && !deskripsiBuka[exp.id] ? ' is-clamp' : ''}`}>{exp.deskripsi}</p>
+                      {deskripsiPanjang(exp.deskripsi) && (
+                        <button type="button" className="pp001-more-inline" onClick={() => setDeskripsiBuka((v) => ({ ...v, [exp.id]: !v[exp.id] }))}>
+                          {deskripsiBuka[exp.id] ? 'Lebih sedikit' : 'Selengkapnya'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
+              {tombolLebih(profile.pengalaman, 'pengalaman', 2, 'riwayat')}
             </section>
 
             {/* 4. Pendidikan (Education) */}
@@ -1256,7 +1278,7 @@ export default function ProfilPelamar_001({ navigate }) {
                 {profile.pendidikan.length === 0 && (
                   <p className="pp001-empty-hint">Belum ada riwayat pendidikan — unggah resume atau tambah manual lewat "Tambah Pendidikan".</p>
                 )}
-                {profile.pendidikan.map((edu) => (
+                {potong(profile.pendidikan, 'pendidikan', 2).map((edu) => (
                   <div key={edu.id} className="pp001-item">
                     <div className="pp001-item-icon">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -1308,6 +1330,7 @@ export default function ProfilPelamar_001({ navigate }) {
                   </div>
                 ))}
               </div>
+              {tombolLebih(profile.pendidikan, 'pendidikan', 2, 'pendidikan')}
             </section>
 
             {/* 5. Lisensi & Sertifikasi */}
@@ -1339,7 +1362,7 @@ export default function ProfilPelamar_001({ navigate }) {
                 {profile.sertifikasi.length === 0 && (
                   <p className="pp001-empty-hint">Belum ada lisensi atau sertifikasi — unggah resume atau tambah manual lewat "Tambah Sertifikat".</p>
                 )}
-                {profile.sertifikasi.map((cert) => (
+                {potong(profile.sertifikasi, 'sertifikasi', 2).map((cert) => (
                   <div key={cert.id} className="pp001-item">
                     <div className="pp001-item-icon">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -1391,6 +1414,7 @@ export default function ProfilPelamar_001({ navigate }) {
                   </div>
                 ))}
               </div>
+              {tombolLebih(profile.sertifikasi, 'sertifikasi', 2, 'sertifikasi')}
             </section>
 
             {/* 6. Keahlian (Skills) */}
@@ -1421,13 +1445,14 @@ export default function ProfilPelamar_001({ navigate }) {
                 {profile.keahlian.length === 0 && (
                   <p className="pp001-empty-hint">Belum ada keahlian — unggah resume atau tambah manual lewat "Kelola Keahlian".</p>
                 )}
-                {profile.keahlian.map((skill, idx) => (
+                {potong(profile.keahlian, 'keahlian', 8).map((skill, idx) => (
                   <div key={idx} className="pp001-skill-chip">
                     <span>{skill.nama}</span>
                     {skill.level && <span className="pp001-skill-level">{skill.level}</span>}
                   </div>
                 ))}
               </div>
+              {tombolLebih(profile.keahlian, 'keahlian', 8, 'keahlian')}
             </section>
 
             {/* 7. Penguasaan Bahasa */}

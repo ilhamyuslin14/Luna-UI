@@ -1592,3 +1592,38 @@ select.pp001-form-input {
 /* Footer di dasar halaman: tidak ada jarak kosong di bawahnya, dan sedikit jarak di atasnya dari konten */
 .pp001-layout:has(> .sl2-footer, > .sl2m-footer) { padding-bottom: 0; }
 .pp001-layout > .sl2-footer, .pp001-layout > .sl2m-footer { margin-top: 56px; }
+
+/* ═══ Mobile (<= 640px): kartu resume, judul bagian, dan baris preferensi dirapikan ═══ */
+@media (max-width: 640px) {
+  /* Kartu resume: info di atas (nama file satu baris, dipotong dengan …), tombol di bawah selebar kartu */
+  .pp001-resume-box { flex-direction: column; align-items: stretch; gap: 14px; padding: 14px; }
+  .pp001-resume-info { min-width: 0; }
+  .pp001-resume-icon-badge { flex-shrink: 0; }
+  .pp001-resume-meta { min-width: 0; flex: 1; }
+  .pp001-resume-meta h5 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pp001-resume-meta p { overflow-wrap: anywhere; }
+  .pp001-resume-actions { width: 100%; }
+  .pp001-resume-actions > * { flex: 1; justify-content: center; min-height: 40px; white-space: nowrap; }
+
+  /* Judul bagian dan tombol aksinya boleh turun baris, tidak saling menghimpit */
+  .pp001-section-header { flex-wrap: wrap; gap: 10px; }
+  .pp001-section-title-wrap { min-width: 0; flex: 1 1 auto; }
+  .pp001-section-title { font-size: 16px; }
+
+  /* Preferensi: label di atas, nilai di bawahnya */
+  .pp001-pref-row { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 0; }
+  .pp001-pref-label, .pp001-pref-value { width: 100%; }
+
+  /* Pengalaman, pendidikan, sertifikasi: ikon lebih kecil, teks tidak meluber */
+  .pp001-item { gap: 12px; }
+  .pp001-item-icon { width: 36px; height: 36px; }
+  .pp001-item-body { min-width: 0; }
+  .pp001-item-title, .pp001-item-company { overflow-wrap: anywhere; }
+  .pp001-item-meta { flex-wrap: wrap; row-gap: 2px; }
+}
+
+/* Mobile: "lihat lainnya" untuk daftar panjang dan potongan deskripsi karier */
+.pp001-item-desc.is-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pp001-more-inline { margin-top: 6px; padding: 0; border: 0; background: none; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #D66800; cursor: pointer; }
+.pp001-more-btn { width: 100%; margin-top: 14px; min-height: 42px; border: 1px solid var(--pp-border-strong, #D5D9E2); border-radius: 10px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--pp-ink-body, #334155); cursor: pointer; }
+.pp001-more-btn:hover { background: var(--pp-bg, #F8FAFC); }
