@@ -189,3 +189,13 @@
 .sl2-kota-chip { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 12px; padding: 5px 6px 5px 12px; border-radius: 999px; background: #F1F5F9; border: 1px solid #E2E8F0; font-size: 12.5px; color: #334155; }
 .sl2-kota-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #CBD5E1; color: #fff; font-size: 14px; line-height: 1; cursor: pointer; }
 .sl2-kota-chip button:hover { background: #94A3B8; }
+
+/* Banner untuk tamu di atas daftar: skor baru muncul setelah ada profil dan CV */
+.sl2-guest { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 16px; padding: 14px 18px; background: #FFF7ED; border: 1px solid #FFD9A8; border-radius: 14px; }
+.sl2-guest b { display: block; font-size: 14px; color: #9A3412; }
+.sl2-guest span { display: block; margin-top: 2px; font-size: 12.5px; color: #B45309; }
+.sl2-guest-aksi { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.sl2-guest-daftar { height: 38px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--karir-primary, #FF8D21); color: #fff; font-family: 'Inter Tight', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.sl2-guest-daftar:hover { background: var(--karir-primary-hover, #E87A13); }
+.sl2-guest-masuk { border: 0; background: none; padding: 0; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #9A3412; text-decoration: underline; cursor: pointer; white-space: nowrap; }
+@media (max-width: 900px) { .sl2-guest { flex-direction: column; align-items: flex-start; } }

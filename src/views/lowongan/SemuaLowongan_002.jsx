@@ -284,6 +284,19 @@ export default function SemuaLowongan_002({ navigate }) {
 
           {otomatis.berjalan && <div className="sl2-auto-note">Menghitung kecocokan CV kamu dengan lowongan di halaman ini…</div>}
           {!otomatis.berjalan && otomatis.berhenti === 'kuota' && <div className="sl2-auto-note warn">Batas pengecekan kecocokan hari ini sudah tercapai. Sisanya dihitung besok, atau buka detail lowongan setelah kuota kembali.</div>}
+          {!isPelamar && (
+            <div className="sl2-guest">
+              <div>
+                <b>Daftar untuk lihat skor kecocokan</b>
+                <span>Skor muncul setelah kamu punya profil dan CV.</span>
+              </div>
+              <div className="sl2-guest-aksi">
+                <button type="button" className="sl2-guest-daftar" onClick={() => navigate?.('pelamar-daftar')}>Daftar untuk Lihat Skor</button>
+                <button type="button" className="sl2-guest-masuk" onClick={goMasuk}>Sudah punya akun? Masuk</button>
+              </div>
+            </div>
+          )}
+
           {kota && (
             <div className="sl2-kota-chip">
               Kota: <b>{kota}</b>
@@ -319,7 +332,9 @@ export default function SemuaLowongan_002({ navigate }) {
                         ? <KecocokanMini loading />
                         : skorMap[job.key] != null
                           ? <KecocokanMini score={skorMap[job.key]} />
-                          : isPelamar && <KecocokanMini ghost />}
+                          : isPelamar
+                            ? <KecocokanMini ghost />
+                            : <KecocokanMini terkunci onClick={(e) => { e.stopPropagation(); navigate?.('pelamar-daftar'); }} />}
                     </div>
 
                     <div className="sl2-job-bottom">

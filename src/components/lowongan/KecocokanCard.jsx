@@ -74,8 +74,9 @@ export default function KecocokanCard({ jobKey, jobTitle, navigate, varian = VAR
 
       {state === 'guest' && (
         <div className="kcc-body">
-          <p className="kcc-text">Lihat seberapa cocok CV kamu dengan lowongan ini sebelum melamar.</p>
-          <button type="button" className="kcc-btn" onClick={() => go('pelamar-masuk')}>Masuk untuk melihat</button>
+          <p className="kcc-text">Skor kecocokan muncul setelah kamu punya profil dan CV, jadi kamu tahu seberapa cocok sebelum melamar.</p>
+          <button type="button" className="kcc-btn" onClick={() => go('pelamar-daftar')}>Daftar untuk Lihat Skor</button>
+          <p className="kcc-hint"><button type="button" className="kcc-link" onClick={() => go('pelamar-masuk')}>Sudah punya akun? Masuk</button></p>
         </div>
       )}
 

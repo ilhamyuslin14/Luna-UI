@@ -165,8 +165,8 @@ export default function LandingPelamarMock({ navigate }) {
       {/* ── 1. Hero (opsi E: teks + pencarian 2/3, cuplikan skor 1/3) ── */}
       <section className="lp003-hero lpp-hero">
         <div className="lp003-hero-copy lpp-hero-copy">
-          <h1 className="lp003-hero-title lpp-hero-title">Cari lowongan yang benar-benar <span className="lpp-accent">cocok</span> buat kamu</h1>
-          <p className="lp003-hero-subtitle lpp-hero-sub">Lihat seberapa cocok CV-mu dengan tiap lowongan sebelum melamar, dari lowongan Luna dan sumber lain di satu tempat.</p>
+          <h1 className="lp003-hero-title lpp-hero-title">Ribuan lowongan dari <span className="lpp-accent">berbagai sumber</span> yang sesuai denganmu</h1>
+          <p className="lp003-hero-subtitle lpp-hero-sub">Luna menampilkan ribuan lowongan dari berbagai sumber dan mencocokkannya dengan profil dan ekspektasimu.</p>
 
           <form className="lpp-search" onSubmit={cari} role="search">
             <label className="lpp-search-field lpp-search-posisi">
@@ -233,21 +233,61 @@ export default function LandingPelamarMock({ navigate }) {
         </div>
       </section>
 
-      {/* ── 2. Fitur utama ── */}
+      {/* ── 2. Masalah ── */}
+      <section className="lp003-fitur lpp-masalah" id="masalah">
+        <div className="lp003-fitur-head">
+          <div className="lp003-fitur-eyebrow-row">
+            <span className="lp003-fitur-eyebrow">Masalahnya</span>
+          </div>
+          <h2 className="lp003-fitur-title-main">Cari kerja melelahkan karena dua hal</h2>
+          <p className="lp003-fitur-sub">Dua hal yang hampir semua pencari kerja alami, dan yang Luna selesaikan.</p>
+        </div>
+
+        <div className="lpp-masalah-grid">
+          <div className="lpp-masalah-card">
+            <span className="lpp-masalah-ic" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="7" r="2.5" /><circle cx="8" cy="18" r="2.5" /><circle cx="18" cy="17" r="2.5" /><path d="M8.3 6.4l7.4.4M7.2 8.3l.6 7.2M16.5 9.3l1 5.2M10.4 17.6l5.2-.4" /></svg>
+            </span>
+            <h3>Susah mencari lowongan dari berbagai sumber</h3>
+            <p>Lowongan tersebar di banyak tempat. Kamu harus membuka satu per satu, dan tetap tidak yakin sudah melihat semuanya.</p>
+          </div>
+          <div className="lpp-masalah-card">
+            <span className="lpp-masalah-ic" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M9.2 9.2a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4" /><line x1="12" y1="17.6" x2="12.01" y2="17.6" /></svg>
+            </span>
+            <h3>Tidak tahu kecocokannya, jadi asal kirim lamaran</h3>
+            <p>Tanpa tahu seberapa cocok CV-mu dengan lowongan, lamaran dikirim asal-asalan. Waktumu habis, hasilnya tidak jelas.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. Solusi: empat poin ── */}
       <section className="lp003-fitur" id="fitur">
         <div className="lp003-fitur-head">
           <div className="lp003-fitur-eyebrow-row">
-            <span className="lp003-fitur-eyebrow">Kenapa Luna</span>
+            <span className="lp003-fitur-eyebrow">Solusinya</span>
           </div>
-          <h2 className="lp003-fitur-title-main">Cari tahu kecocokan dengan lowongan yang akan dilamar</h2>
-          <p className="lp003-fitur-sub">Berhenti melamar sambil menebak. Luna membaca CV-mu, menilai tiap lowongan, dan menyusun yang paling pas di atas.</p>
+          <h2 className="lp003-fitur-title-main">Luna menyelesaikan keduanya</h2>
+          <p className="lp003-fitur-sub">Semua lowongan di satu tempat, dipilihkan untukmu, lengkap dengan skor kecocokan.</p>
         </div>
 
         <div className="lpp-bento">
           <div className="lp003-bento-cell">
+            <span className="lp003-bento-tag">Berbagai sumber</span>
+            <h3>Lowongan dari berbagai sumber, satu tempat</h3>
+            <p>Lowongan dari perusahaan di Luna dan sumber lain dikumpulkan jadi satu. Kamu cukup mencari sekali.</p>
+            <div className="lpp-bento-mock lpp-rank">
+              <div className="lpp-rank-pref"><span>Sumber</span><b>Luna</b><b>JobStreet</b></div>
+              <div className="lpp-rank-row"><div><b>Business Analyst</b><small>PT Sinergi Data</small></div><span className="lpp-src-pill luna">Luna</span></div>
+              <div className="lpp-rank-row"><div><b>Junior Business Analyst</b><small>PT Perangkat Lunak Indonesia</small></div><span className="lpp-src-pill">JobStreet</span></div>
+              <div className="lpp-rank-row"><div><b>Admin Purchasing</b><small>PT Aplus Pacific</small></div><span className="lpp-src-pill">JobStreet</span></div>
+            </div>
+          </div>
+
+          <div className="lp003-bento-cell">
             <span className="lp003-bento-tag">Skor kecocokan</span>
-            <h3>Skor 0–100 untuk setiap lowongan</h3>
-            <p>Luna membandingkan CV-mu dengan deskripsi lowongan, lalu memberi skor dalam tiga tingkat yang mudah dibaca.</p>
+            <h3>Skor kecocokan untuk setiap lowongan</h3>
+            <p>CV-mu dibandingkan dengan deskripsi lowongan, lalu diberi skor 0–100 dalam tiga tingkat.</p>
             <div className="lpp-bento-mock lpp-skor-demo">
               <div className="kcc-banner great lpp-skor-banner">
                 <span className="kcc-deco a" /><span className="kcc-deco b" />
@@ -266,34 +306,20 @@ export default function LandingPelamarMock({ navigate }) {
           </div>
 
           <div className="lp003-bento-cell">
-            <span className="lp003-bento-tag">Rekomendasi</span>
-            <h3>Yang paling pas tampil di atas</h3>
-            <p>Posisi dan kota pilihanmu menentukan urutan, lalu lowongan diurutkan dari skor tertinggi.</p>
+            <span className="lp003-bento-tag">Dikurasi untukmu</span>
+            <h3>Dikurasi sesuai profil dan ekspektasimu</h3>
+            <p>Posisi, kota, dan gaji yang kamu mau menentukan lowongan mana yang tampil lebih dulu.</p>
             <div className="lpp-bento-mock lpp-rank">
               <div className="lpp-rank-pref"><span>Preferensimu</span><b>Data Analyst</b><b>Jakarta</b></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">1</span><div><b>Business Analyst</b><small>Lowongan Luna</small></div><span className="lpp-rank-s great">91</span></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">2</span><div><b>Data Analyst</b><small>JobStreet</small></div><span className="lpp-rank-s great">78</span></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">3</span><div><b>Admin Purchasing</b><small>JobStreet</small></div><span className="lpp-rank-s amber">43</span></div>
-            </div>
-          </div>
-
-          <div className="lp003-bento-cell">
-            <span className="lp003-bento-tag">Lamar cepat</span>
-            <h3>Satu profil, lamar tanpa isi form</h3>
-            <p>Untuk lowongan Luna, kirim lamaran dari profilmu sekali klik. CV tidak perlu diunggah ulang.</p>
-            <div className="lpp-bento-mock lpp-mini-card">
-              <div className="lpp-mini-row"><span>Nama</span><b>Nama Pelamar</b></div>
-              <div className="lpp-mini-row"><span>Email</span><b>nama@email.com</b></div>
-              <div className="lpp-mini-row"><span>Nomor HP</span><b>08xx-xxxx-xxxx</b></div>
-              <div className="lpp-mini-row"><span>CV</span><b>CV_Nama_Pelamar.pdf</b></div>
-              <div className="lpp-mini-check"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7" /></svg></i>Saya setuju profil dan CV dikirim ke perusahaan</div>
-              <div className="lpp-mini-btn">Kirim lamaran</div>
+              <div className="lpp-rank-row"><span className="lpp-rank-n">1</span><div><b>Business Analyst</b><small>Sesuai posisi pilihanmu</small></div></div>
+              <div className="lpp-rank-row"><span className="lpp-rank-n">2</span><div><b>Data Analyst</b><small>Sesuai posisi pilihanmu</small></div></div>
+              <div className="lpp-rank-row"><span className="lpp-rank-n">3</span><div><b>Product Analyst</b><small>Sesuai kota pilihanmu</small></div></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 3. Cara kerja ── */}
+      {/* ── 4. Cara kerja ── */}
       <section className="lp003-langkah" id="cara-kerja">
         <div className="lp003-langkah-inner">
           <div className="lp003-langkah-head">
@@ -394,7 +420,7 @@ export default function LandingPelamarMock({ navigate }) {
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <b>Luna</b>
           </div>
-          <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+          <p>Luna menampilkan lowongan dari berbagai sumber dan mencocokkannya dengan profil dan ekspektasimu.</p>
 
           <div className="sl2m-footer-cols">
             <div className="sl2m-footer-col">
@@ -425,7 +451,7 @@ export default function LandingPelamarMock({ navigate }) {
                 <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
                 <b>Luna</b>
               </div>
-              <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+              <p>Luna menampilkan lowongan dari berbagai sumber dan mencocokkannya dengan profil dan ekspektasimu.</p>
             </div>
             <div className="sl2-footer-col">
               <h4>Untuk Pelamar</h4>
