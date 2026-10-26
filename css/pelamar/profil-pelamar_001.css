@@ -1588,3 +1588,7 @@ select.pp001-form-input {
 /* Modal dengan <form> membungkus isi: form harus ikut flex supaya isi panjang bisa digulir di dalam kartu */
 .pp001-modal-card > form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .pp001-modal-card > form > .pp001-modal-body { flex: 1; min-height: 0; }
+
+/* Footer di dasar halaman: tidak ada jarak kosong di bawahnya, dan sedikit jarak di atasnya dari konten */
+.pp001-layout:has(> .sl2-footer, > .sl2m-footer) { padding-bottom: 0; }
+.pp001-layout > .sl2-footer, .pp001-layout > .sl2m-footer { margin-top: 56px; }

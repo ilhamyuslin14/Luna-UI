@@ -10,6 +10,8 @@ import useIsMobile from '../../hooks/useIsMobile.js';
 import '../../../css/mobile/shell.css';
 import '../../../css/mobile/lowongan/laman-karir.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
+import '../../../css/lowongan/semua-lowongan_002.css';
+import '../../../css/mobile/lowongan/semua-lowongan_002.css';
 
 const BULAN_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -104,6 +106,13 @@ function mapSkillsFromResume(arr) {
   if (!Array.isArray(arr)) return [];
   return arr.map(nama => ({ nama, level: null }));
 }
+
+const IconFooterLinkedIn = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /><path d="M10 9v12M10 13a4 4 0 0 1 8 0v8" /></svg>
+);
+const IconFooterInstagram = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /></svg>
+);
 
 export default function ProfilPelamar_001({ navigate }) {
   const { user, pelamarProfile, simpanPreferensi } = useAuth();
@@ -1631,6 +1640,73 @@ export default function ProfilPelamar_001({ navigate }) {
         </div>
 
       </div>
+
+      {/* ─── Footer: sama dengan halaman Semua Lowongan (desktop dan mobile) ─── */}
+      {isMobile ? (
+        <footer className="sl2m-footer">
+          <div className="sl2m-footer-brand">
+            <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+            <b>Luna</b>
+          </div>
+          <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+
+          <div className="sl2m-footer-cols">
+            <div className="sl2m-footer-col">
+              <h5>Untuk Pelamar</h5>
+              <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
+              <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Profil Saya</button>
+            </div>
+            <div className="sl2m-footer-col">
+              <h5>Untuk Perusahaan</h5>
+              <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+              <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+            </div>
+          </div>
+
+          <div className="sl2m-footer-bottom">
+            <span>© {new Date().getFullYear()} Luna. Semua hak dilindungi.</span>
+            <div className="sl2m-footer-social">
+              <span><IconFooterLinkedIn /></span>
+              <span><IconFooterInstagram /></span>
+            </div>
+          </div>
+        </footer>
+      ) : (
+        <footer className="sl2-footer">
+          <div className="sl2-footer-top">
+            <div>
+              <div className="sl2-footer-brand">
+                <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+                <b>Luna</b>
+              </div>
+              <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Untuk Pelamar</h4>
+              <button type="button" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</button>
+              <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Profil Saya</button>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Untuk Perusahaan</h4>
+              <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+              <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Luna</h4>
+              <span>Tentang Kami</span>
+              <span>Bantuan</span>
+              <span>Kebijakan Privasi</span>
+            </div>
+          </div>
+          <div className="sl2-footer-bottom">
+            <span>© 2026 Luna. Seluruh hak cipta dilindungi.</span>
+            <div className="sl2-footer-social">
+              <span><IconFooterLinkedIn /></span>
+              <span><IconFooterInstagram /></span>
+            </div>
+          </div>
+        </footer>
+      )}
 
       {/* ─── Modal 1: Unggah / Ganti Foto Profil ─── */}
       {showModalPhoto && (

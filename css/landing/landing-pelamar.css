@@ -195,3 +195,32 @@ body:has(.lpp-page) { overflow: visible; }
   .lpp-terbaru-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
 }
+
+/* ═══ Mobile (<= 768px, sama dengan useIsMobile): mengikuti desain portal pelamar mobile (sl2m-*) ═══ */
+@media (max-width: 768px) {
+  .lpp-page .lk-head { font-family: 'Inter Tight', sans-serif; }
+
+  /* Hero: rata kiri, ukuran dan jarak seperti hero daftar lowongan mobile, kotak pencarian seperti .sl2m-search */
+  .lpp-hero { align-items: stretch; text-align: left; gap: 22px; padding: 22px 16px 28px; }
+  .lpp-hero-copy { align-items: flex-start; max-width: none; gap: 12px; }
+  .lpp-hero-title { font-family: 'Plus Jakarta Sans', 'Inter Tight', sans-serif; font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
+  .lpp-hero-sub { font-size: 13.5px; line-height: 1.55; }
+  .lpp-search { margin-top: 6px; padding: 6px; border-radius: 14px; border: 1.5px solid #e2e8f0; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
+  .lpp-search-field { height: 46px; padding: 0 12px; }
+  .lpp-search-field input { font-size: 14px; }
+  .lpp-search-btn { height: 46px; font-size: 14.5px; border-radius: 10px; }
+  .lpp-saran { top: calc(100% + 6px); }
+  .lpp-visual { max-width: 300px; height: 270px; margin: 0 auto; }
+  .lpp-visual-ring { width: 270px; height: 270px; }
+  .lpp-vcard { width: 226px; padding: 12px; gap: 9px; }
+  .lpp-vcard-n { font-size: 28px; }
+  .lpp-vchip { padding: 7px 10px; font-size: 11.5px; }
+
+  /* Bagian-bagian: tepi 16px seperti halaman mobile lain */
+  .lp003-fitur, .lp003-faq { padding-left: 16px; padding-right: 16px; }
+  .lp003-langkah-inner { padding-left: 16px; padding-right: 16px; }
+  .lp003-cta-quiet { padding-left: 16px; padding-right: 16px; }
+  .lpp-bento, .lpp-steps { max-width: none; }
+  .lpp-terbaru-more { margin-top: 20px; }
+  .lpp-lihat { width: 100%; justify-content: center; }
+}

@@ -2,9 +2,11 @@
 // MockSession, tanpa database. Pencarian selalu membuka daftar sebagai pelamar contoh. Ubah tampilan asli di
 // views/landing/LandingPagePelamar_001.jsx lalu salin ulang bagian visualnya ke sini.
 import { useMemo, useState } from 'react';
+import useIsMobile from '../../hooks/useIsMobile.js';
 import { useMockSession } from '../MockSession.jsx';
 import { MockNavMenu } from '../components/MockNav.jsx';
 import { LOWONGAN_DUMMY } from '../data/lowonganDummy.js';
+import { MockMobileNav } from '../components/MockNav.jsx';
 import CompanyLogoBox from '../../components/lowongan/CompanyLogoBox.jsx';
 import { ID_REGIONS } from '../../utils/idRegions.js';
 import '../../../css/landing/landing-page_003.css';
@@ -12,6 +14,8 @@ import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
 import '../../../css/lowongan/kecocokan-card.css';
+import '../../../css/mobile/lowongan/laman-karir.css';
+import '../../../css/mobile/lowongan/semua-lowongan_002.css';
 import '../../../css/landing/landing-pelamar.css';
 
 // Landing page untuk PELAMAR (/?view=landingpage-pelamar). Memakai sistem desain landing perusahaan
@@ -37,6 +41,8 @@ const IconLinkedIn = () => (
 const IconInstagram = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /></svg>
 );
+const IconUser = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>);
+const IconCompany = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>);
 const IconSearch = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7.5" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 );
@@ -67,6 +73,7 @@ const inisialDari = (nama) => { const p = (nama || 'P').trim().split(/\s+/).filt
 
 export default function LandingPelamarMock({ navigate }) {
   const { isPelamar, login } = useMockSession();
+  const isMobile = useIsMobile();
   const [posisi, setPosisi] = useState('');
   const [kota, setKota] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
@@ -110,30 +117,50 @@ export default function LandingPelamarMock({ navigate }) {
     <div className="lp003-page lpp-page">
 
       {/* ── Navbar: sama dengan halaman Semua Lowongan (menu, status masuk, dan tombol Untuk Perusahaan) ── */}
-      <header className="lk-header">
-        <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="sl2-nav-left">
-            <a className="lk-brand" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
-              <span className="lk-brand-divider" />
-              <span className="lk-brand-badge">PORTAL KARIR</span>
-            </a>
-            <nav className="sl2-nav-links">
-              <span className="sl2-nav-link" onClick={goDaftarLowongan}>Cari Lowongan</span>
-              <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
-            </nav>
-          </div>
-          <div className="lk-header-actions">
+      {isMobile ? (
+        <div className="lk-head">
+          <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+            <span className="lk-logo-divider" />
+            <span className="lk-badge-portal">PORTAL KARIR</span>
+          </a>
+          <div className="lk-head-actions">
             {isPelamar ? (
-              <MockNavMenu navigate={navigate} />
+              <MockMobileNav navigate={navigate} activeTab="cari" />
             ) : (
-              <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+              <>
+                <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
+                <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
+              </>
             )}
-            <span className="lk-nav-divider" />
-            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
-      </header>
+      ) : (
+        <header className="lk-header">
+          <div className="lk-header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="sl2-nav-left">
+              <a className="lk-brand" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
+                <span className="lk-brand-divider" />
+                <span className="lk-brand-badge">PORTAL KARIR</span>
+              </a>
+              <nav className="sl2-nav-links">
+                <span className="sl2-nav-link" onClick={goDaftarLowongan}>Cari Lowongan</span>
+                <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
+              </nav>
+            </div>
+            <div className="lk-header-actions">
+              {isPelamar ? (
+                <MockNavMenu navigate={navigate} />
+              ) : (
+                <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
+              )}
+              <span className="lk-nav-divider" />
+              <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
+            </div>
+          </div>
+        </header>
+      )}
 
       {/* ── 1. Hero (opsi E: teks + pencarian 2/3, cuplikan skor 1/3) ── */}
       <section className="lp003-hero lpp-hero">
@@ -361,40 +388,71 @@ export default function LandingPelamarMock({ navigate }) {
       </section>
 
       {/* ── Footer: sama dengan halaman Semua Lowongan ── */}
-      <footer className="sl2-footer">
-        <div className="sl2-footer-top">
-          <div>
-            <div className="sl2-footer-brand">
-              <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
-              <b>Luna</b>
+      {isMobile ? (
+        <footer className="sl2m-footer">
+          <div className="sl2m-footer-brand">
+            <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+            <b>Luna</b>
+          </div>
+          <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+
+          <div className="sl2m-footer-cols">
+            <div className="sl2m-footer-col">
+              <h5>Untuk Pelamar</h5>
+              <button type="button" onClick={goDaftarLowongan}>Cari Lowongan</button>
+              <button type="button" onClick={goDaftar}>Buat Profil</button>
             </div>
-            <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+            <div className="sl2m-footer-col">
+              <h5>Untuk Perusahaan</h5>
+              <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+              <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+            </div>
           </div>
-          <div className="sl2-footer-col">
-            <h4>Untuk Pelamar</h4>
-            <button type="button" onClick={goDaftarLowongan}>Cari Lowongan</button>
-            <button type="button" onClick={goDaftar}>Buat Profil</button>
+
+          <div className="sl2m-footer-bottom">
+            <span>© {new Date().getFullYear()} Luna. Semua hak dilindungi.</span>
+            <div className="sl2m-footer-social">
+              <span><IconLinkedIn /></span>
+              <span><IconInstagram /></span>
+            </div>
           </div>
-          <div className="sl2-footer-col">
-            <h4>Untuk Perusahaan</h4>
-            <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
-            <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+        </footer>
+      ) : (
+        <footer className="sl2-footer">
+          <div className="sl2-footer-top">
+            <div>
+              <div className="sl2-footer-brand">
+                <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
+                <b>Luna</b>
+              </div>
+              <p>Platform rekrutmen &amp; portal karier buat perusahaan kecil-menengah di Indonesia.</p>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Untuk Pelamar</h4>
+              <button type="button" onClick={goDaftarLowongan}>Cari Lowongan</button>
+              <button type="button" onClick={goDaftar}>Buat Profil</button>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Untuk Perusahaan</h4>
+              <button type="button" onClick={goPerusahaan}>Pasang Lowongan</button>
+              <button type="button" onClick={goPerusahaan}>Masuk Dashboard</button>
+            </div>
+            <div className="sl2-footer-col">
+              <h4>Luna</h4>
+              <span>Tentang Kami</span>
+              <span>Bantuan</span>
+              <span>Kebijakan Privasi</span>
+            </div>
           </div>
-          <div className="sl2-footer-col">
-            <h4>Luna</h4>
-            <span>Tentang Kami</span>
-            <span>Bantuan</span>
-            <span>Kebijakan Privasi</span>
+          <div className="sl2-footer-bottom">
+            <span>© 2026 Luna. Seluruh hak cipta dilindungi.</span>
+            <div className="sl2-footer-social">
+              <span><IconLinkedIn /></span>
+              <span><IconInstagram /></span>
+            </div>
           </div>
-        </div>
-        <div className="sl2-footer-bottom">
-          <span>© 2026 Luna. Seluruh hak cipta dilindungi.</span>
-          <div className="sl2-footer-social">
-            <span><IconLinkedIn /></span>
-            <span><IconInstagram /></span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }
