@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react';
-import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
+import useSemuaLowonganData, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
 import { DROPDOWN_OPTIONS } from '../../utils/dropdownOptions.js';
+import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import CompanyLogoBox from '../../components/lowongan/CompanyLogoBox.jsx';
 import LowonganDrawer from '../../components/lowongan/LowonganDrawer.jsx';
 import KecocokanMini from '../../components/lowongan/KecocokanMini.jsx';
+import useHitungOtomatis from '../../hooks/lowongan/useHitungOtomatis.js';
 import useKecocokanSkor from '../../hooks/lowongan/useKecocokanSkor.js';
 import { bukaLamar } from '../../utils/lamarLowongan.js';
+import LamarCepatModal from '../../components/lowongan/LamarCepatModal.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
@@ -73,31 +76,45 @@ export default function SemuaLowongan_002({ navigate }) {
     const target = companyId ? 'beranda_002' : 'landingpage_003';
     if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
   };
+  // Skor dibaca lebih dulu: daftar diurutkan dari skor tertinggi untuk pelamar yang login.
+  const { skorMap, setSkor, prosesMap, siap: skorSiap } = useKecocokanSkor();
+  // Urutan memakai skor yang "dibekukan" selama hitung otomatis berjalan, supaya kartu tidak berpindah-pindah
+  // tiap satu hasil masuk; urutan baru diterapkan sekali setelah semuanya selesai.
+  const [otomatisBerjalan, setOtomatisBerjalan] = useState(false);
+  const skorBeku = useRef(skorMap);
+  if (!otomatisBerjalan) skorBeku.current = skorMap;
   const {
-    loading, search, setSearch, sort, setSort, page, setPage,
+    loading, search, setSearch, sort, setSort, sortOptions, page, setPage,
     tipeKerja, toggleTipeKerja,
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
+    sumber, toggleSumber, sumberOptions,
     resetFilters, activeFilterCount,
-    sortedJobs, pagedJobs, totalPages, pageSize,
-  } = useSemuaLowonganData(10, { includeExternal: true });
+    sortedJobs, pagedJobs, totalPages, pageSize, pinKeys,
+  } = useSemuaLowonganData(10, { includeExternal: true, skorMap: skorBeku.current, urutKecocokan: !!isPelamar, posisiPref: pelamarProfile?.pref_posisi, lokasiPref: pelamarProfile?.pref_lokasi });
 
   const mainRef = useRef(null);
+  const otomatis = useHitungOtomatis({ jobs: pagedJobs, skorMap, prosesMap, siap: skorSiap });
+  if (otomatis.berjalan !== otomatisBerjalan) setOtomatisBerjalan(otomatis.berjalan);
+
   const scrollToListing = () => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   // Klik kartu membuka panel detail di sisi kanan (tanpa pindah halaman). "Lamar Sekarang"
   // langsung ke tujuan lamaran: halaman asli (eksternal) atau laman karir di tab baru (Luna).
   const [drawerJob, setDrawerJob] = useState(null);
-  const { skorMap, setSkor } = useKecocokanSkor();
   const openJob = (job) => setDrawerJob(job);
-  const lamar = (e, job) => { e.stopPropagation(); bukaLamar(job); };
+  // Lowongan Luna + pelamar login: popup lamar dengan profil. Selain itu langsung ke tujuan lamaran (tab baru).
+  const [lamarJob, setLamarJob] = useState(null);
+  const lamarSekarang = (job) => (isPelamar && !job.is_external ? setLamarJob(job) : bukaLamar(job));
+  const lamar = (e, job) => { e.stopPropagation(); lamarSekarang(job); };
 
   const popularSearches = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
 
   return (
     <div className="sl2-page">
+      {lamarJob && <LamarCepatModal job={lamarJob} onClose={() => setLamarJob(null)} />}
       {drawerJob && (
-        <LowonganDrawer job={drawerJob} navigate={navigate} onClose={() => setDrawerJob(null)} onHasilKecocokan={setSkor} />
+        <LowonganDrawer job={drawerJob} navigate={navigate} onClose={() => setDrawerJob(null)} onHasilKecocokan={setSkor} onLamar={lamarSekarang} />
       )}
       {/* Header — navbar ala ProfilPelamar_001 (nav-links Cari Lowongan /
           Profil Saya / Lamaran Saya). State kanan ikut auth sungguhan
@@ -116,7 +133,7 @@ export default function SemuaLowongan_002({ navigate }) {
             <nav className="sl2-nav-links">
               <span className="sl2-nav-link active">Cari Lowongan</span>
               <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
-              <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>
+              {LAMARAN_SAYA_AKTIF && <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>}
             </nav>
           </div>
           <div className="lk-header-actions">
@@ -220,6 +237,19 @@ export default function SemuaLowongan_002({ navigate }) {
             </div>
           </div>
 
+          {sumberOptions.length > 1 && (
+            <div className="sl2-filter-group">
+              <div className="sl2-flabel">Lamar Lewat</div>
+              <div className="sl2-pill-group">
+                {sumberOptions.map(o => (
+                  <button type="button" key={o.value} className={`sl2-pill${sumber.includes(o.value) ? ' active' : ''}`} onClick={() => toggleSumber(o.value)}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <button type="button" className="sl2-apply-btn" onClick={scrollToListing}>
             Terapkan Filter
             {activeFilterCount > 0 && <span className="sl2-apply-count">{activeFilterCount}</span>}
@@ -228,17 +258,19 @@ export default function SemuaLowongan_002({ navigate }) {
 
         <div className="sl2-main" ref={mainRef}>
           <div className="sl2-listing-head">
-            <h2>{sort === 'terbaru' ? 'Lowongan terbaru' : 'Semua lowongan'}</h2>
+            <h2>{sort === 'kecocokan' ? 'Paling cocok untuk kamu' : sort === 'terbaru' ? 'Lowongan terbaru' : 'Semua lowongan'}</h2>
             <div className="sl2-sort-box">
               Urutkan
               <select value={sort} onChange={e => setSort(e.target.value)}>
-                {SEMUA_LOWONGAN_SORT_OPTIONS.map(opt => (
+                {sortOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
             </div>
           </div>
 
+          {otomatis.berjalan && <div className="sl2-auto-note">Menghitung kecocokan CV kamu dengan lowongan di halaman ini…</div>}
+          {!otomatis.berjalan && otomatis.berhenti === 'kuota' && <div className="sl2-auto-note warn">Batas pengecekan kecocokan hari ini sudah tercapai. Sisanya dihitung besok, atau buka detail lowongan setelah kuota kembali.</div>}
           {loading ? (
             <div className="sl2-empty">Memuat lowongan…</div>
           ) : pagedJobs.length > 0 ? (
@@ -253,6 +285,7 @@ export default function SemuaLowongan_002({ navigate }) {
                       <div className="sl2-job-body">
                         <div className="sl2-job-titlerow">
                           <h4 className="sl2-job-title">{job.title}</h4>
+                          {pinKeys.has(job.key) && <span className="sl2-job-pin">Lowongan Luna</span>}
                         </div>
                         <div className="sl2-job-meta">
                           <b>{companyName}</b>
@@ -262,16 +295,21 @@ export default function SemuaLowongan_002({ navigate }) {
                           {job.experience_label && <><span className="sep">·</span><span>{job.experience_label}</span></>}
                         </div>
                       </div>
-                      {skorMap[job.key] != null
-                        ? <KecocokanMini score={skorMap[job.key]} />
-                        : isPelamar && <KecocokanMini ghost />}
+                      {prosesMap[job.key] || (otomatis.memeriksa && skorMap[job.key] == null)
+                        ? <KecocokanMini loading />
+                        : skorMap[job.key] != null
+                          ? <KecocokanMini score={skorMap[job.key]} />
+                          : isPelamar && <KecocokanMini ghost />}
                     </div>
 
                     <div className="sl2-job-bottom">
                       {job.salary_label ? (
                         <div className={`sl2-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div>
                       ) : <span />}
-                      <button type="button" className="sl2-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                      <div className="sl2-job-cta">
+                        <button type="button" className="sl2-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                        {job.source_label && <span className="sl2-job-note">Lamar lewat {job.source_label}</span>}
+                      </div>
                     </div>
                   </div>
                 </article>

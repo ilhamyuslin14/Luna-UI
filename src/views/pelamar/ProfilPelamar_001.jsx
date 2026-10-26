@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import PilihanMultiChip from '../../components/pelamar/PilihanMultiChip.jsx';
+import { POSISI_REKOMENDASI, LOKASI_REKOMENDASI, KETERSEDIAAN_OPSI, STATUS_PENCARIAN_OPSI, TIPE_KERJA_OPSI, MODEL_KERJA_OPSI, GAJI_MAX, prefDariBaris, rupiah } from '../../data/preferensiKerja.js';
 import { getPelamarResume, uploadAndParseResume } from '../../services/pelamarResumeService.js';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import PelamarMobileNav from '../../components/pelamar/PelamarMobileNav.jsx';
@@ -103,7 +106,7 @@ function mapSkillsFromResume(arr) {
 }
 
 export default function ProfilPelamar_001({ navigate }) {
-  const { user, pelamarProfile } = useAuth();
+  const { user, pelamarProfile, simpanPreferensi } = useAuth();
   const isMobile = useIsMobile();
   // State interaktif mockup
   const [showToast, setShowToast] = useState(false);
@@ -136,15 +139,7 @@ export default function ProfilPelamar_001({ navigate }) {
     sertifikasi: [],
     keahlian: [],
     bahasa: [],
-    preferensi: {
-      ketersediaan: '',
-      targetPosisi: '',
-      tipeKerja: '',
-      modelKerja: '',
-      lokasiDiharapkan: '',
-      gajiDiharapkan: '',
-      statusPencarian: ''
-    }
+    preferensi: prefDariBaris(null),
   });
 
   // Nama & email sumbernya akun asli (pelamar_profiles), bukan field yang
@@ -157,6 +152,7 @@ export default function ProfilPelamar_001({ navigate }) {
       nama: prev.nama || pelamarProfile.nama_lengkap || '',
       email: prev.email || pelamarProfile.email || '',
       telepon: prev.telepon || pelamarProfile.phone || '',
+      preferensi: prefDariBaris(pelamarProfile),
     }));
   }, [pelamarProfile]);
 
@@ -695,29 +691,30 @@ export default function ProfilPelamar_001({ navigate }) {
 
   // ─── Modal State & Handlers: Preferensi Pekerjaan Berikutnya ───
   const [showModalPref, setShowModalPref] = useState(false);
-  const [prefForm, setPrefForm] = useState({
-    ketersediaan: '',
-    targetPosisi: '',
-    tipeKerja: '',
-    modelKerja: '',
-    lokasiDiharapkan: '',
-    gajiDiharapkan: '',
-    statusPencarian: ''
-  });
+  const [prefForm, setPrefForm] = useState(prefDariBaris(null));
+  const [savingPref, setSavingPref] = useState(false);
 
   const handleOpenPrefModal = () => {
-    setPrefForm({ ...profile.preferensi });
+    const p = profile.preferensi;
+    setPrefForm({ ...p, posisi: [...p.posisi], lokasi: [...p.lokasi], tipeKerja: [...p.tipeKerja] });
     setShowModalPref(true);
   };
 
-  const handleSavePref = (e) => {
+  const handleSavePref = async (e) => {
     e.preventDefault();
-    setProfile(prev => ({
-      ...prev,
-      preferensi: { ...prefForm }
-    }));
-    setShowModalPref(false);
-    triggerToast('Preferensi pekerjaan berhasil diperbarui!');
+    if (prefForm.posisi.length === 0) { triggerToast('Pilih minimal satu posisi yang dicari.'); return; }
+    setSavingPref(true);
+    try {
+      await simpanPreferensi?.(prefForm);
+      setProfile(prev => ({ ...prev, preferensi: { ...prefForm } }));
+      setShowModalPref(false);
+      triggerToast('Preferensi pekerjaan berhasil diperbarui!');
+    } catch (err) {
+      console.error('Gagal menyimpan preferensi:', err);
+      triggerToast('Gagal menyimpan preferensi. Coba lagi.');
+    } finally {
+      setSavingPref(false);
+    }
   };
 
   // ─── Dynamic Profile Strength Calculation ───
@@ -775,7 +772,7 @@ export default function ProfilPelamar_001({ navigate }) {
       id: 'preferensi',
       label: 'Atur preferensi pekerjaan berikutnya',
       weight: 5,
-      isDone: Boolean(profile.preferensi && profile.preferensi.targetPosisi),
+      isDone: Boolean(profile.preferensi && profile.preferensi.posisi.length > 0),
       action: handleOpenPrefModal
     }
   ];
@@ -796,6 +793,7 @@ export default function ProfilPelamar_001({ navigate }) {
           </a>
           <div className="lk-head-actions">
             <PelamarMobileNav
+              keluarKe="pelamar-masuk"
               navigate={navigate}
               pelamarProfile={{ nama_lengkap: profile.nama, email: profile.email }}
               goPerusahaan={goPerusahaan}
@@ -821,14 +819,16 @@ export default function ProfilPelamar_001({ navigate }) {
                 <span className="pp001-nav-link active">
                   Profil Saya
                 </span>
-                <span className="pp001-nav-link" onClick={() => navigate?.('status-lamaran_001')}>
-                  Lamaran Saya
-                </span>
+                {LAMARAN_SAYA_AKTIF && (
+                  <span className="pp001-nav-link" onClick={() => navigate?.('status-lamaran_001')}>
+                    Lamaran Saya
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="pp001-nav-right">
-              <PelamarNavMenu navigate={navigate} pelamarProfile={{ nama_lengkap: profile.nama, email: profile.email }} />
+              <PelamarNavMenu keluarKe="pelamar-masuk" navigate={navigate} pelamarProfile={{ nama_lengkap: profile.nama, email: profile.email }} />
 
               <span className="pp001-nav-separator" />
 
@@ -1491,18 +1491,42 @@ export default function ProfilPelamar_001({ navigate }) {
 
               <div className="pp001-pref-table">
                 <div className="pp001-pref-row">
-                  <span className="pp001-pref-label">Ketersediaan Memulai</span>
-                  <div className="pp001-pref-value">{profile.preferensi.ketersediaan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
+                  <span className="pp001-pref-label">Posisi yang Dicari</span>
+                  <div className="pp001-pref-value">
+                    {profile.preferensi.posisi.length > 0
+                      ? <div className="pp001-pref-chips">{profile.preferensi.posisi.map(x => <span key={x} className="pp001-pref-chip">{x}</span>)}</div>
+                      : <span className="pp001-empty-hint">Belum diisi</span>}
+                  </div>
                 </div>
 
                 <div className="pp001-pref-row">
-                  <span className="pp001-pref-label">Posisi yang Dicari</span>
-                  <div className="pp001-pref-value">{profile.preferensi.targetPosisi || <span className="pp001-empty-hint">Belum diisi</span>}</div>
+                  <span className="pp001-pref-label">Lokasi yang Diharapkan</span>
+                  <div className="pp001-pref-value">
+                    {profile.preferensi.lokasi.length > 0
+                      ? <div className="pp001-pref-chips">{profile.preferensi.lokasi.map(x => <span key={x} className="pp001-pref-chip">{x}</span>)}</div>
+                      : <span className="pp001-empty-hint">Belum diisi</span>}
+                  </div>
+                </div>
+
+                <div className="pp001-pref-row">
+                  <span className="pp001-pref-label">Gaji Minimum</span>
+                  <div className="pp001-pref-value">
+                    {profile.preferensi.gajiMin ? (
+                      <span style={{ color: '#D66800', fontWeight: 600 }}>
+                        {rupiah(profile.preferensi.gajiMin)} / bulan
+                        {profile.preferensi.gajiNego && <span className="pp001-pref-badge">Bisa nego</span>}
+                      </span>
+                    ) : <span className="pp001-empty-hint">Belum diisi</span>}
+                  </div>
                 </div>
 
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Jenis Pekerjaan</span>
-                  <div className="pp001-pref-value">{profile.preferensi.tipeKerja || <span className="pp001-empty-hint">Belum diisi</span>}</div>
+                  <div className="pp001-pref-value">
+                    {profile.preferensi.tipeKerja.length > 0
+                      ? <div className="pp001-pref-chips">{profile.preferensi.tipeKerja.map(x => <span key={x} className="pp001-pref-chip">{x}</span>)}</div>
+                      : <span className="pp001-empty-hint">Belum diisi</span>}
+                  </div>
                 </div>
 
                 <div className="pp001-pref-row">
@@ -1511,15 +1535,8 @@ export default function ProfilPelamar_001({ navigate }) {
                 </div>
 
                 <div className="pp001-pref-row">
-                  <span className="pp001-pref-label">Lokasi yang Diharapkan</span>
-                  <div className="pp001-pref-value">{profile.preferensi.lokasiDiharapkan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
-                </div>
-
-                <div className="pp001-pref-row">
-                  <span className="pp001-pref-label">Ekspektasi Gaji Bersih</span>
-                  <div className="pp001-pref-value" style={profile.preferensi.gajiDiharapkan ? { color: '#D66800', fontWeight: 600 } : undefined}>
-                    {profile.preferensi.gajiDiharapkan || <span className="pp001-empty-hint">Belum diisi</span>}
-                  </div>
+                  <span className="pp001-pref-label">Ketersediaan Memulai</span>
+                  <div className="pp001-pref-value">{profile.preferensi.ketersediaan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
                 </div>
 
                 <div className="pp001-pref-row">
@@ -2891,7 +2908,7 @@ export default function ProfilPelamar_001({ navigate }) {
       {/* ─── Modal 10: Kelola Preferensi Pekerjaan Berikutnya ─── */}
       {showModalPref && (
         <div className="pp001-modal-overlay" onClick={() => setShowModalPref(false)}>
-          <div className="pp001-modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 540 }}>
+          <div className="pp001-modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 600 }}>
             <div className="pp001-modal-header">
               <div>
                 <h3 className="pp001-modal-title">Kelola Preferensi Pekerjaan</h3>
@@ -2911,120 +2928,103 @@ export default function ProfilPelamar_001({ navigate }) {
               <div className="pp001-modal-body">
                 <div className="pp001-form-group">
                   <label className="pp001-form-label">
-                    Posisi / Jabatan yang Dicari <span>(Wajib)</span>
+                    Posisi / Jabatan yang Dicari <span>(Wajib, maks 5)</span>
                   </label>
-                  <input
-                    type="text"
-                    className="pp001-form-input"
-                    value={prefForm.targetPosisi}
-                    placeholder="Contoh: Lead Product Designer / Principal UI/UX"
-                    onChange={e => setPrefForm({ ...prefForm, targetPosisi: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="pp001-form-row">
-                  <div className="pp001-form-group">
-                    <label className="pp001-form-label">
-                      Ketersediaan Memulai
-                    </label>
-                    <select
-                      className="pp001-form-input"
-                      value={prefForm.ketersediaan}
-                      onChange={e => setPrefForm({ ...prefForm, ketersediaan: e.target.value })}
-                    >
-                      <option value="Tersedia Segera (Immediately Available)">Tersedia Segera (Immediately Available)</option>
-                      <option value="2 Minggu Pemberitahuan (2 Weeks Notice)">2 Minggu Pemberitahuan (2 Weeks Notice)</option>
-                      <option value="1 Bulan Pemberitahuan (1 Month Notice)">1 Bulan Pemberitahuan (1 Month Notice)</option>
-                      <option value="2 Bulan Pemberitahuan (2 Months Notice)">2 Bulan Pemberitahuan (2 Months Notice)</option>
-                      <option value="Belum Menentukan Tanggal">Belum Menentukan Tanggal</option>
-                    </select>
-                  </div>
-
-                  <div className="pp001-form-group">
-                    <label className="pp001-form-label">
-                      Status Pencarian
-                    </label>
-                    <select
-                      className="pp001-form-input"
-                      value={prefForm.statusPencarian}
-                      onChange={e => setPrefForm({ ...prefForm, statusPencarian: e.target.value })}
-                    >
-                      <option value="Aktif Menjelajah Peluang">Aktif Menjelajah Peluang</option>
-                      <option value="Terbuka untuk Tawaran Menarik">Terbuka untuk Tawaran Menarik</option>
-                      <option value="Tidak Sedang Mencari Kerja">Tidak Sedang Mencari Kerja</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pp001-form-row">
-                  <div className="pp001-form-group">
-                    <label className="pp001-form-label">
-                      Jenis Pekerjaan
-                    </label>
-                    <select
-                      className="pp001-form-input"
-                      value={prefForm.tipeKerja}
-                      onChange={e => setPrefForm({ ...prefForm, tipeKerja: e.target.value })}
-                    >
-                      <option value="Penuh Waktu (Full-time)">Penuh Waktu (Full-time)</option>
-                      <option value="Kontrak / Proyek">Kontrak / Proyek</option>
-                      <option value="Paruh Waktu (Part-time)">Paruh Waktu (Part-time)</option>
-                      <option value="Freelance / Lepas">Freelance / Lepas</option>
-                    </select>
-                  </div>
-
-                  <div className="pp001-form-group">
-                    <label className="pp001-form-label">
-                      Model Kerja Diinginkan
-                    </label>
-                    <select
-                      className="pp001-form-input"
-                      value={prefForm.modelKerja}
-                      onChange={e => setPrefForm({ ...prefForm, modelKerja: e.target.value })}
-                    >
-                      <option value="Hybrid / Remote Diutamakan">Hybrid / Remote Diutamakan</option>
-                      <option value="Remote Penuh (Work From Anywhere)">Remote Penuh (WFA)</option>
-                      <option value="Hybrid Saja">Hybrid Saja</option>
-                      <option value="On-site / Di Kantor">On-site / Di Kantor</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pp001-form-group">
-                  <label className="pp001-form-label">
-                    Lokasi yang Diharapkan
-                  </label>
-                  <input
-                    type="text"
-                    className="pp001-form-input"
-                    value={prefForm.lokasiDiharapkan}
-                    placeholder="Masukkan nama kota (Contoh: Jakarta Selatan, Bandung, Surabaya)"
-                    onChange={e => setPrefForm({ ...prefForm, lokasiDiharapkan: e.target.value })}
+                  <PilihanMultiChip
+                    rekomendasi={POSISI_REKOMENDASI}
+                    value={prefForm.posisi}
+                    onChange={(posisi) => setPrefForm(f => ({ ...f, posisi }))}
+                    placeholder="Ketik posisi lain, lalu Enter untuk menambah"
+                    label="Cari atau tambah posisi"
                   />
                 </div>
 
                 <div className="pp001-form-group">
                   <label className="pp001-form-label">
-                    Ekspektasi Gaji Bersih / Bulan
+                    Lokasi yang Diharapkan <span>(maks 5)</span>
+                  </label>
+                  <PilihanMultiChip
+                    rekomendasi={LOKASI_REKOMENDASI}
+                    value={prefForm.lokasi}
+                    onChange={(lokasi) => setPrefForm(f => ({ ...f, lokasi }))}
+                    placeholder="Ketik kota atau daerah lain, lalu Enter"
+                    label="Cari atau tambah lokasi"
+                    ikonLokasi
+                    labelChip={(l) => (l === 'Remote' ? 'Remote (seluruh Indonesia)' : l)}
+                  />
+                </div>
+
+                <div className="pp001-form-group">
+                  <label className="pp001-form-label">
+                    Gaji Minimum / Bulan
                   </label>
                   <div className="pp001-input-affix-group">
                     <span className="pp001-input-prefix">Rp</span>
                     <input
                       type="text"
+                      inputMode="numeric"
                       className="pp001-form-input"
-                      value={prefForm.gajiDiharapkan ? Number(String(prefForm.gajiDiharapkan).replace(/\D/g, '') || 0).toLocaleString('id-ID') : ''}
+                      value={prefForm.gajiMin ? Number(prefForm.gajiMin).toLocaleString('id-ID') : ''}
                       placeholder="0"
                       onChange={e => {
-                        const rawDigits = e.target.value.replace(/\D/g, '');
-                        setPrefForm({
-                          ...prefForm,
-                          gajiDiharapkan: rawDigits ? `Rp ${Number(rawDigits).toLocaleString('id-ID')} / bln` : ''
-                        });
+                        const digit = Number(e.target.value.replace(/\D/g, '')) || 0;
+                        setPrefForm(f => ({ ...f, gajiMin: digit ? Math.min(999_999_999, digit) : null }));
                       }}
                     />
                     <span className="pp001-input-suffix">/ bulan</span>
                   </div>
+                  <label className="pp001-pref-nego">
+                    <input type="checkbox" checked={prefForm.gajiNego} onChange={e => setPrefForm(f => ({ ...f, gajiNego: e.target.checked }))} />
+                    Gaji masih bisa dinegosiasikan
+                  </label>
+                </div>
+
+                <div className="pp001-form-group">
+                  <label className="pp001-form-label">
+                    Jenis Pekerjaan <span>(boleh lebih dari satu)</span>
+                  </label>
+                  <div className="pob001-chips" style={{ marginTop: 0 }}>
+                    {TIPE_KERJA_OPSI.map(opt => {
+                      const on = prefForm.tipeKerja.includes(opt);
+                      return (
+                        <button
+                          type="button"
+                          key={opt}
+                          className={`pob001-chip${on ? ' on' : ''}`}
+                          aria-pressed={on}
+                          onClick={() => setPrefForm(f => ({ ...f, tipeKerja: on ? f.tipeKerja.filter(x => x !== opt) : [...f.tipeKerja, opt] }))}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="pp001-form-row">
+                  <div className="pp001-form-group">
+                    <label className="pp001-form-label">Model Kerja Diinginkan</label>
+                    <select className="pp001-form-input" value={prefForm.modelKerja} onChange={e => setPrefForm(f => ({ ...f, modelKerja: e.target.value }))}>
+                      <option value="">Belum dipilih</option>
+                      {MODEL_KERJA_OPSI.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="pp001-form-group">
+                    <label className="pp001-form-label">Ketersediaan Memulai</label>
+                    <select className="pp001-form-input" value={prefForm.ketersediaan} onChange={e => setPrefForm(f => ({ ...f, ketersediaan: e.target.value }))}>
+                      <option value="">Belum dipilih</option>
+                      {KETERSEDIAAN_OPSI.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pp001-form-group">
+                  <label className="pp001-form-label">Status Pencarian</label>
+                  <select className="pp001-form-input" value={prefForm.statusPencarian} onChange={e => setPrefForm(f => ({ ...f, statusPencarian: e.target.value }))}>
+                    <option value="">Belum dipilih</option>
+                    {STATUS_PENCARIAN_OPSI.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
                 </div>
               </div>
 
@@ -3039,8 +3039,9 @@ export default function ProfilPelamar_001({ navigate }) {
                 <button
                   type="submit"
                   className="pp001-btn-primary"
+                  disabled={savingPref}
                 >
-                  Simpan Preferensi
+                  {savingPref ? 'Menyimpan…' : 'Simpan Preferensi'}
                 </button>
               </div>
             </form>

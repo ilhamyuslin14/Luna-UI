@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PopupKonfirmasi from '../PopupKonfirmasi.jsx';
+import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 // Navbar mobile pelamar — "Opsi 2" dari artifact review (avatar pill + satu
@@ -15,7 +16,7 @@ function getInitials(name) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-export default function PelamarMobileNav({ navigate, pelamarProfile, goPerusahaan, activeTab }) {
+export default function PelamarMobileNav({ navigate, pelamarProfile, goPerusahaan, activeTab, keluarKe }) {
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -32,7 +33,8 @@ export default function PelamarMobileNav({ navigate, pelamarProfile, goPerusahaa
     } catch (err) {
       console.error('Gagal logout:', err);
     }
-    navigate?.('semua-lowongan_002');
+    // Tetap di halaman asal; hanya halaman yang butuh akun (mis. Profil Saya) yang mengirim keluarKe.
+    if (keluarKe) navigate?.(keluarKe);
   };
 
   return (
@@ -63,10 +65,12 @@ export default function PelamarMobileNav({ navigate, pelamarProfile, goPerusahaa
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
           Profil Saya
         </button>
-        <button className={`msh-sheet-item${activeTab === 'lamaran' ? ' active' : ''}`} onClick={() => go('status-lamaran_001')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-          Lamaran Saya
-        </button>
+        {LAMARAN_SAYA_AKTIF && (
+          <button className={`msh-sheet-item${activeTab === 'lamaran' ? ' active' : ''}`} onClick={() => go('status-lamaran_001')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+            Lamaran Saya
+          </button>
+        )}
 
         <div className="pmn-sheet-divider" />
         <div className="pmn-section-label">Akun</div>

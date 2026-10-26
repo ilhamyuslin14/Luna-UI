@@ -26,12 +26,11 @@ const MAKS_POIN = 4
 const MAKS_PANJANG_POIN = 160
 const MAKS_PANJANG_CATATAN = 200
 
-// Tingkat kecocokan: rentang sama rata per 25 poin (selaras dengan labelFor di frontend).
+// Tingkat kecocokan: 0-30 Rendah, 31-70 Sedang, 71-100 Tinggi (selaras dengan labelFor di frontend).
 function labelFor(score: number) {
-  if (score >= 75) return 'Tinggi'
-  if (score >= 50) return 'Sedang'
-  if (score >= 25) return 'Rendah'
-  return 'Tidak Sesuai'
+  if (score >= 71) return 'Tinggi'
+  if (score >= 31) return 'Sedang'
+  return 'Rendah'
 }
 
 // ── Skema keluaran AI ─────────────────────────────────────────────────────

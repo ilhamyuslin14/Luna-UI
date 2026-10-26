@@ -36,6 +36,10 @@ export default function SandboxKonfigurasi() {
   const MIN_BATAS_KECOCOKAN = 20;
   const [batasKecocokan, setBatasKecocokan] = useState(MIN_BATAS_KECOCOKAN);
   const [batasTanpaLimit, setBatasTanpaLimit] = useState(false);
+  // Jumlah perhitungan kecocokan yang boleh berjalan bersamaan saat daftar lowongan dibuka (1-20).
+  const MAKS_BERSAMAAN_MIN = 1;
+  const MAKS_BERSAMAAN_MAKS = 20;
+  const [maksBersamaan, setMaksBersamaan] = useState(3);
   // Mode pembuatan hasil kecocokan CV: 'otomatis' (saat halaman dibuka) atau 'manual' (pelamar klik tombol).
   const [modeKecocokan, setModeKecocokan] = useState('otomatis');
 
@@ -164,6 +168,7 @@ Return purely JSON. No preamble, no markdown.
                 setModeKecocokan(ps.mode_generate === 'manual' ? 'manual' : 'otomatis');
                 if (ps.batas_harian == null) setBatasTanpaLimit(true);
                 else setBatasKecocokan(Math.max(MIN_BATAS_KECOCOKAN, Number(ps.batas_harian)));
+                if (ps.maks_bersamaan != null) setMaksBersamaan(Math.min(20, Math.max(1, Number(ps.maks_bersamaan))));
               }
               if (ps.type === 'JD' || ps.type === 'CV' || ps.type === 'Scoring' || ps.type === 'KecocokanCV' || ps.type === 'BuatLowonganTanya' || ps.type === 'BuatLowonganDraft') {
                 let defaultPsPrompt = defaultPromptJD;
@@ -408,6 +413,9 @@ Return purely JSON. No preamble, no markdown.
         // Hanya dipakai KecocokanCV; NULL = tanpa batas.
         batas_harian: type === 'KecocokanCV'
           ? (batasTanpaLimit ? null : Math.max(MIN_BATAS_KECOCOKAN, Math.round(Number(batasKecocokan) || MIN_BATAS_KECOCOKAN)))
+          : null,
+        maks_bersamaan: type === 'KecocokanCV'
+          ? Math.min(MAKS_BERSAMAAN_MAKS, Math.max(MAKS_BERSAMAAN_MIN, Math.round(Number(maksBersamaan) || 3)))
           : null,
         updated_at: new Date().toISOString()
       }));
@@ -742,6 +750,28 @@ Return purely JSON. No preamble, no markdown.
                       </div>
                       <p className="text-xs text-slate-500 leading-relaxed">
                         Minimal {MIN_BATAS_KECOCOKAN}. Yang dihitung hanya perhitungan AI baru (termasuk tombol refresh); hasil yang diambil dari simpanan tidak memakai jatah. Hari dihitung mengikuti WIB. Berlaku setelah disimpan.
+                      </p>
+                    </div>
+                  )}
+
+                  {type === 'KecocokanCV' && (
+                    <div className="flex flex-col gap-2 mt-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                      <label className="text-sm font-semibold text-slate-700">Perhitungan Bersamaan di Daftar Lowongan</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="number"
+                          min={MAKS_BERSAMAAN_MIN}
+                          max={MAKS_BERSAMAAN_MAKS}
+                          step="1"
+                          value={maksBersamaan}
+                          onChange={(e) => setMaksBersamaan(e.target.value)}
+                          onBlur={() => setMaksBersamaan(v => Math.min(MAKS_BERSAMAAN_MAKS, Math.max(MAKS_BERSAMAAN_MIN, Math.round(Number(v) || 3))))}
+                          className="w-28 bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
+                        />
+                        <span className="text-sm text-slate-600">perhitungan sekaligus</span>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Berlaku saat daftar lowongan dibuka dengan mode otomatis: lowongan di halaman itu yang belum punya skor dihitung dalam antrean, maksimal sebanyak ini berjalan di saat yang sama (1 sampai {MAKS_BERSAMAAN_MAKS}). Angka kecil lebih aman dari batas laju penyedia AI tapi lebih lambat; angka besar lebih cepat tapi lebih mudah kena batas. Bawaan 3. Berlaku setelah disimpan, saat daftar lowongan dibuka berikutnya.
                       </p>
                     </div>
                   )}

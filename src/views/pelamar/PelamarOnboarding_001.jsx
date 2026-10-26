@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { uploadAndParseResume } from '../../services/pelamarResumeService.js';
+import PilihanMultiChip from '../../components/pelamar/PilihanMultiChip.jsx';
+import { MAKS_PILIHAN, GAJI_MIN, GAJI_MAX, POSISI_REKOMENDASI, LOKASI_REKOMENDASI, rupiah } from '../../data/preferensiKerja.js';
 import '../../../css/pelamar/pelamar-masuk_001.css';
 import '../../../css/pelamar/pelamar-onboarding_001.css';
 
@@ -7,26 +11,12 @@ import '../../../css/pelamar/pelamar-onboarding_001.css';
 // disimpan: file CV tidak diunggah dan jawaban hilang saat halaman ditutup. Bisa dibuka langsung
 // lewat /?view=pelamar-onboarding. Tampilannya mengikuti gaya Daftar/Masuk/OTP pelamar (pm001-*).
 const STAGES = ['cv', 'posisi', 'lokasi', 'gaji', 'selesai'];
-const MAKS_PILIHAN = 5;
 const MAKS_BYTES = 5 * 1024 * 1024;
-const GAJI_MIN = 2_000_000;
-const GAJI_MAX = 20_000_000;
-
-const POSISI_REKOMENDASI = ['Content Writer', 'Frontend Developer', 'Backend Developer', 'UI/UX Designer', 'Desainer Grafis', 'Digital Marketing', 'Social Media Specialist', 'Admin Operasional', 'Customer Service', 'Staf HR', 'Akuntan', 'Sales Executive', 'Data Analyst', 'Staf Gudang', 'Kasir'];
-const LOKASI_REKOMENDASI = ['Jakarta', 'Bandung', 'Surabaya', 'Yogyakarta', 'Semarang', 'Medan', 'Tangerang', 'Bekasi', 'Depok', 'Bogor', 'Malang', 'Denpasar', 'Makassar', 'Remote'];
-
-const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
 const ukuranFile = (bytes) => (bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 const sama = (a, b) => a.toLowerCase() === b.trim().toLowerCase();
 
 const IconCheck = ({ size = 14, width = 3.2 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-);
-const IconSearch = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-);
-const IconPin = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
 );
 const IconArrow = ({ dir = 'right' }) => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -34,65 +24,18 @@ const IconArrow = ({ dir = 'right' }) => (
   </svg>
 );
 
-// Input teks yang sekaligus mencari di chip rekomendasi dan menambah pilihan baru
-// kalau yang diketik belum ada (Enter atau tombol Tambah).
-function PilihanMulti({ rekomendasi, custom, terpilih, query, setQuery, onToggle, onTambah, placeholder, label, ikonLokasi, labelChip }) {
-  const semua = [...custom, ...rekomendasi];
-  const q = query.trim();
-  const tampil = semua.filter((x) => x.toLowerCase().includes(q.toLowerCase()));
-  const bisaTambah = q !== '' && !semua.some((x) => sama(x, q));
-  const penuh = terpilih.length >= MAKS_PILIHAN;
-  const tambahMati = q === '' || (penuh && !terpilih.some((x) => sama(x, q)));
-
-  return (
-    <>
-      <div className="pob001-search">
-        <IconSearch />
-        <input
-          type="text"
-          placeholder={placeholder}
-          aria-label={label}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onTambah(); } }}
-        />
-        <button type="button" className="pob001-add" disabled={tambahMati} onClick={onTambah}>Tambah</button>
-      </div>
-
-      <div className="pob001-chips">
-        {tampil.map((item) => {
-          const on = terpilih.includes(item);
-          return (
-            <button type="button" key={item} className={`pob001-chip${on ? ' on' : ''}`} aria-pressed={on} disabled={!on && penuh} onClick={() => onToggle(item)}>
-              {on ? <IconCheck /> : ikonLokasi && <IconPin />}
-              {labelChip ? labelChip(item) : item}
-            </button>
-          );
-        })}
-      </div>
-
-      {bisaTambah && (
-        <div className="pob001-addrow">
-          <button type="button" className="pob001-chip new" disabled={penuh} onClick={onTambah}>+ Tambah “{q}”</button>
-        </div>
-      )}
-      <div className="pob001-count">{terpilih.length} dari {MAKS_PILIHAN} dipilih</div>
-    </>
-  );
-}
-
 export default function PelamarOnboarding_001({ navigate }) {
+  const { user, simpanPreferensi } = useAuth() || {};
+  const [galatSimpan, setGalatSimpan] = useState('');
   const [stage, setStage] = useState('cv');
   const [file, setFile] = useState(null); // { name, size }
   const [fileError, setFileError] = useState('');
+  const [proses, setProses] = useState(null); // { persen, label } selama CV diunggah dan diproses AI
+  const [cvTersimpan, setCvTersimpan] = useState(null); // File yang sudah berhasil diproses (tidak diunggah ulang bila tidak diganti)
   const [dragOver, setDragOver] = useState(false);
 
   const [posisi, setPosisi] = useState([]);
-  const [posisiCustom, setPosisiCustom] = useState([]);
-  const [posisiQuery, setPosisiQuery] = useState('');
   const [lokasi, setLokasi] = useState([]);
-  const [lokasiCustom, setLokasiCustom] = useState([]);
-  const [lokasiQuery, setLokasiQuery] = useState('');
   const [gaji, setGaji] = useState(5_000_000);
   const [nego, setNego] = useState(false);
 
@@ -102,22 +45,8 @@ export default function PelamarOnboarding_001({ navigate }) {
     if (!f) return;
     if (!/\.(pdf|docx?)$/i.test(f.name)) { setFileError('Format tidak didukung. Gunakan PDF, DOC, atau DOCX.'); return; }
     if (f.size > MAKS_BYTES) { setFileError('Ukuran file melebihi 5 MB.'); return; }
-    setFile({ name: f.name, size: ukuranFile(f.size) });
+    setFile({ name: f.name, size: ukuranFile(f.size), raw: f });
     setFileError('');
-  };
-
-  const toggle = (list, setList) => (item) => setList((cur) => (cur.includes(item) ? cur.filter((x) => x !== item) : (cur.length < MAKS_PILIHAN ? [...cur, item] : cur)));
-
-  const tambah = ({ query, setQuery, rekomendasi, custom, setCustom, terpilih, setTerpilih }) => () => {
-    let raw = query.trim().replace(/\s+/g, ' ');
-    if (!raw) return;
-    if (raw === raw.toLowerCase()) raw = raw.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
-    const ada = [...rekomendasi, ...custom].find((x) => sama(x, raw));
-    const nama = ada || raw;
-    if (!terpilih.includes(nama) && terpilih.length >= MAKS_PILIHAN) return;
-    if (!ada) setCustom((cur) => [...cur, nama]);
-    setTerpilih((cur) => (cur.includes(nama) ? cur : [...cur, nama]));
-    setQuery('');
   };
 
   const gajiSlider = Math.min(GAJI_MAX, Math.max(GAJI_MIN, gaji));
@@ -125,22 +54,56 @@ export default function PelamarOnboarding_001({ navigate }) {
   let tidakBisaLanjut = false;
   let petunjuk = '';
   let labelLanjut = 'Lanjut';
-  if (stage === 'cv') { tidakBisaLanjut = !file; petunjuk = 'Unggah CV dulu untuk melanjutkan.'; }
+  if (stage === 'cv') { tidakBisaLanjut = !file || !!proses; petunjuk = 'Unggah CV dulu untuk melanjutkan.'; if (file && !proses) labelLanjut = 'Unggah dan lanjut'; if (proses) labelLanjut = 'Memproses…'; }
   if (stage === 'posisi') { tidakBisaLanjut = posisi.length === 0; petunjuk = 'Pilih minimal satu posisi.'; }
   if (stage === 'lokasi') { tidakBisaLanjut = lokasi.length === 0; petunjuk = 'Pilih minimal satu lokasi.'; }
   if (stage === 'gaji') { tidakBisaLanjut = !(gaji > 0); petunjuk = 'Isi perkiraan gaji dulu.'; labelLanjut = 'Selesai'; }
   if (stage === 'selesai') labelLanjut = 'Mulai cari lowongan';
 
+  // Jawaban disimpan ke profil (kolom pref_*). Gagal menyimpan tidak menghalangi lanjut; pelamar bisa
+  // mengisinya lagi di Profil Saya, jadi cukup diberi tahu.
+  const simpan = async () => {
+    setGalatSimpan('');
+    try {
+      await simpanPreferensi?.({ posisi, lokasi, gajiMin: gaji, gajiNego: nego });
+    } catch (err) {
+      console.error('Gagal menyimpan preferensi:', err);
+      setGalatSimpan('Jawabanmu belum tersimpan. Kamu bisa mengisinya lagi nanti di Profil Saya.');
+    }
+  };
+
+  // CV diunggah dan dibaca AI (parse-cv-pelamar) lewat service yang sama dengan Profil Saya, sehingga
+  // pengalaman, pendidikan, dan keahlian di profil langsung terisi. Lanjut hanya kalau berhasil.
+  const unggahCv = async () => {
+    if (!file || proses) return;
+    if (cvTersimpan && cvTersimpan === file.raw) { setStage('posisi'); return; }
+    if (!user?.id) { setFileError('Sesi tidak ditemukan. Masuk dulu, lalu ulangi dari awal.'); return; }
+    setFileError('');
+    setProses({ persen: 3, label: 'Memulai…' });
+    try {
+      await uploadAndParseResume(user.id, file.raw, (persen, label) => setProses((p) => ({ persen: Math.max(p?.persen || 0, persen), label })));
+      setCvTersimpan(file.raw);
+      setStage('posisi');
+    } catch (err) {
+      console.error('Gagal memproses CV:', err);
+      setFileError(err.message || 'CV belum bisa diproses. Coba lagi, atau pakai file lain.');
+    } finally {
+      setProses(null);
+    }
+  };
+
   const lanjut = () => {
-    if (tidakBisaLanjut) return;
+    if (tidakBisaLanjut || proses) return;
     if (stage === 'selesai') { navigate?.('semua-lowongan_002'); return; }
+    if (stage === 'cv') { unggahCv(); return; }
+    if (stage === 'gaji') simpan();
     setStage(STAGES[idx + 1]);
   };
 
   const langkah1Selesai = idx > 0;
   const langkah2Selesai = stage === 'selesai';
   const sedangTanya = idx >= 1 && idx <= 3;
-  const subLangkah2 = sedangTanya ? ['Posisi yang kamu cari', 'Lokasi kerja', 'Gaji yang diharapkan'][idx - 1] : 'Posisi, lokasi, dan gaji yang kamu inginkan.';
+  const subLangkah2 = sedangTanya ? ['Posisi yang kamu cari', 'Lokasi kerja', 'Gaji yang diharapkan'][idx - 1] : 'Posisi, lokasi, dan gaji.';
   const labelTahap = stage === 'cv' ? 'Langkah 1 · Unggah CV' : (stage === 'selesai' ? 'Selesai' : 'Langkah 2 · Preferensi kerja');
 
   return (
@@ -152,8 +115,8 @@ export default function PelamarOnboarding_001({ navigate }) {
         </div>
 
         <div className="pm001-hero-mid pob001-hero-mid">
-          <h2>Kenalan dulu, biar kami bisa merekomendasikan lowongan yang sesuai buat kamu.</h2>
-          <p>Dua langkah singkat. Dari CV dan preferensi kamu, kami menyusun rekomendasi lowongan dan menilai kecocokannya.</p>
+          <h2>Kenalan dulu, biar rekomendasinya pas.</h2>
+          <p>Dua langkah singkat: unggah CV, lalu atur preferensi kerja.</p>
 
           <ol className="pob001-steps">
             <li className="pob001-step">
@@ -163,7 +126,7 @@ export default function PelamarOnboarding_001({ navigate }) {
               </div>
               <div className="pob001-step-text">
                 <b>Unggah CV</b>
-                <span>{langkah1Selesai && file ? file.name : 'Dasar penilaian kecocokan dengan lowongan.'}</span>
+                <span>{langkah1Selesai && file ? file.name : 'Dasar skor kecocokan.'}</span>
               </div>
             </li>
             <li className="pob001-step">
@@ -182,7 +145,7 @@ export default function PelamarOnboarding_001({ navigate }) {
           <div className="pob001-why-score"><b>86</b><span>/100</span></div>
           <div>
             <b>Kenapa CV wajib?</b>
-            <p>CV dipakai untuk menghitung skor kecocokan di tiap lowongan (contoh tampilan di kiri).</p>
+            <p>CV dipakai menghitung skor kecocokan tiap lowongan.</p>
           </div>
         </div>
       </div>
@@ -221,9 +184,6 @@ export default function PelamarOnboarding_001({ navigate }) {
                       <input className="pob001-sr" type="file" accept=".pdf,.doc,.docx" onChange={(e) => { terimaFile(e.target.files?.[0]); e.target.value = ''; }} />
                     </label>
                     {fileError && <div className="pm001-error" role="alert" style={{ marginTop: 12, marginBottom: 0 }}>{fileError}</div>}
-                    <div className="pob001-demo">
-                      <button type="button" className="pob001-link" onClick={() => { setFile({ name: 'CV_Andini_Pratama.pdf', size: '482 KB' }); setFileError(''); }}>Belum punya file? Coba dengan contoh CV</button>
-                    </div>
                   </>
                 ) : (
                   <>
@@ -233,11 +193,14 @@ export default function PelamarOnboarding_001({ navigate }) {
                       </span>
                       <div className="pob001-file-info">
                         <div className="pob001-file-name">{file.name}</div>
-                        <div className="pob001-file-ok"><IconCheck size={14} width={3} />Terunggah · {file.size}</div>
+                        {!proses && <div className="pob001-file-ok"><IconCheck size={14} width={3} />{cvTersimpan === file.raw ? 'Sudah diproses' : 'Siap diunggah'} · {file.size}</div>}
+                        {proses && <div className="pob001-up-label">{proses.label}</div>}
                       </div>
-                      <button type="button" className="pob001-link" onClick={() => setFile(null)}>Ganti</button>
+                      {!proses && <button type="button" className="pob001-link" onClick={() => { setFile(null); setCvTersimpan(null); setFileError(''); }}>Ganti</button>}
                     </div>
-                    <div className="pob001-after">Siap. Di langkah berikutnya kami tanya preferensi kerja kamu.</div>
+                    {proses && <div className="pob001-up-bar" role="progressbar" aria-valuenow={proses.persen} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${proses.persen}%` }} /></div>}
+                    {fileError && <div className="pm001-error" role="alert" style={{ marginTop: 12, marginBottom: 0 }}>{fileError}</div>}
+                    <div className="pob001-after">{proses ? 'Mohon tunggu, jangan tutup halaman ini. Biasanya selesai dalam beberapa detik.' : 'Setelah ini kami baca CV kamu dan tanya preferensi kerja.'}</div>
                   </>
                 )}
 
@@ -253,14 +216,10 @@ export default function PelamarOnboarding_001({ navigate }) {
                 <div className="pob001-eyebrow">Pertanyaan 1 dari 3</div>
                 <h1>Posisi apa yang kamu cari?</h1>
                 <p className="pob001-lead">Boleh pilih lebih dari satu, maksimal {MAKS_PILIHAN}. Kalau posisinya belum ada, ketik lalu tambahkan sendiri.</p>
-                <PilihanMulti
+                <PilihanMultiChip
                   rekomendasi={POSISI_REKOMENDASI}
-                  custom={posisiCustom}
-                  terpilih={posisi}
-                  query={posisiQuery}
-                  setQuery={setPosisiQuery}
-                  onToggle={toggle(posisi, setPosisi)}
-                  onTambah={tambah({ query: posisiQuery, setQuery: setPosisiQuery, rekomendasi: POSISI_REKOMENDASI, custom: posisiCustom, setCustom: setPosisiCustom, terpilih: posisi, setTerpilih: setPosisi })}
+                  value={posisi}
+                  onChange={setPosisi}
                   placeholder="Ketik posisi lain, lalu Enter untuk menambah"
                   label="Cari atau tambah posisi"
                 />
@@ -272,14 +231,10 @@ export default function PelamarOnboarding_001({ navigate }) {
                 <div className="pob001-eyebrow">Pertanyaan 2 dari 3</div>
                 <h1>Di mana kamu mau bekerja?</h1>
                 <p className="pob001-lead">Pilih kota yang kamu mau, maksimal {MAKS_PILIHAN}. Kalau kotamu belum ada, ketik lalu tambahkan sendiri.</p>
-                <PilihanMulti
+                <PilihanMultiChip
                   rekomendasi={LOKASI_REKOMENDASI}
-                  custom={lokasiCustom}
-                  terpilih={lokasi}
-                  query={lokasiQuery}
-                  setQuery={setLokasiQuery}
-                  onToggle={toggle(lokasi, setLokasi)}
-                  onTambah={tambah({ query: lokasiQuery, setQuery: setLokasiQuery, rekomendasi: LOKASI_REKOMENDASI, custom: lokasiCustom, setCustom: setLokasiCustom, terpilih: lokasi, setTerpilih: setLokasi })}
+                  value={lokasi}
+                  onChange={setLokasi}
                   placeholder="Ketik kota atau daerah lain, lalu Enter"
                   label="Cari atau tambah lokasi"
                   ikonLokasi
@@ -327,6 +282,7 @@ export default function PelamarOnboarding_001({ navigate }) {
                   <div><dt>Lokasi</dt><dd>{lokasi.join(', ')}</dd></div>
                   <div><dt>Gaji</dt><dd>Minimal {rupiah(gaji)} / bulan{nego ? ' · bisa nego' : ''}</dd></div>
                 </dl>
+                {galatSimpan && <div className="pm001-error" role="alert" style={{ marginTop: 14, marginBottom: 0 }}>{galatSimpan}</div>}
                 <div style={{ marginTop: 14 }}>
                   <button type="button" className="pob001-link" onClick={() => setStage('posisi')}>Ubah jawaban</button>
                 </div>

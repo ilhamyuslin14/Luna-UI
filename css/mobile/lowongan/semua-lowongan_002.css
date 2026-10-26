@@ -62,6 +62,8 @@
 .sl2m-job-bottom .sl2m-job-salary { margin: 0; padding: 0; border: 0; min-width: 0; }
 .sl2m-job-apply { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px 0 15px; border: 1.5px solid var(--karir-primary, #FF8D21); border-radius: 10px; background: #fff; color: #C2410C; font-family: 'Inter Tight', sans-serif; font-size: 12.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .sl2m-job-apply:active { background: #FFF4EC; }
+.sl2m-job-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.sl2m-job-note { font-size: 10.5px; font-weight: 500; color: var(--karir-ink-400, #94A3B8); line-height: 1.2; }
 .sl2m-job.active { border-color: var(--karir-primary, #FF8D21); }
 .sl2m-job-salary.muted { font-weight: 600; color: var(--karir-ink-400, #94A3B8); }
 .sl2m-job-salary { margin-top: 10px; padding-top: 10px; border-top: 1px solid #F1F5F9; font-size: 12px; font-weight: 700; color: var(--karir-ink-900, #0F172A); }
@@ -119,3 +121,6 @@
 .sl2m-footer-social { display: flex; gap: 8px; }
 .sl2m-footer-social span { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; }
 .sl2m-footer-social svg { width: 12px; height: 12px; }
+.sl2m-auto-note { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; background: #FFF7ED; color: #9A3412; font-size: 12px; font-weight: 500; }
+.sl2m-auto-note.warn { background: #F8FAFC; color: #475569; border: 1px solid #E2E8F0; }
+.sl2m-job-pin { display: inline-block; margin-bottom: 4px; padding: 2px 8px; border-radius: 999px; background: #FFF4EC; color: #B34F00; font-size: 10.5px; font-weight: 700; }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import LamarCepatKartu from '../../../components/lowongan/LamarCepatKartu.jsx';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatPengalaman, formatUpah, getApplyErrorInfo,
 } from '../../../hooks/lowongan/useLamanKarirData.js';
@@ -479,6 +480,7 @@ export default function LamanKarirMobile({ kode, navigate }) {
                 </div>
               </div>
             ) : (
+              <LamarCepatKartu seleksiId={seleksiData.id} jabatan={seleksiData.jabatan} variant="sheet">
               <>
                 <div className="lk-sheet-head">
                   <div className="lk-sheet-title">Lamar Posisi Ini</div>
@@ -543,6 +545,7 @@ export default function LamanKarirMobile({ kode, navigate }) {
                   </button>
                 </form>
               </>
+              </LamarCepatKartu>
             )}
           </div>
         </>,

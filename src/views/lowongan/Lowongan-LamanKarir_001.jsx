@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import LamarCepatKartu from '../../components/lowongan/LamarCepatKartu.jsx';
 import useLamanKarirData, {
   formatDeskripsiToHtml, formatPengalaman, formatUpah, getApplyErrorInfo,
 } from '../../hooks/lowongan/useLamanKarirData.js';
+import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import KecocokanCard from '../../components/lowongan/KecocokanCard.jsx';
@@ -526,7 +528,7 @@ export default function LowonganLamanKarir_001({ kode, navigate }) {
             <nav className="sl2-nav-links">
               <span className="sl2-nav-link" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</span>
               <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
-              <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>
+              {LAMARAN_SAYA_AKTIF && <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>}
             </nav>
           </div>
 
@@ -686,6 +688,7 @@ export default function LowonganLamanKarir_001({ kode, navigate }) {
         {/* Right Column: Floating Sticky Form Sidebar (35%) */}
         <div className="lk-right-col">
           <KecocokanCard jobKey={`luna:${seleksiData.id}`} jobTitle={seleksiData.jabatan} navigate={navigate} />
+          <LamarCepatKartu seleksiId={seleksiData.id} jabatan={seleksiData.jabatan}>
           <div className="lk-apply-card">
             <div className="lk-apply-header">
               <h3 className="lk-apply-title">Lamar Posisi Ini</h3>
@@ -813,6 +816,7 @@ export default function LowonganLamanKarir_001({ kode, navigate }) {
               </button>
             </form>
           </div>
+          </LamarCepatKartu>
         </div>
       </div>
 

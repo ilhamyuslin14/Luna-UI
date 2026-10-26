@@ -25,7 +25,7 @@ function baris(job) {
   return rows.filter(([, v]) => v && v !== '-');
 }
 
-export default function LowonganDrawer({ job, onClose, navigate, onHasilKecocokan }) {
+export default function LowonganDrawer({ job, onClose, navigate, onHasilKecocokan, onLamar }) {
   const [shown, setShown] = useState(false);
   const bodyRef = useRef(null);
   const closeRef = useRef(null);
@@ -144,7 +144,8 @@ export default function LowonganDrawer({ job, onClose, navigate, onHasilKecocoka
         </div>
 
         <div className="ldr-foot">
-          <button type="button" className="ldr-apply" onClick={() => bukaLamar(job)}>Lamar Sekarang</button>
+          <button type="button" className="ldr-apply" onClick={() => (onLamar ? onLamar(job) : bukaLamar(job))}>Lamar Sekarang</button>
+          {job.source_label && <p className="ldr-apply-note">Lamar lewat {job.source_label}</p>}
         </div>
       </aside>
     </div>,

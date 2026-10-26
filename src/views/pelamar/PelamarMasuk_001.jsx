@@ -4,7 +4,7 @@ import '../../../css/pelamar/pelamar-masuk_001.css';
 
 // Login pakai Supabase Auth sungguhan (akun pelamar hidup di
 // pelamar_profiles, terpisah dari akun perusahaan — lihat
-// handle_new_user() di DB). Tombol Google/Facebook masih dekoratif,
+// handle_new_user() di DB). Tombol Google masih dekoratif,
 // belum ada OAuth sungguhan.
 const IconEye = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -20,10 +20,6 @@ const IconGoogle = () => (
     <path fill="#EA4335" d="M12 4.77c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.63l4 3.09C6.22 6.88 8.87 4.77 12 4.77z" />
   </svg>
 );
-const IconFacebook = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" /></svg>
-);
-
 const LOGIN_ERROR_MESSAGES = {
   'Invalid login credentials': 'Email atau kata sandi salah.',
   'Email not confirmed': 'Email belum dikonfirmasi — cek inbox kamu dulu.',
@@ -130,9 +126,6 @@ export default function PelamarMasuk_001({ navigate }) {
         <div className="pm001-social">
           <button type="button" className="pm001-social-btn" onClick={() => handleSocialLogin('Google')}>
             <IconGoogle />Google
-          </button>
-          <button type="button" className="pm001-social-btn" onClick={() => handleSocialLogin('Facebook')}>
-            <IconFacebook />Facebook
           </button>
         </div>
 

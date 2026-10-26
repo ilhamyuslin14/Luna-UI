@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../config/supabase.js';
+import { prefKeBaris } from '../data/preferensiKerja.js';
 
 const AuthContext = createContext();
 
@@ -35,10 +36,20 @@ export function AuthProvider({ children }) {
     }
     const { data, error } = await supabase
       .from('pelamar_profiles')
-      .select('nama_lengkap, email, phone')
+      .select('nama_lengkap, email, phone, pref_posisi, pref_lokasi, pref_gaji_min, pref_gaji_nego, pref_ketersediaan, pref_tipe_kerja, pref_model_kerja, pref_status_pencarian')
       .eq('id', userId)
       .maybeSingle();
     setPelamarProfile(!error && data ? data : null);
+  };
+
+  // Simpan preferensi pekerjaan pelamar (onboarding dan Profil Saya). Melempar error bila gagal.
+  const simpanPreferensi = async (pref) => {
+    if (!user?.id) return false;
+    const baris = prefKeBaris(pref);
+    const { error } = await supabase.from('pelamar_profiles').update(baris).eq('id', user.id);
+    if (error) throw error;
+    setPelamarProfile((prev) => (prev ? { ...prev, ...baris } : prev));
+    return true;
   };
 
   const fetchCompanyId = async (userId) => {
@@ -226,6 +237,7 @@ export function AuthProvider({ children }) {
     onboardingCompleted,
     pelamarProfile,
     isPelamar: !!pelamarProfile,
+    simpanPreferensi,
     loading,
     login,
     register,

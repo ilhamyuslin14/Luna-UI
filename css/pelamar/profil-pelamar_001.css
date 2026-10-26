@@ -1568,3 +1568,23 @@ select.pp001-form-input {
   }
 }
 
+/* Preferensi pekerjaan: nilai berganda tampil sebagai chip, gaji dengan lencana nego */
+.pp001-pref-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pp001-pref-chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; background: #F1F5F9; border: 1px solid #E2E8F0; color: #0F172A; font-size: 12.5px; font-weight: 600; }
+.pp001-pref-badge { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: #FFF4EC; color: #B34F00; font-size: 11px; font-weight: 700; }
+.pp001-pref-nego { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: #334155; cursor: pointer; }
+.pp001-pref-nego input {
+  appearance: none; -webkit-appearance: none; width: 18px; height: 18px; margin: 0; flex-shrink: 0; cursor: pointer;
+  border: 1.5px solid #8A877F; border-radius: 5px; background: #fff; transition: border-color 0.15s, background 0.15s;
+}
+/* Centang digambar manual (SVG putih): accent-color saja membuat tanda centang browser berwarna gelap. */
+.pp001-pref-nego input:checked {
+  background-color: #FF7B00; border-color: #FF7B00;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center; background-size: 11px;
+}
+.pp001-pref-nego input:focus-visible { outline: 3px solid rgba(255, 123, 0, 0.45); outline-offset: 2px; }
+
+/* Modal dengan <form> membungkus isi: form harus ikut flex supaya isi panjang bisa digulir di dalam kartu */
+.pp001-modal-card > form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.pp001-modal-card > form > .pp001-modal-body { flex: 1; min-height: 0; }

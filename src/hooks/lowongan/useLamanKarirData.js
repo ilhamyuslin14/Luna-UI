@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSeleksiByKode, getAllActiveJobs, recordJobView } from '../../services/seleksiService.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { uploadAndExtractCV, createActivityLog, updateActivityLog } from '../../services/kandidatService.js';
 import { runScoring } from '../../services/scoringService.js';
 import { formatSiklusLabel } from '../../utils/siklusUpah.js';
@@ -227,6 +228,17 @@ export default function useLamanKarirData(kode) {
   const [viewCount, setViewCount] = useState(0);
 
   const [form, setForm] = useState({ nama: '', email: '', phone: '', linkedin: '' });
+  // Pelamar yang login: nama, email, dan HP di form terisi dari profil (hanya kolom yang masih kosong).
+  const { pelamarProfile } = useAuth() || {};
+  useEffect(() => {
+    if (!pelamarProfile) return;
+    setForm((f) => ({
+      ...f,
+      nama: f.nama || pelamarProfile.nama_lengkap || '',
+      email: f.email || pelamarProfile.email || '',
+      phone: f.phone || pelamarProfile.phone || '',
+    }));
+  }, [pelamarProfile]);
   const [cvFile, setCvFile] = useState(null);
   const [fileError, setFileError] = useState('');
   const [submitState, setSubmitState] = useState('idle'); // idle | uploading | success | error

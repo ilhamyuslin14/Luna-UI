@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useLamanPerusahaanData, { formatDeskripsiToHtml, getYoutubeEmbedUrl } from '../../hooks/lowongan/useLamanPerusahaanData.js';
+import { LAMARAN_SAYA_AKTIF } from '../../utils/fiturPelamar.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
@@ -215,7 +216,7 @@ export default function LowonganPerusahaan_001({ slug, navigate }) {
             <nav className="sl2-nav-links">
               <span className="sl2-nav-link" onClick={() => navigate?.('semua-lowongan_002')}>Cari Lowongan</span>
               <span className="sl2-nav-link" onClick={goProfilSaya}>Profil Saya</span>
-              <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>
+              {LAMARAN_SAYA_AKTIF && <span className="sl2-nav-link" onClick={goLamaranSaya}>Lamaran Saya</span>}
             </nav>
           </div>
 

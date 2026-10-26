@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getAllJobs } from '../../services/lowonganPublikService.js';
+import { relevansiPosisi, cocokLokasi } from '../../utils/personalisasiLowongan.js';
 
 // Hook ringan khusus laman publik "Semua Lowongan" (?view=semua-lowongan) —
 // beda dari useLamanKarirData yang dibangun untuk 1 lowongan spesifik +
@@ -12,6 +13,12 @@ export const SEMUA_LOWONGAN_SORT_OPTIONS = [
   { value: 'az', label: 'Nama A-Z' },
   { value: 'za', label: 'Nama Z-A' },
 ];
+
+// Urutan "Kecocokan tertinggi" hanya ditawarkan ke pelamar yang login (hanya mereka yang punya skor).
+const MAKS_SLOT_LUNA = 5; // lowongan Luna yang sejalan dengan preferensi didahulukan di posisi teratas
+const KOSONG = [];
+
+const OPSI_KECOCOKAN = { value: 'kecocokan', label: 'Kecocokan tertinggi' };
 
 export const PENGALAMAN_BUCKETS = [
   { value: 'fresh', label: 'Fresh graduate' },
@@ -68,22 +75,27 @@ function toggleInArray(arr, value) {
   return arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value];
 }
 
-export default function useSemuaLowonganData(pageSize = 9, { includeExternal = false } = {}) {
+export default function useSemuaLowonganData(pageSize = 9, { includeExternal = false, skorMap = {}, urutKecocokan = false, posisiPref = KOSONG, lokasiPref = KOSONG } = {}) {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState('terbaru');
+  // Pilihan eksplisit pengguna; kalau belum memilih, pelamar yang login otomatis melihat yang paling cocok di atas.
+  const [sortPilihan, setSort] = useState(null);
+  const sort = sortPilihan ?? (urutKecocokan ? 'kecocokan' : 'terbaru');
+  const sortOptions = urutKecocokan ? [OPSI_KECOCOKAN, ...SEMUA_LOWONGAN_SORT_OPTIONS] : SEMUA_LOWONGAN_SORT_OPTIONS;
   const [page, setPage] = useState(1);
 
   const [tipeKerja, setTipeKerja] = useState([]);
   const [pengalamanBucket, setPengalamanBucket] = useState([]);
   const [gajiBucket, setGajiBucket] = useState([]);
+  const [sumber, setSumber] = useState([]); // nilai job.source: 'luna', 'jobstreet', ...
 
   const toggleTipeKerja = (value) => setTipeKerja(prev => toggleInArray(prev, value));
   const togglePengalamanBucket = (value) => setPengalamanBucket(prev => toggleInArray(prev, value));
   const toggleGajiBucket = (value) => setGajiBucket(prev => toggleInArray(prev, value));
-  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); };
-  const activeFilterCount = tipeKerja.length + pengalamanBucket.length + gajiBucket.length;
+  const toggleSumber = (value) => setSumber(prev => toggleInArray(prev, value));
+  const resetFilters = () => { setTipeKerja([]); setPengalamanBucket([]); setGajiBucket([]); setSumber([]); };
+  const activeFilterCount = tipeKerja.length + pengalamanBucket.length + gajiBucket.length + sumber.length;
 
   useEffect(() => {
     let active = true;
@@ -96,7 +108,14 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
     return () => { active = false; };
   }, [includeExternal]);
 
-  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket]);
+  useEffect(() => { setPage(1); }, [search, sort, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+
+  // Pilihan filter "Lamar lewat": sumber yang memang ada di data, Luna dulu.
+  const sumberOptions = useMemo(() => {
+    const peta = new Map();
+    jobs.forEach(j => { if (j.source && !peta.has(j.source)) peta.set(j.source, j.source_label || j.source); });
+    return [...peta].map(([value, label]) => ({ value, label })).sort((a, b) => (a.value === 'luna' ? -1 : b.value === 'luna' ? 1 : a.label.localeCompare(b.label, 'id')));
+  }, [jobs]);
 
   const filteredJobs = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -112,12 +131,42 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
       if (tipeKerja.length > 0 && !tipeKerja.includes(job.employment_type)) return false;
       if (pengalamanBucket.length > 0 && !pengalamanBucket.includes(pengalamanBucketOf(job))) return false;
       if (gajiBucket.length > 0 && !gajiBucket.some(b => matchesGajiBucket(job, b))) return false;
+      if (sumber.length > 0 && !sumber.includes(job.source)) return false;
       return true;
     });
-  }, [jobs, search, tipeKerja, pengalamanBucket, gajiBucket]);
+  }, [jobs, search, tipeKerja, pengalamanBucket, gajiBucket, sumber]);
+
+  // Urutan bawaan pelamar login:
+  //  1. sampai ${MAKS_SLOT_LUNA} lowongan Luna yang judul/deskripsinya sejalan dengan posisi di preferensi didahulukan,
+  //     terlepas dari skornya (tidak dipaksakan bila tidak ada yang cocok, atau saat pelamar sedang mencari kata kunci);
+  //  2. sisanya: yang sudah punya skor dari skor tertinggi, lalu yang belum punya skor dari yang paling sejalan
+  //     dengan preferensi. Sort stabil: urutan "terbaru" berlaku di antara yang setara.
+  const urutRekomendasi = useMemo(() => {
+    const skor = (job) => (typeof skorMap[job.key] === 'number' ? skorMap[job.key] : -1);
+    const rel = new Map(filteredJobs.map((job) => [job.key, relevansiPosisi(job, posisiPref) * 2 + (cocokLokasi(job, lokasiPref) ? 1 : 0)]));
+    const relPosisi = (job) => relevansiPosisi(job, posisiPref);
+    const pinKeys = new Set();
+    let sisa = filteredJobs;
+    let pinned = [];
+    if (posisiPref.length > 0 && !search.trim()) {
+      pinned = filteredJobs
+        .filter((job) => job.source === 'luna' && relPosisi(job) > 0)
+        .sort((a, b) => relPosisi(b) - relPosisi(a) || skor(b) - skor(a))
+        .slice(0, MAKS_SLOT_LUNA);
+      pinned.forEach((job) => pinKeys.add(job.key));
+      sisa = filteredJobs.filter((job) => !pinKeys.has(job.key));
+    }
+    const urutSisa = [...sisa].sort((a, b) => {
+      const sa = skor(a); const sb = skor(b);
+      if (sa >= 0 || sb >= 0) return sb - sa || rel.get(b.key) - rel.get(a.key);
+      return rel.get(b.key) - rel.get(a.key);
+    });
+    return { urut: [...pinned, ...urutSisa], pinKeys };
+  }, [filteredJobs, skorMap, posisiPref, lokasiPref, search]);
 
   const sortedJobs = useMemo(() => {
     if (sort === 'terbaru') return filteredJobs;
+    if (sort === 'kecocokan') return urutRekomendasi.urut;
     if (sort === 'gaji') {
       // Dibandingkan dari batas atas gaji bulanan. Yang tanpa nominal atau bukan siklus
       // bulanan tidak bisa dibandingkan, jadi ditaruh di bawah. Sort stabil: urutan
@@ -129,7 +178,7 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
       const cmp = (a.title || '').localeCompare(b.title || '', 'id');
       return sort === 'az' ? cmp : -cmp;
     });
-  }, [filteredJobs, sort]);
+  }, [filteredJobs, sort, urutRekomendasi]);
 
   const totalPages = Math.max(1, Math.ceil(sortedJobs.length / pageSize));
   const pagedJobs = useMemo(
@@ -140,12 +189,15 @@ export default function useSemuaLowonganData(pageSize = 9, { includeExternal = f
   return {
     loading,
     search, setSearch,
-    sort, setSort,
+    sort, setSort, sortOptions,
     page, setPage,
     tipeKerja, toggleTipeKerja,
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
+    sumber, toggleSumber, sumberOptions,
     resetFilters, activeFilterCount,
     sortedJobs, pagedJobs, totalPages, pageSize,
+    // Kunci lowongan Luna yang didahulukan karena sejalan dengan preferensi (hanya terisi di urutan bawaan).
+    pinKeys: sort === 'kecocokan' ? urutRekomendasi.pinKeys : new Set(),
   };
 }

@@ -39,10 +39,9 @@ function hash(str) {
 }
 
 export function labelFor(score) {
-  if (score >= 75) return 'Tinggi';
-  if (score >= 50) return 'Sedang';
-  if (score >= 25) return 'Rendah';
-  return 'Tidak Sesuai';
+  if (score >= 71) return 'Tinggi';
+  if (score >= 31) return 'Sedang';
+  return 'Rendah';
 }
 
 export function dummyResult(jobKey, jobTitle) {

@@ -1,7 +1,7 @@
 import { labelFor } from '../../hooks/lowongan/useKecocokanDummy.js';
 import '../../../css/lowongan/kecocokan-chip.css';
 
-const TONE = { 'Tinggi': 'great', 'Sedang': 'amber', 'Rendah': 'red', 'Tidak Sesuai': 'gray' };
+const TONE = { 'Tinggi': 'great', 'Sedang': 'amber', 'Rendah': 'red' };
 
 // Tag skor kecocokan CV di kartu daftar lowongan. Hanya ditampilkan untuk lowongan
 // yang hasilnya sudah ada; warnanya sama dengan banner di kartu kecocokan.

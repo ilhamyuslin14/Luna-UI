@@ -152,3 +152,8 @@
   .pob001-progress { margin-bottom: 28px; }
   .pob001-money input { font-size: 24px; }
 }
+
+/* Progres unggah + parsing CV */
+.pob001-up-label { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: #B34F00; }
+.pob001-up-bar { height: 6px; margin-top: 14px; border-radius: 6px; background: #EFEEEC; overflow: hidden; }
+.pob001-up-bar span { display: block; height: 100%; border-radius: 6px; background: var(--luna-orange-500, #FF7B00); transition: width 0.4s ease; }

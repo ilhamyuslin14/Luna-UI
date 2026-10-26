@@ -22,7 +22,6 @@ const TONE = {
   'Tinggi': 'great',
   'Sedang': 'amber',
   'Rendah': 'red',
-  'Tidak Sesuai': 'gray',
 };
 
 // Bagian atas kartu hasil: banner berwarna sesuai tingkat, angka putih besar.

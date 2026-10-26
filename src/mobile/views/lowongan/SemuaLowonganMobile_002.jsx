@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import useSemuaLowonganData, { SEMUA_LOWONGAN_SORT_OPTIONS, PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../../hooks/lowongan/useSemuaLowonganData.js';
+import useSemuaLowonganData, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../../hooks/lowongan/useSemuaLowonganData.js';
 import { DROPDOWN_OPTIONS } from '../../../utils/dropdownOptions.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import PelamarMobileNav from '../../../components/pelamar/PelamarMobileNav.jsx';
 import CompanyLogoBox from '../../../components/lowongan/CompanyLogoBox.jsx';
 import LowonganDrawer from '../../../components/lowongan/LowonganDrawer.jsx';
 import KecocokanMini from '../../../components/lowongan/KecocokanMini.jsx';
+import useHitungOtomatis from '../../../hooks/lowongan/useHitungOtomatis.js';
 import useKecocokanSkor from '../../../hooks/lowongan/useKecocokanSkor.js';
 import { bukaLamar } from '../../../utils/lamarLowongan.js';
+import LamarCepatModal from '../../../components/lowongan/LamarCepatModal.jsx';
 import '../../../../css/mobile/lowongan/laman-karir.css';
 import '../../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../../css/mobile/lowongan/semua-lowongan_002.css';
@@ -41,7 +43,7 @@ function initials(name) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function FilterSheet({ open, onClose, tipeKerja, toggleTipeKerja, pengalamanBucket, togglePengalamanBucket, gajiBucket, toggleGajiBucket, resetFilters, activeFilterCount }) {
+function FilterSheet({ open, onClose, tipeKerja, toggleTipeKerja, pengalamanBucket, togglePengalamanBucket, gajiBucket, toggleGajiBucket, sumber, toggleSumber, sumberOptions, resetFilters, activeFilterCount }) {
   return createPortal(
     <>
       <div className={`msh-sheet-overlay${open ? ' open' : ''}`} onClick={onClose} />
@@ -81,6 +83,17 @@ function FilterSheet({ open, onClose, tipeKerja, toggleTipeKerja, pengalamanBuck
               ))}
             </div>
           </div>
+
+          {sumberOptions.length > 1 && (
+            <div className="sl2m-filter-group">
+              <div className="sl2m-flabel">Lamar Lewat</div>
+              <div className="sl2m-pill-group">
+                {sumberOptions.map(o => (
+                  <button type="button" key={o.value} className={`sl2m-pill${sumber.includes(o.value) ? ' active' : ''}`} onClick={() => toggleSumber(o.value)}>{o.label}</button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <button type="button" className="sl2m-apply-btn" onClick={onClose}>
@@ -93,14 +106,14 @@ function FilterSheet({ open, onClose, tipeKerja, toggleTipeKerja, pengalamanBuck
   );
 }
 
-function SortSheet({ open, onClose, value, onSelect }) {
+function SortSheet({ open, onClose, value, onSelect, options }) {
   return createPortal(
     <>
       <div className={`msh-sheet-overlay${open ? ' open' : ''}`} onClick={onClose} />
       <div className={`msh-sheet${open ? ' open' : ''}`}>
         <div className="msh-sheet-handle" />
         <div className="sl2m-sheet-head" style={{ marginBottom: 8 }}><h3>Urutkan</h3></div>
-        {SEMUA_LOWONGAN_SORT_OPTIONS.map(opt => (
+        {options.map(opt => (
           <button
             key={opt.value}
             className={`sl2m-sortopt${value === opt.value ? ' active' : ''}`}
@@ -124,31 +137,45 @@ export default function SemuaLowonganMobile_002({ navigate }) {
     if (navigate) navigate(target); else window.location.href = `/?view=${target}`;
   };
 
+  // Skor dibaca lebih dulu: daftar diurutkan dari skor tertinggi untuk pelamar yang login.
+  const { skorMap, setSkor, prosesMap, siap: skorSiap } = useKecocokanSkor();
+  // Urutan memakai skor yang "dibekukan" selama hitung otomatis berjalan, supaya kartu tidak berpindah-pindah
+  // tiap satu hasil masuk; urutan baru diterapkan sekali setelah semuanya selesai.
+  const [otomatisBerjalan, setOtomatisBerjalan] = useState(false);
+  const skorBeku = useRef(skorMap);
+  if (!otomatisBerjalan) skorBeku.current = skorMap;
   const {
-    loading, search, setSearch, sort, setSort, page, setPage,
+    loading, search, setSearch, sort, setSort, sortOptions, page, setPage,
     tipeKerja, toggleTipeKerja,
     pengalamanBucket, togglePengalamanBucket,
     gajiBucket, toggleGajiBucket,
+    sumber, toggleSumber, sumberOptions,
     resetFilters, activeFilterCount,
-    pagedJobs, totalPages,
-  } = useSemuaLowonganData(10, { includeExternal: true });
+    pagedJobs, totalPages, pinKeys,
+  } = useSemuaLowonganData(10, { includeExternal: true, skorMap: skorBeku.current, urutKecocokan: !!isPelamar, posisiPref: pelamarProfile?.pref_posisi, lokasiPref: pelamarProfile?.pref_lokasi });
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const otomatis = useHitungOtomatis({ jobs: pagedJobs, skorMap, prosesMap, siap: skorSiap });
+  if (otomatis.berjalan !== otomatisBerjalan) setOtomatisBerjalan(otomatis.berjalan);
+
   const [sortOpen, setSortOpen] = useState(false);
 
   // Klik kartu membuka lembar detail dari bawah; "Lamar Sekarang" langsung ke tujuan lamaran.
   const [drawerJob, setDrawerJob] = useState(null);
-  const { skorMap, setSkor } = useKecocokanSkor();
   const openJob = (job) => setDrawerJob(job);
-  const lamar = (e, job) => { e.stopPropagation(); bukaLamar(job); };
+  // Lowongan Luna + pelamar login: popup lamar dengan profil. Selain itu langsung ke tujuan lamaran (tab baru).
+  const [lamarJob, setLamarJob] = useState(null);
+  const lamarSekarang = (job) => (isPelamar && !job.is_external ? setLamarJob(job) : bukaLamar(job));
+  const lamar = (e, job) => { e.stopPropagation(); lamarSekarang(job); };
 
   const popularSearches = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
-  const currentSortLabel = SEMUA_LOWONGAN_SORT_OPTIONS.find(o => o.value === sort)?.label || 'Terbaru';
+  const currentSortLabel = sortOptions.find(o => o.value === sort)?.label || 'Terbaru';
 
   return (
     <div className="sl2m-page">
+      {lamarJob && <LamarCepatModal job={lamarJob} onClose={() => setLamarJob(null)} />}
       {drawerJob && (
-        <LowonganDrawer job={drawerJob} navigate={navigate} onClose={() => setDrawerJob(null)} onHasilKecocokan={setSkor} />
+        <LowonganDrawer job={drawerJob} navigate={navigate} onClose={() => setDrawerJob(null)} onHasilKecocokan={setSkor} onLamar={lamarSekarang} />
       )}
       <div className="lk-head">
         <a className="lk-logo" href="/?view=semua-lowongan_002">
@@ -195,6 +222,8 @@ export default function SemuaLowonganMobile_002({ navigate }) {
       </div>
 
       <section className="sl2m-list">
+        {otomatis.berjalan && <div className="sl2m-auto-note">Menghitung kecocokan CV kamu…</div>}
+        {!otomatis.berjalan && otomatis.berhenti === 'kuota' && <div className="sl2m-auto-note warn">Batas pengecekan kecocokan hari ini sudah tercapai. Sisanya dihitung besok.</div>}
         {loading ? (
           <div className="sl2m-empty">Memuat lowongan…</div>
         ) : pagedJobs.length > 0 ? (
@@ -207,6 +236,7 @@ export default function SemuaLowonganMobile_002({ navigate }) {
                   <div className="sl2m-job-top">
                     <CompanyLogoBox className="sl2m-job-logo" src={job.logo_url} alt={companyName} color={avatarColor(companyName)} initials={initials(companyName)} />
                     <div className="sl2m-job-body">
+                      {pinKeys.has(job.key) && <span className="sl2m-job-pin">Lowongan Luna</span>}
                       <h4 className="sl2m-job-title">{job.title}</h4>
                       <div className="sl2m-job-meta">
                         <b>{companyName}</b>
@@ -219,13 +249,18 @@ export default function SemuaLowonganMobile_002({ navigate }) {
                         {job.experience_label && <span>{job.experience_label}</span>}
                       </div>
                     </div>
-                    {skorMap[job.key] != null
-                      ? <KecocokanMini score={skorMap[job.key]} />
-                      : isPelamar && <KecocokanMini ghost />}
+                    {prosesMap[job.key] || (otomatis.memeriksa && skorMap[job.key] == null)
+                      ? <KecocokanMini loading />
+                      : skorMap[job.key] != null
+                        ? <KecocokanMini score={skorMap[job.key]} />
+                        : isPelamar && <KecocokanMini ghost />}
                   </div>
                   <div className="sl2m-job-bottom">
                     {job.salary_label ? <div className={`sl2m-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div> : <span />}
-                    <button type="button" className="sl2m-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                    <div className="sl2m-job-cta">
+                      <button type="button" className="sl2m-job-apply" onClick={e => lamar(e, job)}>Lamar Sekarang <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></button>
+                      {job.source_label && <span className="sl2m-job-note">Lamar lewat {job.source_label}</span>}
+                    </div>
                   </div>
                 </div>
               </article>
@@ -280,9 +315,10 @@ export default function SemuaLowonganMobile_002({ navigate }) {
         tipeKerja={tipeKerja} toggleTipeKerja={toggleTipeKerja}
         pengalamanBucket={pengalamanBucket} togglePengalamanBucket={togglePengalamanBucket}
         gajiBucket={gajiBucket} toggleGajiBucket={toggleGajiBucket}
+        sumber={sumber} toggleSumber={toggleSumber} sumberOptions={sumberOptions}
         resetFilters={resetFilters} activeFilterCount={activeFilterCount}
       />
-      <SortSheet open={sortOpen} onClose={() => setSortOpen(false)} value={sort} onSelect={setSort} />
+      <SortSheet open={sortOpen} onClose={() => setSortOpen(false)} value={sort} onSelect={setSort} options={sortOptions} />
     </div>
   );
 }
