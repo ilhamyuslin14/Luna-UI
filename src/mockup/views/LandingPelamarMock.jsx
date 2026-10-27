@@ -1,4 +1,4 @@
-// MOCKUP: salinan LandingPagePelamar_001 untuk presentasi. Lowongan terbaru dari LOWONGAN_DUMMY (hanya yang Luna), sesi dari
+// MOCKUP: salinan LandingPagePelamar_001 untuk presentasi. Lowongan terbaru dari LOWONGAN_DUMMY (semua sumber), sesi dari
 // MockSession, tanpa database. Pencarian selalu membuka daftar sebagai pelamar contoh. Ubah tampilan asli di
 // views/landing/LandingPagePelamar_001.jsx lalu salin ulang bagian visualnya ke sini.
 import { useMemo, useState } from 'react';
@@ -64,7 +64,6 @@ const FAQ_ITEMS = [
   { q: 'Apakah saya wajib membuat akun?', a: 'Untuk mencari dan membuka lowongan, tidak. Akun dibutuhkan untuk melihat skor kecocokan, memakai urutan rekomendasi, dan melamar cepat dengan profil. Lowongan Luna juga tetap bisa dilamar lewat form tanpa akun.' },
   { q: 'Bagaimana skor kecocokan dihitung?', a: 'Luna membandingkan CV-mu dengan deskripsi lowongan, lalu memberi skor 0–100 dalam tiga tingkat: Rendah (0–30), Sedang (31–70), dan Tinggi (71–100). Skor adalah perkiraan, bukan keputusan perekrut.' },
   { q: 'Apakah perusahaan bisa melihat CV saya?', a: 'Hanya setelah kamu melamar ke lowongan Luna dan menyetujui pengiriman profilmu. Untuk lowongan dari sumber lain, Luna tidak mengirim apa pun: kamu melamar di halaman aslinya.' },
-  { q: 'Lowongannya datang dari mana?', a: 'Dari perusahaan yang memasang lowongan langsung di Luna, ditambah lowongan yang dikumpulkan dari sumber lain seperti JobStreet. Sumbernya selalu tertulis di setiap lowongan.' },
 ];
 
 const warnaLogo = ['#2F5D8A', '#2F7A4F', '#B5482B', '#6B4C8A', '#1F6F72'];
@@ -96,7 +95,7 @@ export default function LandingPelamarMock({ navigate }) {
     else if (e.key === 'Enter' && saranAktif >= 0) { e.preventDefault(); pilihKota(saran[saranAktif].name); }
     else if (e.key === 'Escape') { setSaranTerbuka(false); setSaranAktif(-1); }
   };
-  const terbaru = LOWONGAN_DUMMY.filter((j) => !j.is_external); // hanya lowongan Luna (data contoh)
+  const terbaru = LOWONGAN_DUMMY.slice(0, 6); // lowongan terbaru dari berbagai sumber (data contoh)
 
   const goDaftar = () => navigate?.('pelamar-daftar');
   const goMasuk = () => navigate?.('pelamar-masuk');
@@ -268,7 +267,7 @@ export default function LandingPelamarMock({ navigate }) {
             <span className="lp003-fitur-eyebrow">Solusinya</span>
           </div>
           <h2 className="lp003-fitur-title-main">Luna menyelesaikan keduanya</h2>
-          <p className="lp003-fitur-sub">Semua lowongan di satu tempat, dipilihkan untukmu, lengkap dengan skor kecocokan.</p>
+          <p className="lp003-fitur-sub">Semua lowongan di satu tempat, dipilihkan untukmu, lengkap dengan skor kecocokan, dan kamu tetap bebas memilih tempat melamar.</p>
         </div>
 
         <div className="lpp-bento">
@@ -305,15 +304,16 @@ export default function LandingPelamarMock({ navigate }) {
             </div>
           </div>
 
-          <div className="lp003-bento-cell">
-            <span className="lp003-bento-tag">Dikurasi untukmu</span>
-            <h3>Dikurasi sesuai profil dan ekspektasimu</h3>
-            <p>Posisi, kota, dan gaji yang kamu mau menentukan lowongan mana yang tampil lebih dulu.</p>
-            <div className="lpp-bento-mock lpp-rank">
-              <div className="lpp-rank-pref"><span>Preferensimu</span><b>Data Analyst</b><b>Jakarta</b></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">1</span><div><b>Business Analyst</b><small>Sesuai posisi pilihanmu</small></div></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">2</span><div><b>Data Analyst</b><small>Sesuai posisi pilihanmu</small></div></div>
-              <div className="lpp-rank-row"><span className="lpp-rank-n">3</span><div><b>Product Analyst</b><small>Sesuai kota pilihanmu</small></div></div>
+          <div className="lpp-bento-stack">
+            <div className="lp003-bento-cell">
+              <span className="lp003-bento-tag">Dikurasi untukmu</span>
+              <h3>Dikurasi sesuai profil dan ekspektasimu</h3>
+              <p>Posisi, kota, dan gaji yang kamu mau menentukan lowongan mana yang tampil lebih dulu.</p>
+            </div>
+            <div className="lp003-bento-cell">
+              <span className="lp003-bento-tag">Langsung lamar</span>
+              <h3>Langsung lamar dari tempat pilihanmu</h3>
+              <p>Lamar cepat dengan profilmu untuk lowongan Luna, atau langsung ke halaman asli sumbernya. Kamu yang memilih.</p>
             </div>
           </div>
         </div>
@@ -341,15 +341,15 @@ export default function LandingPelamarMock({ navigate }) {
         </div>
       </section>
 
-      {/* ── 4. Lowongan Luna terbaru (bagian disembunyikan bila belum ada lowongan Luna) ── */}
+      {/* ── 5. Lowongan terbaru yang tersedia, dari berbagai sumber (disembunyikan bila belum ada) ── */}
       {terbaru && terbaru.length > 0 && (
         <section className="lp003-fitur lpp-terbaru" id="lowongan">
           <div className="lp003-fitur-head">
             <div className="lp003-fitur-eyebrow-row">
-              <span className="lp003-fitur-eyebrow">Lowongan Luna</span>
+              <span className="lp003-fitur-eyebrow">Lowongan Terbaru</span>
             </div>
-            <h2 className="lp003-fitur-title-main">Lowongan terbaru dari perusahaan di Luna</h2>
-            <p className="lp003-fitur-sub">Dipasang langsung oleh perusahaan yang memakai Luna. Buka daftar lengkap untuk melihat sumber lainnya.</p>
+            <h2 className="lp003-fitur-title-main">Lowongan terbaru yang tersedia</h2>
+            <p className="lp003-fitur-sub">Dikumpulkan dari berbagai sumber dan diurutkan dari yang paling baru. Buka daftar lengkap untuk melihat semuanya.</p>
           </div>
 
           <div className="lpp-terbaru-grid">
@@ -361,7 +361,7 @@ export default function LandingPelamarMock({ navigate }) {
                   <div className="lpp-job-meta">{j.company_name} · {j.location || 'Indonesia'}</div>
                   <div className="lpp-job-foot">
                     <span className={j.salary_text_only ? 'muted' : ''}>{j.salary_label}</span>
-                    <span className="lpp-job-src">{j.employment_label}</span>
+                    <span className={`lpp-src-pill${j.source === 'luna' ? ' luna' : ''}`}>{j.source_label}</span>
                   </div>
                 </div>
               </button>
