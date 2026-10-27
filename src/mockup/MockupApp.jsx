@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import useIsMobile from '../hooks/useIsMobile.js';
-import { MockSessionProvider } from './MockSession.jsx';
+import { MockSessionProvider, useMockSession } from './MockSession.jsx';
+import LengkapiProfilModal from '../components/pelamar/LengkapiProfilModal.jsx';
 import PelamarMasukMock from './views/PelamarMasukMock.jsx';
 import PelamarDaftarMock from './views/PelamarDaftarMock.jsx';
 import PelamarVerifikasiOtpMock from './views/PelamarVerifikasiOtpMock.jsx';
@@ -35,10 +36,17 @@ const bacaLayarAwal = () => {
   return Object.values(LAYAR).includes(dariUrl) ? dariUrl : LAYAR_AWAL;
 };
 
+// Unggah CV tiruan: progres berjalan beberapa detik, tanpa file yang benar-benar dikirim.
+const tiruUnggah = async (_file, onProgress) => {
+  const tahap = [[12, 'Mengunggah CV…'], [45, 'Membaca isi CV…'], [78, 'Mengisi profilmu dari CV…'], [100, 'Selesai']];
+  for (const [persen, label] of tahap) { onProgress?.(persen, label); await new Promise((r) => setTimeout(r, 650)); }
+};
+
 function Isi() {
   const isMobile = useIsMobile();
   const [layar, setLayar] = useState(bacaLayarAwal);
   const [paramAwal, setParamAwal] = useState(null); // {q, kota, buka} dari landing ke daftar lowongan
+  const { masuk, profilBelumLengkap, selesaikanProfil } = useMockSession();
 
   // Tautkan layar ke ?screen= (tanpa menambah riwayat) supaya memuat ulang tetap di layar yang sama.
   useEffect(() => {
@@ -56,6 +64,21 @@ function Isi() {
     setLayar(tujuan);
   }, []);
 
+  const layarDenganModal = ['landing', 'lowongan', 'profil'].includes(layar);
+  const modal = masuk && profilBelumLengkap && layarDenganModal ? (
+    <LengkapiProfilModal
+      nama="Dina"
+      cvTiruan
+      stageAwal="cv"
+      unggahCv={tiruUnggah}
+      simpan={async () => { await new Promise((r) => setTimeout(r, 600)); }}
+      onSelesai={selesaikanProfil}
+    />
+  ) : null;
+
+  return <>{tampilkan()}{modal}</>;
+
+  function tampilkan() {
   switch (layar) {
     case 'daftar': return <PelamarDaftarMock navigate={navigate} />;
     case 'otp': return <PelamarVerifikasiOtpMock navigate={navigate} />;
@@ -64,6 +87,7 @@ function Isi() {
     case 'lowongan': return isMobile ? <SemuaLowonganMobileMock navigate={navigate} awal={paramAwal} /> : <SemuaLowonganMock navigate={navigate} awal={paramAwal} />;
     case 'profil': return <ProfilMock navigate={navigate} />;
     default: return <PelamarMasukMock navigate={navigate} />;
+  }
   }
 }
 

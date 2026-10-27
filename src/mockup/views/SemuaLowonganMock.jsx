@@ -262,6 +262,19 @@ export default function SemuaLowonganMock({ navigate, awal }) {
             </div>
           </div>
 
+          {!isPelamar && (
+            <div className="sl2-guest">
+              <div>
+                <b>Daftar untuk lihat skor kecocokan</b>
+                <span>Skor muncul setelah kamu punya profil dan CV.</span>
+              </div>
+              <div className="sl2-guest-aksi">
+                <button type="button" className="sl2-guest-daftar" onClick={() => navigate?.('pelamar-daftar')}>Daftar untuk Lihat Skor</button>
+                <button type="button" className="sl2-guest-masuk" onClick={goMasuk}>Sudah punya akun? Masuk</button>
+              </div>
+            </div>
+          )}
+
           {kota && (
             <div className="sl2-kota-chip">
               Kota: <b>{kota}</b>
@@ -295,7 +308,9 @@ export default function SemuaLowonganMock({ navigate, awal }) {
                       </div>
                       {skorMap[job.key] != null
                         ? <KecocokanMini score={skorMap[job.key]} />
-                        : isPelamar && <KecocokanMini ghost />}
+                        : isPelamar
+                          ? <KecocokanMini ghost />
+                          : <KecocokanMini terkunci onClick={(e) => { e.stopPropagation(); navigate?.('pelamar-daftar'); }} />}
                     </div>
 
                     <div className="sl2-job-bottom">

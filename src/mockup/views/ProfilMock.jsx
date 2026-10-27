@@ -6,7 +6,7 @@ import { useMockSession } from '../MockSession.jsx';
 import { MockNavMenu, MockMobileNav } from '../components/MockNav.jsx';
 import { PROFIL_DUMMY, RESUME_DUMMY_ROW } from '../data/profilDummy.js';
 import PilihanMultiChip from '../../components/pelamar/PilihanMultiChip.jsx';
-import { POSISI_REKOMENDASI, LOKASI_REKOMENDASI, KETERSEDIAAN_OPSI, STATUS_PENCARIAN_OPSI, TIPE_KERJA_OPSI, MODEL_KERJA_OPSI, GAJI_MAX, prefDariBaris, rupiah } from '../../data/preferensiKerja.js';
+import { POSISI_REKOMENDASI, LOKASI_REKOMENDASI, KETERSEDIAAN_OPSI, STATUS_PENCARIAN_OPSI, TIPE_KERJA_OPSI, MODEL_KERJA_OPSI, PORTAL_LOWONGAN_REKOMENDASI, GAJI_MAX, prefDariBaris, rupiah } from '../../data/preferensiKerja.js';
 import useIsMobile from '../../hooks/useIsMobile.js';
 import '../../../css/mobile/shell.css';
 import '../../../css/mobile/lowongan/laman-karir.css';
@@ -679,7 +679,7 @@ export default function ProfilMock({ navigate }) {
 
   const handleOpenPrefModal = () => {
     const p = profile.preferensi;
-    setPrefForm({ ...p, posisi: [...p.posisi], lokasi: [...p.lokasi], tipeKerja: [...p.tipeKerja] });
+    setPrefForm({ ...p, posisi: [...p.posisi], lokasi: [...p.lokasi], tipeKerja: [...p.tipeKerja], akunPortal: [...(p.akunPortal || [])] });
     setShowModalPref(true);
   };
 
@@ -1518,6 +1518,15 @@ export default function ProfilMock({ navigate }) {
                 <div className="pp001-pref-row">
                   <span className="pp001-pref-label">Ketersediaan Memulai</span>
                   <div className="pp001-pref-value">{profile.preferensi.ketersediaan || <span className="pp001-empty-hint">Belum diisi</span>}</div>
+                </div>
+
+                <div className="pp001-pref-row">
+                  <span className="pp001-pref-label">Akun Situs Lowongan Lain</span>
+                  <div className="pp001-pref-value">
+                    {(profile.preferensi.akunPortal || []).length > 0
+                      ? <div className="pp001-pref-chips">{profile.preferensi.akunPortal.map(x => <span key={x} className="pp001-pref-chip">{x}</span>)}</div>
+                      : <span className="pp001-empty-hint">Belum diisi</span>}
+                  </div>
                 </div>
 
                 <div className="pp001-pref-row">
@@ -3065,6 +3074,19 @@ export default function ProfilMock({ navigate }) {
                       {KETERSEDIAAN_OPSI.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </div>
+                </div>
+
+                <div className="pp001-form-group">
+                  <label className="pp001-form-label">
+                    Akun di Situs Lowongan Lain <span>(boleh dikosongkan)</span>
+                  </label>
+                  <PilihanMultiChip
+                    rekomendasi={PORTAL_LOWONGAN_REKOMENDASI}
+                    value={prefForm.akunPortal || []}
+                    onChange={(akunPortal) => setPrefForm(f => ({ ...f, akunPortal }))}
+                    placeholder="Ketik situs lain, lalu Enter"
+                    label="Cari atau tambah situs"
+                  />
                 </div>
 
                 <div className="pp001-form-group">

@@ -241,8 +241,8 @@ export default function LandingPagePelamar_001({ navigate }) {
           <div className="lp003-fitur-eyebrow-row">
             <span className="lp003-fitur-eyebrow">Masalahnya</span>
           </div>
-          <h2 className="lp003-fitur-title-main">Cari kerja melelahkan karena dua hal</h2>
-          <p className="lp003-fitur-sub">Dua hal yang hampir semua pencari kerja alami, dan yang Luna selesaikan.</p>
+          <h2 className="lp003-fitur-title-main">Cari kerja melelahkan dan semakin sulit</h2>
+          <p className="lp003-fitur-sub">Kesulitan yang hampir semua pencari kerja alami, dan yang Luna selesaikan.</p>
         </div>
 
         <div className="lpp-masalah-grid">
@@ -274,15 +274,14 @@ export default function LandingPagePelamar_001({ navigate }) {
         </div>
 
         <div className="lpp-bento">
-          <div className="lp003-bento-cell">
+          <div className="lp003-bento-cell lpp-bento-utama">
             <span className="lp003-bento-tag">Berbagai sumber</span>
-            <h3>Lowongan dari berbagai sumber, satu tempat</h3>
+            <h3>Lowongan dari<br /><span className="lpp-garis">berbagai sumber</span></h3>
             <p>Lowongan dari perusahaan di Luna dan sumber lain dikumpulkan jadi satu. Kamu cukup mencari sekali.</p>
             <div className="lpp-bento-mock lpp-rank">
               <div className="lpp-rank-pref"><span>Sumber</span><b>Luna</b><b>JobStreet</b></div>
               <div className="lpp-rank-row"><div><b>Business Analyst</b><small>PT Sinergi Data</small></div><span className="lpp-src-pill luna">Luna</span></div>
               <div className="lpp-rank-row"><div><b>Junior Business Analyst</b><small>PT Perangkat Lunak Indonesia</small></div><span className="lpp-src-pill">JobStreet</span></div>
-              <div className="lpp-rank-row"><div><b>Admin Purchasing</b><small>PT Aplus Pacific</small></div><span className="lpp-src-pill">JobStreet</span></div>
             </div>
           </div>
 

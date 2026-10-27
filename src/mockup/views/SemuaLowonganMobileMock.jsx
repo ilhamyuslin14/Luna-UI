@@ -216,6 +216,19 @@ export default function SemuaLowonganMobileMock({ navigate, awal }) {
       </div>
 
       <section className="sl2m-list">
+        {!isPelamar && (
+          <div className="sl2m-guest">
+            <div>
+              <b>Daftar untuk lihat skor kecocokan</b>
+              <span>Skor muncul setelah kamu punya profil dan CV.</span>
+            </div>
+            <div className="sl2m-guest-aksi">
+              <button type="button" className="sl2m-guest-daftar" onClick={() => navigate?.('pelamar-daftar')}>Daftar untuk Lihat Skor</button>
+              <button type="button" className="sl2m-guest-masuk" onClick={goMasuk}>Sudah punya akun? Masuk</button>
+            </div>
+          </div>
+        )}
+
         {kota && (
           <div className="sl2m-kota-chip">
             Kota: <b>{kota}</b>
@@ -250,7 +263,9 @@ export default function SemuaLowonganMobileMock({ navigate, awal }) {
                     </div>
                     {skorMap[job.key] != null
                         ? <KecocokanMini score={skorMap[job.key]} />
-                        : isPelamar && <KecocokanMini ghost />}
+                        : isPelamar
+                          ? <KecocokanMini ghost />
+                          : <KecocokanMini terkunci onClick={(e) => { e.stopPropagation(); navigate?.('pelamar-daftar'); }} />}
                   </div>
                   <div className="sl2m-job-bottom">
                     {job.salary_label ? <div className={`sl2m-job-salary${job.salary_text_only ? ' muted' : ''}`}>{job.salary_label}</div> : <span />}

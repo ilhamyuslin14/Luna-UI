@@ -66,7 +66,7 @@ function OtpBoxes({ value, onChange }) {
 
 export default function PelamarVerifikasiOtp_001({ navigate }) {
   const { user } = useAuth() || {};
-  const [step, setStep] = useState('mengirim'); // 'mengirim' | 'otp'
+  const [step, setStep] = useState('mengirim'); // 'mengirim' | 'otp' | 'selesai'
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const [verifying, setVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -96,9 +96,19 @@ export default function PelamarVerifikasiOtp_001({ navigate }) {
   const handleVerif = () => {
     if (!otpFull || verifying) return;
     setVerifying(true);
-    // Dummy: kode apa pun diterima, lalu lanjut ke onboarding (unggah CV + preferensi kerja).
-    setTimeout(() => navigate?.('pelamar-onboarding'), 900);
+    // Dummy: kode apa pun diterima. Pendaftaran selesai; unggah CV dan pertanyaan preferensi muncul
+    // sebagai pop-up di Profil Saya, bukan di layar ini.
+    setTimeout(() => { setStep('selesai'); }, 900);
   };
+
+  const keBeranda = () => navigate?.('profil-pelamar_001');
+
+  // Layar "Pendaftaran selesai" tampil sebentar lalu mengalihkan sendiri.
+  useEffect(() => {
+    if (step !== 'selesai') return undefined;
+    const t = setTimeout(keBeranda, 2800);
+    return () => clearTimeout(t);
+  }, [step]);
 
   const handleResend = () => {
     if (resendTimer > 0) return;
@@ -132,6 +142,12 @@ export default function PelamarVerifikasiOtp_001({ navigate }) {
               <div className="pm001-otp-spinner" aria-hidden="true" />
               <h1>Mengirim kode OTP</h1>
               <p>Mohon tunggu sebentar, kami sedang mengirimkan kode ke email kamu...</p>
+            </div>
+          ) : step === 'selesai' ? (
+            <div className="pm001-otp-sending" role="status" aria-live="polite">
+              <div className="pm001-otp-spinner" aria-hidden="true" />
+              <h1>Pendaftaran selesai</h1>
+              <p>Akunmu sudah aktif. Mengalihkan ke beranda…</p>
             </div>
           ) : (
             <>

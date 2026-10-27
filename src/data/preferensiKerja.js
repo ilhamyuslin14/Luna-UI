@@ -30,6 +30,7 @@ export function prefDariBaris(row) {
     tipeKerja: row?.pref_tipe_kerja || [],
     modelKerja: row?.pref_model_kerja || '',
     statusPencarian: row?.pref_status_pencarian || '',
+    akunPortal: row?.pref_akun_portal || [],
   };
 }
 
@@ -43,7 +44,11 @@ export function prefKeBaris(pref) {
   if (pref.gajiNego !== undefined) baris.pref_gaji_nego = !!pref.gajiNego;
   if (pref.ketersediaan !== undefined) baris.pref_ketersediaan = pref.ketersediaan || null;
   if (pref.tipeKerja !== undefined) baris.pref_tipe_kerja = pref.tipeKerja;
+  if (pref.akunPortal !== undefined) baris.pref_akun_portal = pref.akunPortal;
   if (pref.modelKerja !== undefined) baris.pref_model_kerja = pref.modelKerja || null;
   if (pref.statusPencarian !== undefined) baris.pref_status_pencarian = pref.statusPencarian || null;
   return baris;
 }
+
+// Situs lowongan lain yang mungkin sudah dipakai pelamar (pertanyaan terakhir saat melengkapi profil).
+export const PORTAL_LOWONGAN_REKOMENDASI = ['JobStreet', 'LinkedIn', 'Glints', 'Kalibrr', 'Indeed', 'Karir.com', 'Jobs.id', 'Urbanhire', 'Loker.id'];

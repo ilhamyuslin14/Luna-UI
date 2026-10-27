@@ -27,20 +27,32 @@ export const PELAMAR_DUMMY = {
 const Ctx = createContext(null);
 
 const bacaMasuk = () => { try { return sessionStorage.getItem(KEY) === '1'; } catch { return false; } };
+const KEY_BARU = 'luna_mockup_baru'; // pelamar baru daftar: profil belum lengkap (CV dan preferensi belum diisi)
+const bacaBaru = () => { try { return sessionStorage.getItem(KEY_BARU) === '1'; } catch { return false; } };
+const tulisBaru = (v) => { try { v ? sessionStorage.setItem(KEY_BARU, '1') : sessionStorage.removeItem(KEY_BARU); } catch { /* diabaikan */ } };
+// Pintasan presentasi: /?view=mockup&screen=profil&baru=1 membuka mockup sebagai pelamar yang baru daftar.
+const dariUrlBaru = () => new URLSearchParams(window.location.search).get('baru') === '1';
 const tulisMasuk = (v) => { try { v ? sessionStorage.setItem(KEY, '1') : sessionStorage.removeItem(KEY); } catch { /* diabaikan */ } };
 
 export function MockSessionProvider({ children }) {
-  const [masuk, setMasuk] = useState(bacaMasuk);
+  const [masuk, setMasuk] = useState(() => bacaMasuk() || dariUrlBaru());
+  const [profilBelumLengkap, setProfilBelumLengkap] = useState(() => bacaBaru() || dariUrlBaru());
   const [skor, setSkor] = useState(SKOR_AWAL);   // { [job.key]: angka }
   const [proses, setProses] = useState({});      // { [job.key]: waktuMulai }
   const [dilamar, setDilamar] = useState({});         // { [job.key]: true } lowongan Luna yang sudah dilamar
   const [lamarProses, setLamarProses] = useState({}); // { [job.key]: true } lamaran yang sedang "dikirim"
   const timers = useRef({});
 
-  const login = useCallback(() => { tulisMasuk(true); setMasuk(true); }, []);
+  const login = useCallback((opsi) => {
+    tulisMasuk(true); setMasuk(true);
+    tulisBaru(!!opsi?.baru); setProfilBelumLengkap(!!opsi?.baru);
+  }, []);
+  const selesaikanProfil = useCallback(() => { tulisBaru(false); setProfilBelumLengkap(false); }, []);
 
   const logout = useCallback(() => {
     tulisMasuk(false);
+    tulisBaru(false);
+    setProfilBelumLengkap(false);
     setMasuk(false);
     // Kembali ke keadaan awal demo.
     Object.values(timers.current).forEach(clearTimeout);
@@ -79,11 +91,11 @@ export function MockSessionProvider({ children }) {
     user: masuk ? { id: PELAMAR_DUMMY.id, email: PELAMAR_DUMMY.email } : null,
     pelamarProfile: masuk ? PELAMAR_DUMMY : null,
     isPelamar: masuk,
-    login, logout,
+    login, logout, profilBelumLengkap, selesaikanProfil,
     skor, proses, mulaiCek, DURASI_CEK_MS,
     dilamar, lamarProses, lamar,
     simpanPreferensi: async () => true, // mockup: preferensi tidak disimpan ke mana pun
-  }), [masuk, skor, proses, login, logout, mulaiCek, dilamar, lamarProses, lamar]);
+  }), [masuk, profilBelumLengkap, selesaikanProfil, skor, proses, login, logout, mulaiCek, dilamar, lamarProses, lamar]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

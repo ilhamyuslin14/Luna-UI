@@ -80,6 +80,7 @@ import PelamarMasuk_001 from './views/pelamar/PelamarMasuk_001.jsx';
 import PelamarDaftar_001 from './views/pelamar/PelamarDaftar_001.jsx';
 import PelamarVerifikasiOtp_001 from './views/pelamar/PelamarVerifikasiOtp_001.jsx';
 import PelamarOnboarding_001 from './views/pelamar/PelamarOnboarding_001.jsx';
+import LengkapiProfilGate from './components/pelamar/LengkapiProfilGate.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
 const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
 
@@ -94,7 +95,17 @@ function SandboxWrapper({ navigate }) {
   return <SandboxComponent navigate={navigate} />;
 }
 
+// Modal "Lengkapi profil" dipasang di luar AppInner supaya menutupi halaman pelamar mana pun, termasuk navbar.
 export default function App() {
+  return (
+    <>
+      <AppInner />
+      <LengkapiProfilGate />
+    </>
+  );
+}
+
+function AppInner() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const rrNavigate = useNavigate();
@@ -150,6 +161,9 @@ export default function App() {
   // mengembalikan location.state persis seperti saat entry ini pertama kali
   // dibuat. Ini menggantikan historyStack manual yang sebelumnya bisa gak
   // sinkron dengan tombol back browser.
+  // Memberi tahu komponen di luar AppInner (LengkapiProfilGate) bahwa halaman berganti.
+  useEffect(() => { window.dispatchEvent(new Event('luna:navigate')); }, [activeMenu]);
+
   const navigate = (menu, params = {}, options = {}) => {
     if (menu === 'seleksi-detail' || menu === 'seleksi-detail_001' || menu === 'seleksi-detail_002' || menu === 'seleksi-tambah-kandidat' ||
         menu === 'lowongan-detail' || menu === 'lowongan-detail_001' || menu === 'lowongan-detail_002' || menu === 'lowongan-tambah-kandidat') {

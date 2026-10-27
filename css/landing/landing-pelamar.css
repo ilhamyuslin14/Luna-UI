@@ -251,3 +251,8 @@ body:has(.lpp-page) { overflow: visible; }
 .lpp-bento-stack { display: flex; flex-direction: column; gap: 16px; }
 .lpp-bento-stack .lp003-bento-cell { flex: 1; }
 @media (min-width: 900px) { .lpp-bento-stack { gap: 20px; } }
+
+/* Kartu "Berbagai sumber": judul lebih besar, ilustrasi hanya dua baris */
+.lpp-bento .lpp-bento-utama h3 { font-size: 22px; line-height: 1.25; }
+@media (min-width: 900px) { .lpp-bento .lpp-bento-utama h3 { font-size: 26px; } }
+.lpp-garis { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 5px; text-decoration-color: #ff8d21; }

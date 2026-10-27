@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
     }
     const { data, error } = await supabase
       .from('pelamar_profiles')
-      .select('nama_lengkap, email, phone, pref_posisi, pref_lokasi, pref_gaji_min, pref_gaji_nego, pref_ketersediaan, pref_tipe_kerja, pref_model_kerja, pref_status_pencarian')
+      .select('nama_lengkap, email, phone, pref_posisi, pref_lokasi, pref_gaji_min, pref_gaji_nego, pref_ketersediaan, pref_tipe_kerja, pref_model_kerja, pref_status_pencarian, pref_akun_portal')
       .eq('id', userId)
       .maybeSingle();
     setPelamarProfile(!error && data ? data : null);
