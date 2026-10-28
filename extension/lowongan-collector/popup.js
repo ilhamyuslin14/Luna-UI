@@ -12,7 +12,7 @@ const setEnabled = (enabled) => chrome.storage.local.set({ enabled });
 
 function renderSwitch(enabled) {
   $('toggle-enabled').checked = enabled;
-  $('switch-state').textContent = enabled ? 'Aktif: tombol muncul di JobStreet' : 'Nonaktif';
+  $('switch-state').textContent = enabled ? 'Aktif: tombol muncul di JobStreet dan Glints' : 'Nonaktif';
 }
 
 async function boot() {

@@ -20,7 +20,8 @@ async function lookup(record) {
 
 // Dari sekumpulan ID lowongan, mana yang sudah ada di Luna (untuk mode otomatis: yang sudah ada tidak perlu diklik).
 async function exists(source, ids) {
-  const bersih = (ids || []).map((i) => String(i).replace(/[^\d]/g, '')).filter(Boolean);
+  // ID JobStreet berupa angka, ID Glints berupa UUID (huruf, angka, strip): buang karakter lain agar aman masuk ke URL.
+  const bersih = (ids || []).map((i) => String(i).replace(/[^0-9a-zA-Z-]/g, '')).filter(Boolean);
   if (!bersih.length) return { ids: [] };
   const rows = await api(`lowongan_eksternal?select=external_id&source=eq.${enc(source)}&external_id=in.(${bersih.join(',')})`);
   return { ids: (rows || []).map((r) => String(r.external_id)) };

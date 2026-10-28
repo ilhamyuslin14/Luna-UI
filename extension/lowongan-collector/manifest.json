@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Luna Lowongan Collector",
-  "version": "0.4.2",
-  "description": "Ambil data lowongan dari halaman JobStreet dan simpan ke tabel lowongan_eksternal Luna.",
+  "version": "0.6.3",
+  "description": "Ambil data lowongan dari halaman JobStreet dan Glints, lalu simpan ke tabel lowongan_eksternal Luna.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Luna Collector: masuk dan nyalakan"
@@ -20,7 +20,9 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.jobstreet.com/*"
+        "https://*.jobstreet.com/*",
+        "https://glints.com/*",
+        "https://*.glints.com/*"
       ],
       "js": [
         "content.js"
@@ -35,7 +37,9 @@
         "extractors.js"
       ],
       "matches": [
-        "https://*.jobstreet.com/*"
+        "https://*.jobstreet.com/*",
+        "https://glints.com/*",
+        "https://*.glints.com/*"
       ]
     }
   ],

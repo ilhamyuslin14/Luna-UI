@@ -11,7 +11,7 @@ export const EMPLOYMENT_NORM = {
 };
 export const EMPLOYMENT_OPTIONS = Object.keys(EMPLOYMENT_NORM);
 
-const KODE_PREFIX = { jobstreet: 'JS' };
+const KODE_PREFIX = { jobstreet: 'JS', glints: 'GL' };
 
 export function jobIdFromUrl(url) {
   const m = String(url || '').match(/\/job\/(\d+)/);
@@ -102,7 +102,7 @@ export function parsePosted(text, now = new Date()) {
 }
 
 export function buildRecord(raw, { source, url, now = new Date() }) {
-  const id = jobIdFromUrl(url);
+  const id = raw.externalId || jobIdFromUrl(url);
   const salary = parseSalary(raw.salaryText);
   return {
     source,
@@ -122,6 +122,6 @@ export function buildRecord(raw, { source, url, now = new Date() }) {
     company_industry: (raw.companyIndustry || '').trim() || null,
     company_size: (raw.companySize || '').trim() || null,
     description: (raw.description || '').trim(),
-    posted_at: parsePosted(raw.postedText, now) || ymd(now),
+    posted_at: raw.postedDate || parsePosted(raw.postedText, now) || ymd(now),
   };
 }

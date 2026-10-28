@@ -180,3 +180,118 @@ export function extractJobstreetRaw() {
     hrefs,
   };
 }
+
+// Glints: halaman lowongan dikirim lengkap dari server, dan memuat data terstruktur schema.org "JobPosting"
+// (JSON-LD). Itu sumber utama karena tidak ikut berubah saat tampilan Glints diubah; nama kelas CSS Glints
+// di-hash dan sering berganti, jadi DOM hanya dipakai untuk yang tidak ada di JSON-LD (kategori, ukuran perusahaan, gaji bila tampil).
+// Mengembalikan null bila halaman ini bukan halaman lowongan Glints.
+export function extractGlintsRaw(doc = document, pathname = globalThis.location.pathname) {
+  const UUID = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+  const titleEl = doc.querySelector('h1[aria-label="Job Title"]');
+  const idFromPath = (pathname.match(/\/opportunities\/jobs\/[^/]+\/([0-9a-f-]{36})/i) || [])[1] || null;
+  const idFromAttr = doc.querySelector('[data-gtm-job-id]')?.getAttribute('data-gtm-job-id') || null;
+  const externalId = [idFromPath, idFromAttr].find((v) => v && UUID.test(v)) || null;
+  if (!titleEl || !externalId) return null;
+
+  let ld = null;
+  for (const tag of doc.querySelectorAll('script[type="application/ld+json"]')) {
+    try {
+      const j = JSON.parse(tag.textContent);
+      const list = Array.isArray(j) ? j : [j];
+      const found = list.find((x) => x && x['@type'] === 'JobPosting');
+      if (found) { ld = found; break; }
+    } catch { /* blok JSON-LD lain atau rusak */ }
+  }
+  const text = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+
+  // Deskripsi: dari DOM (sudah berupa HTML bersih) diubah ke teks dengan butir "- ", sama seperti JobStreet.
+  const BLOCK = new Set(['P', 'DIV', 'UL', 'OL', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION', 'TABLE', 'TR']);
+  const walk = (node, out) => {
+    if (node.nodeType === 3) { out.push(node.textContent.replace(/\s+/g, ' ')); return; }
+    if (node.nodeType !== 1) return;
+    const tag = node.tagName;
+    if (tag === 'BR') { out.push('\n'); return; }
+    if (tag === 'LI') {
+      const inner = [];
+      node.childNodes.forEach((c) => walk(c, inner));
+      out.push('\n- ' + inner.join('').replace(/\s+/g, ' ').trim());
+      return;
+    }
+    const block = BLOCK.has(tag);
+    if (block) out.push('\n\n');
+    node.childNodes.forEach((c) => walk(c, out));
+    if (block) out.push('\n\n');
+  };
+  const toText = (node) => {
+    const out = [];
+    walk(node, out);
+    return out.join('').replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  };
+  let description = null;
+  const descBox = doc.querySelector('[aria-label="Job Description"] [class*="DescriptionContainer"]');
+  if (descBox) description = toText(descBox);
+  if (!description && ld?.description) {
+    const holder = doc.createElement('div');
+    holder.innerHTML = ld.description;
+    description = toText(holder);
+  }
+
+  // Jenis kerja: nilai schema.org → istilah yang dikenali mapEmployment().
+  const JENIS = { FULL_TIME: 'Full time', PART_TIME: 'Part time', CONTRACTOR: 'Kontrak', TEMPORARY: 'Temporer', INTERN: 'Magang', VOLUNTEER: 'Freelance', OTHER: 'Full time' };
+  const empLd = Array.isArray(ld?.employmentType) ? ld.employmentType[0] : ld?.employmentType;
+  const workType = JENIS[String(empLd || '').toUpperCase()] || null;
+
+  // Gaji: JSON-LD "baseSalary" kalau ada; kalau tidak, teks gaji di halaman bila berupa angka.
+  const rp = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
+  const unit = { MONTH: 'per month', YEAR: 'per year', WEEK: 'per week', DAY: 'per day', HOUR: 'per hour' };
+  let salaryText = null;
+  const bs = ld?.baseSalary?.value;
+  if (bs && (bs.minValue || bs.maxValue || bs.value)) {
+    const lo = bs.minValue || bs.value;
+    const hi = bs.maxValue && bs.maxValue !== lo ? bs.maxValue : null;
+    salaryText = (hi ? rp(lo) + ' - ' + rp(hi) : rp(lo)) + ' ' + (unit[String(bs.unitText || 'MONTH').toUpperCase()] || 'per month');
+  } else {
+    const sal = text(doc.querySelector('[class*="SalaryJobOverview"]'));
+    if (/^(Rp|IDR)\s*\d/i.test(sal)) salaryText = sal;
+  }
+
+  // Lokasi: kota dan provinsi dari alamat JSON-LD.
+  const addr = ld?.jobLocation?.address || (Array.isArray(ld?.jobLocation) ? ld.jobLocation[0]?.address : null) || {};
+  const location_ = [addr.addressLocality, addr.addressRegion].filter(Boolean).join(', ');
+
+  // Kategori: "Kategori (Subkategori)" dari tautan di halaman, bukan occupationalCategory yang berbahasa Inggris.
+  const cats = [...doc.querySelectorAll('a[href*="/job-category/"]')].map(text).filter(Boolean);
+  const classification = cats.length > 1 ? `${cats[0]} (${cats[1]})` : (cats[0] || ld?.occupationalCategory || '');
+
+  const industrySize = [...doc.querySelectorAll('[class*="CompanyIndustryAndSize"] span')].map(text).filter(Boolean);
+  const companySize = industrySize.find((t) => /karyawan|employees/i.test(t)) || null;
+  const companyIndustry = ld?.industry || industrySize.find((t) => t !== companySize) || null;
+
+  const logoEl = doc.querySelector('img[alt="Company Logo"]');
+  const logoUrl = ld?.hiringOrganization?.logo || (logoEl ? (logoEl.currentSrc || logoEl.src) : null);
+
+  let postedDate = null;
+  if (ld?.datePosted) {
+    const d = new Date(ld.datePosted);
+    if (!Number.isNaN(d.getTime())) {
+      const p = (n) => String(n).padStart(2, '0');
+      postedDate = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+  }
+
+  return {
+    externalId,
+    companyIndustry,
+    companySize,
+    logoUrl,
+    title: text(titleEl) || ld?.title || null,
+    company: text(doc.querySelector('[class*="JobOverViewCompanyName"] a')) || ld?.hiringOrganization?.name || null,
+    location: location_,
+    classification,
+    workType,
+    salaryText,
+    postedDate,
+    description,
+    hrefs: [],
+  };
+}
