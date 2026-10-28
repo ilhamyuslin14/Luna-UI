@@ -1,5 +1,6 @@
 // MOCKUP: salinan PelamarDaftar_001 untuk presentasi. Tidak ada login/pendaftaran sungguhan; tombol hanya berpindah layar.
 import { useState } from 'react';
+import { bukaLegal } from '../../utils/bukaLegal.js';
 import { simpanEmailOtp } from '../../utils/pelamarOtpMockup.js';
 import '../../../css/pelamar/pelamar-masuk_001.css';
 
@@ -120,7 +121,7 @@ export default function PelamarDaftarMock({ navigate }) {
 
           <label className="pm001-check-row">
             <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} />
-            <span>Saya setuju dengan <a href="#" onClick={e => e.preventDefault()}>Syarat &amp; Ketentuan</a> dan <a href="#" onClick={e => e.preventDefault()}>Kebijakan Privasi</a> Luna.</span>
+            <span>Saya setuju dengan <a href="?view=syarat-ketentuan" onClick={e => { e.preventDefault(); bukaLegal('syarat', { setuju: agree, onUbah: setAgree }); }}>Syarat &amp; Ketentuan</a> dan <a href="?view=kebijakan-privasi" onClick={e => { e.preventDefault(); bukaLegal('privasi', { setuju: agree, onUbah: setAgree }); }}>Kebijakan Privasi</a> Luna.</span>
           </label>
 
           <button type="submit" className="pm001-submit" disabled={!isValid || loading}>

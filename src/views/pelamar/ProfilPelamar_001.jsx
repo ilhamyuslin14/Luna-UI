@@ -7,6 +7,7 @@ import { getPelamarResume, uploadAndParseResume } from '../../services/pelamarRe
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
 import PelamarMobileNav from '../../components/pelamar/PelamarMobileNav.jsx';
 import useIsMobile from '../../hooks/useIsMobile.js';
+import { bukaLegal } from '../../utils/bukaLegal.js';
 import '../../../css/mobile/shell.css';
 import '../../../css/mobile/lowongan/laman-karir.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
@@ -1737,7 +1738,8 @@ export default function ProfilPelamar_001({ navigate }) {
               <h4>Luna</h4>
               <span>Tentang Kami</span>
               <span>Bantuan</span>
-              <span>Kebijakan Privasi</span>
+              <button type="button" onClick={() => bukaLegal('syarat')}>Syarat &amp; Ketentuan</button>
+              <button type="button" onClick={() => bukaLegal('privasi')}>Kebijakan Privasi</button>
             </div>
           </div>
           <div className="sl2-footer-bottom">

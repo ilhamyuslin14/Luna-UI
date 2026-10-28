@@ -1,0 +1,37 @@
+/* Halaman Syarat & Ketentuan dan Kebijakan Privasi: satu kolom bacaan yang lega, tanpa hiasan. */
+.lg-page { min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc; color: #334155; font-family: inherit; }
+
+.lg-top { background: #fff; border-bottom: 1px solid #e2e8f0; }
+.lg-top-in { max-width: 860px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lg-brand { border: 0; background: none; padding: 0; cursor: pointer; display: flex; }
+.lg-brand img { height: 28px; width: auto; display: block; }
+.lg-back { border: 0; background: none; padding: 6px 0; font: inherit; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; }
+.lg-back:hover { color: #ff8d21; }
+
+.lg-main { flex: 1; width: 100%; max-width: 860px; margin: 0 auto; padding: 28px 20px 56px; box-sizing: border-box; }
+
+.lg-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.lg-tab { border: 1px solid #e2e8f0; background: #fff; color: #475569; font: inherit; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+.lg-tab:hover { border-color: #cbd5e1; }
+.lg-tab.on { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+.lg-doc { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 36px 40px 40px; }
+.lg-doc h1 { margin: 0; font-size: 28px; line-height: 1.2; color: #0f172a; letter-spacing: -0.01em; text-wrap: balance; }
+.lg-meta { margin: 8px 0 0; font-size: 12.5px; color: #94a3b8; }
+.lg-lead { margin: 18px 0 0; padding-bottom: 22px; border-bottom: 1px solid #f1f5f9; font-size: 15px; line-height: 1.65; color: #475569; }
+
+.lg-sec { margin-top: 26px; }
+.lg-sec h2 { margin: 0 0 10px; font-size: 17px; line-height: 1.3; color: #0f172a; }
+.lg-sec h2 span { color: #ff8d21; margin-right: 2px; }
+.lg-sec p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.75; max-width: 68ch; }
+.lg-sec ul { margin: 0 0 10px; padding-left: 20px; max-width: 68ch; }
+.lg-sec li { font-size: 14.5px; line-height: 1.7; margin-bottom: 4px; }
+.lg-sec li::marker { color: #ff8d21; }
+
+.lg-foot { padding: 20px; text-align: center; font-size: 12.5px; color: #94a3b8; }
+
+@media (max-width: 640px) {
+  .lg-main { padding: 18px 16px 40px; }
+  .lg-doc { padding: 24px 20px 28px; border-radius: 14px; }
+  .lg-doc h1 { font-size: 23px; }
+}

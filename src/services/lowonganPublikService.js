@@ -109,17 +109,28 @@ function byTerbaru(a, b) {
   return new Date(b.posted_at || 0) - new Date(a.posted_at || 0);
 }
 
+// Supabase membatasi satu permintaan sampai 1.000 baris, jadi diambil per halaman sampai habis. Tanpa ini,
+// lowongan eksternal yang lebih lama dari 1.000 terbaru tidak pernah sampai ke daftar.
+const UKURAN_HALAMAN_EKSTERNAL = 1000;
+
 async function fetchExternalRows() {
-  const { data, error } = await supabase
-    .from('lowongan_eksternal')
-    .select('*')
-    .eq('status', 'aktif')
-    .order('posted_at', { ascending: false });
-  if (error) {
-    console.error('Error fetching external jobs:', error);
-    return [];
+  const hasil = [];
+  for (let dari = 0; ; dari += UKURAN_HALAMAN_EKSTERNAL) {
+    const { data, error } = await supabase
+      .from('lowongan_eksternal')
+      .select('*')
+      .eq('status', 'aktif')
+      // id sebagai pemecah seri: baris dengan posted_at sama tidak boleh terlewat atau terulang antar halaman
+      .order('posted_at', { ascending: false })
+      .order('id', { ascending: true })
+      .range(dari, dari + UKURAN_HALAMAN_EKSTERNAL - 1);
+    if (error) {
+      console.error('Error fetching external jobs:', error);
+      return hasil;
+    }
+    hasil.push(...(data || []));
+    if (!data || data.length < UKURAN_HALAMAN_EKSTERNAL) return hasil;
   }
-  return data || [];
 }
 
 export async function getAllJobs({ includeExternal = true } = {}) {

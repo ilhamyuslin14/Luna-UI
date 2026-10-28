@@ -78,9 +78,11 @@ import ProfilPelamar_001 from './views/pelamar/ProfilPelamar_001.jsx';
 import StatusLamaran_001 from './views/pelamar/StatusLamaran_001.jsx';
 import PelamarMasuk_001 from './views/pelamar/PelamarMasuk_001.jsx';
 import PelamarDaftar_001 from './views/pelamar/PelamarDaftar_001.jsx';
+import Legal_001 from './views/legal/Legal_001.jsx';
 import PelamarVerifikasiOtp_001 from './views/pelamar/PelamarVerifikasiOtp_001.jsx';
 import PelamarOnboarding_001 from './views/pelamar/PelamarOnboarding_001.jsx';
 import LengkapiProfilGate from './components/pelamar/LengkapiProfilGate.jsx';
+import LegalModalHost from './components/legal/LegalModalHost.jsx';
 const sandboxModules = import.meta.glob('./views/sandbox/Sandbox.jsx');
 const loadSandbox = sandboxModules['./views/sandbox/Sandbox.jsx'];
 
@@ -101,6 +103,7 @@ export default function App() {
     <>
       <AppInner />
       <LengkapiProfilGate />
+      <LegalModalHost />
     </>
   );
 }
@@ -259,7 +262,7 @@ function AppInner() {
   useEffect(() => {
     if (loading) return;
 
-    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'landingpage-pelamar', 'mockup'];
+    const publicMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan', 'semua-lowongan', 'semua-lowongan_002', 'sandbox', 'docs', 'profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'landingpage-pelamar', 'syarat-ketentuan', 'kebijakan-privasi', 'mockup'];
     const authMenus = ['landingpage', 'landingpage_001', 'landingpage_002', 'landingpage_003', 'landingpage-masuk', 'landingpage-daftar', 'landingpage-otp', 'landingpage-lupa-password', 'landingpage-masuk_001', 'landingpage-daftar_001', 'landingpage-otp_001', 'landingpage-lupa-password_001'];
 
     if (!user && !publicMenus.includes(activeMenu)) {
@@ -332,6 +335,10 @@ function AppInner() {
 
   if (activeMenu === 'pelamar-masuk') {
     return <PelamarMasuk_001 navigate={navigate} />;
+  }
+
+  if (activeMenu === 'syarat-ketentuan' || activeMenu === 'kebijakan-privasi') {
+    return <Legal_001 dokumen={activeMenu === 'kebijakan-privasi' ? 'privasi' : 'syarat'} navigate={navigate} />;
   }
 
   if (activeMenu === 'pelamar-daftar') {

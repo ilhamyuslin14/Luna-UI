@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { bukaLegal } from '../../utils/bukaLegal.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { OTP_MOCKUP_AKTIF, simpanEmailOtp } from '../../utils/pelamarOtpMockup.js';
 import '../../../css/pelamar/pelamar-masuk_001.css';
@@ -159,7 +160,7 @@ export default function PelamarDaftar_001({ navigate }) {
 
           <label className="pm001-check-row">
             <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} />
-            <span>Saya setuju dengan <a href="#" onClick={e => e.preventDefault()}>Syarat &amp; Ketentuan</a> dan <a href="#" onClick={e => e.preventDefault()}>Kebijakan Privasi</a> Luna.</span>
+            <span>Saya setuju dengan <a href="?view=syarat-ketentuan" onClick={e => { e.preventDefault(); bukaLegal('syarat', { setuju: agree, onUbah: setAgree }); }}>Syarat &amp; Ketentuan</a> dan <a href="?view=kebijakan-privasi" onClick={e => { e.preventDefault(); bukaLegal('privasi', { setuju: agree, onUbah: setAgree }); }}>Kebijakan Privasi</a> Luna.</span>
           </label>
 
           <button type="submit" className="pm001-submit" disabled={!isValid || loading}>

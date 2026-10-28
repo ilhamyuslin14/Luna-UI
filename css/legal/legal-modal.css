@@ -1,0 +1,33 @@
+/* Pop up kecil Syarat & Ketentuan / Kebijakan Privasi: teks kecil, isi bisa digulir. */
+.lgm-overlay { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(15, 23, 42, 0.5); }
+.lgm-card { width: 100%; max-width: 500px; max-height: min(560px, calc(100vh - 32px)); display: flex; flex-direction: column; background: #fff; border-radius: 16px; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28); overflow: hidden; }
+
+.lgm-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 12px 16px; border-bottom: 1px solid #f1f5f9; }
+.lgm-tabs { display: flex; gap: 4px; flex-wrap: wrap; min-width: 0; }
+.lgm-tab { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; color: #94a3b8; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.lgm-tab:hover { color: #475569; }
+.lgm-tab.on { color: #0f172a; background: #f1f5f9; }
+.lgm-x { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: none; color: #94a3b8; border-radius: 8px; cursor: pointer; }
+.lgm-x:hover { background: #f1f5f9; color: #475569; }
+
+.lgm-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 18px 6px; font-size: 12px; line-height: 1.65; color: #475569; }
+.lgm-meta { margin: 0 0 10px; font-size: 11px; color: #94a3b8; }
+.lgm-body section { margin-bottom: 12px; }
+.lgm-body h3 { margin: 0 0 4px; font-size: 12.5px; font-weight: 700; color: #0f172a; }
+.lgm-body p { margin: 0 0 6px; }
+/* Butir sejajar dengan paragraf (tanpa indentasi); penandanya strip oranye di awal baris */
+.lgm-body ul { list-style: none; margin: 0 0 6px; padding: 0; }
+.lgm-body li { margin-bottom: 2px; }
+.lgm-body li::before { content: "–\00a0"; color: #ff8d21; font-weight: 700; }
+
+.lgm-foot { padding: 12px 14px 12px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 8px; }
+.lgm-consent { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; cursor: pointer; font-size: 12.5px; font-weight: 600; line-height: 1.45; color: #0f172a; transition: border-color .15s, background .15s; }
+.lgm-consent.on { border-color: #ff8d21; background: #fff1e2; }
+.lgm-cb { appearance: none; -webkit-appearance: none; flex: none; width: 18px; height: 18px; margin: 1px 0 0; border: 1.5px solid #c9c4ba; border-radius: 5px; background: #fff; cursor: pointer; display: grid; place-content: center; transition: background .15s, border-color .15s; }
+.lgm-cb::after { content: ""; width: 9px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px) scale(0); transition: transform .12s; }
+.lgm-cb:checked { background: #ff8d21; border-color: #ff8d21; }
+.lgm-cb:checked::after { transform: rotate(-45deg) translate(1px, -1px) scale(1); }
+.lgm-cb:focus-visible { outline: 2px solid #ff8d21; outline-offset: 2px; }
+.lgm-foot-row { display: flex; justify-content: flex-end; }
+.lgm-tutup { border: 0; background: none; font: inherit; font-size: 12.5px; font-weight: 700; color: #64748b; padding: 4px 2px; cursor: pointer; }
+.lgm-tutup:hover { color: #0f172a; }

@@ -13,6 +13,7 @@ import useHitungOtomatis from '../../hooks/lowongan/useHitungOtomatis.js';
 import useKecocokanSkor from '../../hooks/lowongan/useKecocokanSkor.js';
 import { bukaLamar } from '../../utils/lamarLowongan.js';
 import LamarCepatModal from '../../components/lowongan/LamarCepatModal.jsx';
+import { bukaLegal } from '../../utils/bukaLegal.js';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
 import '../../../css/pelamar/profil-pelamar_001.css';
@@ -401,7 +402,8 @@ export default function SemuaLowongan_002({ navigate }) {
             <h4>Luna</h4>
             <span>Tentang Kami</span>
             <span>Bantuan</span>
-            <span>Kebijakan Privasi</span>
+            <button type="button" onClick={() => bukaLegal('syarat')}>Syarat &amp; Ketentuan</button>
+              <button type="button" onClick={() => bukaLegal('privasi')}>Kebijakan Privasi</button>
           </div>
         </div>
         <div className="sl2-footer-bottom">

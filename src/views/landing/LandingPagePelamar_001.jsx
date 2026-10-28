@@ -6,6 +6,7 @@ import PelamarMobileNav from '../../components/pelamar/PelamarMobileNav.jsx';
 import CompanyLogoBox from '../../components/lowongan/CompanyLogoBox.jsx';
 import { getAllJobs } from '../../services/lowonganPublikService.js';
 import { ID_REGIONS } from '../../utils/idRegions.js';
+import { bukaLegal } from '../../utils/bukaLegal.js';
 import '../../../css/landing/landing-page_003.css';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
@@ -469,7 +470,8 @@ export default function LandingPagePelamar_001({ navigate }) {
               <h4>Luna</h4>
               <span>Tentang Kami</span>
               <span>Bantuan</span>
-              <span>Kebijakan Privasi</span>
+              <button type="button" onClick={() => bukaLegal('syarat')}>Syarat &amp; Ketentuan</button>
+              <button type="button" onClick={() => bukaLegal('privasi')}>Kebijakan Privasi</button>
             </div>
           </div>
           <div className="sl2-footer-bottom">
