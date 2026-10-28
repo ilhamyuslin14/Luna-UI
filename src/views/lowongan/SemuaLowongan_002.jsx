@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { halamanRingkas, ELIPSIS } from '../../utils/paginasi.js';
 import { useLocation } from 'react-router-dom';
 import useSemuaLowonganData, { PENGALAMAN_BUCKETS, GAJI_BUCKETS } from '../../hooks/lowongan/useSemuaLowonganData.js';
@@ -13,6 +13,7 @@ import useHitungOtomatis from '../../hooks/lowongan/useHitungOtomatis.js';
 import useKecocokanSkor from '../../hooks/lowongan/useKecocokanSkor.js';
 import { bukaLamar } from '../../utils/lamarLowongan.js';
 import LamarCepatModal from '../../components/lowongan/LamarCepatModal.jsx';
+import { ID_REGIONS } from '../../utils/idRegions.js';
 import { bukaLegal } from '../../utils/bukaLegal.js';
 import '../../../css/lowongan/lowongan-laman-karir_001.css';
 import '../../../css/lowongan/semua-lowongan_002.css';
@@ -36,6 +37,9 @@ const IconArrowRight = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
+);
+const IconPin = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></svg>
 );
 const IconFilter = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -122,6 +126,28 @@ export default function SemuaLowongan_002({ navigate }) {
   const lamarSekarang = (job) => (isPelamar && !job.is_external ? setLamarJob(job) : bukaLamar(job));
   const lamar = (e, job) => { e.stopPropagation(); lamarSekarang(job); };
 
+  // Kolom kota: daftar saran muncul begitu mulai mengetik; sama dengan landing pelamar.
+  const [kotaInput, setKotaInput] = useState('');
+  const [saranTerbuka, setSaranTerbuka] = useState(false);
+  const [saranAktif, setSaranAktif] = useState(-1);
+  useEffect(() => { setKotaInput(kota || ''); }, [kota]);
+  const saran = useMemo(() => {
+    const kotaList = ID_REGIONS.filter((r) => r.type === 'city');
+    const q = kotaInput.trim().toLowerCase();
+    if (!q) return [];
+    const cocok = kotaList.filter((r) => r.name.toLowerCase().includes(q));
+    return [...cocok.filter((r) => r.name.toLowerCase().startsWith(q)), ...cocok.filter((r) => !r.name.toLowerCase().startsWith(q))].slice(0, 8);
+  }, [kotaInput]);
+  const pilihKota = (nama) => { setKotaInput(nama); setKota(nama); setSaranTerbuka(false); setSaranAktif(-1); };
+  const kotaKeyDown = (e) => {
+    if (!saranTerbuka || saran.length === 0) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSaranAktif((i) => (i + 1) % saran.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSaranAktif((i) => (i <= 0 ? saran.length - 1 : i - 1)); }
+    else if (e.key === 'Enter' && saranAktif >= 0) { e.preventDefault(); pilihKota(saran[saranAktif].name); }
+    else if (e.key === 'Escape') { setSaranTerbuka(false); setSaranAktif(-1); }
+  };
+  const kirimCari = (e) => { e.preventDefault(); setKota(kotaInput.trim()); setSaranTerbuka(false); };
+
   const popularSearches = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
 
   return (
@@ -168,15 +194,40 @@ export default function SemuaLowongan_002({ navigate }) {
           <h1>Temukan lowongan yang benar-benar cocok buat kamu.</h1>
           <p>Bukan sekadar daftar lowongan — cari berdasarkan posisi, lokasi, atau bidang, biar yang kamu temu memang pas sama yang kamu cari.</p>
 
-          <form className="sl2-search" onSubmit={e => e.preventDefault()}>
-            <IconSearch />
-            <input
-              type="text"
-              placeholder="Posisi, kota, bidang, atau nama perusahaan..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <button type="submit">Cari</button>
+          <form className="sl2-search" onSubmit={kirimCari} role="search">
+            <label className="sl2-field">
+              <IconSearch />
+              <input type="text" placeholder="Posisi, bidang, atau perusahaan" aria-label="Posisi, bidang, atau perusahaan" autoComplete="off" value={search} onChange={e => setSearch(e.target.value)} />
+            </label>
+            <span className="sl2-sep" aria-hidden="true" />
+            <label className="sl2-field sl2-field-kota">
+              <IconPin />
+              <input
+                type="text"
+                placeholder="Kota"
+                aria-label="Kota"
+                autoComplete="off"
+                role="combobox"
+                aria-expanded={saranTerbuka && saran.length > 0}
+                aria-autocomplete="list"
+                value={kotaInput}
+                onChange={e => { setKotaInput(e.target.value); if (!e.target.value.trim()) setKota(''); setSaranTerbuka(true); setSaranAktif(-1); }}
+                onBlur={() => setSaranTerbuka(false)}
+                onKeyDown={kotaKeyDown}
+              />
+              {saranTerbuka && saran.length > 0 && (
+                <ul className="sl2-saran" role="listbox">
+                  {saran.map((r, i) => (
+                    <li key={r.name} role="option" aria-selected={i === saranAktif}>
+                      <button type="button" className={i === saranAktif ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); pilihKota(r.name); }}>
+                        <span>{r.name}</span><small>{r.province}</small>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </label>
+            <button type="submit">Cari Lowongan</button>
           </form>
 
           <div className="sl2-trending">
