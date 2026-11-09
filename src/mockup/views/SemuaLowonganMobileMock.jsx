@@ -183,7 +183,6 @@ export default function SemuaLowonganMobileMock({ navigate, awal }) {
           ) : (
             <>
               <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-              <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
             </>
           )}
         </div>

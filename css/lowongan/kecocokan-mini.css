@@ -33,6 +33,8 @@
 .kcmini.locked { appearance: none; background: #fff; border: 1.5px dashed #FF8D21; color: #C2410C; cursor: pointer; font-family: 'Inter Tight', sans-serif; transition: background 0.15s; }
 .kcmini.locked::after { display: none; }
 .kcmini.locked:hover { background: #FFF7ED; }
-.kcmini.locked .kcmini-n { height: 29px; align-items: center; justify-content: center; }
+.kcmini-label { position: relative; z-index: 1; font-size: 10.5px; font-weight: 800; line-height: 1.1; letter-spacing: 0.01em; color: #9A3412; text-align: center; }
+.kcmini.locked { gap: 5px; }
+.kcmini.locked .kcmini-n { height: 24px; align-items: center; justify-content: center; }
 .kcmini.locked .kcmini-pill { background: #FF8D21; color: #fff; }
 .kcmini.locked:focus-visible { outline: 3px solid rgba(255, 141, 33, 0.4); outline-offset: 2px; }

@@ -11,8 +11,9 @@ export default function KecocokanMini({ score, ghost = false, loading = false, t
   if (terkunci) {
     return (
       <button type="button" className="kcmini locked" onClick={onClick} title="Daftar untuk Lihat Skor" aria-label="Daftar untuk lihat skor kecocokan">
+        <span className="kcmini-label">Kecocokanmu</span>
         <div className="kcmini-n">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
         </div>
         <span className="kcmini-pill">Daftar</span>
       </button>

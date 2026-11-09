@@ -122,8 +122,6 @@ export default function LowonganLamanKarirEksternal_001({ kode, navigate }) {
             ) : (
               <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
             )}
-            <span className="lk-nav-divider" />
-            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
       </header>

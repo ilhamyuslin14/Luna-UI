@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import useScrollReveal from '../../hooks/useScrollReveal.js';
 import useIsMobile from '../../hooks/useIsMobile.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import PelamarNavMenu from '../../components/pelamar/PelamarNavMenu.jsx';
@@ -74,6 +75,7 @@ export default function LandingPagePelamar_001({ navigate }) {
   const [posisi, setPosisi] = useState('');
   const [kota, setKota] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
+  const halamanRef = useRef(null);
 
   // Saran nama kota (daftar yang sama dengan form lowongan: utils/idRegions). Hanya kota, bukan provinsi, karena
   // nilainya dipakai mencocokkan lokasi lowongan. Yang diawali ketikan tampil lebih dulu.
@@ -94,6 +96,7 @@ export default function LandingPagePelamar_001({ navigate }) {
     else if (e.key === 'Escape') { setSaranTerbuka(false); setSaranAktif(-1); }
   };
   const [terbaru, setTerbaru] = useState(null); // null = memuat
+  useScrollReveal(halamanRef, [terbaru, isMobile]);
 
   useEffect(() => {
     let aktif = true;
@@ -117,7 +120,7 @@ export default function LandingPagePelamar_001({ navigate }) {
   };
 
   return (
-    <div className="lp003-page lpp-page">
+    <div className="lp003-page lpp-page" ref={halamanRef}>
 
       {/* ── Navbar: sama dengan halaman Semua Lowongan (menu, status masuk, dan tombol Untuk Perusahaan) ── */}
       {isMobile ? (
@@ -133,7 +136,6 @@ export default function LandingPagePelamar_001({ navigate }) {
             ) : (
               <>
                 <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-                <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
               </>
             )}
           </div>
@@ -158,8 +160,6 @@ export default function LandingPagePelamar_001({ navigate }) {
               ) : (
                 <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
               )}
-              <span className="lk-nav-divider" />
-              <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
             </div>
           </div>
         </header>

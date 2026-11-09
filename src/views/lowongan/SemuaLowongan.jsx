@@ -84,7 +84,6 @@ export default function SemuaLowongan({ navigate }) {
           </a>
           <div className="lk-header-actions">
             <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>
-            <button className="lk-btn-perusahaan" onClick={goPerusahaan}><span className="lk-btn-perusahaan-badge"><IconBriefcase /></span>Untuk Perusahaan</button>
           </div>
         </div>
       </header>

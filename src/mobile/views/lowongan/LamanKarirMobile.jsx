@@ -101,7 +101,6 @@ function Header({ onShare, shareDisabled, onMasuk, onPerusahaan, isPelamar, pela
         ) : (
           <>
             <button className="lk-share-btn" onClick={onMasuk} title="Masuk"><IconUser /></button>
-            <button className="lk-share-btn primary" onClick={onPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
           </>
         )}
       </div>
@@ -237,7 +236,6 @@ export default function LamanKarirMobile({ kode, navigate }) {
             ) : (
               <>
                 <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-                <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
               </>
             )}
           </div>

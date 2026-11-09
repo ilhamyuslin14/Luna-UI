@@ -79,7 +79,6 @@ export default function LamanKarirEksternalMobile({ kode, navigate }) {
           ) : (
             <>
               <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>
-              <button className="lk-share-btn primary" onClick={goPerusahaan} title="Untuk Perusahaan"><IconCompany /></button>
             </>
           )}
         </div>

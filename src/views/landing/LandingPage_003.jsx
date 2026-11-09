@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import useScrollReveal from '../../hooks/useScrollReveal.js';
 
 /* ── Icons (placeholder — dipakai sampai aset visual dari Odon siap) ── */
 function IconScore() {
@@ -103,9 +104,11 @@ export default function LandingPage_003({ navigate }) {
   const goMasuk = () => navigate?.('landingpage-masuk_001');
   const goPelamar = () => navigate?.('landingpage-pelamar');
   const [openFaq, setOpenFaq] = useState(0);
+  const halamanRef = useRef(null);
+  useScrollReveal(halamanRef);
 
   return (
-    <div className="lp003-page">
+    <div className="lp003-page" ref={halamanRef}>
 
       {/* ── Nav: style & size disamakan dengan .lk-header (portal karir) —
           glass/blur, tinggi 72px, logo 34px, pemisah tipis sebelum CTA ── */}
