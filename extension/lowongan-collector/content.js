@@ -1,4 +1,4 @@
-// Dijalankan di halaman JobStreet dan Glints (pembaca halamannya dipilih dari alamat situs). Menampilkan tombol mengambang di sisi kiri
+// Dijalankan di halaman JobStreet, Glints, dan KitaLulus (pembaca halamannya dipilih dari alamat situs). Menampilkan tombol mengambang di sisi kiri
 // (Lihat Detail / Simpan) selama extension dinyalakan dan sudah masuk. Tampilan
 // ada di shadow DOM supaya tidak bentrok dengan gaya JobStreet. Semua panggilan
 // ke Supabase lewat background.js.
@@ -8,19 +8,20 @@
 
   const log = (...a) => console.info('[Luna Collector]', ...a);
   const url = (file) => chrome.runtime.getURL(file);
-  let buildRecord, resolveJobUrl, EMPLOYMENT_OPTIONS, EMPLOYMENT_NORM, extractJobstreetRaw, extractGlintsRaw;
+  let buildRecord, resolveJobUrl, EMPLOYMENT_OPTIONS, EMPLOYMENT_NORM, extractJobstreetRaw, extractGlintsRaw, extractKitalulusRaw;
   try {
     ({ buildRecord, resolveJobUrl, EMPLOYMENT_OPTIONS, EMPLOYMENT_NORM } = await import(url('parsers.js')));
-    ({ extractJobstreetRaw, extractGlintsRaw } = await import(url('extractors.js')));
+    ({ extractJobstreetRaw, extractGlintsRaw, extractKitalulusRaw } = await import(url('extractors.js')));
   } catch (e) {
     console.error('[Luna Collector] Gagal memuat modul extension:', e);
     return;
   }
   // Sumber lowongan dari alamat situs. Pembaca halaman dan kemampuan (mis. mode otomatis) berbeda per sumber.
-  const SUMBER = /(^|\.)glints\.com$/i.test(location.hostname) ? 'glints' : 'jobstreet';
+  const SUMBER = /(^|\.)glints\.com$/i.test(location.hostname) ? 'glints' : /(^|\.)kitalulus\.com$/i.test(location.hostname) ? 'kitalulus' : 'jobstreet';
   const SUMBER_INFO = {
     jobstreet: { label: 'JobStreet', otomatis: true },
     glints: { label: 'Glints', otomatis: true },
+    kitalulus: { label: 'KitaLulus', otomatis: true },
   }[SUMBER];
   log('content script dimuat, sumber:', SUMBER);
 
@@ -386,6 +387,11 @@
 
   // Baca lowongan yang sedang terbuka di halaman (halaman detail atau panel samping).
   function readPage() {
+    if (SUMBER === 'kitalulus') {
+      const k = extractKitalulusRaw();
+      if (!k?.title || !k.externalId) return null;
+      return buildRecord(k, { source: 'kitalulus', url: location.origin + '/lowongan/detail/' + k.externalId });
+    }
     if (SUMBER === 'glints') {
       const g = extractGlintsRaw();
       if (!g?.title || !g.externalId) return null;
@@ -769,7 +775,7 @@
     st.textContent = '';
     const baris1 = document.createElement('div');
     baris1.className = 'a-line';
-    baris1.textContent = `${SUMBER === 'glints' ? '' : `Hal. ${halamanSekarang()} · `}tersimpan ${disimpan()}/${auto.batas} · dibuka ${s.diproses} · dilewati ${s.dilewati} · gagal ${s.gagal}`;
+    baris1.textContent = `${SUMBER === 'jobstreet' ? `Hal. ${halamanSekarang()} · ` : ''}tersimpan ${disimpan()}/${auto.batas} · dibuka ${s.diproses} · dilewati ${s.dilewati} · gagal ${s.gagal}`;
     st.appendChild(baris1);
     if (auto.status) {
       const baris2 = document.createElement('div');
@@ -975,6 +981,148 @@
     await selesaiAuto(alasan);
   }
 
+  // ── Otomatis KitaLulus ─────────────────────────────────────────────────
+  // Kartu KitaLulus bukan tautan: klik kartu membuka panel detail di kanan (tanpa pindah halaman). Jadi tiap kartu
+  // diklik, ditunggu sampai judul panel sama dengan judul kartu, lalu dibaca dengan pembaca yang sama dengan tombol
+  // manual. Lowongan berikutnya dimuat lewat tombol "Lebih banyak". ID baru diketahui setelah panel terbuka, jadi
+  // pemeriksaan "sudah ada" dilakukan per lowongan, sesudah klik.
+  const normJudul = (t) => String(t || '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  function kartuKitalulus() {
+    const hasil = [];
+    const lihat = new Set();
+    document.querySelectorAll('div[data-active]').forEach((el) => {
+      const h3 = el.querySelector('h3');
+      const judul = (h3?.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!judul) return;
+      const baris = [...el.querySelectorAll('p')].map((p) => p.textContent.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      const id = [judul, ...baris.slice(0, 3)].join('|'); // judul, perusahaan, lokasi: kartu "Dipromosikan" bisa tampil dua kali
+      if (lihat.has(id)) return;
+      lihat.add(id);
+      hasil.push({ id, judul, el, h3 });
+    });
+    return hasil;
+  }
+
+  async function tungguPanelKitalulus(judul, ms) {
+    const akhir = Date.now() + ms;
+    while (Date.now() < akhir && !auto.henti) {
+      let rec = null;
+      try { rec = readPage(); } catch { /* panel belum lengkap */ }
+      if (rec && normJudul(rec.title) === normJudul(judul) && rec.description) return rec;
+      await sleep(250);
+    }
+    return null;
+  }
+
+  function tombolMuatLagi() {
+    return [...document.querySelectorAll('button, a')].find((el) => /lebih banyak/i.test(el.textContent || '')
+      && !el.disabled && el.getAttribute('aria-disabled') !== 'true' && el.getClientRects().length > 0) || null;
+  }
+
+  async function autoJalanKitalulus(set) {
+    auto.aktif = true;
+    auto.henti = false;
+    auto.batas = set.batas;
+    auto.stats = kosongStats();
+    auto.sudah = new Set();
+    auto.sebab = '';
+    setPanelOpen(false);
+    renderAuto();
+    let gagalBeruntun = 0;
+    let alasan = '';
+
+    try {
+      while (!auto.henti) {
+        if (!root) { alasan = 'Extension dimatikan.'; break; }
+        const masalah = anomali();
+        if (masalah) { alasan = masalah; break; }
+        if (disimpan() >= set.batas) { alasan = `Mencapai target ${set.batas} lowongan tersimpan.`; break; }
+        if ((await jumlahHariIni()) >= set.batasHari) { alasan = `Mencapai batas harian ${set.batasHari}.`; break; }
+
+        const kartu = kartuKitalulus().filter((k) => !auto.sudah.has(k.id));
+        if (!kartu.length) {
+          const semua = kartuKitalulus();
+          if (!semua.length) { alasan = 'Daftar lowongan tidak ditemukan di halaman ini.'; break; }
+          const tombol = tombolMuatLagi();
+          if (!tombol) { alasan = 'Tidak ada lowongan baru lagi (tombol "Lebih banyak" tidak ada).'; break; }
+          setStatus('Memuat lowongan berikutnya…');
+          const sebelum = semua.length;
+          tombol.scrollIntoView({ block: 'center' });
+          await sleep(400);
+          tombol.click();
+          for (let i = 0; i < 24 && kartuKitalulus().length <= sebelum && !auto.henti; i++) await sleep(500);
+          if (kartuKitalulus().length <= sebelum) { alasan = 'Daftar tidak bertambah setelah "Lebih banyak".'; break; }
+          continue;
+        }
+
+        for (const k of kartu) {
+          if (auto.henti) break;
+          auto.sudah.add(k.id);
+          if (disimpan() >= set.batas) break;
+
+          setStatus('Membuka lowongan…');
+          k.el.scrollIntoView({ block: 'center' });
+          await sleep(acak(300, 700));
+          k.el.click();
+          let rec = await tungguPanelKitalulus(k.judul, 5000);
+          if (!rec && !auto.henti) { (k.h3 || k.el).click(); rec = await tungguPanelKitalulus(k.judul, 6000); }
+          if (auto.henti) break;
+          auto.stats.diproses += 1;
+
+          if (!rec) {
+            auto.stats.gagal += 1;
+            gagalBeruntun += 1;
+            auto.sebab = document.querySelector('h1') && !document.querySelector('.html-content')
+              ? 'panel detail tidak tampil (perbesar lebar jendela)' : 'panel tidak berganti ke lowongan yang diklik: ' + k.judul;
+            setStatus('Panel tidak terbaca: ' + auto.sebab);
+          } else if (auto.sudah.has('id:' + rec.external_id)) {
+            auto.stats.dilewati += 1; // kartu berbeda yang menuju lowongan sama
+          } else {
+            auto.sudah.add('id:' + rec.external_id);
+            let ada = false;
+            try { ada = ((await send({ type: 'exists', source: 'kitalulus', ids: [rec.external_id] })).ids || []).length > 0; } catch { /* lanjut simpan */ }
+            if (ada) {
+              auto.stats.dilewati += 1;
+              gagalBeruntun = 0;
+              setStatus(`Dilewati (sudah ada): ${rec.title}`);
+            } else if (!rec.company_name) {
+              auto.stats.gagal += 1;
+              gagalBeruntun += 1;
+              auto.sebab = 'nama perusahaan tidak terbaca: ' + rec.title;
+              setStatus('Perusahaan tidak terbaca: ' + rec.title);
+            } else {
+              try {
+                const res = await send({ type: 'save', record: toDb(rec, rec) });
+                if (res.updated) auto.stats.diperbarui += 1; else auto.stats.tersimpan += 1;
+                gagalBeruntun = 0;
+                await tambahHariIni();
+                showLoaded(rec, 'existing');
+                setStatus(`Tersimpan: ${rec.title}`);
+              } catch (e) {
+                auto.stats.gagal += 1;
+                gagalBeruntun += 1;
+                auto.sebab = e.message;
+                setStatus('Gagal menyimpan: ' + e.message);
+              }
+            }
+          }
+          renderAuto();
+          if (gagalBeruntun >= AUTO_GAGAL_BERUNTUN) { alasan = `${AUTO_GAGAL_BERUNTUN} lowongan gagal berturut-turut. Terakhir: ${auto.sebab}`; break; }
+          if (anomali()) break;
+
+          const akhir = Date.now() + acak(set.jedaMin, set.jedaMaks) * 1000;
+          while (Date.now() < akhir && !auto.henti) await sleep(200);
+        }
+        if (alasan || gagalBeruntun >= AUTO_GAGAL_BERUNTUN) break;
+      }
+    } catch (e) {
+      console.error('[Luna Collector] otomatis KitaLulus berhenti karena galat:', e);
+      alasan = `Galat: ${e.message}`;
+    }
+    await selesaiAuto(alasan);
+  }
+
   async function autoJalan(set, lanjut) {
     auto.aktif = true;
     auto.henti = false;
@@ -1090,7 +1238,7 @@
     if (auto.aktif) { auto.henti = true; setStatus('Menghentikan…'); return; }
     const set = setelanDariUi();
     await simpanSetelan(set);
-    if (SUMBER === 'glints') autoJalanGlints(set); else autoJalan(set, false);
+    if (SUMBER === 'glints') autoJalanGlints(set); else if (SUMBER === 'kitalulus') autoJalanKitalulus(set); else autoJalan(set, false);
   }
 
   // Setelah halaman dimuat ulang saat otomatis berjalan (mis. pindah halaman hasil), lanjutkan bila

@@ -10,7 +10,7 @@
 create table if not exists public.lowongan_eksternal_masuk (
   id uuid primary key default gen_random_uuid(),
   kode text not null unique,                      -- mis. EXT-JS-95426273
-  source text not null check (source in ('jobstreet', 'glints', 'kalibrr')),
+  source text not null check (source in ('jobstreet', 'glints', 'kalibrr', 'kitalulus')),
   external_id text,
   title text not null,
   company_name text not null,

@@ -5,7 +5,7 @@ import { SUMBER_EKSTERNAL } from '../../data/lowonganEksternalConfig.js';
 // Menu input lowongan agregat (JobStreet, Glints, dst) ke tabel
 // `lowongan_eksternal`. Hanya super admin Luna yang bisa menulis (RLS).
 
-const KODE_PREFIX = { jobstreet: 'JS', glints: 'GL', kalibrr: 'KB' };
+const KODE_PREFIX = { jobstreet: 'JS', glints: 'GL', kalibrr: 'KB', kitalulus: 'KL' };
 
 // raw = teks yang tampil ke pelamar; norm = nilai baku untuk filter Tipe
 // Pekerjaan (null = tidak ada padanan, jadi tidak ikut terfilter).

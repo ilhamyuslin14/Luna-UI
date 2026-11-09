@@ -295,3 +295,124 @@ export function extractGlintsRaw(doc = document, pathname = globalThis.location.
     hrefs: [],
   };
 }
+
+// KitaLulus (Next.js, kelas Tailwind): daftar di kiri, klik kartu membuka panel detail di kanan (halaman detail
+// /lowongan/detail/<slug> berisi blok yang sama). Tidak ada JSON-LD yang bisa diandalkan, jadi dibaca dari DOM
+// berdasarkan struktur dan teks, bukan nama kelas. Mengembalikan null bila belum ada panel lowongan yang terbuka.
+// Kartu di daftar memakai bentuk baris ikon yang sama dengan panel, jadi semua pencarian dibatasi ke elemen yang
+// berada SETELAH judul (h1) panel di dokumen: kartu daftar selalu mendahuluinya.
+export function extractKitalulusRaw(doc = document, pathname = globalThis.location.pathname) {
+  const text = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+  const live = doc === globalThis.document;
+  const tampak = (el) => !live || el.getClientRects().length > 0;
+  const sesudah = (acuan, el) => !!(acuan.compareDocumentPosition(el) & 4);   // el berada setelah acuan
+  const sebelum = (acuan, el) => !!(acuan.compareDocumentPosition(el) & 2);   // el berada sebelum acuan
+
+  // Panel = h1 yang diikuti kotak deskripsi (.html-content) dalam satu pembungkus yang hanya memuat satu h1.
+  const punyaDeskripsi = (h) => {
+    let n = h.parentElement;
+    while (n && !n.querySelector('.html-content')) n = n.parentElement;
+    return !!n && n.querySelectorAll('h1').length === 1;
+  };
+  const h1 = [...doc.querySelectorAll('h1')].find((h) => punyaDeskripsi(h) && tampak(h));
+  if (!h1) return null;
+  const descBox = [...doc.querySelectorAll('.html-content')].find((d) => sesudah(h1, d));
+  if (!descBox) return null;
+  const setelahJudul = (selector) => [...doc.querySelectorAll(selector)].filter((el) => sesudah(h1, el));
+  const diAntara = (selector) => setelahJudul(selector).filter((el) => sebelum(descBox, el));
+
+  const detailHref = setelahJudul('a[href*="/lowongan/detail/"]')[0]?.getAttribute('href') || pathname;
+  const externalId = (detailHref.match(/\/lowongan\/detail\/([^/?#]+)/) || [])[1] || null;
+  if (!externalId) return null;
+
+  const BLOCK = new Set(['P', 'DIV', 'UL', 'OL', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION']);
+  const walk = (node, out) => {
+    if (node.nodeType === 3) { out.push(node.textContent.replace(/\s+/g, ' ')); return; }
+    if (node.nodeType !== 1) return;
+    const tag = node.tagName;
+    if (tag === 'BR') { out.push('\n'); return; }
+    if (tag === 'LI') {
+      const inner = [];
+      node.childNodes.forEach((c) => walk(c, inner));
+      out.push('\n- ' + inner.join('').replace(/\s+/g, ' ').trim());
+      return;
+    }
+    const block = BLOCK.has(tag);
+    if (block) out.push('\n\n');
+    node.childNodes.forEach((c) => walk(c, out));
+    if (block) out.push('\n\n');
+  };
+  const out = [];
+  walk(descBox, out);
+  let description = out.join('').replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+
+  // Baris ikon di bawah judul (lokasi, pendidikan, jenis kerja, gaji): yang berada antara judul dan deskripsi.
+  const baris = diAntara('div.flex.items-center')
+    .filter((d) => d.querySelector('svg') && d.querySelector(':scope > p'))
+    .map((d) => text(d.querySelector(':scope > p')))
+    .filter(Boolean);
+  const JENIS = /full[\s-]*time|part[\s-]*time|freelance|kontrak|magang|temporer|paruh|lepas|intern/i;
+  const PENDIDIKAN = /sma|smk|sederajat|diploma|\bd[1-4]\b|\bs[1-3]\b|sarjana|pendidikan/i;
+  const jenisRow = baris.find((t) => JENIS.test(t)) || null;
+  const pendidikan = baris.find((t) => t !== jenisRow && PENDIDIKAN.test(t)) || null;
+  const lokasi = baris[0] && baris[0] !== jenisRow && baris[0] !== pendidikan ? baris[0] : '';
+  const gajiRow = baris.find((t) => t !== lokasi && t !== jenisRow && t !== pendidikan && /rp|idr|nego|\d/i.test(t)) || null;
+  const sistemKerja = jenisRow && jenisRow.includes('•') ? jenisRow.split('•').slice(1).join('•').trim() : '';
+  const workType = jenisRow ? jenisRow.split('•')[0].replace(/-/g, ' ').trim() : null; // "Full-Time" -> "Full Time"
+  // Gaji berupa angka rupiah di situs ini selalu per bulan kecuali pekerjaan freelance (per tugas/hari): beri satuan
+  // bulan hanya yang bukan freelance, supaya terbaca sebagai gaji minimum/maksimum dan bukan teks.
+  const gajiTeks = gajiRow && /^(rp|idr)/i.test(gajiRow) && !/freelance|lepas/i.test(workType || '') && !/bulan|month|hari|minggu|jam|day|week|hour/i.test(gajiRow)
+    ? gajiRow + ' per bulan' : gajiRow;
+
+  // Hari/jam kerja, persyaratan rekruter, dan keahlian ditambahkan ke akhir deskripsi sebagai teks.
+  const labelValue = (label) => {
+    const p = setelahJudul('p').find((x) => text(x) === label);
+    return p ? text(p.nextElementSibling) : '';
+  };
+  const badges = (judul) => {
+    const h = setelahJudul('h3').find((x) => text(x) === judul);
+    return h ? [...h.parentElement.querySelectorAll('[data-slot="badge"]')].map(text).filter(Boolean) : [];
+  };
+  const syarat = badges('Persyaratan dari rekruter');
+  if (pendidikan && !syarat.includes(pendidikan)) syarat.unshift(pendidikan);
+  const keahlian = badges('Keahlian yang dibutuhkan');
+  const hari = labelValue('Hari Kerja');
+  const jam = labelValue('Jam Kerja');
+  const tambahan = [];
+  if (sistemKerja) tambahan.push('Sistem kerja: ' + sistemKerja);
+  if (hari) tambahan.push('Hari kerja: ' + hari);
+  if (jam) tambahan.push('Jam kerja: ' + jam);
+  const blok = [];
+  if (tambahan.length) blok.push(tambahan.join('\n'));
+  if (syarat.length) blok.push('Persyaratan dari rekruter:\n' + syarat.map((t) => '- ' + t).join('\n'));
+  if (keahlian.length) blok.push('Keahlian yang dibutuhkan:\n' + keahlian.map((t) => '- ' + t).join('\n'));
+  if (blok.length) description = [description, ...blok].filter(Boolean).join('\n\n');
+
+  const perusahaanLink = diAntara('a[href^="/company/"]')[0] || null;
+  const tentang = setelahJudul('p').find((x) => text(x) === 'Tentang Perusahaan');
+  const companyIndustry = tentang ? text(tentang.parentElement.querySelector('h3')?.nextElementSibling) || null : null;
+
+  // Logo: avatar di blok judul (satu tingkat di atas pembungkus h1). Next.js membungkus alamat aslinya di parameter "url".
+  let logoUrl = null;
+  const img = h1.parentElement?.parentElement?.querySelector('img[data-slot="avatar-image"]');
+  if (img?.getAttribute('src')) {
+    try { logoUrl = new URL(img.getAttribute('src'), 'https://kitalulus.com').searchParams.get('url') || null; } catch { /* abaikan */ }
+  }
+  const postedText = text(setelahJudul('p').find((x) => /^Terakhir diperbarui/i.test(text(x))));
+
+  return {
+    externalId,
+    title: text(h1),
+    company: text(perusahaanLink) || null,
+    companyIndustry,
+    companySize: null,
+    logoUrl,
+    location: lokasi,
+    classification: keahlian.slice(0, 3).join(', '),
+    workType,
+    salaryText: gajiTeks,
+    postedText,
+    description,
+    hrefs: [],
+  };
+}

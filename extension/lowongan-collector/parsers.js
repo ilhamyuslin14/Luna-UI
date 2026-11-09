@@ -11,7 +11,7 @@ export const EMPLOYMENT_NORM = {
 };
 export const EMPLOYMENT_OPTIONS = Object.keys(EMPLOYMENT_NORM);
 
-const KODE_PREFIX = { jobstreet: 'JS', glints: 'GL' };
+const KODE_PREFIX = { jobstreet: 'JS', glints: 'GL', kitalulus: 'KL' };
 
 export function jobIdFromUrl(url) {
   const m = String(url || '').match(/\/job\/(\d+)/);

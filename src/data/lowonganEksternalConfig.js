@@ -5,6 +5,7 @@ export const SUMBER_EKSTERNAL = {
   jobstreet: { label: 'JobStreet' },
   glints: { label: 'Glints' },
   kalibrr: { label: 'Kalibrr' },
+  kitalulus: { label: 'KitaLulus' },
 };
 
 export const ALASAN_LAPORAN = [
