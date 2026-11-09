@@ -91,7 +91,7 @@ function Header({ onShare, shareDisabled, onMasuk, onPerusahaan, isPelamar, pela
       <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
         <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
         <span className="lk-logo-divider" />
-        <span className="lk-badge-portal">PORTAL KARIR</span>
+        <span className="lk-badge-portal">PORTAL KARIER</span>
       </a>
       <div className="lk-head-actions">
         <button className="lk-share-btn" onClick={onShare} disabled={shareDisabled} title="Bagikan"><IconShare /></button>
@@ -226,7 +226,7 @@ export default function LamanKarirMobile({ kode, navigate }) {
           <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-divider" />
-            <span className="lk-badge-portal">PORTAL KARIR</span>
+            <span className="lk-badge-portal">PORTAL KARIER</span>
           </a>
           <div className="lk-head-actions">
             <button className="lk-share-btn" onClick={resetApply} title="Kembali ke lowongan"><IconChevronLeft /></button>

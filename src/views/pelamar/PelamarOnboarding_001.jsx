@@ -111,7 +111,7 @@ export default function PelamarOnboarding_001({ navigate }) {
       <div className="pm001-hero">
         <div className="pm001-hero-top">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" className="pm001-hero-logo" />
-          <span className="pm001-hero-badge">Portal Karir</span>
+          <span className="pm001-hero-badge">Portal Karier</span>
         </div>
 
         <div className="pm001-hero-mid pob001-hero-mid">

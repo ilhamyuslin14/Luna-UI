@@ -80,7 +80,7 @@ export default function SemuaLowongan({ navigate }) {
           <a className="lk-brand" href="/?view=semua-lowongan">
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
             <span className="lk-brand-divider" />
-            <span className="lk-brand-badge">PORTAL KARIR</span>
+            <span className="lk-brand-badge">PORTAL KARIER</span>
           </a>
           <div className="lk-header-actions">
             <button className="lk-link-masuk" onClick={goMasuk}>Masuk</button>

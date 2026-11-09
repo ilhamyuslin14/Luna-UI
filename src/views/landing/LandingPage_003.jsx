@@ -116,7 +116,7 @@ export default function LandingPage_003({ navigate }) {
         <div className="lp003-nav-left">
           <img src="/assets/logos/luna-logo-clean.png" alt="LUNA" className="lp003-nav-logo" />
           <span className="lp003-nav-divider" />
-          <span className="lp003-nav-tagline">PORTAL KARIR</span>
+          <span className="lp003-nav-tagline">PORTAL KARIER</span>
         </div>
         <div className="lp003-nav-right">
           <button className="lp003-nav-login lp003-nav-pelamar" onClick={goPelamar}>Cari Kerja?</button>

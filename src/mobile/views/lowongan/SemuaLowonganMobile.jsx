@@ -172,7 +172,7 @@ export default function SemuaLowonganMobile({ navigate }) {
         <a className="lk-logo" href="/?view=semua-lowongan">
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
           <span className="lk-logo-divider" />
-          <span className="lk-badge-portal">PORTAL KARIR</span>
+          <span className="lk-badge-portal">PORTAL KARIER</span>
         </a>
         <div className="lk-head-actions">
           <button className="lk-share-btn" onClick={goMasuk} title="Masuk"><IconUser /></button>

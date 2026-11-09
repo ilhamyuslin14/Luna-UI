@@ -69,6 +69,8 @@ const warnaLogo = ['#2F5D8A', '#2F7A4F', '#B5482B', '#6B4C8A', '#1F6F72'];
 const warnaDari = (seed) => { let h = 0; for (let i = 0; i < (seed || '').length; i++) h = seed.charCodeAt(i) + ((h << 5) - h); return warnaLogo[Math.abs(h) % warnaLogo.length]; };
 const inisialDari = (nama) => { const p = (nama || 'P').trim().split(/\s+/).filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[1][0]).toUpperCase(); };
 
+const PENCARIAN_POPULER = ['Content Writer', 'Frontend Developer', 'Admin Operasional'];
+
 export default function LandingPagePelamar_001({ navigate }) {
   const { companyId, pelamarProfile, isPelamar } = useAuth() || {};
   const isMobile = useIsMobile();
@@ -128,7 +130,7 @@ export default function LandingPagePelamar_001({ navigate }) {
           <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-divider" />
-            <span className="lk-badge-portal">PORTAL KARIR</span>
+            <span className="lk-badge-portal">PORTAL KARIER</span>
           </a>
           <div className="lk-head-actions">
             {isPelamar ? (
@@ -147,7 +149,7 @@ export default function LandingPagePelamar_001({ navigate }) {
               <a className="lk-brand" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                 <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
                 <span className="lk-brand-divider" />
-                <span className="lk-brand-badge">PORTAL KARIR</span>
+                <span className="lk-brand-badge">PORTAL KARIER</span>
               </a>
               <nav className="sl2-nav-links">
                 <span className="sl2-nav-link" onClick={goDaftarLowongan}>Cari Lowongan</span>
@@ -165,64 +167,17 @@ export default function LandingPagePelamar_001({ navigate }) {
         </header>
       )}
 
-      {/* ── 1. Hero (opsi E: teks + pencarian 2/3, cuplikan skor 1/3) ── */}
+      {/* ── 1. Hero (opsi D: teks + foto, pencarian dipisah ke bagian di bawahnya) ── */}
       <section className="lp003-hero lpp-hero">
         <div className="lp003-hero-copy lpp-hero-copy">
           <h1 className="lp003-hero-title lpp-hero-title">Ribuan lowongan dari <span className="lpp-accent">berbagai sumber</span> yang sesuai denganmu</h1>
           <p className="lp003-hero-subtitle lpp-hero-sub">Luna menampilkan ribuan lowongan dari berbagai sumber dan mencocokkannya dengan profil dan ekspektasimu.</p>
-
-          <form className="lpp-search" onSubmit={cari} role="search">
-            <label className="lpp-search-field lpp-search-posisi">
-              <IconSearch />
-              <input type="text" value={posisi} onChange={(e) => setPosisi(e.target.value)} placeholder="Posisi atau jabatan" aria-label="Posisi atau jabatan" autoComplete="off" />
-            </label>
-            <span className="lpp-search-sep" aria-hidden="true" />
-            <label className="lpp-search-field lpp-search-kota">
-              <IconPin />
-              <input
-                type="text"
-                value={kota}
-                onChange={(e) => { setKota(e.target.value); setSaranTerbuka(true); setSaranAktif(-1); }}
-                onFocus={() => setSaranTerbuka(true)}
-                onBlur={() => setSaranTerbuka(false)}
-                onKeyDown={kotaKeyDown}
-                placeholder="Kota"
-                aria-label="Kota"
-                role="combobox"
-                aria-expanded={saranTerbuka && saran.length > 0}
-                aria-autocomplete="list"
-                autoComplete="off"
-              />
-              {saranTerbuka && saran.length > 0 && (
-                <ul className="lpp-saran" role="listbox">
-                  {saran.map((r, i) => (
-                    <li key={r.name} role="option" aria-selected={i === saranAktif}>
-                      <button type="button" className={i === saranAktif ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); pilihKota(r.name); }}>
-                        <span>{r.name}</span><small>{r.province}</small>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </label>
-            <button type="submit" className="lpp-search-btn">Cari Lowongan</button>
-          </form>
         </div>
 
         <div className="lpp-visual" aria-hidden="true">
-          <svg className="lpp-visual-ring" viewBox="0 0 480 480">
-            <circle cx="240" cy="240" r="210" fill="#FFE7C4" />
-            <circle cx="240" cy="240" r="150" fill="#FFB866" />
-            <circle cx="240" cy="240" r="228" fill="none" stroke="#FF8D21" strokeWidth="1.5" strokeDasharray="3 7" />
-          </svg>
+          <div className="lpp-visual-arch" />
+          <div className="lpp-person" />
           <div className="lpp-vcard">
-            <div className="lpp-vcard-top">
-              <span className="lpp-vcard-logo">SD</span>
-              <div>
-                <div className="lpp-vcard-title">Business Analyst</div>
-                <div className="lpp-vcard-meta">PT Sinergi Data · Jakarta Selatan</div>
-              </div>
-            </div>
             <div className="lpp-vcard-skor">
               <div>
                 <div className="lpp-vcard-cap">KECOCOKAN DENGAN CV</div>
@@ -233,6 +188,53 @@ export default function LandingPagePelamar_001({ navigate }) {
           </div>
           <div className="lpp-vchip lpp-vchip-cv"><span><IconCheck /></span>CV_Nama_Pelamar.pdf</div>
           <div className="lpp-vchip lpp-vchip-cepat">Lamar cepat dengan profil</div>
+        </div>
+      </section>
+
+      {/* ── 1b. Pencarian: bagian tersendiri di bawah hero supaya terbaca sebagai CTA (bukan bagian dari gambar hero) ── */}
+      <section className="lpp-cari" id="cari" aria-labelledby="lpp-cari-judul">
+        <h2 id="lpp-cari-judul">Mau cari kerja apa hari ini?</h2>
+        <form className="lpp-search" onSubmit={cari} role="search">
+          <label className="lpp-search-field lpp-search-posisi">
+            <IconSearch />
+            <input type="text" value={posisi} onChange={(e) => setPosisi(e.target.value)} placeholder="Posisi atau jabatan" aria-label="Posisi atau jabatan" autoComplete="off" />
+          </label>
+          <span className="lpp-search-sep" aria-hidden="true" />
+          <label className="lpp-search-field lpp-search-kota">
+            <IconPin />
+            <input
+              type="text"
+              value={kota}
+              onChange={(e) => { setKota(e.target.value); setSaranTerbuka(true); setSaranAktif(-1); }}
+              onFocus={() => setSaranTerbuka(true)}
+              onBlur={() => setSaranTerbuka(false)}
+              onKeyDown={kotaKeyDown}
+              placeholder="Kota"
+              aria-label="Kota"
+              role="combobox"
+              aria-expanded={saranTerbuka && saran.length > 0}
+              aria-autocomplete="list"
+              autoComplete="off"
+            />
+            {saranTerbuka && saran.length > 0 && (
+              <ul className="lpp-saran" role="listbox">
+                {saran.map((r, i) => (
+                  <li key={r.name} role="option" aria-selected={i === saranAktif}>
+                    <button type="button" className={i === saranAktif ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); pilihKota(r.name); }}>
+                      <span>{r.name}</span><small>{r.province}</small>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </label>
+          <button type="submit" className="lpp-search-btn">Cari Lowongan</button>
+        </form>
+        <div className="lpp-pop">
+          <span>Pencarian populer:</span>
+          {PENCARIAN_POPULER.map((t) => (
+            <button type="button" key={t} onClick={(e) => { setPosisi(t); cari(e, t); }}>{t}</button>
+          ))}
         </div>
       </section>
 

@@ -823,7 +823,7 @@ export default function ProfilPelamar_001({ navigate }) {
           <a className="lk-logo" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
             <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
             <span className="lk-logo-divider" />
-            <span className="lk-badge-portal">PORTAL KARIR</span>
+            <span className="lk-badge-portal">PORTAL KARIER</span>
           </a>
           <div className="lk-head-actions">
             <PelamarMobileNav
@@ -843,7 +843,7 @@ export default function ProfilPelamar_001({ navigate }) {
               <a className="pp001-nav-brand" href="/?view=landingpage-pelamar" onClick={(e) => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
                 <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
                 <span className="pp001-nav-divider" />
-                <span className="pp001-nav-badge">PORTAL KARIR</span>
+                <span className="pp001-nav-badge">PORTAL KARIER</span>
               </a>
 
               <div className="pp001-nav-links">

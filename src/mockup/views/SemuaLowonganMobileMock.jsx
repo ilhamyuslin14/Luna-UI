@@ -175,7 +175,7 @@ export default function SemuaLowonganMobileMock({ navigate, awal }) {
         <a className="lk-logo" href="#" onClick={e => { e.preventDefault(); navigate?.('landingpage-pelamar'); }}>
           <img src="/assets/logos/luna-logo-clean.png" alt="Luna" />
           <span className="lk-logo-divider" />
-          <span className="lk-badge-portal">PORTAL KARIR</span>
+          <span className="lk-badge-portal">PORTAL KARIER</span>
         </a>
         <div className="lk-head-actions">
           {isPelamar ? (

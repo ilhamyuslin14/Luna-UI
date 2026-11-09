@@ -161,7 +161,7 @@ export default function StatusLamaran_001({ navigate }) {
             >
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" />
               <span className="pp001-nav-divider" />
-              <span className="pp001-nav-badge">PORTAL KARIR</span>
+              <span className="pp001-nav-badge">PORTAL KARIER</span>
             </a>
 
             <div className="pp001-nav-links">

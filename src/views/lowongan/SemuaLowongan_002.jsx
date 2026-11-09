@@ -168,7 +168,7 @@ export default function SemuaLowongan_002({ navigate }) {
             <a className="lk-brand" href="/?view=landingpage-pelamar" onClick={(e) => { if (navigate) { e.preventDefault(); navigate('landingpage-pelamar'); } }}>
               <img src="/assets/logos/luna-logo-clean.png" alt="Luna UI" className="lk-brand-logo" />
               <span className="lk-brand-divider" />
-              <span className="lk-brand-badge">PORTAL KARIR</span>
+              <span className="lk-brand-badge">PORTAL KARIER</span>
             </a>
             <nav className="sl2-nav-links">
               <span className="sl2-nav-link active">Cari Lowongan</span>
