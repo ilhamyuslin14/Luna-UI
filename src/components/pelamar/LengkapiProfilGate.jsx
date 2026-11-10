@@ -9,6 +9,9 @@ import LengkapiProfilModal from './LengkapiProfilModal.jsx';
 // tab di tengah jalan tidak membuatnya lolos: modal muncul lagi di login berikutnya.
 // Layar daftar, masuk, OTP, dan mockup dikecualikan.
 const TANPA_MODAL = ['pelamar-masuk', 'pelamar-daftar', 'pelamar-verifikasi-otp', 'pelamar-onboarding', 'mockup'];
+// Akun yang juga punya akun perusahaan (satu email dipakai di dua portal) hanya dihadang di halaman pelamar,
+// supaya dashboard perusahaannya tidak terkunci.
+const HALAMAN_PELAMAR = ['profil-pelamar_001', 'profil-pelamar', 'status-lamaran_001', 'status-lamaran', 'semua-lowongan_002', 'semua-lowongan', 'landingpage-pelamar', 'laman-karir', 'laman-karir-eksternal', 'laman-perusahaan'];
 const bacaView = () => new URLSearchParams(window.location.search).get('view') || '';
 
 export default function LengkapiProfilGate() {
@@ -25,7 +28,7 @@ export default function LengkapiProfilGate() {
     return () => { window.removeEventListener('luna:navigate', sinkron); window.removeEventListener('popstate', sinkron); };
   }, []);
 
-  const adalahPelamar = !!user?.id && isPelamar && !companyId;
+  const adalahPelamar = !!user?.id && isPelamar;
 
   useEffect(() => {
     setSelesai(false);
@@ -38,6 +41,7 @@ export default function LengkapiProfilGate() {
   }, [adalahPelamar, user?.id]);
 
   if (!adalahPelamar || punyaCv === null || selesai || TANPA_MODAL.includes(view)) return null;
+  if (companyId && !HALAMAN_PELAMAR.includes(view)) return null;
 
   const pref = prefDariBaris(pelamarProfile);
   const prefLengkap = pref.posisi.length > 0 && pref.lokasi.length > 0 && (pref.gajiMin || 0) > 0;
